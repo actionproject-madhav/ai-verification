@@ -3,7 +3,8 @@
   Red     some part of the model matches a listed model; or it is a copy of a known model with one direction cut
           out of several layers, which is how refusal-removal tools work
   Green   not Red, every part of the model matches one known model, and the two could be compared matrix by
-          matrix with no cut found
+          matrix with no cut found. With the output check on, the model's outputs must also agree with the
+          known model's on text drawn from the nonce (`outputs`)
   Amber   anything else: the origin is unknown
 
 Being flagged takes one matching part. Being cleared takes all of them. Distances come from the design-free
@@ -116,14 +117,17 @@ def ablation_signature(src, nonce, tokens=TOKENS, layers=2):
         return None
 
 
-def light(src, watch, known, nonce, tokens=TOKENS, ablation=None, cache=None, geometry=False, cuts=True):
+def light(src, watch, known, nonce, tokens=TOKENS, ablation=None, cache=None, geometry=False, cuts=True, outputs=None):
     """The light for `src`. `watch` and `known` are lists of (entry, source); `ablation` is the signature if computed.
     The returned distances are for the caller; a signed statement carries the light and the matched entry only.
     Pass the same `cache` dict across calls to fingerprint each list entry once.
     With `geometry`, a model that no listed model matches by token name is compared again with tokens matched by
     geometry. That reads whole token tables, so it is slower. With `cuts`, a model that would be Green is compared
     with the known model matrix by matrix, and is Red if one direction was cut out of several layers.
-    `finding` names the rule that decided: listed, listed-by-geometry, cut, signature, unchecked, known or none."""
+    `outputs` turns the output check on. It is a function that takes the matched known entry and returns what
+    `outputs.check` returns: Green then also needs the model's outputs to agree with that known model's.
+    `finding` names the rule that decided: listed, listed-by-geometry, cut, signature, unchecked, outputs,
+    outputs-unchecked, known or none."""
     cache, seen = {} if cache is None else cache, {}
     for e, anchor in watch:
         seen[e["id"]] = distances(src, anchor, nonce, tokens, cache)
@@ -151,6 +155,16 @@ def light(src, watch, known, nonce, tokens=TOKENS, ablation=None, cache=None, ge
     if name and cut is None:                           # Green needs the cut test to have run and found nothing
         return {"light": "amber", "matched": None, "finding": "unchecked", "distances": seen,
                 "reason": f"every part matches {name}, but the two cannot be compared matrix by matrix"}
+    if name and outputs is not None:                   # the weights match: does the model also answer like that model?
+        seen_out = outputs(next(e for e, _ in known if e["id"] == name))
+        if seen_out is None:
+            return {"light": "amber", "matched": None, "finding": "outputs-unchecked", "distances": seen, "outputs": None,
+                    "reason": f"every part matches {name}, but its outputs could not be compared"}
+        if not seen_out["agree"]:
+            return {"light": "amber", "matched": None, "finding": "outputs", "distances": seen, "outputs": seen_out,
+                    "reason": f"every part matches {name}, but its outputs differ from that model's"}
+        return {"light": "green", "matched": name, "finding": "known", "distances": seen, "outputs": seen_out,
+                "reason": "every part matches a known model, and so do its outputs"}
     if name:
         return {"light": "green", "matched": name, "finding": "known", "reason": "every part matches a known model", "distances": seen}
     return {"light": "amber", "matched": None, "finding": "none", "reason": "no listed or known model matches", "distances": seen}

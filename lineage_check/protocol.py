@@ -208,8 +208,12 @@ def light(a):
     torch.set_grad_enabled(False)
     src = R.Remote(a.query, a.commit, file=a.file)
     nonce = a.nonce or secrets.token_hex(16)
+    check = None
+    if a.outputs:                                        # Green also needs the outputs to agree with the known model's
+        from . import outputs as O
+        check = lambda entry: O.check(src, entry["repo"], nonce, entry.get("revision"))
     out = LT.light(src, LT.sources(a.watchlist), LT.sources(a.known) if a.known else [], nonce, a.n,
-                   ablation=None if a.no_ablation else LT.ablation_signature(src, nonce, a.n), geometry=a.geometry)
+                   ablation=None if a.no_ablation else LT.ablation_signature(src, nonce, a.n), geometry=a.geometry, outputs=check)
     if a.json:
         print(json.dumps({"query": a.query, "commit": src.sha, "file": src.gguf[0] if src.gguf else None, "nonce": nonce, **out}))
         return
@@ -218,6 +222,9 @@ def light(a):
     print(f"{out['light'].upper()}{'  ' + out['matched'] if out['matched'] else ''}  ({out['reason']})")
     for name, d in out["distances"].items():
         print(f"  {name:24s} " + ("not comparable" if d is None else f"closest part {max(d[0], 0):.3f}   all parts {max(d[1], 0):.3f}"))
+    if out.get("outputs"):
+        o = out["outputs"]
+        print(f"  outputs                  {o['mean']:.3f} from the known model's over {o['windows']} windows (agree at {o['bar']:.2f} or less)")
 
 
 def keygen(a):
@@ -252,6 +259,8 @@ def main(argv=None):
     t.add_argument("--n", type=int, default=256); t.add_argument("--json", action="store_true")
     t.add_argument("--no-ablation", action="store_true")
     t.add_argument("--file", help='in a repository of GGUF files, the one to read, by part of its name ("Q8_0")')
+    t.add_argument("--outputs", action="store_true",
+                   help="Green also needs the model's outputs to agree with the known model's (runs both models)")
     t.add_argument("--geometry", action="store_true",
                    help="if no listed model matches by token name, match tokens by geometry too (reads whole token tables)")
     v = sp.add_parser("verify")
