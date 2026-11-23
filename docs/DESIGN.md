@@ -44,10 +44,14 @@ A model built from pieces shows why. Take the attention weights and embeddings o
 MLP weights. In the test suite's small model, the closest part of that mix sits at distance 0.00 from the known
 model, and its parts taken together sit at 0.41. A single threshold on the closest part would clear it. The rule above returns Amber, because the MLP half matches
 nothing known. The same construction with a listed model's parts returns Red, because one matching part is enough
-there. Both cases are in `tests/test_light.py`.
+there. Both cases are in `tests/test_light.py`. A part counts as matching in the embedding space it was trained
+with: the tables are built on the model's own token embeddings. The listed model's MLPs placed under another
+model's embeddings and attention do not match it (0.93 in the stress tests), and that mix is Amber.
 
-Real copies stay far inside both thresholds. Instruct versions and fine-tunes of 7 to 8B models sit at 0.0005 to
-0.004 on every part. Separately trained models sit above 0.83.
+Most real copies stay far inside both thresholds. Instruct versions and fine-tunes of 7 to 8B models sit at
+0.0005 to 0.004 on every part. Separately trained models sit above 0.83. Coarse quantisation is the exception on
+the Green side: a plain 2-bit GGUF file of a known model sits at 0.105 on all parts, and one 4-bit release at
+0.22.
 
 ## What the check does not take on trust
 
@@ -85,9 +89,9 @@ GLM-5.3 the top open-weight model. The rule can take other sources: a list is a 
 enclave pins its digest.
 
 `K` can be built from public releases. The Hub scan in `experiments/exp_hub_scan.py` derives a first draft from
-model cards: every repository that at least ten other cards name as their base. That rule is not enough. At least
-three of the bases it picked are themselves edited models (one uncensored, two fine-tunes), and a copy of one of
-those would be cleared. A registry needs a curator, or a rule about who published the base.
+model cards: every repository that at least ten other cards name as their base. That rule is not enough. Twenty
+of the 362 bases it picked are uncensored releases by their own names. Three of those could be read, and a copy
+of one of them would be cleared. A registry needs a curator, or a rule about who published the base.
 
 ## Who sees what
 
@@ -115,9 +119,9 @@ code opens the statement. See [`enclave/README.md`](../enclave/README.md).
 
 The hardware evidence is two runs. The first used the project's first reader on a small model. The second used
 the traffic light on a copy of a listed model and was decided by the first rule, a match by name. Matching by
-geometry, the cut test, Green and Amber have run with the same code outside the enclave only. In both runs the
-enclave read the model from the Hub by byte range at a pinned revision, so the statements also trust the Hub to
-serve the right bytes.
+geometry, the cut test, Green and Amber have run with the same code outside the enclave only. In the second run
+the enclave read the model from the Hub by byte range at a pinned revision, so that statement also trusts the Hub
+to serve the right bytes. In the first run it fetched the whole model and named it by hash.
 
 ## Who can defeat it, and what they get
 
@@ -127,7 +131,7 @@ serve the right bytes.
 | Free edits | shuffle, rescale or rotate the internals | Red: these cannot move the tables |
 | Free edits | relabel the tokenizer so names point at the wrong rows | Red: tokens are matched by geometry |
 | Free edits | convert the model to GGUF and quantise it to a few bits per weight | Red: the reader decodes GGUF |
-| Free edits | convert it to a format the reader does not decode (EXL3, MLX, a few others) | Amber |
+| Free edits | convert it to a format the reader does not decode (MLX, most EXL3 files, a few others) | Amber |
 | A public tool | remove the refusals of a known model | Red in about 9 of 10 public cases that can be compared; Green in the rest |
 | A public tool, then a free edit | remove the refusals, then shuffle the weights | Amber: the copy can no longer be compared matrix by matrix |
 | Building a mixed model | a known model's attention with a listed model's MLPs | Amber: not every part matches, and the model did not work |
@@ -136,8 +140,9 @@ serve the right bytes.
 | The same, pulling toward a known model | make every part of a listed model match a known one | Amber in every run so far; never Green |
 | Training a known model to imitate a listed one | distil the listed model into the known one | Green, and still the known model: its outputs and accuracy did not follow |
 
-Refusal-removed copies of the listed models are published as GGUF files, most of them at 1 or 2 bits per weight.
-The reader decodes them, and the eight it found are Red at 0.03 or less. No fine-tune of a listed model could be
+22 of the scanned repositories advertise a listed model with its refusals removed. Eight are copies in GGUF files
+that the reader could decode, most of them labelled 1 or 2 bits per weight, and all eight are Red at 0.03 or less.
+Eight are other models under a listed name. Six could not be read. No fine-tune of a listed model could be
 tested. The Hub tags 36 repositories as fine-tunes or merges of one, and none of them holds a fine-tuned copy in a
 format the reader decodes: they are tokenizers, vision towers, draft models and packed files. The evidence that
 fine-tunes stay within reach comes from smaller bases.
@@ -158,7 +163,7 @@ matching tables cannot prove that two models compute the same thing, so a longer
 
 ## Open questions
 
-1. File formats. Safetensors and GGUF are read. EXL3, MLX, a few packed 4-bit layouts and GGUF files whose
+1. File formats. Safetensors and GGUF are read. MLX, most EXL3 files, a few packed 4-bit layouts and GGUF files whose
    matrices use the 1 to 3 bit codebook formats are not, and a model the reader cannot decode is Amber.
 2. A check on what layers compute. Tables are second moments of weights and can in principle be imitated, and
    an operator who pulls a listed model toward a known model's tables loses none of the listed model's behaviour

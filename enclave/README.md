@@ -24,7 +24,9 @@ inference statement's component shape: `dirhash-sha256/1` of the mounted files, 
 `modelwrap/<schema>` aliases. The predicate carries the verdict (match or no match, and which entry), the
 refusal-ablation bit, the verifier's nonce, the concern list's `jcs-sha256/1` digest and the method. No scores,
 tokens or weights leave the enclave. In Tinfoil, each statement carries a v3 attestation document fetched with a
-nonce derived from the verifier's challenge, which lists the signing key.
+nonce derived from the verifier's challenge, which lists the signing key. This describes the match mode. The
+traffic-light mode signs a `LightStatement` instead: the light, the matched entry, the rule that decided and the
+digests of both lists (see the Azure run below).
 
 ## Local twin run (18 Nov 2026)
 
@@ -141,3 +143,5 @@ policy leaves the containers' logs readable by the operator.
 2. `docker build -f enclave/Dockerfile .` in CI, and pin the image digest in `tinfoil-config.yml`. The Azure runs above
    built this Dockerfile; no image has been published for Tinfoil yet.
 3. Pin `CONCERN_LIST_DIGEST`, and point the listed models at their mounted packs (`path`).
+4. A configuration for the traffic-light mode. `tinfoil-config.yml` and the steps above cover the match mode; the
+   traffic-light mode has run on Azure only.
