@@ -24,6 +24,7 @@ import exp_round2 as R2
 import exp_adaptive as A
 import exp_round4 as R4
 from lineage_check import light as LT
+from lineage_check import universal as U
 
 torch.set_grad_enabled(True)
 DEV = A.DEV
@@ -36,10 +37,10 @@ READERS = (("self_attn", "q_proj", "g1"), ("self_attn", "k_proj", "g1"), ("self_
 WRITERS = (("self_attn", "o_proj"), ("mlp", "down_proj"))
 
 
-def _resid(G, e):
+def _resid(G, Q):
     g = G.flatten()
     g = g - g.mean()
-    r = g - (g @ e) / (e @ e).clamp_min(1e-30) * e
+    r = g - Q @ (Q.T @ g)
     return r / r.norm().clamp_min(1e-30)
 
 
@@ -47,8 +48,7 @@ def tables(model, ids):
     """Per layer: the residual tables of the matrices that read the residual stream and of those that write to it.
     The same construction as `lineage_check.universal.fingerprint`, kept differentiable."""
     E = model.model.embed_tokens.weight[ids.to(model.model.embed_tokens.weight.device)]
-    e = (E @ E.T).flatten()
-    e = e - e.mean()
+    e = U._basis((E @ E.T).detach().cpu()).to(E.device, E.dtype)     # the tool's own projection, fixed within a step
     out = []
     for L in model.model.layers:
         gain = {"g1": L.input_layernorm.weight, "g2": L.post_attention_layernorm.weight}
