@@ -160,10 +160,12 @@ matching tables cannot prove that two models compute the same thing, so a longer
 
 1. File formats. Safetensors and GGUF are read. EXL3, MLX, a few packed 4-bit layouts and GGUF files whose
    matrices use the 1 to 3 bit codebook formats are not, and a model the reader cannot decode is Amber.
-2. A check on what layers compute. Tables are second moments of weights and can in principle be imitated.
-   Comparing activations on nonce-chosen text, inside the enclave, would make Green a statement about function.
+2. A check on what layers compute. Tables are second moments of weights and can in principle be imitated, and
+   an operator who pulls a listed model toward a known model's tables loses none of the listed model's behaviour
+   on the way (`docs/RESULTS.md`). Comparing activations on nonce-chosen text, inside the enclave, would make
+   Green a statement about function.
 3. A cut test on tables instead of raw matrices, so that a shuffled copy can still be checked.
-4. Scale. The stress tests stop at 1.7B parameters and a few thousand steps.
+4. Scale. The stress tests stop at 1.7B parameters and ten thousand steps.
 5. Refusal removal by fine-tuning leaves no cut direction. A behavioural probe inside the enclave may be needed.
 6. Trust in the enclave vendor. The check is small and deterministic, so a second party can recompute it, and it is
    a candidate for a zero-knowledge proof.

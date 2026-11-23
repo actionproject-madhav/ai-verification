@@ -129,7 +129,9 @@ no distances. Because the model was read by byte range, the statement names it b
 so it trusts the Hub to serve the right bytes for that revision. An enclave that serves a model holds all of its bytes and names it by hash, as the
 first run does.
 
-Limits of this run. It is one challenge, decided by the first rule, a match by name. Matching tokens by geometry,
+Limits of this run. It is one challenge, decided by the first rule, a match by name. The image was built before
+the last change to the cut test (a looser agreement bar, and a cut called only on an aligned copy), which this
+run did not exercise. Matching tokens by geometry,
 the cut test, Green and Amber have run with the same code outside the enclave only. As in the first run, the
 policy leaves the containers' logs readable by the operator.
 
