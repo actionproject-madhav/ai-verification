@@ -5,7 +5,8 @@ Three steps, each resumable:
   build    list the top models the reader can parse, with the base model each card declares, and derive the
            registry of known base models: every repo that at least MIN_REFS listed models name as their base
   scan     fingerprint every listed model and every registry model once: two layers at fixed relative depths,
-           256 tokens drawn from one nonce per tokenizer, plus the refusal-ablation signature
+           256 tokens drawn from one nonce per tokenizer, plus the refusal-ablation signature (which reads every
+           layer, so only for models up to FORENSIC_MAX parameters)
   compare  nearest registry model for every scanned model; agreement with the card; the share of models that are
            close copies (< 0.1), modified copies (< 0.5) or of unknown origin
 
@@ -34,6 +35,7 @@ N_TOK, K_LAYERS, MIN_REFS = 256, 2, int(os.environ.get("MIN_REFS", 10))
 READABLE_QUANT = (None, "awq", "gptq")
 MAX_PARAMS, MIN_PARAMS = 130e9, 50e6
 COMPS = ("qk", "ov", "mlp")
+FORENSIC_MAX = float(os.environ.get("FORENSIC_MAX", 16e9))    # the refusal-ablation check reads every layer: cap its size
 PASS = os.environ.get("SCAN_PASS", "")                       # a failed model is retried in a later pass, not on every restart
 
 
@@ -121,7 +123,9 @@ def scan_one(repo, nonce):
     pool = fp4.token_pool(vocab, R.ROW_LO, R.ROW_HI)
     group = hashlib.sha256("\n".join(pool).encode()).hexdigest()[:16]
     strings = fp4.select_strings(vocab, nonce, N_TOK)
-    f, keep = LC.fingerprint(src, strings, layers, forensic=True)
+    params = sum(int(np.prod(src.shape(n))) for n in src.index)
+    forensic = params <= FORENSIC_MAX
+    f, keep = LC.fingerprint(src, strings, layers, forensic=forensic)
     arrays = {}
     for j, i in enumerate(layers):
         for c in COMPS:
@@ -130,7 +134,8 @@ def scan_one(repo, nonce):
                 if a is not None:
                     arrays[f"{j}_{c}"] = a
     meta = {"sha": src.sha, "model_type": cfg["model_type"], "L": L, "d": cfg["hidden_size"], "layers": layers,
-            "group": group, "tokens": len(keep), "ablation_signature": bool(f.get("ablation_signature"))}
+            "group": group, "tokens": len(keep), "params": params,
+            "ablation_signature": bool(f.get("ablation_signature")) if forensic else None}
     return arrays, meta
 
 
@@ -237,6 +242,9 @@ def compare(d):
                  else "declared base confirmed" if dd < 0.5 else "declared base not confirmed")
         counts[light] += 1
         counts[claim] += 1
+        if r["ablation_signature"] is not None:
+            counts["checked for refusal ablation"] += 1
+            counts["refusal-ablation signature"] += bool(r["ablation_signature"])
         rows.append({"repo": repo, "downloads": p["downloads"], "nearest": base, "distance": round(dist, 4), "light": light,
                      "declared": declared, "distance_to_declared": None if dd is None else round(dd, 4), "claim": claim,
                      "ablation_signature": r["ablation_signature"]})
