@@ -10,6 +10,7 @@ Each script answers one question and writes one result file. Run them from this 
 | `exp_scale.py` | Derivatives against separately trained models, 14M to 72B | `scale.json` |
 | `exp_crossfamily.py` | Do unrelated 7-9B families ever look related? | `crossfamily.json` |
 | `exp_stability.py` | Does the verdict depend on the audit draw? | `stability.json` |
+| `exp_universal.py` | Does a fingerprint that knows nothing about the architecture still separate copies from strangers? | `universal.json` |
 | `exp_moe.py` | Mixture-of-experts models | `moe.json` |
 | `exp_merge.py` | Soups, merges, frankenmerges | `merge.json` |
 | `exp_drift.py` | Drift along one training run | `drift.json` |
