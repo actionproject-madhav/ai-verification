@@ -66,7 +66,10 @@ claim("the other 27 GGUF repositories read are other models, none closer than 0.
       g["read"] - g["matched"] == 27 and g["closest_non_match"] >= 0.95, g["closest_non_match"])
 edited = [r for r in gguf if r.get("matched") and re.search("abliter|heretic|uncensor|derestrict|obliter", r["repo"].lower())]
 claim("8 of the GGUF copies advertise removed refusals", len(edited) == 8, len(edited))
-claim("72 of the 178 stay unread", kinds["error"] + g["repositories"] - g["read"] == 72, kinds["error"] + g["repositories"] - g["read"])
+blank = sum("distances" in r and all(v is None for v in r["distances"].values()) for r in around)     # read, nothing to compare
+unread = kinds["error"] + blank + g["repositories"] - g["read"]
+claim("62 copies matched, 38 other models compared and not matched, 78 of the 178 unread",
+      (kinds["matched"] + g["matched"], kinds["not matched"] - blank + g["read"] - g["matched"], unread) == (62, 38, 78), unread)
 
 # the lights
 lights = collections.Counter(r["light"] for r in load("lights.json")["rows"])
