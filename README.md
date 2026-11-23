@@ -20,10 +20,10 @@ We ran an earlier version over 3,000 popular open-weight models and matched the 
 *A verifier sends a fresh nonce after the weights are fixed. The enclave samples words and layers, compares
 fingerprints, then signs one traffic light.*
 
-![Modified copies stay close to their source while unrelated models stay far away.](docs/figures/fig_separation.png)
+![The check traces 93 to 99% of fine-tuned, compressed and merged copies, where an exact hash traces 0 to 7%. Attacks end in Red or Amber, never Green.](docs/figures/fig_overview.png)
 
-*Distance near zero suggests shared lineage. Distance near one suggests independent training. Grey crosses are
-models changed by long continued pretraining.*
+*Left: copies among the 3,000 most-downloaded open models. Right: what a copy of a watchlisted model gets after
+each attack. None reached Green.*
 
 ## Why check ancestry?
 
