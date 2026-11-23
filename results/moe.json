@@ -1,0 +1,134 @@
+{
+ "qwen3-30b-a3b": [
+  {
+   "query": "anchor after exact MoE symmetry attack",
+   "role": "attack",
+   "attn": 4.9404924595819466e-15,
+   "d": 1.4708604704575615e-13,
+   "router": 4.813927034774679e-13
+  },
+  {
+   "query": "post-trained (Qwen3-30B-A3B)",
+   "repo": "Qwen/Qwen3-30B-A3B",
+   "role": "derivative",
+   "attn": 0.01813516124456735,
+   "d": 0.010330328453059276,
+   "router": 0.012303772106375399,
+   "coverage": 1.0,
+   "ablation_flag": false,
+   "dead": [
+    0,
+    0,
+    0
+   ],
+   "read": null
+  },
+  {
+   "query": "Instruct-2507",
+   "repo": "Qwen/Qwen3-30B-A3B-Instruct-2507",
+   "role": "derivative",
+   "attn": 0.04869927332843099,
+   "d": 0.02825280012978564,
+   "router": 0.03151951556958382,
+   "coverage": 1.0,
+   "ablation_flag": false,
+   "dead": [
+    0,
+    0,
+    0
+   ],
+   "read": null
+  },
+  {
+   "query": "Thinking-2507",
+   "repo": "Qwen/Qwen3-30B-A3B-Thinking-2507",
+   "role": "derivative",
+   "attn": 0.051425187660266686,
+   "d": 0.029553246813384188,
+   "router": 0.032500017681144966,
+   "coverage": 1.0,
+   "ablation_flag": false,
+   "dead": [
+    0,
+    0,
+    0
+   ],
+   "read": null
+  },
+  {
+   "query": "Coder-30B-A3B-Instruct",
+   "repo": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+   "role": "derivative",
+   "attn": 0.7517619751601247,
+   "d": 0.49858100595514726,
+   "router": 0.6051816342241694,
+   "coverage": 1.0,
+   "ablation_flag": false,
+   "dead": [
+    0,
+    0,
+    0
+   ],
+   "read": null
+  },
+  {
+   "query": "abliterated Instruct-2507 (huihui-ai)",
+   "repo": "huihui-ai/Huihui-Qwen3-30B-A3B-Instruct-2507-abliterated",
+   "role": "derivative",
+   "attn": 0.04936795566536853,
+   "d": 0.028515094478696174,
+   "router": 0.03151951556958382,
+   "coverage": 1.0,
+   "ablation_flag": true,
+   "dead": [
+    1,
+    1,
+    0
+   ],
+   "read": 0.8810823459779411
+  }
+ ],
+ "olmoe-1b-7b": [
+  {
+   "query": "anchor after exact MoE symmetry attack",
+   "role": "attack",
+   "attn": 1.3322676295501878e-15,
+   "d": 1.57818202950466e-13,
+   "router": 4.223843497186408e-13
+  },
+  {
+   "query": "0924-Instruct",
+   "repo": "allenai/OLMoE-1B-7B-0924-Instruct",
+   "role": "derivative",
+   "attn": 0.0221514871846554,
+   "d": 0.013626997655495493,
+   "router": 0.012801895371328587,
+   "coverage": 1.0,
+   "ablation_flag": false,
+   "dead": [
+    0,
+    0,
+    0
+   ],
+   "read": null
+  },
+  {
+   "query": "0125 (separate run)",
+   "repo": "allenai/OLMoE-1B-7B-0125",
+   "role": "other run",
+   "attn": 0.0815476446658947,
+   "d": 0.05096902223245972,
+   "router": 0.045600623075418734,
+   "coverage": 1.0
+  },
+  {
+   "query": "0125-Instruct",
+   "repo": "allenai/OLMoE-1B-7B-0125-Instruct",
+   "role": "other run",
+   "attn": 0.1027524292488812,
+   "d": 0.06416640666035649,
+   "router": 0.05816895281859358,
+   "coverage": 1.0
+  }
+ ]
+}
