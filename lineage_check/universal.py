@@ -21,7 +21,7 @@ import re
 import numpy as np
 import torch
 
-EMBED = re.compile(r"(embed_tokens|tok_embeddings|token_embd|wte|embed)\.weight$")
+EMBED = re.compile(r"(embed_tokens|tok_embeddings|token_embd|wte|embed_in|embed)\.weight$")
 LAYER = re.compile(r"(?:^|\.)(?:layers|h|blocks|block|blk)\.(\d+)\.(.+)$")
 SKIP = re.compile(r"experts\.\d+\.|vision|visual|audio|lora_|scale|\.bias$|packed")
 WRITER = re.compile(r"o_proj|out_proj|down_proj|c_proj|\.wo|wo_b|\.w2\.|output")
