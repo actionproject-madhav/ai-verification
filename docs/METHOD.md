@@ -1,6 +1,6 @@
 # Method
 
-What the tool computes, why some edits cannot change it, and where the guarantees stop.
+What the tool computes, and where its guarantees stop.
 
 ## Setting
 
@@ -32,8 +32,9 @@ developer, of different widths, scored 0.40. With it they score 0.84, and true c
 ## Distance
 
 Take two models and the same tokens. For each table $t$ of one model, find its best match in the same layer and
-kind of the other: $c(t) = \max_u \langle r(t), r(u)\rangle$. Matching by content means the tool needs no tensor
-names and no knowledge of the architecture.
+kind of the other: $c(t) = \max_u \langle r(t), r(u)\rangle$. This is done from both sides, so every table of
+either model gets a score. Matching by content means the tool needs no tensor names and no knowledge of the
+architecture. The nonce draws two different layers for this.
 
 - Closest part: $d_{\min}$ is one minus the mean of the top third of the $c(t)$.
 - All parts: $d_{\mathrm{all}}$ is one minus the mean of all $c(t)$.
@@ -43,11 +44,16 @@ names and no knowledge of the architecture.
 | Light | Condition |
 |---|---|
 | Red | $d_{\min} < 0.5$ to a listed model; or $d_{\mathrm{all}} < 0.1$ to a known model and one direction cut out of two or more of six layers |
-| Green | not Red, and $d_{\mathrm{all}} < 0.1$ to a known model |
-| Amber | otherwise |
+| Green | not Red, $d_{\mathrm{all}} < 0.1$ to a known model, and the two models compared matrix by matrix with no cut found |
+| Amber | otherwise, including a model that matches a known one and cannot be compared with it matrix by matrix |
 
-The tool also raises Red on an older signal, a direction that nothing in the model writes to. It needs no base to
-compare with and misses most current refusal-removal tools; see below.
+Both distances are averages: $d_{\min}$ over the best-matching third of the tables, $d_{\mathrm{all}}$ over all
+of them. So "every part" means every part on average, and a model with one table in ten replaced could still pass
+the $d_{\mathrm{all}}$ bar.
+
+The tool also raises Red on an older signal, a direction that nothing in the model writes to. It needs no known
+model to compare with, so it can turn a model of any origin Red. It misses most current refusal-removal tools;
+see below.
 
 ## What cannot change a table
 
@@ -89,33 +95,78 @@ by 0.0005 to 0.004, and removing refusals moves them by 0.070. Public 4-bit, 8-b
 million to 2.8 trillion parameters, the largest closest-part distance is 0.066. Over 151 pairs of separately
 trained models the smallest is 0.839. See `docs/RESULTS.md`.
 
+GGUF files store weights in blocks of 32 or 256 numbers that share a scale, at 2 to 8 bits each. I measured 36
+such files of two models with 7 and 8 billion parameters (`results/gguf_ladder.json`). All parts move by 0.002 or
+less at 5 bits per weight and above, by 0.007 at 4.9 bits, by 0.03 between 3.7 and 4.3 bits, and by 0.10 for the
+plain 2-bit file. Most of that last figure comes from the token table: the 2-bit file that keeps its token table at 8 bits
+sits at 0.02.
+
 ## A known model with one direction cut out
 
 Tools that remove refusals edit weights in one particular way. They find a direction $r$ in the residual stream
 and subtract it from the matrices that write to the stream:
 
-$$W' = W - \alpha  r r^{\top} W.$$
+$$W' = W - \alpha r r^{\top} W.$$
 
-Against the known model, each such matrix differs by a rank-one amount, and the writing matrices of one layer
-differ along the same $r$. A fine-tune or a quantised copy differs by a matrix of high rank, and its leading
-direction is a different one in every matrix.
+Against the known model, each such matrix differs by $D = -\alpha r (r^{\top} W)$. Three things follow, and the
+test checks all three.
 
-The test reads six layers drawn from the nonce. A layer counts as cut when the difference of one writing matrix
-is rank one (its leading direction holds 0.9 of the difference or more), or when two writing matrices differ
-along the same leading direction (cosine of 0.95 or more). Two cut layers make the model Red.
+1. $D$ has rank one. A fine-tune or a quantised copy differs by a matrix of high rank.
+2. The writing matrices of one layer differ along the same $r$.
+3. What left the matrix is its own content. If $u$ is the leading left direction of $D$, the row $u^{\top} D$ is
+   parallel to the row $u^{\top} W$.
 
-Measured on close copies of registry bases from the Hub scan (`results/refusal_edit.jsonl`): the test flags 45 of 49
-models whose names say "abliterated" and 47 of 53 that say "heretic", a newer tool. An older signature, which
-looks at a model alone for a direction that nothing writes to, flags 27 and 0 of the same models. Of 314 other
-close copies the test flags 11. For seven of them the model's own card says refusals were removed, and in one of
-those the edited model is the registry entry. Two more show the same cut in four or more layers and their cards
-say nothing. The last two are false alarms for this purpose: a rank-one fine-tune, and a model edited to resist
-refusal removal.
+The third is what separates a cut from other rank-one changes. A merged rank-one adapter changes a matrix by
+$b a^{\top}$ with a row $a$ that has nothing to do with $b^{\top} W$. Coarse quantisation puts most of its error
+on the residual directions where the weights are large, in every writing matrix at once. So two matrices can
+agree on a leading direction, and again the row that changed is unrelated to what the matrix held there. I found
+both cases as false alarms of an earlier version of this test, the second on GGUF copies of honest models.
 
-The bar is high for a reason. In ordinary fine-tunes the leading directions of a layer's two writing matrices
-often agree loosely: 0.67 at the median and 0.93 at the 95th percentile of the copies above. So agreement has
-to reach 0.95, and one layer is not enough. On seven pairs read under four nonces each, three refusal-removed
-models showed 2 to 6 cut layers on every nonce and four honest versions showed none (`results/cut_pairs.json`).
+A newer tool, Heretic, makes the same cut on the matrix with its rows scaled to unit length and then scales them
+back. With $N$ the diagonal matrix of row norms, $W' = W - (N r)(N^{-1} r)^{\top} W$. The change is still rank
+one, its leading direction is $u \propto N r$, and the row that changed is parallel to $(N^{-2} u)^{\top} W$. The
+test computes the cosine for both forms and keeps the larger. On a public Heretic model the plain form gives 0.67
+to 0.97 and the scaled form gives 1.000 in every changed matrix.
+
+The test reads six different layers drawn from the nonce and pairs the writing matrices of the two models by name
+and shape. A matrix shows a cut when that cosine is 0.5 or more. A layer counts as cut in two cases. One such
+matrix changed by a rank-one amount: its leading direction holds 0.9 of the change or more. Or two such matrices
+changed along the same leading direction, with a cosine of 0.8 or more. Two cut layers make the model Red.
+
+This test compares raw matrices, so unlike the tables it is not blind to shuffling. A copy that was permuted or
+rotated differs from the known model entry by entry, and a cut made before the shuffle cannot be seen. The tool
+therefore gives a verdict only when the comparison could be made: the same writing matrices in every layer read,
+and every difference at most half the size of its matrix. Otherwise the model is Amber, whatever the count of cut
+layers.
+
+Measured on close copies of registry bases from the Hub scan (`results/refusal_edit.jsonl`,
+`results/refusal_edit_summary.json`). Of 60 models whose names say "abliterated", 49 could be compared and 45 are
+flagged. Of 55 that say "heretic", 50 could be compared and 44 are flagged. The older signature flags 27 and 0 of
+the same models. The 10 that the test compared and missed come out Green. Those it could not compare are packed
+4-bit copies and other layouts, which the tool leaves Amber.
+
+Of 310 other close copies the test flags 9. Five of those say in their own model cards that refusals were
+removed. For one more the cut sits in the registry base, which is itself an uncensored model. Two show the same
+cut and say nothing. The last is a false alarm: a model edited to resist refusal removal. Nine more copies differ
+from their base by more than half the size of a matrix and are left unchecked.
+
+The third condition is what keeps honest copies out. By the first two conditions alone the test would flag 34 of
+the 310 other copies, and with the third it flags 9. Honest GGUF files show why: in 21 of 36, two layers have
+writing matrices that agree to 0.8 or more, because quantisation error piles up on the same residual directions.
+The condition also costs something. It drops one "abliterated" model, one "heretic" model, four models with
+looser hints in their names, and one other copy whose card describes it as refusal-removed. Their changes are
+rank one or shared, but are not the matrices' own content, and I count them as misses.
+
+The numbers behind the bar of 0.5. In the 89 flagged models that carry a tool's name, the cosine is 1.00 at the
+median and 0.81 at the lowest in the layers that count. In the 36 honest GGUF files, the weaker of a layer's two
+writing matrices scores 0.21 at most. A single matrix reaches 0.84 in a 3-bit file, so one matrix is enough only
+when its change is rank one.
+
+Every copy that the first two conditions could flag was read for the third: 173 of the 550, namely those with two
+layers agreeing to 0.75 or more or with a rank-one change. No other copy can be flagged.
+
+On seven pairs read under four nonces each (`results/cut_pairs.json`), three refusal-removed models showed 3 to
+6 cut layers of six and were Red by this test on 12 of 12 runs. Four honest versions of the same bases showed none.
 
 ## Matching tokens without trusting their names
 
@@ -133,12 +184,12 @@ leading coordinates. The most decisive pairs then fix a rotation between all 128
 three times. A token whose nearest row is not clearly nearer than the second (ratio above 0.7) is dropped, and
 with fewer than 64 tokens left the two models are not compared.
 
-Measured (`results/relabelled.json`) on four copies: 4-bit and 8-bit releases of GLM-5.2, GLM-5.3 and Kimi K3, and
-a later version of Kimi K3. Each was read with its 155,000 to 164,000 token rows shuffled behind the old names. By
-name all four are
-Amber, at 0.98 or more from every listed model. By geometry all four are Red, at 0.011 or less from the model they
-copy. Five models that are not copies go through the same pass and none changes: the token tables of unrelated
-models do not line up, so nothing is compared.
+Measured (`results/relabelled.json`) on four copies: a 4-bit release of GLM-5.2, an 8-bit release of GLM-5.3, a
+4-bit release of Kimi K3 and a later version of Kimi K3. Each was read with its 155,000 to 164,000 token rows
+shuffled behind the old names. By name all four are Amber, at 0.98 or more from every listed model. By geometry
+all four are Red, at 0.011 or less from the model they copy. Five other cases go through the same pass and none
+changes: two models unrelated to the lists (one of them read both as released and relabelled) and two copies of
+known models. Their token tables do not line up with a listed model's, so nothing is compared.
 
 ## What a table does not fix
 
@@ -182,6 +233,8 @@ nothing. A single threshold would clear it. With the rule above it is Amber.
 - No protection against retraining aimed at the check. An operator who trains against these tables on every layer
   moves a copy from Red to Amber. `docs/RESULTS.md` has the numbers.
 - No proof that a model cleared as Green is the known model. It is what every run so far shows.
-- No claim to find every removal of refusals. The cut test finds about nine in ten public cases, and none made by
-  fine-tuning.
+- No claim to find every removal of refusals. The cut test finds about nine in ten of the public cases it can
+  compare, the rest come out Green, and it finds none made by fine-tuning.
+- No claim about files the reader cannot decode. It reads safetensors and GGUF. EXL3, MLX, a few packed 4-bit
+  layouts and GGUF files whose matrices use the 1 to 3 bit codebook formats are not read; such a model is Amber.
 - Nothing about behaviour. Two models can be far apart here and act alike.
