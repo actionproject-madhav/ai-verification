@@ -11,6 +11,10 @@ By construction the student's attention circuits are Y's. The questions are how 
 recovers (KL to X, LAMBADA, FineWeb loss), and what the parts the forger did not copy say: the MLP tables and the
 activation fingerprint, against Y and against X.
 
+R6_INIT=target is the smarter forger. X's MLPs expect X's residual stream, so they are useless under Y's
+embeddings and attention. This forger starts from all of Y instead, keeps the same weights frozen, and teaches
+Y's MLPs to behave like X.
+
 Usage: python exp_transplant.py <out.jsonl> [lr ...]
 """
 import json, os, sys, time
@@ -26,6 +30,7 @@ DEV = A.DEV
 STEPS, EVAL_EVERY = int(os.environ.get("R6_STEPS", 2000)), int(os.environ.get("R6_EVAL", 250))
 TARGET = A.INDEP
 COPIED = ("embed_tokens", "self_attn", "input_layernorm")     # everything the attention verdict reads
+INIT = os.environ.get("R6_INIT", "parent")                    # where the weights that are not copied start: X or Y
 PARTS = ("qk", "ov", "mlp", "gate")
 
 
@@ -34,7 +39,7 @@ def parts(a, b):
 
 
 def run(fh, lr):
-    m, ref, tgt = A.load(), A.load(), A.load(TARGET)
+    m, ref, tgt = A.load(TARGET if INIT == "target" else A.REPO), A.load(), A.load(TARGET)
     ref.requires_grad_(False)
     tgt.requires_grad_(False)
     m.config.use_cache = False
@@ -53,7 +58,8 @@ def run(fh, lr):
                 "v4_to_target_all": float(np.mean(list(v4.values()))), "kl_to_parent": R4.held_out_kl(model, ref),
                 "kl_to_target": R4.held_out_kl(model, tgt), **R3.evaluate(model, p4, p3)}
 
-    rec = {"run": f"transplant-lr{lr:g}", "lr": lr, "target": TARGET, "copied": list(COPIED), "objective": "KL to X, copied weights frozen"}
+    rec = {"run": f"transplant-{INIT}-lr{lr:g}", "init": INIT, "lr": lr, "target": TARGET, "copied": list(COPIED),
+           "objective": "KL to X, copied weights frozen"}
     A.log(fh, {**rec, "step": -1, "what": "X, the listed model", **status(ref)})
     A.log(fh, {**rec, "step": -1, "what": "Y, the known model", **status(tgt)})
     with torch.no_grad():
@@ -89,7 +95,7 @@ def run(fh, lr):
             torch.mps.empty_cache()
         if step % EVAL_EVERY == 0:
             A.log(fh, {**rec, "step": step, "train_kl": loss_kl, "sec": round(time.time() - t0), **status(m)})
-    m.save_pretrained(os.path.join(R2.SAVE, f"r6-transplant-lr{lr:g}"), safe_serialization=True)
+    m.save_pretrained(os.path.join(R2.SAVE, f"r6-transplant-{INIT}-lr{lr:g}"), safe_serialization=True)
     del m, ref, tgt
 
 
