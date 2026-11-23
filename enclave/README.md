@@ -13,6 +13,7 @@ own tools.
 | `tinfoil-config.yml` | the enclave: CPU only, attested Ed25519 key, the audited model and the listed models as Modelwrap packs |
 | `Dockerfile`, `requirements.txt` | the container, pinned to the versions every result in `results/` used |
 | `concern-demo.json` | the demo list: an independent model with the same tokenizer, and TinyLlama's 3T base |
+| `azure/template.json` | the same service as an Azure confidential container group, with Microsoft's attestation sidecar |
 
 ## The statement
 
@@ -52,6 +53,48 @@ The dirhash equals the one in inference-demo's `fixtures/crosswalk.json`, so the
 exactly the bytes SASH's inference enclave serves. The twin signs with a dev key (`keyBinding: null`), as the
 inference demo's own local twin does. The scan took 8 minutes, mostly fetching the listed models' layers over
 the network; in the enclave they are mounted packs.
+
+## Run in an Azure confidential container group (23 Nov 2026)
+
+The same service ran inside an AMD SEV-SNP guest on Azure Container Instances. A launch policy pins both
+container images, their commands and every environment variable. The service fetched TinyLlama at the pinned
+revision inside the guest, hashed it, made its signing key there, and answered one challenge in 29 seconds.
+`azure/template.json` is the deployment and `../demo/azure/` holds the evidence.
+
+```
+python enclave/verify_statement.py demo/azure/response.json --nonce $(cat demo/azure/nonce.txt) \
+    --concern enclave/concern-demo.json --policy demo/azure/policy.b64 --model-dir <TinyLlama snapshot>
+
+PASS  signature verifies under the statement key
+PASS  predicate type urn:lineage-check:LineageStatement:v0.2
+PASS  the signing key is the statement key it names
+PASS  issued for this verifier's nonce (no replay)
+PASS  concern list digest matches
+PASS  AMD SEV-SNP report verifies down to AMD's root (ARK-Genoa), debugging off
+PASS  the report names this statement key and this nonce (report_data)
+PASS  launched under the expected policy: host_data bf4e895a4ca88639...
+PASS  the base system is one Microsoft signed: ContainerPlat-AMD-UVM, version 104, measurement dc3f5a934489232a...
+PASS  scanned bytes recomputed: dirhash-sha256/1 d1e29a1ad2ef057d...
+lineage: match -> tinyllama-1.1b-3t  (512 tokens, 4 layers, azure-confidential-containers)
+```
+
+| What is checked | What the check rests on |
+| --- | --- |
+| the report is genuine | AMD's root key, pinned from AMD's key server (`lineage_check/snp.py`) |
+| the base system | Microsoft's signature over the launch measurement, its chain pinned to Microsoft's supply-chain root |
+| the code that ran | `host_data` is the SHA-256 of the launch policy in `demo/azure/policy.b64` |
+| the signing key | `report_data` is the SHA-256 of the statement key and the nonce; the key exists only inside the guest |
+| the model | `dirhash-sha256/1` of the fetched files, equal to the digest in inference-demo's crosswalk |
+
+A wrong policy, a wrong nonce or a changed report each fail the verifier.
+
+Limits of this run. The policy leaves the containers' logs readable by the operator; they carry no secrets, and a
+production policy turns them off (`--disable-stdio`). The two listed models are read from the Hub over TLS at
+pinned revisions, where Tinfoil mounts them as packs. The container group had a public address for the challenge
+and was deleted after the run.
+
+To repeat it: build the image, put its digest in `azure/template.json`, generate the policy with
+`az confcom acipolicygen -a template.json`, and deploy with `az deployment group create`.
 
 ## What deployment still needs
 
