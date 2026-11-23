@@ -240,9 +240,10 @@ class Remote:
         if os.path.exists(p):
             h = json.load(open(p))
         else:
-            r = _patient(lambda: requests.get(hf_hub_url(self.repo, f, revision=self.sha), headers={"Range": "bytes=0-0"},
-                                              allow_redirects=True, timeout=120))
-            h = G.header(lambda a, b: self._range(f, a, b), int(r.headers["Content-Range"].split("/")[1]))
+            if not hasattr(self, "_sizes"):
+                info = _patient(lambda: HfApi().model_info(self.repo, revision=self.sha, files_metadata=True))
+                self._sizes = {x.rfilename: x.size or 0 for x in info.siblings}
+            h = G.header(lambda a, b: self._range(f, a, b), self._sizes[f])
             json.dump(h, open(p, "w"))
         if h["tokens"] is not None:
             self._tokens = h["tokens"]
