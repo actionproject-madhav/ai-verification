@@ -80,10 +80,11 @@ These are the symmetries known from the weight-space literature
 and the same ones [HuRef](https://arxiv.org/abs/2312.04828) builds its invariant terms on. `tests/test_universal.py`
 checks each one on a small model to $10^{-9}$.
 
-**One edit that is not covered exactly.** Inside an attention head, queries and keys can be mixed by an invertible
-matrix and its inverse without changing the product. That changes the separate tables of the query and key
-matrices. On the test model, all function-preserving edits applied together move the closest part by 0.00 and all
-parts by 0.091. So such a copy of a listed model is still Red. Such a copy of a known model may fall to Amber, and
+**Two edits that are not covered exactly.** Inside an attention head, queries and keys can be mixed by an
+invertible matrix and its inverse without changing their product, and so can values and outputs. That changes the
+separate tables of those matrices. On the test model the query and key mix moves all parts by 0.003 and the value
+and output mix by 0.08. All function-preserving edits applied together move the closest part by 0.00 and all
+parts by 0.09. So such a copy of a listed model is still Red. Such a copy of a known model may fall to Amber, and
 an honest operator has no reason to do it. The design-aware reader in `lineage_check/fingerprint.py` works on the
 products instead and is exact for these edits too, for the architectures it knows.
 
@@ -97,7 +98,7 @@ trained models the smallest is 0.839. See `docs/RESULTS.md`.
 
 GGUF files store weights in blocks of 32 or 256 numbers that share a scale, at 2 to 8 bits each. I measured 36
 such files of two models with 7 and 8 billion parameters (`results/gguf_ladder.json`). All parts move by 0.002 or
-less at 5 bits per weight and above, by 0.007 at 4.9 bits, by 0.03 between 3.7 and 4.3 bits, and by 0.10 for the
+less at 5 bits per weight and above, by 0.007 at 4.9 bits, by 0.03 between 3.6 and 4.3 bits, and by 0.10 for the
 plain 2-bit file. Most of that last figure comes from the token table: the 2-bit file that keeps its token table at 8 bits
 sits at 0.02.
 
@@ -125,8 +126,10 @@ both cases as false alarms of an earlier version of this test, the second on GGU
 A newer tool, Heretic, makes the same cut on the matrix with its rows scaled to unit length and then scales them
 back. With $N$ the diagonal matrix of row norms, $W' = W - (N r)(N^{-1} r)^{\top} W$. The change is still rank
 one, its leading direction is $u \propto N r$, and the row that changed is parallel to $(N^{-2} u)^{\top} W$. The
-test computes the cosine for both forms and keeps the larger. On a public Heretic model the plain form gives 0.67
-to 0.97 and the scaled form gives 1.000 in every changed matrix.
+test computes the cosine for both forms and keeps the larger. On five small public models
+(`results/cut_forms.json`, `exp_cut_forms.py`), two fit the plain form exactly: 1.00 in every changed matrix,
+where the scaled form gives 0.71 to 0.98. Two fit the scaled form exactly, one of them named for Heretic: 1.00,
+where the plain form gives 0.17 to 0.97. The fifth fits neither exactly (0.54 to 1.00).
 
 The test reads six different layers drawn from the nonce and pairs the writing matrices of the two models by name
 and shape. A matrix shows a cut when that cosine is 0.5 or more. A layer counts as cut in two cases. One such
@@ -146,9 +149,10 @@ the same models. The 10 that the test compared and missed come out Green. Those 
 4-bit copies and other layouts, which the tool leaves Amber.
 
 Of 310 other close copies the test flags 9. Five of those say in their own model cards that refusals were
-removed. For one more the cut sits in the registry base, which is itself an uncensored model. Two show the same
-cut and say nothing. The last is a false alarm: a model edited to resist refusal removal. Nine more copies differ
-from their base by more than half the size of a matrix and are left unchecked.
+removed (cards read on 23 Nov 2026; they are not stored here). Two show the same cut and say nothing. Two are
+false alarms: a model edited to resist refusal removal, and a clean model that the scan compared with a registry
+base that is itself uncensored. Nine more copies differ from their base by more than half the size of a matrix and
+are left unchecked.
 
 The third condition is what keeps honest copies out. By the first two conditions alone the test would flag 34 of
 the 310 other copies, and with the third it flags 9. Honest GGUF files show why: in 21 of 36, two layers have
@@ -157,8 +161,8 @@ The condition also costs something. It drops one "abliterated" model, one "heret
 looser hints in their names, and one other copy whose card describes it as refusal-removed. Their changes are
 rank one or shared, but are not the matrices' own content, and I count them as misses.
 
-The numbers behind the bar of 0.5. In the 89 flagged models that carry a tool's name, the cosine is 1.00 at the
-median and 0.81 at the lowest in the layers that count. In the 36 honest GGUF files, the weaker of a layer's two
+The numbers behind the bar of 0.5. Each of the 89 flagged models that carry a tool's name has two layers where
+the cosine is 0.81 or more, and the median is 1.00. In the 36 honest GGUF files, the weaker of a layer's two
 writing matrices scores 0.21 at most. A single matrix reaches 0.84 in a 3-bit file, so one matrix is enough only
 when its change is rank one.
 
@@ -185,8 +189,8 @@ three times. A token whose nearest row is not clearly nearer than the second (ra
 with fewer than 64 tokens left the two models are not compared.
 
 Measured (`results/relabelled.json`) on four copies: a 4-bit release of GLM-5.2, an 8-bit release of GLM-5.3, a
-4-bit release of Kimi K3 and a later version of Kimi K3. Each was read with its 155,000 to 164,000 token rows
-shuffled behind the old names. By name all four are Amber, at 0.98 or more from every listed model. By geometry
+4-bit release of Kimi K3 and a later version of Kimi K3. Each was read with every token row shuffled
+behind the old names. By name all four are Amber, at 0.98 or more from every listed model. By geometry
 all four are Red, at 0.011 or less from the model they copy. Five other cases go through the same pass and none
 changes: two models unrelated to the lists (one of them read both as released and relabelled) and two copies of
 known models. Their token tables do not line up with a listed model's, so nothing is compared.
@@ -235,6 +239,6 @@ nothing. A single threshold would clear it. With the rule above it is Amber.
 - No proof that a model cleared as Green is the known model. It is what every run so far shows.
 - No claim to find every removal of refusals. The cut test finds about nine in ten of the public cases it can
   compare, the rest come out Green, and it finds none made by fine-tuning.
-- No claim about files the reader cannot decode. It reads safetensors and GGUF. EXL3, MLX, a few packed 4-bit
+- No claim about files the reader cannot decode. It reads safetensors and GGUF. MLX, most EXL3 files, a few packed 4-bit
   layouts and GGUF files whose matrices use the 1 to 3 bit codebook formats are not read; such a model is Amber.
 - Nothing about behaviour. Two models can be far apart here and act alike.
