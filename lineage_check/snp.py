@@ -9,13 +9,14 @@ fields carry what a verifier of a lineage statement needs:
                 SHA-256 of the policy that pins every container image, command and environment variable.
 
 `verify` checks the signatures (report <- chip key <- AMD intermediate <- AMD root, the root pinned below) and
-returns the fields. It does not judge the launch measurement: on Azure that is Microsoft's utility VM, which
-Microsoft endorses in a separate signed document.
+returns the fields. The launch measurement is the base system the containers run on. On Azure that is Microsoft's
+utility VM, and `verify_uvm_endorsement` checks Microsoft's signed statement that it built that measurement.
 """
 from __future__ import annotations
 
 import base64
 import binascii
+import datetime
 import hashlib
 import json
 import os
@@ -38,6 +39,13 @@ AMD_ROOTS = {
     "429a69c9422aa258ee4d8db5fcda9c6470ef15f8cd5a9cebd6cbc7d90b863831": "ARK-Genoa",
     "4f125410563a2ab9a50356f9243f6fe0b6f73de98603f53f90339c70e9d7ad08": "ARK-Turin",
 }
+
+
+# SHA-256 of the certificate "Microsoft Supply Chain RSA Root CA 2022" (DER), computed from
+# https://www.microsoft.com/pkiops/certs/ on 2026-11-23. Azure's endorsements name the same value as their issuer.
+MICROSOFT_UVM_ROOT = "23ffe2b8bdb9a1711515d4cffda04bc7f793d513c76c243f1020507d8669b7db"
+UVM_FEED, UVM_EKU = "ContainerPlat-AMD-UVM", "1.3.6.1.4.1.311.76.59.1.2"
+_COSE_HASH = {-37: hashes.SHA256, -38: hashes.SHA384, -39: hashes.SHA512}    # RSASSA-PSS (RFC 8230)
 
 
 class AttestationError(Exception):
@@ -105,14 +113,94 @@ def binding_payload(statement_key: bytes, nonce: str) -> bytes:
 
 
 def _decode(text: str) -> bytes:
-    try:
-        return bytes.fromhex(text)
-    except ValueError:
-        pass
+    """Base64 (either alphabet). A report may also come as hex, which is how the sidecar's raw call returns it."""
+    if len(text) == 2 * REPORT_SIZE:
+        try:
+            return bytes.fromhex(text)
+        except ValueError:
+            pass
     try:
         return base64.b64decode(text + "=" * (-len(text) % 4), altchars=b"-_" if ("-" in text or "_" in text) else None)
     except binascii.Error:
-        raise AttestationError("a field of the attestation document is neither hex nor base64") from None
+        raise AttestationError("a field of the attestation document is not base64") from None
+
+
+def _cbor(buf: bytes, i: int = 0):
+    """Decode one CBOR item: the subset a COSE_Sign1 document uses. Returns (value, next index)."""
+    major, info = buf[i] >> 5, buf[i] & 31
+    i += 1
+    if info < 24:
+        n = info
+    elif info <= 27:
+        size = 1 << (info - 24)
+        n, i = int.from_bytes(buf[i:i + size], "big"), i + size
+    else:
+        raise AttestationError("unsupported CBOR length")
+    if major == 0:
+        return n, i
+    if major == 1:
+        return -1 - n, i
+    if major == 2:
+        return bytes(buf[i:i + n]), i + n
+    if major == 3:
+        return bytes(buf[i:i + n]).decode(), i + n
+    if major == 4:
+        out = []
+        for _ in range(n):
+            v, i = _cbor(buf, i)
+            out.append(v)
+        return out, i
+    if major == 5:
+        out = {}
+        for _ in range(n):
+            k, i = _cbor(buf, i)
+            out[k], i = _cbor(buf, i)
+        return out, i
+    if major == 6:
+        return _cbor(buf, i)                                      # a tag: keep the tagged value
+    return {20: False, 21: True, 22: None}.get(info), i
+
+
+def _head(major: int, n: int) -> bytes:
+    if n < 24:
+        return bytes([major << 5 | n])
+    size = 1 if n < 1 << 8 else 2 if n < 1 << 16 else 4 if n < 1 << 32 else 8
+    return bytes([major << 5 | {1: 24, 2: 25, 4: 26, 8: 27}[size]]) + n.to_bytes(size, "big")
+
+
+def verify_uvm_endorsement(blob: bytes, measurement: bytes, root_sha256: str = MICROSOFT_UVM_ROOT) -> dict:
+    """Check Microsoft's signed statement (COSE_Sign1, RFC 9052) that `measurement` is a utility VM it built."""
+    try:
+        (protected_raw, _, payload, signature), _ = _cbor(blob)
+        protected, _ = _cbor(protected_raw)
+        chain = protected[33] if isinstance(protected[33], list) else [protected[33]]
+        chain = [x509.load_der_x509_certificate(c) for c in chain]
+        algorithm = _COSE_HASH[protected[1]]()
+    except (ValueError, KeyError, TypeError, IndexError):
+        raise AttestationError("the endorsement is not a COSE_Sign1 document with a certificate chain") from None
+    leaf, root = chain[0], chain[-1]
+    if hashlib.sha256(root.public_bytes(serialization.Encoding.DER)).hexdigest() != root_sha256:
+        raise AttestationError("the endorsement's chain does not end in the pinned Microsoft root")
+    when = datetime.datetime.fromtimestamp(protected.get("signingtime", 0), datetime.timezone.utc)
+    to_sign = (b"\x84" + _head(3, 10) + b"Signature1" + _head(2, len(protected_raw)) + protected_raw + _head(2, 0)
+               + _head(2, len(payload)) + payload)
+    try:
+        for child, parent in zip(chain, chain[1:] + [root]):
+            child.verify_directly_issued_by(parent)
+            if protected.get("signingtime") and not child.not_valid_before_utc <= when <= child.not_valid_after_utc:
+                raise AttestationError("a certificate in the endorsement's chain was not valid when it was signed")
+        usage = leaf.extensions.get_extension_for_class(x509.ExtendedKeyUsage).value
+        leaf.public_key().verify(signature, to_sign, padding.PSS(mgf=padding.MGF1(algorithm), salt_length=algorithm.digest_size),
+                                 algorithm)
+    except (InvalidSignature, ValueError, TypeError, x509.ExtensionNotFound):
+        raise AttestationError("the endorsement's signature or chain does not verify") from None
+    if x509.ObjectIdentifier(UVM_EKU) not in usage or protected.get("feed") != UVM_FEED:
+        raise AttestationError("the endorsement is not for Azure's confidential container utility VM")
+    body = json.loads(payload)
+    if body.get("x-ms-sevsnpvm-launchmeasurement") != measurement.hex():
+        raise AttestationError("the endorsement is for a different launch measurement")
+    return {"feed": protected["feed"], "guest_svn": body.get("x-ms-sevsnpvm-guestsvn"), "issuer": protected.get("iss"),
+            "signed": when.strftime("%Y-%m-%d") if protected.get("signingtime") else None}
 
 
 def aci_attest(payload: bytes, url: str | None = None, timeout: float = 30) -> dict:
@@ -138,4 +226,6 @@ def verify_binding(document: dict, statement_key: bytes, nonce: str, policy: byt
         raise AttestationError("the report's report_data is not the hash of the statement key and the challenge")
     if policy is not None and fields["host_data"] != hashlib.sha256(policy).digest():
         raise AttestationError("the report's host_data is not the hash of the expected policy")
+    if document.get("uvmEndorsements"):
+        fields["utility_vm"] = verify_uvm_endorsement(_decode(document["uvmEndorsements"]), fields["measurement"])
     return fields

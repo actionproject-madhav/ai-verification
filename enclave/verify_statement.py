@@ -82,7 +82,12 @@ def main():
                 print(f"NOTE  no --policy given: host_data {f['host_data'].hex()} not compared with an expected policy")
             else:
                 check(True, f"launched under the expected policy: host_data {f['host_data'].hex()[:16]}...")
-            print(f"NOTE  launch measurement {f['measurement'].hex()[:16]}...: Microsoft's utility VM, endorsed separately; not judged here")
+            vm = f.get("utility_vm")
+            if vm:
+                check(True, f"the base system is one Microsoft signed: {vm['feed']}, version {vm['guest_svn']}, "
+                            f"measurement {f['measurement'].hex()[:16]}...")
+            else:
+                print(f"NOTE  launch measurement {f['measurement'].hex()[:16]}...: no endorsement attached, not judged")
         except SNP.AttestationError as e:
             check(False, f"hardware report: {e}")
     else:

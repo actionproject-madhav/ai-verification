@@ -101,3 +101,62 @@ def test_azure_wraps_the_chain_in_json(chain):
     first, rest = pem.split(b"-----END CERTIFICATE-----\n", 1)
     wrapped = json.dumps({"vcekCert": (first + b"-----END CERTIFICATE-----\n").decode(), "tcbm": "0", "certificateChain": rest.decode()})
     assert snp.verify(report(chip_key), wrapped.encode(), roots)["root"] == "test root"
+
+
+def _enc(v):
+    """CBOR for the few types a test endorsement needs."""
+    if isinstance(v, bool) or v is None:
+        raise TypeError
+    if isinstance(v, int):
+        return snp._head(0, v) if v >= 0 else snp._head(1, -1 - v)
+    if isinstance(v, bytes):
+        return snp._head(2, len(v)) + v
+    if isinstance(v, str):
+        return snp._head(3, len(v.encode())) + v.encode()
+    if isinstance(v, list):
+        return snp._head(4, len(v)) + b"".join(_enc(x) for x in v)
+    return snp._head(5, len(v)) + b"".join(_enc(k) + _enc(x) for k, x in v.items())
+
+
+@pytest.fixture(scope="module")
+def endorser():
+    now = datetime.datetime(2026, 1, 1)
+    root_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    leaf_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    name = lambda n: x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, n)])
+    base = lambda subject, issuer, key: (x509.CertificateBuilder().subject_name(name(subject)).issuer_name(name(issuer))
+                                         .public_key(key.public_key()).serial_number(x509.random_serial_number())
+                                         .not_valid_before(now).not_valid_after(now + datetime.timedelta(days=365)))
+    root = base("root", "root", root_key).add_extension(x509.BasicConstraints(ca=True, path_length=None), critical=True) \
+        .sign(root_key, hashes.SHA384())
+    leaf = base("leaf", "root", leaf_key).add_extension(
+        x509.ExtendedKeyUsage([x509.ObjectIdentifier(snp.UVM_EKU)]), critical=False).sign(root_key, hashes.SHA384())
+    der = lambda c: c.public_bytes(serialization.Encoding.DER)
+    return leaf_key, [der(leaf), der(root)], hashlib.sha256(der(root)).hexdigest()
+
+
+def endorsement(leaf_key, chain, measurement, feed=snp.UVM_FEED):
+    import json
+    protected = _enc({1: -38, 33: chain, "feed": feed, "signingtime": 1770000000})
+    payload = json.dumps({"x-ms-sevsnpvm-launchmeasurement": measurement.hex(), "x-ms-sevsnpvm-guestsvn": "104"}).encode()
+    to_sign = b"\x84" + _enc("Signature1") + _enc(protected) + _enc(b"") + _enc(payload)
+    signature = leaf_key.sign(to_sign, padding.PSS(mgf=padding.MGF1(hashes.SHA384()), salt_length=48), hashes.SHA384())
+    return b"\xd2" + snp._head(4, 4) + _enc(protected) + _enc({}) + _enc(payload) + _enc(signature)
+
+
+def test_a_signed_endorsement_of_the_measurement_verifies(endorser):
+    leaf_key, chain, root = endorser
+    m = bytes(range(48))
+    out = snp.verify_uvm_endorsement(endorsement(leaf_key, chain, m), m, root)
+    assert out["feed"] == snp.UVM_FEED and out["guest_svn"] == "104"
+
+
+def test_an_endorsement_fails_for_another_measurement_root_or_feed(endorser):
+    leaf_key, chain, root = endorser
+    m = bytes(range(48))
+    good = endorsement(leaf_key, chain, m)
+    for blob, measurement, pinned in ((good, bytes(48), root), (good, m, "00" * 32),
+                                      (endorsement(leaf_key, chain, m, feed="something-else"), m, root),
+                                      (good[:-1] + bytes([good[-1] ^ 1]), m, root)):
+        with pytest.raises(snp.AttestationError):
+            snp.verify_uvm_endorsement(blob, measurement, pinned)
