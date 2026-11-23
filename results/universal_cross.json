@@ -5,396 +5,399 @@
    "a": "unsloth/Llama-3.1-8B",
    "b": "marin-community/marin-8b-base",
    "same_family": false,
-   "closest_part": 0.9167,
-   "all_parts": 0.9408,
-   "seconds": 66
+   "closest_part": 0.9427,
+   "all_parts": 0.9626,
+   "seconds": 8
   },
   {
    "a": "unsloth/Llama-3.1-8B",
    "b": "Qwen/Qwen2.5-7B",
    "same_family": false,
-   "closest_part": 0.986,
-   "all_parts": 0.9913,
-   "seconds": 23
+   "closest_part": 0.9858,
+   "all_parts": 0.9933,
+   "seconds": 4
   },
   {
    "a": "unsloth/Llama-3.1-8B",
    "b": "Qwen/Qwen2.5-1.5B",
    "same_family": false,
-   "closest_part": 0.9809,
-   "all_parts": 0.9878,
-   "seconds": 5
+   "closest_part": 0.984,
+   "all_parts": 0.9904,
+   "seconds": 1
   },
   {
    "a": "unsloth/Llama-3.1-8B",
    "b": "Qwen/Qwen3-8B-Base",
    "same_family": false,
-   "closest_part": 0.9847,
-   "all_parts": 0.9903,
-   "seconds": 20
+   "closest_part": 0.9857,
+   "all_parts": 0.9918,
+   "seconds": 3
   },
   {
    "a": "unsloth/Llama-3.1-8B",
    "b": "mistralai/Mistral-7B-v0.3",
    "same_family": false,
-   "closest_part": 0.9113,
-   "all_parts": 0.9469,
-   "seconds": 38
+   "closest_part": 0.9308,
+   "all_parts": 0.959,
+   "seconds": 20
   },
   {
    "a": "unsloth/Llama-3.1-8B",
    "b": "allenai/OLMo-2-1124-7B",
    "same_family": false,
-   "closest_part": 0.9756,
-   "all_parts": 0.9863,
-   "seconds": 39
+   "closest_part": 0.9775,
+   "all_parts": 0.9874,
+   "seconds": 20
   },
   {
    "a": "unsloth/Llama-3.1-8B",
    "b": "HuggingFaceTB/SmolLM2-1.7B",
    "same_family": false,
-   "closest_part": 0.9739,
-   "all_parts": 0.9921,
-   "seconds": 7
+   "closest_part": 0.983,
+   "all_parts": 0.9914,
+   "seconds": 4
   },
   {
    "a": "unsloth/Llama-3.1-8B",
    "b": "HuggingFaceTB/SmolLM-1.7B",
    "same_family": false,
-   "closest_part": 0.9693,
-   "all_parts": 0.9883,
-   "seconds": 10
+   "closest_part": 0.9727,
+   "all_parts": 0.9859,
+   "seconds": 5
   },
   {
    "a": "unsloth/Llama-3.1-8B",
    "b": "HuggingFaceTB/SmolLM2-360M",
    "same_family": false,
-   "closest_part": 0.9694,
-   "all_parts": 0.9911,
+   "closest_part": 0.9723,
+   "all_parts": 0.9865,
    "seconds": 2
   },
   {
    "a": "unsloth/Llama-3.1-8B",
    "b": "HuggingFaceTB/SmolLM-360M",
    "same_family": false,
-   "closest_part": 0.9667,
-   "all_parts": 0.9853,
-   "seconds": 5
+   "closest_part": 0.9773,
+   "all_parts": 0.9897,
+   "seconds": 3
   },
   {
    "a": "unsloth/Llama-3.1-8B",
    "b": "HuggingFaceTB/SmolLM2-135M",
    "same_family": false,
-   "closest_part": 0.9619,
-   "all_parts": 0.9791,
+   "closest_part": 0.9762,
+   "all_parts": 0.9858,
    "seconds": 1
   },
   {
    "a": "unsloth/Llama-3.1-8B",
    "b": "HuggingFaceTB/SmolLM-135M",
    "same_family": false,
-   "closest_part": 0.9621,
-   "all_parts": 0.9792,
-   "seconds": 2
+   "closest_part": 0.9648,
+   "all_parts": 0.983,
+   "seconds": 1
   },
   {
    "a": "unsloth/Llama-3.1-8B",
    "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
    "same_family": false,
-   "closest_part": 0.948,
-   "all_parts": 0.9723,
-   "seconds": 5
+   "closest_part": 0.9504,
+   "all_parts": 0.9772,
+   "seconds": 2
   },
   {
    "a": "unsloth/Llama-3.1-8B",
    "b": "EleutherAI/pythia-1.4b",
    "same_family": false,
-   "error": "ValueError: no token embedding table found",
-   "seconds": 0
+   "closest_part": 0.9893,
+   "all_parts": 0.9955,
+   "seconds": 5
   },
   {
    "a": "unsloth/Llama-3.1-8B",
    "b": "deepseek-ai/DeepSeek-V4-Flash",
    "same_family": false,
-   "closest_part": 0.96,
-   "all_parts": 0.9823,
-   "seconds": 12
+   "closest_part": 0.9695,
+   "all_parts": 0.9867,
+   "seconds": 8
   },
   {
    "a": "unsloth/Llama-3.1-8B",
    "b": "zai-org/GLM-5.3-Flash",
    "same_family": false,
-   "closest_part": 0.9828,
-   "all_parts": 0.9907,
-   "seconds": 14
+   "closest_part": 0.9851,
+   "all_parts": 0.992,
+   "seconds": 11
   },
   {
    "a": "marin-community/marin-8b-base",
    "b": "Qwen/Qwen2.5-7B",
    "same_family": false,
-   "closest_part": 0.9479,
-   "all_parts": 0.9716,
-   "seconds": 7
+   "closest_part": 0.9812,
+   "all_parts": 0.9899,
+   "seconds": 4
   },
   {
    "a": "marin-community/marin-8b-base",
    "b": "Qwen/Qwen2.5-1.5B",
    "same_family": false,
-   "closest_part": 0.9489,
-   "all_parts": 0.9751,
+   "closest_part": 0.9735,
+   "all_parts": 0.9864,
    "seconds": 0
   },
   {
    "a": "marin-community/marin-8b-base",
    "b": "Qwen/Qwen3-8B-Base",
    "same_family": false,
-   "closest_part": 0.9587,
-   "all_parts": 0.9738,
+   "closest_part": 0.972,
+   "all_parts": 0.9809,
    "seconds": 0
   },
   {
    "a": "marin-community/marin-8b-base",
    "b": "mistralai/Mistral-7B-v0.3",
    "same_family": false,
-   "closest_part": 0.8682,
-   "all_parts": 0.9135,
+   "closest_part": 0.9057,
+   "all_parts": 0.9405,
    "seconds": 0
   },
   {
    "a": "marin-community/marin-8b-base",
    "b": "allenai/OLMo-2-1124-7B",
    "same_family": false,
-   "closest_part": 0.9448,
-   "all_parts": 0.9701,
+   "closest_part": 0.95,
+   "all_parts": 0.9759,
    "seconds": 0
   },
   {
    "a": "marin-community/marin-8b-base",
    "b": "HuggingFaceTB/SmolLM2-1.7B",
    "same_family": false,
-   "closest_part": 0.9096,
-   "all_parts": 0.9874,
+   "closest_part": 0.973,
+   "all_parts": 0.9849,
    "seconds": 0
   },
   {
    "a": "marin-community/marin-8b-base",
    "b": "HuggingFaceTB/SmolLM-1.7B",
    "same_family": false,
-   "closest_part": 0.9654,
-   "all_parts": 1.0269,
+   "closest_part": 0.9688,
+   "all_parts": 0.9877,
    "seconds": 0
   },
   {
    "a": "marin-community/marin-8b-base",
    "b": "HuggingFaceTB/SmolLM2-360M",
    "same_family": false,
-   "closest_part": 0.8939,
-   "all_parts": 0.9828,
+   "closest_part": 0.9763,
+   "all_parts": 0.9889,
    "seconds": 0
   },
   {
    "a": "marin-community/marin-8b-base",
    "b": "HuggingFaceTB/SmolLM-360M",
    "same_family": false,
-   "closest_part": 0.9064,
-   "all_parts": 0.9951,
+   "closest_part": 0.9681,
+   "all_parts": 0.9872,
    "seconds": 0
   },
   {
    "a": "marin-community/marin-8b-base",
    "b": "HuggingFaceTB/SmolLM2-135M",
    "same_family": false,
-   "closest_part": 0.9249,
-   "all_parts": 0.9541,
+   "closest_part": 0.9692,
+   "all_parts": 0.9859,
    "seconds": 0
   },
   {
    "a": "marin-community/marin-8b-base",
    "b": "HuggingFaceTB/SmolLM-135M",
    "same_family": false,
-   "closest_part": 0.8995,
-   "all_parts": 0.9758,
+   "closest_part": 0.9764,
+   "all_parts": 0.9907,
    "seconds": 0
   },
   {
    "a": "marin-community/marin-8b-base",
    "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
    "same_family": false,
-   "closest_part": 0.8937,
-   "all_parts": 0.9357,
+   "closest_part": 0.9234,
+   "all_parts": 0.9537,
    "seconds": 0
   },
   {
    "a": "marin-community/marin-8b-base",
    "b": "EleutherAI/pythia-1.4b",
    "same_family": false,
-   "error": "ValueError: no token embedding table found",
+   "closest_part": 0.9867,
+   "all_parts": 0.9925,
    "seconds": 0
   },
   {
    "a": "marin-community/marin-8b-base",
    "b": "deepseek-ai/DeepSeek-V4-Flash",
    "same_family": false,
-   "closest_part": 0.938,
-   "all_parts": 0.971,
+   "closest_part": 0.9712,
+   "all_parts": 0.9876,
    "seconds": 0
   },
   {
    "a": "marin-community/marin-8b-base",
    "b": "zai-org/GLM-5.3-Flash",
    "same_family": false,
-   "closest_part": 0.976,
-   "all_parts": 0.9906,
+   "closest_part": 0.9824,
+   "all_parts": 0.9937,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen2.5-7B",
    "b": "Qwen/Qwen2.5-1.5B",
    "same_family": true,
-   "closest_part": 0.9848,
-   "all_parts": 0.993,
-   "seconds": 7
+   "closest_part": 0.986,
+   "all_parts": 0.9948,
+   "seconds": 5
   },
   {
    "a": "Qwen/Qwen2.5-7B",
    "b": "Qwen/Qwen3-8B-Base",
    "same_family": false,
-   "closest_part": 0.9759,
-   "all_parts": 0.9888,
-   "seconds": 6
+   "closest_part": 0.9833,
+   "all_parts": 0.9915,
+   "seconds": 4
   },
   {
    "a": "Qwen/Qwen2.5-7B",
    "b": "mistralai/Mistral-7B-v0.3",
    "same_family": false,
-   "closest_part": 0.964,
-   "all_parts": 0.9767,
-   "seconds": 12
+   "closest_part": 0.9591,
+   "all_parts": 0.9742,
+   "seconds": 7
   },
   {
    "a": "Qwen/Qwen2.5-7B",
    "b": "allenai/OLMo-2-1124-7B",
    "same_family": false,
-   "closest_part": 0.9844,
-   "all_parts": 0.9924,
-   "seconds": 9
+   "closest_part": 0.9872,
+   "all_parts": 0.9935,
+   "seconds": 4
   },
   {
    "a": "Qwen/Qwen2.5-7B",
    "b": "HuggingFaceTB/SmolLM2-1.7B",
    "same_family": false,
-   "closest_part": 0.9718,
-   "all_parts": 0.9886,
-   "seconds": 3
+   "closest_part": 0.9871,
+   "all_parts": 0.9917,
+   "seconds": 1
   },
   {
    "a": "Qwen/Qwen2.5-7B",
    "b": "HuggingFaceTB/SmolLM-1.7B",
    "same_family": false,
-   "closest_part": 0.9648,
-   "all_parts": 0.9826,
-   "seconds": 3
+   "closest_part": 0.9791,
+   "all_parts": 0.9924,
+   "seconds": 1
   },
   {
    "a": "Qwen/Qwen2.5-7B",
    "b": "HuggingFaceTB/SmolLM2-360M",
    "same_family": false,
-   "closest_part": 0.9785,
-   "all_parts": 0.9906,
-   "seconds": 1
+   "closest_part": 0.977,
+   "all_parts": 0.9836,
+   "seconds": 0
   },
   {
    "a": "Qwen/Qwen2.5-7B",
    "b": "HuggingFaceTB/SmolLM-360M",
    "same_family": false,
-   "closest_part": 0.9803,
-   "all_parts": 0.9927,
-   "seconds": 1
+   "closest_part": 0.9802,
+   "all_parts": 0.9907,
+   "seconds": 0
   },
   {
    "a": "Qwen/Qwen2.5-7B",
    "b": "HuggingFaceTB/SmolLM2-135M",
    "same_family": false,
-   "closest_part": 0.9745,
-   "all_parts": 0.9854,
+   "closest_part": 0.9782,
+   "all_parts": 0.9881,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen2.5-7B",
    "b": "HuggingFaceTB/SmolLM-135M",
    "same_family": false,
-   "closest_part": 0.9837,
-   "all_parts": 0.9917,
+   "closest_part": 0.9796,
+   "all_parts": 0.9907,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen2.5-7B",
    "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
    "same_family": false,
-   "closest_part": 0.965,
-   "all_parts": 0.9842,
-   "seconds": 3
+   "closest_part": 0.9566,
+   "all_parts": 0.9753,
+   "seconds": 1
   },
   {
    "a": "Qwen/Qwen2.5-7B",
    "b": "EleutherAI/pythia-1.4b",
    "same_family": false,
-   "error": "ValueError: no token embedding table found",
-   "seconds": 0
+   "closest_part": 0.9931,
+   "all_parts": 0.9984,
+   "seconds": 1
   },
   {
    "a": "Qwen/Qwen2.5-7B",
    "b": "deepseek-ai/DeepSeek-V4-Flash",
    "same_family": false,
-   "closest_part": 0.9707,
-   "all_parts": 0.9837,
-   "seconds": 8
+   "closest_part": 0.9786,
+   "all_parts": 0.988,
+   "seconds": 3
   },
   {
    "a": "Qwen/Qwen2.5-7B",
    "b": "zai-org/GLM-5.3-Flash",
    "same_family": false,
-   "closest_part": 0.9907,
-   "all_parts": 0.9952,
-   "seconds": 9
+   "closest_part": 0.9926,
+   "all_parts": 0.9961,
+   "seconds": 4
   },
   {
    "a": "Qwen/Qwen2.5-1.5B",
    "b": "Qwen/Qwen3-8B-Base",
    "same_family": false,
-   "closest_part": 0.9848,
-   "all_parts": 0.9918,
-   "seconds": 3
+   "closest_part": 0.9861,
+   "all_parts": 0.9927,
+   "seconds": 1
   },
   {
    "a": "Qwen/Qwen2.5-1.5B",
    "b": "mistralai/Mistral-7B-v0.3",
    "same_family": false,
-   "closest_part": 0.9562,
-   "all_parts": 0.9784,
+   "closest_part": 0.9735,
+   "all_parts": 0.989,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen2.5-1.5B",
    "b": "allenai/OLMo-2-1124-7B",
    "same_family": false,
-   "closest_part": 0.9817,
-   "all_parts": 0.9898,
+   "closest_part": 0.9869,
+   "all_parts": 0.9929,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen2.5-1.5B",
    "b": "HuggingFaceTB/SmolLM2-1.7B",
    "same_family": false,
-   "closest_part": 0.9404,
-   "all_parts": 0.978,
+   "closest_part": 0.9754,
+   "all_parts": 0.9872,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen2.5-1.5B",
    "b": "HuggingFaceTB/SmolLM-1.7B",
    "same_family": false,
-   "closest_part": 0.9511,
+   "closest_part": 0.9561,
    "all_parts": 0.9798,
    "seconds": 0
   },
@@ -402,111 +405,112 @@
    "a": "Qwen/Qwen2.5-1.5B",
    "b": "HuggingFaceTB/SmolLM2-360M",
    "same_family": false,
-   "closest_part": 0.9397,
-   "all_parts": 0.9787,
+   "closest_part": 0.959,
+   "all_parts": 0.9761,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen2.5-1.5B",
    "b": "HuggingFaceTB/SmolLM-360M",
    "same_family": false,
-   "closest_part": 0.9212,
-   "all_parts": 0.9721,
+   "closest_part": 0.9584,
+   "all_parts": 0.9819,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen2.5-1.5B",
    "b": "HuggingFaceTB/SmolLM2-135M",
    "same_family": false,
-   "closest_part": 0.9475,
-   "all_parts": 0.9681,
+   "closest_part": 0.9489,
+   "all_parts": 0.9704,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen2.5-1.5B",
    "b": "HuggingFaceTB/SmolLM-135M",
    "same_family": false,
-   "closest_part": 0.9553,
-   "all_parts": 0.9769,
+   "closest_part": 0.958,
+   "all_parts": 0.9789,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen2.5-1.5B",
    "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
    "same_family": false,
-   "closest_part": 0.9259,
-   "all_parts": 0.9609,
+   "closest_part": 0.9323,
+   "all_parts": 0.9597,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen2.5-1.5B",
    "b": "EleutherAI/pythia-1.4b",
    "same_family": false,
-   "error": "ValueError: no token embedding table found",
+   "closest_part": 0.9882,
+   "all_parts": 0.9931,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen2.5-1.5B",
    "b": "deepseek-ai/DeepSeek-V4-Flash",
    "same_family": false,
-   "closest_part": 0.9737,
-   "all_parts": 0.9852,
+   "closest_part": 0.9779,
+   "all_parts": 0.9894,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen2.5-1.5B",
    "b": "zai-org/GLM-5.3-Flash",
    "same_family": false,
-   "closest_part": 0.9909,
-   "all_parts": 0.9956,
+   "closest_part": 0.9915,
+   "all_parts": 0.9965,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen3-8B-Base",
    "b": "mistralai/Mistral-7B-v0.3",
    "same_family": false,
-   "closest_part": 0.9629,
-   "all_parts": 0.9796,
-   "seconds": 11
+   "closest_part": 0.9625,
+   "all_parts": 0.978,
+   "seconds": 3
   },
   {
    "a": "Qwen/Qwen3-8B-Base",
    "b": "allenai/OLMo-2-1124-7B",
    "same_family": false,
-   "closest_part": 0.988,
-   "all_parts": 0.9926,
+   "closest_part": 0.9887,
+   "all_parts": 0.9932,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen3-8B-Base",
    "b": "HuggingFaceTB/SmolLM2-1.7B",
    "same_family": false,
-   "closest_part": 0.9695,
-   "all_parts": 0.9823,
+   "closest_part": 0.9789,
+   "all_parts": 0.9882,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen3-8B-Base",
    "b": "HuggingFaceTB/SmolLM-1.7B",
    "same_family": false,
-   "closest_part": 0.9663,
-   "all_parts": 0.9827,
+   "closest_part": 0.9866,
+   "all_parts": 0.9953,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen3-8B-Base",
    "b": "HuggingFaceTB/SmolLM2-360M",
    "same_family": false,
-   "closest_part": 0.9769,
-   "all_parts": 0.9911,
+   "closest_part": 0.973,
+   "all_parts": 0.9835,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen3-8B-Base",
    "b": "HuggingFaceTB/SmolLM-360M",
    "same_family": false,
-   "closest_part": 0.9745,
-   "all_parts": 0.9914,
+   "closest_part": 0.9769,
+   "all_parts": 0.9884,
    "seconds": 0
   },
   {
@@ -514,564 +518,576 @@
    "b": "HuggingFaceTB/SmolLM2-135M",
    "same_family": false,
    "closest_part": 0.9711,
-   "all_parts": 0.9869,
+   "all_parts": 0.9839,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen3-8B-Base",
    "b": "HuggingFaceTB/SmolLM-135M",
    "same_family": false,
-   "closest_part": 0.9795,
-   "all_parts": 0.9912,
+   "closest_part": 0.9748,
+   "all_parts": 0.9848,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen3-8B-Base",
    "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
    "same_family": false,
-   "closest_part": 0.9596,
-   "all_parts": 0.9768,
+   "closest_part": 0.9529,
+   "all_parts": 0.9754,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen3-8B-Base",
    "b": "EleutherAI/pythia-1.4b",
    "same_family": false,
-   "error": "ValueError: no token embedding table found",
+   "closest_part": 0.9877,
+   "all_parts": 0.9943,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen3-8B-Base",
    "b": "deepseek-ai/DeepSeek-V4-Flash",
    "same_family": false,
-   "closest_part": 0.9743,
-   "all_parts": 0.9855,
+   "closest_part": 0.9689,
+   "all_parts": 0.9831,
    "seconds": 0
   },
   {
    "a": "Qwen/Qwen3-8B-Base",
    "b": "zai-org/GLM-5.3-Flash",
    "same_family": false,
-   "closest_part": 0.9868,
-   "all_parts": 0.993,
+   "closest_part": 0.9865,
+   "all_parts": 0.9928,
    "seconds": 0
   },
   {
    "a": "mistralai/Mistral-7B-v0.3",
    "b": "allenai/OLMo-2-1124-7B",
    "same_family": false,
-   "closest_part": 0.9314,
-   "all_parts": 0.9609,
-   "seconds": 21
+   "closest_part": 0.9379,
+   "all_parts": 0.9613,
+   "seconds": 10
   },
   {
    "a": "mistralai/Mistral-7B-v0.3",
    "b": "HuggingFaceTB/SmolLM2-1.7B",
    "same_family": false,
-   "closest_part": 0.9317,
-   "all_parts": 0.9771,
-   "seconds": 2
+   "closest_part": 0.9522,
+   "all_parts": 0.9687,
+   "seconds": 1
   },
   {
    "a": "mistralai/Mistral-7B-v0.3",
    "b": "HuggingFaceTB/SmolLM-1.7B",
    "same_family": false,
-   "closest_part": 0.9334,
-   "all_parts": 0.9742,
-   "seconds": 2
+   "closest_part": 0.961,
+   "all_parts": 0.9765,
+   "seconds": 1
   },
   {
    "a": "mistralai/Mistral-7B-v0.3",
    "b": "HuggingFaceTB/SmolLM2-360M",
    "same_family": false,
-   "closest_part": 0.9403,
-   "all_parts": 0.9822,
+   "closest_part": 0.9561,
+   "all_parts": 0.9812,
    "seconds": 0
   },
   {
    "a": "mistralai/Mistral-7B-v0.3",
    "b": "HuggingFaceTB/SmolLM-360M",
    "same_family": false,
-   "closest_part": 0.9393,
-   "all_parts": 0.9866,
+   "closest_part": 0.9449,
+   "all_parts": 0.965,
    "seconds": 0
   },
   {
    "a": "mistralai/Mistral-7B-v0.3",
    "b": "HuggingFaceTB/SmolLM2-135M",
    "same_family": false,
-   "closest_part": 0.93,
-   "all_parts": 0.9725,
+   "closest_part": 0.9473,
+   "all_parts": 0.9785,
    "seconds": 0
   },
   {
    "a": "mistralai/Mistral-7B-v0.3",
    "b": "HuggingFaceTB/SmolLM-135M",
    "same_family": false,
-   "closest_part": 0.9165,
-   "all_parts": 0.9738,
+   "closest_part": 0.9253,
+   "all_parts": 0.952,
    "seconds": 0
   },
   {
    "a": "mistralai/Mistral-7B-v0.3",
    "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
    "same_family": false,
-   "closest_part": 0.9548,
-   "all_parts": 0.9743,
+   "closest_part": 0.9608,
+   "all_parts": 0.9799,
    "seconds": 1
   },
   {
    "a": "mistralai/Mistral-7B-v0.3",
    "b": "EleutherAI/pythia-1.4b",
    "same_family": false,
-   "error": "ValueError: no token embedding table found",
-   "seconds": 0
+   "closest_part": 0.9583,
+   "all_parts": 0.9828,
+   "seconds": 1
   },
   {
    "a": "mistralai/Mistral-7B-v0.3",
    "b": "deepseek-ai/DeepSeek-V4-Flash",
    "same_family": false,
-   "closest_part": 0.9177,
-   "all_parts": 0.9464,
-   "seconds": 4
+   "closest_part": 0.9261,
+   "all_parts": 0.9592,
+   "seconds": 2
   },
   {
    "a": "mistralai/Mistral-7B-v0.3",
    "b": "zai-org/GLM-5.3-Flash",
    "same_family": false,
-   "closest_part": 0.9488,
-   "all_parts": 0.9712,
-   "seconds": 5
+   "closest_part": 0.9514,
+   "all_parts": 0.9703,
+   "seconds": 3
   },
   {
    "a": "allenai/OLMo-2-1124-7B",
    "b": "HuggingFaceTB/SmolLM2-1.7B",
    "same_family": false,
-   "closest_part": 0.9732,
-   "all_parts": 0.9903,
-   "seconds": 6
+   "closest_part": 0.979,
+   "all_parts": 0.9912,
+   "seconds": 4
   },
   {
    "a": "allenai/OLMo-2-1124-7B",
    "b": "HuggingFaceTB/SmolLM-1.7B",
    "same_family": false,
-   "closest_part": 0.9392,
-   "all_parts": 0.9767,
+   "closest_part": 0.9674,
+   "all_parts": 0.9852,
    "seconds": 0
   },
   {
    "a": "allenai/OLMo-2-1124-7B",
    "b": "HuggingFaceTB/SmolLM2-360M",
    "same_family": false,
-   "closest_part": 0.9685,
-   "all_parts": 0.9875,
+   "closest_part": 0.9713,
+   "all_parts": 0.9863,
    "seconds": 0
   },
   {
    "a": "allenai/OLMo-2-1124-7B",
    "b": "HuggingFaceTB/SmolLM-360M",
    "same_family": false,
-   "closest_part": 0.9752,
-   "all_parts": 0.9887,
+   "closest_part": 0.9539,
+   "all_parts": 0.9805,
    "seconds": 0
   },
   {
    "a": "allenai/OLMo-2-1124-7B",
    "b": "HuggingFaceTB/SmolLM2-135M",
    "same_family": false,
-   "closest_part": 0.9786,
-   "all_parts": 0.9861,
-   "seconds": 0
-  },
-  {
-   "a": "allenai/OLMo-2-1124-7B",
-   "b": "HuggingFaceTB/SmolLM-135M",
-   "same_family": false,
-   "closest_part": 0.9812,
-   "all_parts": 0.9909,
-   "seconds": 0
-  },
-  {
-   "a": "allenai/OLMo-2-1124-7B",
-   "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-   "same_family": false,
-   "closest_part": 0.9543,
-   "all_parts": 0.9687,
-   "seconds": 0
-  },
-  {
-   "a": "allenai/OLMo-2-1124-7B",
-   "b": "EleutherAI/pythia-1.4b",
-   "same_family": false,
-   "error": "ValueError: no token embedding table found",
-   "seconds": 0
-  },
-  {
-   "a": "allenai/OLMo-2-1124-7B",
-   "b": "deepseek-ai/DeepSeek-V4-Flash",
-   "same_family": false,
-   "closest_part": 0.9673,
+   "closest_part": 0.9745,
    "all_parts": 0.9835,
    "seconds": 0
   },
   {
    "a": "allenai/OLMo-2-1124-7B",
+   "b": "HuggingFaceTB/SmolLM-135M",
+   "same_family": false,
+   "closest_part": 0.9718,
+   "all_parts": 0.983,
+   "seconds": 0
+  },
+  {
+   "a": "allenai/OLMo-2-1124-7B",
+   "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "same_family": false,
+   "closest_part": 0.9572,
+   "all_parts": 0.9706,
+   "seconds": 0
+  },
+  {
+   "a": "allenai/OLMo-2-1124-7B",
+   "b": "EleutherAI/pythia-1.4b",
+   "same_family": false,
+   "closest_part": 0.9844,
+   "all_parts": 0.9918,
+   "seconds": 0
+  },
+  {
+   "a": "allenai/OLMo-2-1124-7B",
+   "b": "deepseek-ai/DeepSeek-V4-Flash",
+   "same_family": false,
+   "closest_part": 0.9712,
+   "all_parts": 0.9851,
+   "seconds": 0
+  },
+  {
+   "a": "allenai/OLMo-2-1124-7B",
    "b": "zai-org/GLM-5.3-Flash",
    "same_family": false,
-   "closest_part": 0.9833,
-   "all_parts": 0.9909,
+   "closest_part": 0.9845,
+   "all_parts": 0.9916,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM2-1.7B",
    "b": "HuggingFaceTB/SmolLM-1.7B",
    "same_family": false,
-   "closest_part": 0.6091,
-   "all_parts": 0.7848,
-   "seconds": 4
+   "closest_part": 0.9245,
+   "all_parts": 0.9594,
+   "seconds": 3
   },
   {
    "a": "HuggingFaceTB/SmolLM2-1.7B",
    "b": "HuggingFaceTB/SmolLM2-360M",
    "same_family": true,
-   "closest_part": 0.5114,
-   "all_parts": 0.7668,
+   "closest_part": 0.8951,
+   "all_parts": 0.9445,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM2-1.7B",
    "b": "HuggingFaceTB/SmolLM-360M",
    "same_family": false,
-   "closest_part": 0.5117,
-   "all_parts": 0.7587,
+   "closest_part": 0.8751,
+   "all_parts": 0.9371,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM2-1.7B",
    "b": "HuggingFaceTB/SmolLM2-135M",
    "same_family": true,
-   "closest_part": 0.9117,
-   "all_parts": 0.9572,
+   "closest_part": 0.9407,
+   "all_parts": 0.9636,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM2-1.7B",
    "b": "HuggingFaceTB/SmolLM-135M",
    "same_family": false,
-   "closest_part": 0.6768,
-   "all_parts": 0.8393,
+   "closest_part": 0.9349,
+   "all_parts": 0.9568,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM2-1.7B",
    "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
    "same_family": false,
-   "closest_part": 0.9439,
-   "all_parts": 1.038,
+   "closest_part": 0.9511,
+   "all_parts": 0.9901,
    "seconds": 1
   },
   {
    "a": "HuggingFaceTB/SmolLM2-1.7B",
    "b": "EleutherAI/pythia-1.4b",
    "same_family": false,
-   "error": "ValueError: no token embedding table found",
-   "seconds": 0
+   "closest_part": 0.9821,
+   "all_parts": 0.9887,
+   "seconds": 1
   },
   {
    "a": "HuggingFaceTB/SmolLM2-1.7B",
    "b": "deepseek-ai/DeepSeek-V4-Flash",
    "same_family": false,
-   "closest_part": 0.9349,
-   "all_parts": 0.9691,
-   "seconds": 4
+   "closest_part": 0.9582,
+   "all_parts": 0.9746,
+   "seconds": 3
   },
   {
    "a": "HuggingFaceTB/SmolLM2-1.7B",
    "b": "zai-org/GLM-5.3-Flash",
    "same_family": false,
-   "closest_part": 0.9742,
-   "all_parts": 0.9852,
-   "seconds": 5
+   "closest_part": 0.9787,
+   "all_parts": 0.9889,
+   "seconds": 3
   },
   {
    "a": "HuggingFaceTB/SmolLM-1.7B",
    "b": "HuggingFaceTB/SmolLM2-360M",
    "same_family": false,
-   "closest_part": 0.7315,
-   "all_parts": 0.9506,
-   "seconds": 2
+   "closest_part": 0.9679,
+   "all_parts": 1.0078,
+   "seconds": 1
   },
   {
    "a": "HuggingFaceTB/SmolLM-1.7B",
    "b": "HuggingFaceTB/SmolLM-360M",
    "same_family": true,
-   "closest_part": 0.6595,
-   "all_parts": 0.849,
+   "closest_part": 0.8859,
+   "all_parts": 0.9433,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM-1.7B",
    "b": "HuggingFaceTB/SmolLM2-135M",
    "same_family": false,
-   "closest_part": 0.9457,
-   "all_parts": 0.9827,
+   "closest_part": 0.9381,
+   "all_parts": 0.9662,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM-1.7B",
    "b": "HuggingFaceTB/SmolLM-135M",
    "same_family": true,
-   "closest_part": 0.7725,
-   "all_parts": 0.9158,
+   "closest_part": 0.9175,
+   "all_parts": 0.949,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM-1.7B",
    "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
    "same_family": false,
-   "closest_part": 0.9239,
-   "all_parts": 0.9965,
+   "closest_part": 0.9634,
+   "all_parts": 0.9831,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM-1.7B",
    "b": "EleutherAI/pythia-1.4b",
    "same_family": false,
-   "error": "ValueError: no token embedding table found",
+   "closest_part": 0.9889,
+   "all_parts": 0.9945,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM-1.7B",
    "b": "deepseek-ai/DeepSeek-V4-Flash",
    "same_family": false,
-   "closest_part": 0.9554,
-   "all_parts": 0.982,
+   "closest_part": 0.9522,
+   "all_parts": 0.9775,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM-1.7B",
    "b": "zai-org/GLM-5.3-Flash",
    "same_family": false,
-   "closest_part": 0.9575,
-   "all_parts": 0.9823,
+   "closest_part": 0.9723,
+   "all_parts": 0.9843,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM2-360M",
    "b": "HuggingFaceTB/SmolLM-360M",
    "same_family": false,
-   "closest_part": 0.4173,
-   "all_parts": 0.6688,
+   "closest_part": 0.8789,
+   "all_parts": 0.941,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM2-360M",
    "b": "HuggingFaceTB/SmolLM2-135M",
    "same_family": true,
-   "closest_part": 0.8882,
-   "all_parts": 0.9393,
+   "closest_part": 0.9242,
+   "all_parts": 0.9578,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM2-360M",
    "b": "HuggingFaceTB/SmolLM-135M",
    "same_family": false,
-   "closest_part": 0.5839,
-   "all_parts": 0.7447,
+   "closest_part": 0.9297,
+   "all_parts": 0.9581,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM2-360M",
    "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
    "same_family": false,
-   "closest_part": 0.9644,
-   "all_parts": 1.04,
+   "closest_part": 0.967,
+   "all_parts": 0.9845,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM2-360M",
    "b": "EleutherAI/pythia-1.4b",
    "same_family": false,
-   "error": "ValueError: no token embedding table found",
+   "closest_part": 0.9855,
+   "all_parts": 0.9936,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM2-360M",
    "b": "deepseek-ai/DeepSeek-V4-Flash",
    "same_family": false,
-   "closest_part": 0.9085,
-   "all_parts": 0.9548,
+   "closest_part": 0.9458,
+   "all_parts": 0.9747,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM2-360M",
    "b": "zai-org/GLM-5.3-Flash",
    "same_family": false,
-   "closest_part": 0.9583,
-   "all_parts": 0.9801,
+   "closest_part": 0.9701,
+   "all_parts": 0.9849,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM-360M",
    "b": "HuggingFaceTB/SmolLM2-135M",
    "same_family": false,
-   "closest_part": 0.8918,
-   "all_parts": 0.9464,
+   "closest_part": 0.9324,
+   "all_parts": 0.9656,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM-360M",
    "b": "HuggingFaceTB/SmolLM-135M",
    "same_family": true,
-   "closest_part": 0.3987,
-   "all_parts": 0.6702,
+   "closest_part": 0.8392,
+   "all_parts": 0.9134,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM-360M",
    "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
    "same_family": false,
-   "closest_part": 0.9605,
-   "all_parts": 1.0347,
+   "closest_part": 0.9675,
+   "all_parts": 0.981,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM-360M",
    "b": "EleutherAI/pythia-1.4b",
    "same_family": false,
-   "error": "ValueError: no token embedding table found",
+   "closest_part": 0.9814,
+   "all_parts": 0.9908,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM-360M",
    "b": "deepseek-ai/DeepSeek-V4-Flash",
    "same_family": false,
-   "closest_part": 0.9299,
-   "all_parts": 0.9719,
+   "closest_part": 0.9676,
+   "all_parts": 0.984,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM-360M",
    "b": "zai-org/GLM-5.3-Flash",
    "same_family": false,
-   "closest_part": 0.9578,
-   "all_parts": 0.9822,
+   "closest_part": 0.9737,
+   "all_parts": 0.9868,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM2-135M",
    "b": "HuggingFaceTB/SmolLM-135M",
    "same_family": false,
-   "closest_part": 0.8864,
-   "all_parts": 0.9274,
+   "closest_part": 0.9516,
+   "all_parts": 0.9718,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM2-135M",
    "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
    "same_family": false,
-   "closest_part": 0.9703,
-   "all_parts": 1.0006,
+   "closest_part": 0.9529,
+   "all_parts": 0.9761,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM2-135M",
    "b": "EleutherAI/pythia-1.4b",
    "same_family": false,
-   "error": "ValueError: no token embedding table found",
+   "closest_part": 0.9865,
+   "all_parts": 0.9932,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM2-135M",
    "b": "deepseek-ai/DeepSeek-V4-Flash",
    "same_family": false,
-   "closest_part": 0.9483,
-   "all_parts": 0.9747,
+   "closest_part": 0.951,
+   "all_parts": 0.9769,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM2-135M",
    "b": "zai-org/GLM-5.3-Flash",
    "same_family": false,
-   "closest_part": 0.9595,
-   "all_parts": 0.9747,
+   "closest_part": 0.9624,
+   "all_parts": 0.9766,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM-135M",
    "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
    "same_family": false,
-   "closest_part": 0.9671,
-   "all_parts": 1.0316,
+   "closest_part": 0.9476,
+   "all_parts": 0.9767,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM-135M",
    "b": "EleutherAI/pythia-1.4b",
    "same_family": false,
-   "error": "ValueError: no token embedding table found",
+   "closest_part": 0.9824,
+   "all_parts": 0.9913,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM-135M",
    "b": "deepseek-ai/DeepSeek-V4-Flash",
    "same_family": false,
-   "closest_part": 0.9323,
-   "all_parts": 0.9679,
+   "closest_part": 0.9544,
+   "all_parts": 0.9741,
    "seconds": 0
   },
   {
    "a": "HuggingFaceTB/SmolLM-135M",
    "b": "zai-org/GLM-5.3-Flash",
    "same_family": false,
-   "closest_part": 0.9603,
-   "all_parts": 0.9837,
+   "closest_part": 0.9697,
+   "all_parts": 0.9843,
    "seconds": 0
   },
   {
    "a": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
    "b": "EleutherAI/pythia-1.4b",
    "same_family": false,
-   "error": "ValueError: no token embedding table found",
+   "closest_part": 0.973,
+   "all_parts": 0.9866,
    "seconds": 2
   },
   {
    "a": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
    "b": "deepseek-ai/DeepSeek-V4-Flash",
    "same_family": false,
-   "closest_part": 0.9277,
-   "all_parts": 0.9555,
+   "closest_part": 0.9421,
+   "all_parts": 0.963,
+   "seconds": 2
+  },
+  {
+   "a": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "b": "zai-org/GLM-5.3-Flash",
+   "same_family": false,
+   "closest_part": 0.9592,
+   "all_parts": 0.9764,
+   "seconds": 3
+  },
+  {
+   "a": "EleutherAI/pythia-1.4b",
+   "b": "deepseek-ai/DeepSeek-V4-Flash",
+   "same_family": false,
+   "closest_part": 0.9859,
+   "all_parts": 0.9909,
    "seconds": 4
   },
   {
-   "a": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-   "b": "zai-org/GLM-5.3-Flash",
-   "same_family": false,
-   "closest_part": 0.954,
-   "all_parts": 0.9743,
-   "seconds": 6
-  },
-  {
-   "a": "EleutherAI/pythia-1.4b",
-   "b": "deepseek-ai/DeepSeek-V4-Flash",
-   "same_family": false,
-   "error": "ValueError: no token embedding table found",
-   "seconds": 0
-  },
-  {
    "a": "EleutherAI/pythia-1.4b",
    "b": "zai-org/GLM-5.3-Flash",
    "same_family": false,
-   "error": "ValueError: no token embedding table found",
-   "seconds": 0
+   "closest_part": 0.9771,
+   "all_parts": 0.9891,
+   "seconds": 3
   },
   {
    "a": "deepseek-ai/DeepSeek-V4-Flash",
    "b": "zai-org/GLM-5.3-Flash",
    "same_family": false,
-   "closest_part": 0.9771,
-   "all_parts": 0.9861,
-   "seconds": 13
+   "closest_part": 0.9782,
+   "all_parts": 0.9874,
+   "seconds": 6
   }
  ]
 }
