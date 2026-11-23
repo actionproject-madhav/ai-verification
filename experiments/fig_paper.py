@@ -2,6 +2,8 @@
 
   separation    distance against model size: copies, unrelated models, long retrains (universal_*, watchlist)
   hashes        what exact hashes recognise against what the fingerprint recognises (hash_baseline)
+  robustness    retraining aimed at the tool: leaving Red, and trying to reach Green (gpu/, round7_forge_long_135m)
+  census        declared bases against the weights, on the most-downloaded Hub models (hub_scan/compare.json)
   architecture  the mechanism as a diagram
 
 Usage: python fig_paper.py <results dir> <out dir> [figure ...]
@@ -130,37 +132,63 @@ def _runs(path, mode):
 
 def _curves(ax, series, key, threshold, ylabel):
     ax.axhline(threshold, color=HAIR, lw=0.8, zorder=0)
+    last = max(r["step"] for _, rows, _ in series for r in rows)
     for label, rows, colour in series:
         if not rows:
             continue
         x, y = [r["step"] for r in rows], [key(r) for r in rows]
-        ax.plot(x, y, color=colour, lw=1.4, marker="o", ms=2.6)
-        ax.text(x[-1] * 1.02 + 30, y[-1], label, color=colour, fontsize=8, va="center", ha="left")
+        ax.plot(x, y, color=colour, lw=1.4, marker="o", ms=2.4, clip_on=False)
+        ax.annotate(label, (x[-1], y[-1]), xytext=(5, 0), textcoords="offset points", color=colour, fontsize=8, va="center")
+    ax.set_xlim(0, last)
     ax.set_ylim(-0.04, 1.06)
     ax.set_yticks(sorted({0, threshold, 0.5, 1.0}))
-    ax.set_xlabel("training steps against the check")
+    ax.set_xlabel("training steps")
     ax.set_ylabel(ylabel)
 
 
 def robustness(res, out):
-    """Round 7, the attacker who knows the tool. Left figure: leaving Red. Right figure: trying to reach Green."""
+    """Round 7: retraining aimed at the tool itself. Left: a copy of a listed model leaving Red (closest part to
+    the listed model, Red below 0.5). Right: the same copy trying to pass as a known model (all parts to the known
+    model, Green below 0.1)."""
     g = os.path.join(res, "gpu")
     erase = [("135M", _runs(os.path.join(g, "135m-v2-exp_adaptive_light.jsonl"), "erase"), INK),
              ("1.7B", _runs(os.path.join(g, "1.7b-v2-erase-exp_adaptive_light.jsonl"), "erase"), FOREST)]
     long = _runs(os.path.join(res, "round7_forge_long_135m.jsonl"), "forge")
     forge = [("135M", long or _runs(os.path.join(g, "135m-v2-exp_adaptive_light.jsonl"), "forge"), INK),
              ("1.7B", _runs(os.path.join(g, "1.7b-v2-forge-exp_adaptive_light.jsonl"), "forge"), FOREST)]
-    fig, ax = plt.subplots(figsize=(3.4, 2.5))
-    _curves(ax, erase, lambda r: r["to_X"][0], 0.5, "closest part, to the listed model")
-    save(fig, out, "fig_leave_red")
-    fig, ax = plt.subplots(figsize=(3.4, 2.5))
-    _curves(ax, forge, lambda r: r["to_Y"][1], 0.1, "all parts, to the known model")
-    save(fig, out, "fig_reach_green")
+    fig, (a, b) = plt.subplots(1, 2, figsize=(7.2, 2.6), gridspec_kw={"wspace": 0.42})
+    _curves(a, erase, lambda r: r["to_X"][0], 0.5, "closest part, to the listed model")
+    _curves(b, forge, lambda r: r["to_Y"][1], 0.1, "all parts, to the known model")
+    save(fig, out, "fig_stress")
     last = lambda rows: None if not rows else {k: rows[-1][k] for k in ("step", "light", "to_X", "to_Y", "kl", "lambada")}
     return {"erase": {n: last(r) for n, r, _ in erase}, "forge": {n: last(r) for n, r, _ in forge}}
 
 
-# ---------------------------------------------------------------------------------------------------------------
+def census(res, out):
+    """The 3,000 most-downloaded text models on the Hub, by what their card declares and what the weights say."""
+    rows = [r for r in json.load(open(os.path.join(res, "hub_scan", "compare.json")))["rows"] if r.get("status") != "unreadable"]
+    n = lambda claim, lights: sum(r["claim"] == claim and r["light"] in lights for r in rows)
+    copy, unknown = ("close copy", "modified copy"), ("unknown origin",)
+    bars = [("declares a base", [(sum(r["claim"] == "declared base confirmed" for r in rows), FOREST, "confirmed"),
+                                 (sum(r["claim"] == "declared base not confirmed" for r in rows), VERM, "not confirmed")]),
+            ("declares none", [(n("no base declared", copy), FOREST, "traced to a base"),
+                               (n("no base declared", unknown), HAIR, "no base found")])]
+    fig, ax = plt.subplots(figsize=(6.6, 1.5))
+    for y, (name, parts) in zip((1, 0), bars):
+        x = 0
+        for k, (v, colour, what) in enumerate(parts):
+            ax.barh(y, v, left=x, height=0.46, color=colour, linewidth=0)
+            inside = v > 150
+            ax.text(x + v / 2 if inside else x + v + 14, y, f"{v:,}", ha="center" if inside else "left", va="center", fontsize=8.5,
+                    color="white" if inside and colour != HAIR else INK, **MONO)
+            ax.text(x + v / 2 if inside else x + v + 14, y - 0.36, what, ha="center" if inside else "left", va="top", fontsize=7.4, color=MUTED)
+            x += v
+        ax.text(-22, y, name, ha="right", va="center", fontsize=9)
+    ax.set_xlim(-10, 1260); ax.set_ylim(-0.75, 1.45); ax.axis("off")
+    save(fig, out, "fig_census")
+    return {name: [(what, v) for v, _, what in parts] for name, parts in bars}
+
+
 def _box(ax, x, y, w, h, lw=1.2, fc="white", ec=INK, r=0.06, z=2):
     ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle=f"round,pad=0,rounding_size={r}", lw=lw, fc=fc, ec=ec, zorder=z))
 
