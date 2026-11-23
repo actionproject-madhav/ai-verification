@@ -13,7 +13,7 @@ import fp_act
 from lineage_check import paths
 
 torch.set_grad_enabled(False)
-torch.set_num_threads(6)
+torch.set_num_threads(int(os.environ.get("RT_THREADS", 6)))      # every red-team script imports this file
 ZOO = paths.ZOO
 NONCE = "v4-probe-2026-11-18"
 B, T = 8, 72
