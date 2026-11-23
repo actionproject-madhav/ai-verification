@@ -1,0 +1,1357 @@
+{
+ "built": "2026-11-18T20:11:58Z",
+ "anchors": [
+  {
+   "id": "qwen2.5-0.5b-instruct",
+   "repo": "Qwen/Qwen2.5-0.5B-Instruct",
+   "base": "Qwen/Qwen2.5-0.5B-Instruct"
+  },
+  {
+   "id": "qwen2.5-1.5b-instruct",
+   "repo": "Qwen/Qwen2.5-1.5B-Instruct",
+   "base": "Qwen/Qwen2.5-1.5B-Instruct"
+  },
+  {
+   "id": "llama-3.2-1b-instruct",
+   "repo": "unsloth/Llama-3.2-1B-Instruct",
+   "base": "meta-llama/Llama-3.2-1B-Instruct"
+  },
+  {
+   "id": "smollm2-1.7b-instruct",
+   "repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+   "base": "HuggingFaceTB/SmolLM2-1.7B-Instruct"
+  },
+  {
+   "id": "qwen3-1.7b",
+   "repo": "Qwen/Qwen3-1.7B",
+   "base": "Qwen/Qwen3-1.7B"
+  }
+ ],
+ "population": [
+  {
+   "repo": "unsloth/Qwen2.5-0.5B-Instruct",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "finetune",
+   "downloads": 22353,
+   "quant": null
+  },
+  {
+   "repo": "manycore-research/SpatialLM-Qwen-0.5B",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "finetune",
+   "downloads": 6077,
+   "quant": null
+  },
+  {
+   "repo": "manycore-research/SpatialLM1.1-Qwen-0.5B",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "finetune",
+   "downloads": 3060,
+   "quant": null
+  },
+  {
+   "repo": "Thox-ai/ThoxEdge-0.5B",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "finetune",
+   "downloads": 2374,
+   "quant": null
+  },
+  {
+   "repo": "huihui-ai/Qwen2.5-0.5B-Instruct-abliterated-v3",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "finetune",
+   "downloads": 2212,
+   "quant": null
+  },
+  {
+   "repo": "reaperdoesntknow/DeepReasoning_1R",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "finetune",
+   "downloads": 2007,
+   "quant": null
+  },
+  {
+   "repo": "DevTheusP/qwen2.5-0.5b-fact-extractor-ptbr",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "finetune",
+   "downloads": 1281,
+   "quant": null
+  },
+  {
+   "repo": "Ma7ee7/Qwen2.5-0.5b-Next",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "finetune",
+   "downloads": 1268,
+   "quant": null
+  },
+  {
+   "repo": "OpenGVLab/InternVL2_5-1B",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "merge",
+   "downloads": 7735,
+   "quant": null
+  },
+  {
+   "repo": "MergekitCloud/mergekit-125",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "merge",
+   "downloads": 982,
+   "quant": null
+  },
+  {
+   "repo": "nvidia/Eagle2-1B",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "merge",
+   "downloads": 972,
+   "quant": null
+  },
+  {
+   "repo": "Sakalti/chromet1-0.6b",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "merge",
+   "downloads": 315,
+   "quant": null
+  },
+  {
+   "repo": "MergekitCloud/mergekit-40",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "merge",
+   "downloads": 141,
+   "quant": null
+  },
+  {
+   "repo": "minjihong1/minz-hybrid-ceo-slerp-v1-0.5b",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "merge",
+   "downloads": 138,
+   "quant": null
+  },
+  {
+   "repo": "djuna-test-lab/QwenFocusedCoder",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "merge",
+   "downloads": 112,
+   "quant": null
+  },
+  {
+   "repo": "mergekit-community/QwenFocusedCoder2",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "merge",
+   "downloads": 111,
+   "quant": null
+  },
+  {
+   "repo": "livekit/turn-detector",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "quantized",
+   "downloads": 914274,
+   "quant": null
+  },
+  {
+   "repo": "mobilint/Qwen2.5-0.5B-Instruct",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "quantized",
+   "downloads": 27747,
+   "quant": null
+  },
+  {
+   "repo": "lmstudio-community/Qwen2.5-0.5B-Instruct-MLX-4bit",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "quantized",
+   "downloads": 5808,
+   "quant": null
+  },
+  {
+   "repo": "sallani/ISO27001-Qwen2.5-0.5B-Edge",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "quantized",
+   "downloads": 4073,
+   "quant": null
+  },
+  {
+   "repo": "saidutta69/Qwen2.5-0.5B-Instruct-heretic",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "quantized",
+   "downloads": 3390,
+   "quant": null
+  },
+  {
+   "repo": "sallani/ISO42001-Qwen2.5-0.5B-Edge",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "quantized",
+   "downloads": 3283,
+   "quant": null
+  },
+  {
+   "repo": "Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int4",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "quantized",
+   "downloads": 2649,
+   "quant": "gptq"
+  },
+  {
+   "repo": "Qwen/Qwen2.5-0.5B-Instruct-AWQ",
+   "group": "declared",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "quantized",
+   "downloads": 2508,
+   "quant": "awq"
+  },
+  {
+   "repo": "JackKozmo29/depguard-jev-style-1.5b",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "finetune",
+   "downloads": 98398,
+   "quant": null
+  },
+  {
+   "repo": "JackKozmo29/sevclassifier-jev-style-1.5b",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "finetune",
+   "downloads": 73011,
+   "quant": null
+  },
+  {
+   "repo": "JackKozmo29/mailguard-jev-style-1.5b",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "finetune",
+   "downloads": 70367,
+   "quant": null
+  },
+  {
+   "repo": "katanemo/Arch-Router-1.5B",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "finetune",
+   "downloads": 61050,
+   "quant": null
+  },
+  {
+   "repo": "JackKozmo29/codeguard-jev-style-1.5b",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "finetune",
+   "downloads": 51627,
+   "quant": null
+  },
+  {
+   "repo": "unsloth/Qwen2.5-1.5B-Instruct",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "finetune",
+   "downloads": 45203,
+   "quant": null
+  },
+  {
+   "repo": "Efficient-Large-Model/Fast_dLLM_v2_1.5B",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "finetune",
+   "downloads": 2027,
+   "quant": null
+  },
+  {
+   "repo": "SZLHOLDINGS/SZL-Khipu-1.5B",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "finetune",
+   "downloads": 1980,
+   "quant": null
+  },
+  {
+   "repo": "nvidia/Eagle2-2B",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "merge",
+   "downloads": 29186,
+   "quant": null
+  },
+  {
+   "repo": "zed122/merged",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "merge",
+   "downloads": 394,
+   "quant": null
+  },
+  {
+   "repo": "MergekitCloud/mergekit-141",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "merge",
+   "downloads": 116,
+   "quant": null
+  },
+  {
+   "repo": "SpaceYL/ECE_Poirot",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "merge",
+   "downloads": 89,
+   "quant": null
+  },
+  {
+   "repo": "Sakalti/SJT-1.5B-Alpha",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "merge",
+   "downloads": 71,
+   "quant": null
+  },
+  {
+   "repo": "LilRg/ECE-1B-merge-PRYMMAL",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "merge",
+   "downloads": 65,
+   "quant": null
+  },
+  {
+   "repo": "LuckDeeee/Qwen2.5-MathCoder-1.5B-TIES",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "merge",
+   "downloads": 58,
+   "quant": null
+  },
+  {
+   "repo": "Marsouuu/Qwen1_78-ECE-PRYMMAL-Martial",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "merge",
+   "downloads": 57,
+   "quant": null
+  },
+  {
+   "repo": "mobilint/Qwen2.5-1.5B-Instruct",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "quantized",
+   "downloads": 27660,
+   "quant": null
+  },
+  {
+   "repo": "Qwen/Qwen2.5-1.5B-Instruct-AWQ",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "quantized",
+   "downloads": 24944,
+   "quant": "awq"
+  },
+  {
+   "repo": "SonGT1/Qwen2.5-1.5B-Instruct-abliterated",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "quantized",
+   "downloads": 6120,
+   "quant": null
+  },
+  {
+   "repo": "umarfarookm/UmarTransit-1B",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "quantized",
+   "downloads": 3250,
+   "quant": null
+  },
+  {
+   "repo": "saidutta69/Qwen2.5-1.5B-Instruct-heretic",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "quantized",
+   "downloads": 2816,
+   "quant": null
+  },
+  {
+   "repo": "Qwen/Qwen2.5-1.5B-Instruct-GPTQ-Int4",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "quantized",
+   "downloads": 1965,
+   "quant": "gptq"
+  },
+  {
+   "repo": "lmstudio-community/Qwen2.5-1.5B-Instruct-MLX-4bit",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "quantized",
+   "downloads": 988,
+   "quant": null
+  },
+  {
+   "repo": "chris320211/smoothquant-qwen25-15b-g52xlarge",
+   "group": "declared",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "quantized",
+   "downloads": 876,
+   "quant": null
+  },
+  {
+   "repo": "inference-optimization/Llama-3.2-0.5B-Instruct",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "finetune",
+   "downloads": 5690,
+   "quant": null
+  },
+  {
+   "repo": "manycore-research/SpatialLM-Llama-1B",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "finetune",
+   "downloads": 4722,
+   "quant": null
+  },
+  {
+   "repo": "Skywork/Skywork-Reward-V2-Llama-3.2-1B",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "finetune",
+   "downloads": 3914,
+   "quant": null
+  },
+  {
+   "repo": "manycore-research/SpatialLM1.1-Llama-1B",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "finetune",
+   "downloads": 2822,
+   "quant": null
+  },
+  {
+   "repo": "argilla-warehouse/Llama-3.2-1B-Instruct-v2-FC",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "finetune",
+   "downloads": 2362,
+   "quant": null
+  },
+  {
+   "repo": "THGLab/Llama-3.2-1B-Instruct-LinkLlama-Cap50",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "finetune",
+   "downloads": 2228,
+   "quant": null
+  },
+  {
+   "repo": "Grogros/Llama-3.2-1B-Instruct-activation-SecretSauce-3.0-AlpacaPoison-5e5",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "finetune",
+   "downloads": 2086,
+   "quant": null
+  },
+  {
+   "repo": "HKUSTAudio/Llasa-1B-Multilingual",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "finetune",
+   "downloads": 2083,
+   "quant": null
+  },
+  {
+   "repo": "roky-dev/my-custom-llama-3.2-1b-merged",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "merge",
+   "downloads": 62,
+   "quant": null
+  },
+  {
+   "repo": "ank028/Llama-3.2-1B-Instruct-commonsense_qa-MGSM8K-sft1-ties",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "merge",
+   "downloads": 31,
+   "quant": null
+  },
+  {
+   "repo": "ank028/Llama-3.2-1B-Instruct-medmcqa-MGSM8K-sft1-ties",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "merge",
+   "downloads": 29,
+   "quant": null
+  },
+  {
+   "repo": "ank028/Llama-3.2-1B-Instruct-gsm8k-MGSM8K-sft1-ties",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "merge",
+   "downloads": 20,
+   "quant": null
+  },
+  {
+   "repo": "Hjgugugjhuhjggg/mergekit-ties-xzdpqzs",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "merge",
+   "downloads": 16,
+   "quant": null
+  },
+  {
+   "repo": "Divyansh008/Llama3.2_Merge_MoE_1Bx8_v2",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "merge",
+   "downloads": 16,
+   "quant": null
+  },
+  {
+   "repo": "Hjgugugjhuhjggg/mergekit-ties-folgysk",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "merge",
+   "downloads": 15,
+   "quant": null
+  },
+  {
+   "repo": "Hjgugugjhuhjggg/mergekit-dare_linear-caalfar",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "merge",
+   "downloads": 14,
+   "quant": null
+  },
+  {
+   "repo": "mobilint/Llama-3.2-1B-Instruct",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "quantized",
+   "downloads": 28305,
+   "quant": null
+  },
+  {
+   "repo": "muhammadrafifatihulihsan/llama32-1b-llm-abliteration",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "quantized",
+   "downloads": 972,
+   "quant": null
+  },
+  {
+   "repo": "ViezeVingertjes/Llama-3.2-1B-Instruct-EAGLE3",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "quantized",
+   "downloads": 571,
+   "quant": null
+  },
+  {
+   "repo": "mobilint/Llama-3.2-1B-Instruct-Batch16",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "quantized",
+   "downloads": 448,
+   "quant": null
+  },
+  {
+   "repo": "meditsolutions/Llama-3.2-SUN-1B-Instruct",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "quantized",
+   "downloads": 314,
+   "quant": null
+  },
+  {
+   "repo": "Tree-AI-lab/llama-3.2-1b-baoule-instruct-v3",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "quantized",
+   "downloads": 299,
+   "quant": null
+  },
+  {
+   "repo": "ericflo/Llama-3.2-1B-Instruct-RLHF-v0.1",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "quantized",
+   "downloads": 259,
+   "quant": null
+  },
+  {
+   "repo": "staeiou/bartleby-llama-3.2-1b",
+   "group": "declared",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "quantized",
+   "downloads": 209,
+   "quant": null
+  },
+  {
+   "repo": "puettmann/SmolMaestra-1.7b-Translation",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "finetune",
+   "downloads": 1863,
+   "quant": null
+  },
+  {
+   "repo": "unsloth/SmolLM2-1.7B-Instruct",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "finetune",
+   "downloads": 1672,
+   "quant": null
+  },
+  {
+   "repo": "HuggingFaceTB/SmolVLM-Base",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "finetune",
+   "downloads": 1434,
+   "quant": null
+  },
+  {
+   "repo": "Yo-Purple/Meditor-2-3.4B-A1.8B-HMoE",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "finetune",
+   "downloads": 1305,
+   "quant": null
+  },
+  {
+   "repo": "yoshitomo-matsubara/smollm2_1_7b-alpaca-it",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "finetune",
+   "downloads": 303,
+   "quant": null
+  },
+  {
+   "repo": "ElementMerc/smollm2-1.7b-uncensored",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "finetune",
+   "downloads": 288,
+   "quant": null
+  },
+  {
+   "repo": "HuggingFaceTB/SmolVLM-Synthetic",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "finetune",
+   "downloads": 244,
+   "quant": null
+  },
+  {
+   "repo": "mlx-community/SmolLM2-1.7B-Instruct",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "finetune",
+   "downloads": 181,
+   "quant": null
+  },
+  {
+   "repo": "Optitransfer/Qwen2.5-7B-Instruct-converge-collective-v2",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "merge",
+   "downloads": 294,
+   "quant": null
+  },
+  {
+   "repo": "Optitransfer/Qwen2.5-7B-Instruct-converge-v1remerge-maskn_project",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "merge",
+   "downloads": 259,
+   "quant": null
+  },
+  {
+   "repo": "Optitransfer/Qwen2.5-7B-Instruct-converge-collective-v1",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "merge",
+   "downloads": 228,
+   "quant": null
+  },
+  {
+   "repo": "vonjack/SmolLM2-1.7B-Merged",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "merge",
+   "downloads": 34,
+   "quant": null
+  },
+  {
+   "repo": "bunnycore/SmolLM2-1.7B-Instruct-Exp",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "merge",
+   "downloads": 26,
+   "quant": null
+  },
+  {
+   "repo": "taniota/Warlock-1.7B",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "merge",
+   "downloads": 24,
+   "quant": null
+  },
+  {
+   "repo": "omniomni/omni-0-mini-preview",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "merge",
+   "downloads": 14,
+   "quant": null
+  },
+  {
+   "repo": "HuggingFaceTB/SmolVLM-Instruct",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "quantized",
+   "downloads": 16954,
+   "quant": null
+  },
+  {
+   "repo": "saidutta69/SmolLM2-1.7B-Instruct-heretic",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "quantized",
+   "downloads": 2972,
+   "quant": null
+  },
+  {
+   "repo": "DuoNeural/Lattice-4D-Holographic-253M-Poincare-Instruct",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "quantized",
+   "downloads": 1805,
+   "quant": null
+  },
+  {
+   "repo": "Yo-Purple/Meditor-2-3.4B-Universal",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "quantized",
+   "downloads": 1362,
+   "quant": null
+  },
+  {
+   "repo": "DuoNeural/Lattice-4E-Lorentz-Holographic-253M-Instruct",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "quantized",
+   "downloads": 598,
+   "quant": null
+  },
+  {
+   "repo": "Zynerji/Ektome-SmolLM2-1.7Bi-PristinelyUncensored",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "quantized",
+   "downloads": 590,
+   "quant": null
+  },
+  {
+   "repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct-Q8-mlx",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "quantized",
+   "downloads": 352,
+   "quant": null
+  },
+  {
+   "repo": "Qurtana/SmolLM2-1.7B-Instruct-NuminaMath-TIR",
+   "group": "declared",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "quantized",
+   "downloads": 194,
+   "quant": null
+  },
+  {
+   "repo": "unsloth/Qwen3-1.7B",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "finetune",
+   "downloads": 36525,
+   "quant": null
+  },
+  {
+   "repo": "nvidia/canary-qwen-2.5b",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "finetune",
+   "downloads": 24527,
+   "quant": null
+  },
+  {
+   "repo": "lmstudio-community/Qwen3-1.7B-MLX-bf16",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "finetune",
+   "downloads": 16976,
+   "quant": null
+  },
+  {
+   "repo": "huihui-ai/Huihui-Qwen3-1.7B-abliterated-v2",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "finetune",
+   "downloads": 8348,
+   "quant": null
+  },
+  {
+   "repo": "OpenMOSS-Team/MOSS-SoundEffect-v2.0",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "finetune",
+   "downloads": 7042,
+   "quant": null
+  },
+  {
+   "repo": "PerceptronAI/Isaac-0.1",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "finetune",
+   "downloads": 4909,
+   "quant": null
+  },
+  {
+   "repo": "ElementMerc/qwen3-1.7b-uncensored",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "finetune",
+   "downloads": 3039,
+   "quant": null
+  },
+  {
+   "repo": "reaperdoesntknow/Shepherd-Alpha",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "finetune",
+   "downloads": 3024,
+   "quant": null
+  },
+  {
+   "repo": "reaperdoesntknow/Qemma-Q1.7B",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "merge",
+   "downloads": 2495,
+   "quant": null
+  },
+  {
+   "repo": "OpenGVLab/InternVL3_5-2B-Pretrained",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "merge",
+   "downloads": 179,
+   "quant": null
+  },
+  {
+   "repo": "cs-552-2026-claude-bots/group_model",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "merge",
+   "downloads": 24,
+   "quant": null
+  },
+  {
+   "repo": "cs-552-2026-databand/group_model",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "merge",
+   "downloads": 21,
+   "quant": null
+  },
+  {
+   "repo": "win10/Fused-Yi-Qwen3-3B",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "merge",
+   "downloads": 18,
+   "quant": null
+  },
+  {
+   "repo": "rafa-rrayes/WookieeLLM-1.7B-chatvector-lambda0.5",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "merge",
+   "downloads": 15,
+   "quant": null
+  },
+  {
+   "repo": "mobilint/Qwen3-1.7B",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "quantized",
+   "downloads": 27536,
+   "quant": null
+  },
+  {
+   "repo": "lmstudio-community/Qwen3-1.7B-MLX-8bit",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "quantized",
+   "downloads": 17365,
+   "quant": null
+  },
+  {
+   "repo": "lmstudio-community/Qwen3-1.7B-MLX-4bit",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "quantized",
+   "downloads": 17265,
+   "quant": null
+  },
+  {
+   "repo": "mlx-community/Qwen3-1.7B-4bit",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "quantized",
+   "downloads": 16429,
+   "quant": null
+  },
+  {
+   "repo": "ccore/Qwen3-1.7B-GLB-3D-Coder",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "quantized",
+   "downloads": 5048,
+   "quant": null
+  },
+  {
+   "repo": "saidutta69/Qwen3-1.7B-heretic",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "quantized",
+   "downloads": 3032,
+   "quant": null
+  },
+  {
+   "repo": "HuggingFaceTB/qwen3-1.7b-gsm8k-sft",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "quantized",
+   "downloads": 1270,
+   "quant": null
+  },
+  {
+   "repo": "Qwen/Qwen3-1.7B-GPTQ-Int8",
+   "group": "declared",
+   "declared": "qwen3-1.7b",
+   "relation": "quantized",
+   "downloads": 1117,
+   "quant": "gptq"
+  },
+  {
+   "repo": "Qwen/Qwen2.5-0.5B",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "qwen2.5-0.5b-instruct",
+   "downloads": 1149265,
+   "quant": null
+  },
+  {
+   "repo": "HIT-TMG/KaLM-embedding-multilingual-mini-v1",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "qwen2.5-0.5b-instruct",
+   "downloads": 186775,
+   "quant": null
+  },
+  {
+   "repo": "Qwen/Qwen2-0.5B",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "qwen2.5-0.5b-instruct",
+   "downloads": 153813,
+   "quant": null
+  },
+  {
+   "repo": "Hack337/ChatGPT-5",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "qwen2.5-0.5b-instruct",
+   "downloads": 37807,
+   "quant": null
+  },
+  {
+   "repo": "mixedbread-ai/mxbai-rerank-base-v2",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "qwen2.5-0.5b-instruct",
+   "downloads": 18465,
+   "quant": null
+  },
+  {
+   "repo": "p2g8gensyn/Qwen2.5-0.5B-Gensyn-Swarm-diving_giant_alpaca",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "qwen2.5-0.5b-instruct",
+   "downloads": 4227,
+   "quant": null
+  },
+  {
+   "repo": "xbounty/Qwen2.5-Coder-0.5B-Instruct-Gensyn-Swarm-feline_feline_eagle",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "qwen2.5-0.5b-instruct",
+   "downloads": 3809,
+   "quant": null
+  },
+  {
+   "repo": "jrkenny/Qwen2.5-Coder-0.5B-Instruct-Gensyn-Swarm-tawny_wise_wombat",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "qwen2.5-0.5b-instruct",
+   "downloads": 3608,
+   "quant": null
+  },
+  {
+   "repo": "Qwen/Qwen2.5-1.5B",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "qwen2.5-1.5b-instruct",
+   "downloads": 471401,
+   "quant": null
+  },
+  {
+   "repo": "Qwen/Qwen2-1.5B",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "qwen2.5-1.5b-instruct",
+   "downloads": 99960,
+   "quant": null
+  },
+  {
+   "repo": "Qwen/Qwen2-1.5B-Instruct",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "qwen2.5-1.5b-instruct",
+   "downloads": 79003,
+   "quant": null
+  },
+  {
+   "repo": "jason9693/Qwen2.5-1.5B-apeach",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "qwen2.5-1.5b-instruct",
+   "downloads": 46390,
+   "quant": null
+  },
+  {
+   "repo": "NovaSearch/stella_en_1.5B_v5",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "qwen2.5-1.5b-instruct",
+   "downloads": 15191,
+   "quant": null
+  },
+  {
+   "repo": "sdadas/stella-pl-retrieval-8k",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "qwen2.5-1.5b-instruct",
+   "downloads": 9862,
+   "quant": null
+  },
+  {
+   "repo": "mixedbread-ai/mxbai-rerank-large-v2",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "qwen2.5-1.5b-instruct",
+   "downloads": 7555,
+   "quant": null
+  },
+  {
+   "repo": "DeepMount00/Qwen2-1.5B-Ita",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "qwen2.5-1.5b-instruct",
+   "downloads": 3582,
+   "quant": null
+  },
+  {
+   "repo": "meta-llama/Llama-3.2-1B",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "llama-3.2-1b-instruct",
+   "downloads": 635827,
+   "quant": null
+  },
+  {
+   "repo": "NousResearch/Llama-3.2-1B",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "llama-3.2-1b-instruct",
+   "downloads": 41557,
+   "quant": null
+  },
+  {
+   "repo": "open-unlearning/tofu_Llama-3.2-1B-Instruct_full",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "llama-3.2-1b-instruct",
+   "downloads": 15034,
+   "quant": null
+  },
+  {
+   "repo": "stefanruseti/newsvibe-categories-multilingual-llama-1b",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "llama-3.2-1b-instruct",
+   "downloads": 8588,
+   "quant": null
+  },
+  {
+   "repo": "OpenPipe/PII-Redact-Name",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "llama-3.2-1b-instruct",
+   "downloads": 6939,
+   "quant": null
+  },
+  {
+   "repo": "OpenPipe/PII-Redact-General",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "llama-3.2-1b-instruct",
+   "downloads": 6938,
+   "quant": null
+  },
+  {
+   "repo": "alpindale/Llama-3.2-1B",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "llama-3.2-1b-instruct",
+   "downloads": 5054,
+   "quant": null
+  },
+  {
+   "repo": "getonit/transcription-cleanup-llama3.2-1b",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "llama-3.2-1b-instruct",
+   "downloads": 3985,
+   "quant": null
+  },
+  {
+   "repo": "HuggingFaceTB/SmolLM2-1.7B",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "smollm2-1.7b-instruct",
+   "downloads": 43666,
+   "quant": null
+  },
+  {
+   "repo": "HuggingFaceTB/SmolLM-1.7B",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "smollm2-1.7b-instruct",
+   "downloads": 24527,
+   "quant": null
+  },
+  {
+   "repo": "EleutherAI/SmolLM2-1.7B-magpie-ultra-v0.1-attribution",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "smollm2-1.7b-instruct",
+   "downloads": 1714,
+   "quant": null
+  },
+  {
+   "repo": "EleutherAI/SmolLM2-1.7B-magpie-ultra-v0.1-classification",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "smollm2-1.7b-instruct",
+   "downloads": 1713,
+   "quant": null
+  },
+  {
+   "repo": "EleutherAI/SmolLM2-1.7B-magpie-ultra-v0.1-attribution-lowest",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "smollm2-1.7b-instruct",
+   "downloads": 1697,
+   "quant": null
+  },
+  {
+   "repo": "EleutherAI/SmolLM2-1.7B-magpie-ultra-v0.1-random",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "smollm2-1.7b-instruct",
+   "downloads": 1680,
+   "quant": null
+  },
+  {
+   "repo": "EleutherAI/SmolLM2-1.7B-magpie-ultra-v1.0-attribution-lowest",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "smollm2-1.7b-instruct",
+   "downloads": 1665,
+   "quant": null
+  },
+  {
+   "repo": "tobil/qmd-query-expansion-1.7B",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "qwen3-1.7b",
+   "downloads": 2754,
+   "quant": null
+  },
+  {
+   "repo": "amazon/ALoDLM-1.7B",
+   "group": "undeclared",
+   "declared": null,
+   "relation": null,
+   "shape_of": "qwen3-1.7b",
+   "downloads": 804,
+   "quant": null
+  }
+ ],
+ "skipped": [
+  {
+   "repo": "unsloth/Qwen2.5-0.5B-Instruct-unsloth-bnb-4bit",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "quantized",
+   "reason": "quantisation bitsandbytes"
+  },
+  {
+   "repo": "unsloth/Qwen2.5-0.5B-Instruct-bnb-4bit",
+   "declared": "qwen2.5-0.5b-instruct",
+   "relation": "quantized",
+   "reason": "quantisation bitsandbytes"
+  },
+  {
+   "repo": "unsloth/Qwen2.5-1.5B-Instruct-unsloth-bnb-4bit",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "quantized",
+   "reason": "quantisation bitsandbytes"
+  },
+  {
+   "repo": "unsloth/Qwen2.5-1.5B-Instruct-bnb-4bit",
+   "declared": "qwen2.5-1.5b-instruct",
+   "relation": "quantized",
+   "reason": "quantisation bitsandbytes"
+  },
+  {
+   "repo": "unsloth/Llama-3.2-1B-Instruct-unsloth-bnb-4bit",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "quantized",
+   "reason": "quantisation bitsandbytes"
+  },
+  {
+   "repo": "unsloth/Llama-3.2-1B-Instruct-bnb-4bit",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "quantized",
+   "reason": "quantisation bitsandbytes"
+  },
+  {
+   "repo": "RedHatAI/Llama-3.2-1B-Instruct-FP8-dynamic",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "quantized",
+   "reason": "quantisation compressed-tensors"
+  },
+  {
+   "repo": "RedHatAI/Llama-3.2-1B-Instruct-FP8",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "quantized",
+   "reason": "quantisation compressed-tensors"
+  },
+  {
+   "repo": "RedHatAI/Llama-3.2-1B-Instruct-quantized.w8a8",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "quantized",
+   "reason": "quantisation compressed-tensors"
+  },
+  {
+   "repo": "unsloth/Llama-3.2-1B-Instruct-FP8-Block",
+   "declared": "llama-3.2-1b-instruct",
+   "relation": "quantized",
+   "reason": "quantisation compressed-tensors"
+  },
+  {
+   "repo": "unsloth/SmolLM2-1.7B-Instruct-bnb-4bit",
+   "declared": "smollm2-1.7b-instruct",
+   "relation": "quantized",
+   "reason": "quantisation bitsandbytes"
+  },
+  {
+   "repo": "unsloth/Qwen3-1.7B-unsloth-bnb-4bit",
+   "declared": "qwen3-1.7b",
+   "relation": "quantized",
+   "reason": "quantisation bitsandbytes"
+  },
+  {
+   "repo": "unsloth/Qwen3-1.7B-bnb-4bit",
+   "declared": "qwen3-1.7b",
+   "relation": "quantized",
+   "reason": "quantisation bitsandbytes"
+  },
+  {
+   "repo": "Qwen/Qwen3-1.7B-FP8",
+   "declared": "qwen3-1.7b",
+   "relation": "quantized",
+   "reason": "quantisation fp8"
+  },
+  {
+   "repo": "RedHatAI/Qwen3-1.7B-FP8-dynamic",
+   "declared": "qwen3-1.7b",
+   "relation": "quantized",
+   "reason": "quantisation compressed-tensors"
+  }
+ ]
+}
