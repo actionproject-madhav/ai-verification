@@ -123,8 +123,8 @@ code opens the statement. See [`enclave/README.md`](../enclave/README.md).
 
 Hiding an origin is possible, and the cheapest way found is a retraining run. It buys Amber, which still means an
 identity check. Green is the only result that waives checks, and no run reached it with a listed model's
-behaviour. The runs are small (135M and 1.7B parameters, up to 10,000 steps), so this is a measurement and not a
-guarantee: `docs/METHOD.md` says why matching tables cannot prove that two models compute the same thing.
+behaviour. The runs are small: 135M and 1.7B parameters, a few thousand steps. So this is a measurement and not a
+guarantee, and `docs/METHOD.md` says why matching tables cannot prove that two models compute the same thing.
 [`docs/RESULTS.md`](RESULTS.md) has every run.
 
 ## What the check does not do

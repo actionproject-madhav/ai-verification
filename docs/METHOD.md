@@ -133,8 +133,9 @@ leading coordinates. The most decisive pairs then fix a rotation between all 128
 three times. A token whose nearest row is not clearly nearer than the second (ratio above 0.7) is dropped, and
 with fewer than 64 tokens left the two models are not compared.
 
-Measured (`results/relabelled.json`): 4-bit and 8-bit copies of GLM-5.2, GLM-5.3 and Kimi K3, and a later version
-of Kimi K3, each read with its 155,000 to 164,000 token rows shuffled behind the old names. By name all four are
+Measured (`results/relabelled.json`) on four copies: 4-bit and 8-bit releases of GLM-5.2, GLM-5.3 and Kimi K3, and
+a later version of Kimi K3. Each was read with its 155,000 to 164,000 token rows shuffled behind the old names. By
+name all four are
 Amber, at 0.98 or more from every listed model. By geometry all four are Red, at 0.011 or less from the model they
 copy. Five models that are not copies go through the same pass and none changes: the token tables of unrelated
 models do not line up, so nothing is compared.
@@ -159,9 +160,9 @@ and layers the operator cannot predict. In the stress tests no run got there (`d
 
 Closing the first gap needs a check on what layers compute, not on their second moments: compare activations on
 text drawn from the nonce, inside the enclave, where the model is loaded anyway. `experiments/exp_v4.py` has a
-first version, and on the stress-test models it sees what the tables do not. The 1.7B copy whose tables were
-pulled toward a known model (0.40 on the closest part) is still 0.09 from the listed model on activations, and
-0.58 from the known one: as far as an unrelated model. It is not in the tool yet.
+first version, and on the stress-test models it sees what the tables do not. Take the 1.7B copy whose tables
+were pulled toward a known model, to 0.40 on the closest part. On activations it is still 0.09 from the listed
+model and 0.58 from the known one, as far as an unrelated model. This check is not in the tool yet.
 
 ## What the nonce is for
 

@@ -65,7 +65,7 @@ run on rented GPUs with `modal_redteam.py`; files in `results/gpu/`.
 | the models of rounds 1 to 5, built against the earlier readers | 135M, 1.7B | Red, all 13 | to X 0.001 to 0.23 | to X 0.01 to 1.56 | `results/lights_redteam_135m.json`, `gpu/1.7b-lights_redteam.json`, `gpu/135m-lights_redteam.json` |
 
 What the rows say. Leaving Red by retraining works and costs little. Each reader that the operator trains
-against can be left; a reader they did not train against still names X. Pulling the tables toward a known model
+against can be left. A reader they did not train against still names X. Pulling the tables toward a known model
 stops far from Green in these runs, and the activations of that model stay those of X. A known model trained to
 imitate X stays Green and stays itself.
 
