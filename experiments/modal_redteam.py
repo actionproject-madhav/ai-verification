@@ -3,6 +3,7 @@ a container, sets the model pair, and keeps the result file and the attacked wei
 
   modal run --detach experiments/modal_redteam.py --script exp_transplant.py --args "1e-4" --env "R6_INIT=target R6_STEPS=2500"
   modal run --detach experiments/modal_redteam.py --toy --script exp_forge.py --args "10" --env "R5_STEPS=6000 R5_PUSH=3"
+  modal run --detach experiments/modal_redteam.py --script lights          # the tool's verdict on every saved model
   modal volume get lineage-redteam 1.7b-exp_transplant.jsonl results/gpu/
 
 The default pair is SmolLM2-1.7B against SmolLM-1.7B: the pair the 135M experiments use, twelve times larger.
@@ -50,9 +51,25 @@ def small(script: str, args: str = "", env: str = "", tag: str = "135m"):
     return _run(script, args, env, "HuggingFaceTB/SmolLM2-135M", "HuggingFaceTB/SmolLM-135M", tag)
 
 
+@app.function(image=image, cpu=8, memory=32768, timeout=3600, volumes={"/out": volume})
+def lights(model: str, indep: str, tag: str):
+    """The tool's own verdict on every model a run saved under this tag. No GPU."""
+    volume.reload()
+    settings = dict(os.environ, RT_MODEL=model, RT_INDEP=indep, PYTHONPATH="/repo", LINEAGE_ZOO="/root/zoo", HF_HOME="/root/hf")
+    done = subprocess.run(["python", "-u", "-W", "ignore", "exp_lights_redteam.py", f"/out/zoo/adaptive/{tag}", f"/out/{tag}-lights_redteam.json"],
+                          cwd="/repo/experiments", env=settings)
+    volume.commit()
+    return done.returncode
+
+
 @app.local_entrypoint()
 def main(script: str, args: str = "", env: str = "", model: str = "HuggingFaceTB/SmolLM2-1.7B",
          indep: str = "HuggingFaceTB/SmolLM-1.7B", tag: str = "1.7b", toy: bool = False):
     # spawn, not remote: with --detach the job then keeps running after this process and this computer are gone
-    call = small.spawn(script, args, env, "135m" if tag == "1.7b" else tag) if toy else run.spawn(script, args, env, model, indep, tag)
+    if toy:
+        model, indep, tag = "HuggingFaceTB/SmolLM2-135M", "HuggingFaceTB/SmolLM-135M", "135m" if tag == "1.7b" else tag
+    if script == "lights":
+        call = lights.spawn(model, indep, tag)
+    else:
+        call = small.spawn(script, args, env, tag) if toy else run.spawn(script, args, env, model, indep, tag)
     print("started", call.object_id)
