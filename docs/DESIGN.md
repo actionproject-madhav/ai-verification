@@ -54,6 +54,13 @@ Derivatives inherit the listing. In November 2026 that gives three models, each 
 | Kimi K3 | outperforms GLM-5.2 on the same evaluations; safeguards did not prevent offensive cyber work | UK AISI and US CAISI, July 2026 |
 | GLM-5.2 | probably the most capable open-weight model when released; safeguards on open weights can be circumvented when self-hosted | US CAISI, July 2026 |
 
+Independent evaluators point at the same models.
+[SaferAI's evaluation of GLM-5.2](https://www.safer-ai.org/research/glm-5-2-evaluation-report) finds frontier-level
+capability on cyber benchmarks without the safeguards frontier developers apply, and notes that a user can run the
+weights and avoid any filter. [Epoch's Cyber ECI](https://epoch.ai/data-insights/open-closed-cyber-eci-gap) ranks
+GLM-5.3 the top open-weight model. The rule can take other sources: a list is a file of model revisions, and the
+enclave pins its digest.
+
 `K` can be built from public releases. The Hub scan in `experiments/exp_hub_scan.py` derives one from model cards:
 every repository that at least ten listed models name as their base.
 

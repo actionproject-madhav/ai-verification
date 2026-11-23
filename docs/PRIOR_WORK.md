@@ -32,15 +32,28 @@ The matching idea here is not new. This page says what exists and what this repo
 - **Hardware-enabled mechanisms** (O'Gara et al., [arXiv:2505.03742](https://arxiv.org/abs/2505.03742)) and work on
   enclaves for privacy-preserving monitoring.
 
+## The problem as others state it
+
+- **Open Technical Problems in Open-Weight AI Model Risk Management** (Casper et al., 2026,
+  [arXiv:2608.07514](https://arxiv.org/abs/2608.07514)). Section 4.5.2 asks: "What algorithms can enable scalable
+  and versatile model heritage inference?" It calls ecosystem-wide heritage inference desirable but "not tractable
+  with current infrastructure", and notes that thousands of open-weight text models have been fine-tuned to
+  disable safeguards.
+- **Government and independent evaluations** of specific open-weight models (US CAISI, UK AISI, SaferAI, Epoch):
+  the source of the watchlist. See `docs/DESIGN.md`.
+
 ## What this repository adds
 
-1. A mechanism, not only a matcher: a private check at load time with three results, where hiding an origin does
-   not clear a model (`docs/DESIGN.md`).
+1. A mechanism around the matcher: a private check at load time with three results. One matching part flags a
+   model and only a match on every part clears it, so hiding an origin does not clear a model (`docs/DESIGN.md`).
 2. A challenge protocol: tokens and layers are drawn from a fresh nonce after the weights are committed, and the
    answer is a signed statement with no scores.
 3. Measurements of both directions of attack: hiding an origin, and imitating a chosen model.
 4. A weight signature of refusal ablation, checked on public abliterated releases. I have not yet found this in
    the literature and have not finished looking.
 5. A reader that fingerprints a model from a few layers over HTTP range requests, across quantised formats and
-   mixture-of-experts layers.
-6. A check of the Hub's self-declared base models on 150 public models.
+   mixture-of-experts layers, and a design-free mode that needs no knowledge of the architecture.
+6. A watchlist taken from published government findings, and the check run on those models: 0.75 to 2.8 trillion
+   parameters.
+7. The check inside an attested enclave, with a statement that SASH's own code opens.
+8. A check of the Hub's self-declared base models on public models.
