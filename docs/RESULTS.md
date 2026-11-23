@@ -106,6 +106,8 @@ run on rented GPUs with `modal_redteam.py`. Files are in `results/gpu/` unless a
 | the same pull, with the weight on keeping X's outputs at 0.1 instead of 1 | 135M, 2,000 | Amber, never Green | to Y 0.34, 0.46 | to X 0.04 | 0.43 to 0.38; KL 0.10 | `results/round7_tradeoff_135m.jsonl` |
 | the same pull, X's outputs not kept at all | 135M, 3,000 | Amber, never Green | to Y 0.30, 0.43 | to X 0.60 | 0.43 to 0.00; KL 6.4 | same |
 | the long-run model, trained on: the same pull, and a pull toward what Y's layers compute | 135M, 2,000 more | Amber, never Green | to Y 0.24, 0.34 | to Y from 0.41 to 0.12; to X from 0.03 to 0.32 | 0.38 to 0.35; KL 0.16 | `results/round7_continue_135m.jsonl` |
+| the weight-0.1 model, trained on the same way | 135M, 500 more | Amber, never Green | to Y 0.33, 0.45 | to Y from 0.41 to 0.16; to X from 0.04 to 0.31 | 0.38 to 0.27; KL 0.28 | `results/round7_continue_keep0.1_135m.jsonl` |
+| from X, both pulls from the first step | 360M, 200 | still Red | to Y 0.91, 0.95; to X 0.00, 0.04 | to Y from 0.58 to 0.18; to X from 0.00 to 0.43 | 0.52 to 0.51; KL 0.09 | `results/round7_forge_act_360m.jsonl` |
 | start from Y, train every weight to imitate X | 135M, 3,000 | Green as Y | to Y 0.001, 0.002 | to Y 0.02, to X 0.41 | 0.36 to 0.29; KL to X 0.38 to 0.29 | `135m-distil-exp_transplant.jsonl` |
 | same | 1.7B, 2,500 | Green as Y | to Y 0.002, 0.004; fresh nonce 0.002, 0.003 | to Y 0.03 | 0.57 to 0.47; KL to X 0.29 to 0.29 | `1.7b-distil-exp_transplant.jsonl` |
 | Y's attention kept, MLPs trained to imitate X | 135M, 3,000; 1.7B, 2,500 | Green as Y | to Y 0.000 | to Y 0.01 | 0.36 to 0.31; 0.57 to 0.53 | `135m-exp_transplant.jsonl`, `1.7b-exp_transplant.jsonl` |
@@ -150,6 +152,11 @@ version at 0.18, and separately trained models start at 0.41 (`results/v4.json`)
 steps. The model's outputs did not follow: it is as far from Y's outputs as before, and it still scores 0.35 on
 the held-out task. So a check on activations would fail the way the tables can fail in principle, and faster.
 
+Two shorter runs agree (the last two rows of the table above). One size up, a 360M copy of X trained with both
+pulls from the first step goes from 0.58 to 0.18 from Y on the activation reader in 200 steps. Its tables have
+barely moved and the tool still calls it Red, and its outputs are still X's (KL 0.09). With the weight on X's
+outputs at 0.1, a 135M model goes from 0.41 to 0.16 in 500 steps and loses 12 points of accuracy.
+
 ### What a check on outputs would see
 
 The tool never runs a model. This experiment asks what it would gain if it did (`experiments/exp_output_check.py`,
@@ -178,6 +185,7 @@ are 0.255 apart, and the standard error of every mean below is 0.003 or less.
 | X pulled to Y's tables, 10,000 steps | Amber | 0.268 (0.19 to 0.36) | 0.132 |
 | that model, pulled to Y's activations as well, 2,000 steps | Amber | 0.277 (0.20 to 0.38) | 0.181 |
 | X pulled to Y's tables with weight 0.1 on X's outputs, 2,000 steps | Amber | 0.277 (0.20 to 0.36) | 0.144 |
+| that model, pulled to Y's activations as well, 500 steps | Amber | 0.321 (0.24 to 0.41) | 0.264 |
 | X pulled to Y's tables, X's outputs not kept, 3,000 steps | Amber | 0.859 (0.81 to 0.91) | 0.859 |
 | X, an honest fine-tune, 400 steps | Red | 0.284 (0.21 to 0.36) | 0.167 |
 | X, the fine-tune from round 1 | Red | 0.390 (0.30 to 0.47) | 0.290 |
@@ -188,7 +196,8 @@ are 0.255 apart, and the standard error of every mean below is 0.003 or less.
 
 1. **No model made from X is closer to Y's outputs than X is.** X is 0.255 from Y. After 10,000 steps of pulling
    its tables toward Y it is at 0.27, and after 2,000 more steps of pulling its activations it is at 0.28. The
-   readers that were trained against moved. The outputs did not. In every one of the 128 windows, X and every
+   run with weight 0.1 on X's outputs ends at 0.32. The readers that were trained against moved. The outputs did
+   not. In every one of the 128 windows, X and every
    model made from it are more than 0.18 from Y.
 2. **Faithful copies of Y stay close.** Its 8-bit, 6-bit and 5-bit files and its fine-tunes of 200 and 1,000 steps
    are 0.02 to 0.10 from it, and under 0.14 in every window. A bar between 0.14 and 0.18, asked of every window,
