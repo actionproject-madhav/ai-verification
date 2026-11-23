@@ -20,7 +20,21 @@ ROW_LO, ROW_HI = 300, 20000                       # embedding rows fetched: the 
 _tl = threading.local()
 
 DT = {"BF16": (np.uint16, 2), "F16": (np.float16, 2), "F32": (np.float32, 4), "I32": (np.int32, 4),
-      "U32": (np.uint32, 4), "I8": (np.int8, 1), "U8": (np.uint8, 1), "I64": (np.int64, 8), "F64": (np.float64, 8)}
+      "U32": (np.uint32, 4), "I8": (np.int8, 1), "U8": (np.uint8, 1), "I64": (np.int64, 8), "F64": (np.float64, 8),
+      "F8_E4M3": (np.uint8, 1), "F8_E8M0": (np.uint8, 1)}
+
+
+def _fp8_tables():
+    """8-bit floats: E4M3 (1 sign, 4 exponent, 3 mantissa bits) and E8M0 (a power of two), as lookup tables."""
+    b = np.arange(256)
+    e, m = (b >> 3) & 0xF, b & 0x7
+    v = np.where(e == 0, (m / 8.0) * 2.0 ** -6, (1 + m / 8.0) * 2.0 ** (e.astype(np.float64) - 7))
+    v = np.where((e == 15) & (m == 7), np.nan, v) * np.where(b & 0x80, -1.0, 1.0)
+    with np.errstate(over="ignore"):
+        return v.astype(np.float32), (2.0 ** (b.astype(np.float64) - 127)).astype(np.float32)
+
+
+_E4M3, _E8M0 = _fp8_tables()
 
 
 def _decode(raw, dtype, shape):
@@ -29,6 +43,10 @@ def _decode(raw, dtype, shape):
         return (a.astype(np.uint32) << 16).view(np.float32)
     if dtype in ("F16", "F64"):
         return a.astype(np.float32)
+    if dtype == "F8_E4M3":
+        return _E4M3[a]
+    if dtype == "F8_E8M0":
+        return _E8M0[a]
     return a
 
 
@@ -182,6 +200,9 @@ class Remote:
         f, dt, shape, a, b = self.index[name]
         return _decode(self._cached(name, f, a, b), dt, shape)
 
+    def shape(self, name):
+        return self.index[name][2]
+
     def rows(self, name, lo, hi):
         f, dt, shape, a, b = self.index[name]
         hi = min(hi, shape[0])
@@ -212,6 +233,9 @@ class LocalST:
     def has(self, name):
         return name in self.index
 
+    def shape(self, name):
+        return tuple(self._open[self.index[name]].get_slice(name).get_shape())
+
     def get(self, name):
         t = self._open[self.index[name]].get_tensor(name)
         if t.dtype == torch.uint32:
@@ -236,6 +260,9 @@ class LocalBin:
 
     def has(self, name):
         return name in self.sd
+
+    def shape(self, name):
+        return tuple(self.sd[name].shape)
 
     def get(self, name):
         t = self.sd[name]
