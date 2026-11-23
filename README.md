@@ -45,7 +45,8 @@ RED  glm-5.2  (part of the model matches a listed model)
 ```
 
 That model has 753 billion parameters and the tool never downloads it. It reads a few matrices from two layers
-over HTTP: seven minutes from my laptop on a cold cache, about a minute and a half from a data centre. No GPU.
+over HTTP: seven minutes from my laptop on a cold cache, about a minute and a half from a data centre. It needs
+Python 3.11 or newer and no GPU.
 
 To check the sealed-hardware proof on your own machine:
 
