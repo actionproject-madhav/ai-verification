@@ -1,0 +1,8 @@
+{
+  "name": "small known models, for the sealed run of the output check",
+  "note": "Two small open models that a CPU enclave can run. The demo registry in known-demo.json is unchanged.",
+  "models": [
+    {"id": "smollm-360m", "repo": "HuggingFaceTB/SmolLM-360M", "revision": "59f7ef243ee09a72cbc14cb054393a3e3b771d41"},
+    {"id": "smollm-135m", "repo": "HuggingFaceTB/SmolLM-135M", "revision": "1d461723eec654e65efdc40cf49301c89c0c92f4"}
+  ]
+}

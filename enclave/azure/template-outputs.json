@@ -1,0 +1,164 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "registryServer": {
+      "type": "string"
+    },
+    "registryUsername": {
+      "type": "string"
+    },
+    "registryPassword": {
+      "type": "securestring"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ContainerInstance/containerGroups",
+      "apiVersion": "2023-05-01",
+      "name": "lineage-check",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "sku": "Confidential",
+        "confidentialComputeProperties": {
+          "ccePolicy": ""
+        },
+        "containers": [
+          {
+            "name": "lineage-check",
+            "properties": {
+              "image": "REGISTRY/lineage-check@sha256:TO_BE_BUILT",
+              "ports": [
+                {
+                  "port": 8080,
+                  "protocol": "TCP"
+                }
+              ],
+              "environmentVariables": [
+                {
+                  "name": "PLATFORM",
+                  "value": "azure-aci"
+                },
+                {
+                  "name": "ATTEST_URL",
+                  "value": "http://localhost:8284"
+                },
+                {
+                  "name": "MODE",
+                  "value": "light"
+                },
+                {
+                  "name": "MODEL_REF",
+                  "value": "QuantFactory/SmolLM-360M-GGUF@2689ea7ad7afab2611ffeaffda412406615b19da"
+                },
+                {
+                  "name": "MODEL_FILE",
+                  "value": "Q8_0"
+                },
+                {
+                  "name": "WATCHLIST",
+                  "value": "/opt/lineage-check/watchlists/government-named.json"
+                },
+                {
+                  "name": "WATCHLIST_DIGEST",
+                  "value": "3e44a8c972695d50f6ed4e9c6f14c49156f8a429f45ae06e712b0f4a5cf65e6d"
+                },
+                {
+                  "name": "KNOWN_LIST",
+                  "value": "/opt/lineage-check/watchlists/known-small.json"
+                },
+                {
+                  "name": "KNOWN_LIST_DIGEST",
+                  "value": "327461574e8a17c99f101b4e065d2c6f3d23ef8d0403066dbd653b852989601b"
+                },
+                {
+                  "name": "TOKENS",
+                  "value": "256"
+                },
+                {
+                  "name": "GEOMETRY",
+                  "value": "1"
+                },
+                {
+                  "name": "OUTPUTS",
+                  "value": "1"
+                },
+                {
+                  "name": "SERVE",
+                  "value": "1"
+                },
+                {
+                  "name": "DEBUG",
+                  "value": "0"
+                },
+                {
+                  "name": "HF_HUB_OFFLINE",
+                  "value": "0"
+                },
+                {
+                  "name": "LINEAGE_ZOO",
+                  "value": "/tmp/lineage"
+                },
+                {
+                  "name": "HF_HOME",
+                  "value": "/tmp/hf"
+                }
+              ],
+              "resources": {
+                "requests": {
+                  "cpu": 3,
+                  "memoryInGB": 13
+                }
+              }
+            }
+          },
+          {
+            "name": "attestation",
+            "properties": {
+              "image": "mcr.microsoft.com/aci/skr:2.16",
+              "command": [
+                "/skr.sh"
+              ],
+              "environmentVariables": [
+                {
+                  "name": "Port",
+                  "value": "8284"
+                }
+              ],
+              "resources": {
+                "requests": {
+                  "cpu": 1,
+                  "memoryInGB": 2
+                }
+              }
+            }
+          }
+        ],
+        "imageRegistryCredentials": [
+          {
+            "server": "[parameters('registryServer')]",
+            "username": "[parameters('registryUsername')]",
+            "password": "[parameters('registryPassword')]"
+          }
+        ],
+        "osType": "Linux",
+        "restartPolicy": "Never",
+        "ipAddress": {
+          "type": "Public",
+          "ports": [
+            {
+              "port": 8080,
+              "protocol": "TCP"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ip": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups', 'lineage-check')).ipAddress.ip]"
+    }
+  }
+}
