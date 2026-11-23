@@ -4,22 +4,16 @@
 
 ## TL;DR
 
-As open weight models become capable and accessible, there's a higher risk of misuse. Crude methods of hash checking fail as models can be quantised,
-fine-tuned, merged or stripped away from safety training. Recent
+As open weight models become capable and accessible, there's a higher risk of misuse. Recent
 [weight-space programming experiments](https://rikiyat.github.io/blog/weight-space-programming/) show frontier
 LLMs inspecting and editing raw weights directly, making deployed weights to diverge from a
-published checkpoint convenient for anyone.
+published checkpoint to intended goal promising. A provider can run safeguards, but to ensure privacy of users, they may see only a private model and a self-reported name, making inspection challenging. 
 
-For privacy at deployment, a provider may see only a private model and a self-reported name. 
-
-This built a lineage check robust to weight modifications. Inside a secure enclave, it compares the model's internal geometry with a
+Building upon SAASH's inference prototype, this builds a lineage check robust to weight modifications. Inside a secure enclave, it compares the model's internal geometry with a
 signed dangerous model watchlist and a registry of known models, then returns Red, Amber or Green. Weights and comparison scores
-stay private.
+are fully private.
 
-In the current evaluation, 27 modified copies scored below 0.07 from their source and 151 unrelated pairs scored
-above 0.83. Whole-file hashes found 2 of 13 public copies in a smaller audit; the fingerprint found 13.
-Retraining against the check can still move a listed model from Red to Amber, so the result is useful for triage
-rather than proof against an adaptive attacker.
+We ran it over 3,000 popular open-weight models and matched the listed parent for 1,070 of 1,110 models. We tested robustness on 27 existing fine-tunes, quantised releases, later versions and refusal-removed copies, and recovered the original lineage in all 27. 
 
 ![A private model is compared with public lists inside an enclave.](docs/figures/fig_architecture.png)
 
