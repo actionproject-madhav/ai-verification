@@ -35,6 +35,7 @@ TOP = 8                                                       # leading directio
 MAX_VOCAB = 4_000_000                                         # more rows than this is a lookup table, not a vocabulary
 MAX_ELEMS = 1 << 28                                           # a larger tensor is a packed table, not one matrix
 GEO_AXES, GEO_SEED, GEO_POOL, GEO_SURE = 128, 32, 1024, 0.7   # matching tokens by geometry: see `token_geometry`
+CUT_SHARE, CUT_COSINE = 0.9, 0.95                             # when a layer counts as cut: see `cut_layers`
 
 
 def shape_of(src, name):
@@ -245,18 +246,20 @@ def cut_layers(src, anchor, layers_src, layers_anchor, dev="cpu"):
     Fine-tuning and quantisation spread a change over many directions, a different set in every matrix.
 
     A layer counts as cut when the change in one of its writing matrices is rank one (its leading direction holds
-    0.9 of it or more), or when two of them change along the same leading direction (|cosine| of 0.9 or more).
+    CUT_SHARE of it or more), or when two of them change along the same leading direction (|cosine| of CUT_COSINE
+    or more). In ordinary fine-tunes the two leading directions of a layer often agree loosely (0.65 at the median,
+    0.91 at the 95th percentile of 151 public fine-tunes), so the bar is high and one layer is not enough.
     Returns {"cut": layers cut, "changed": layers that changed at all}. None when the two models are not laid out
     alike."""
     found = edit_directions(src, anchor, layers_src, layers_anchor, dev)
     if found is None:
         return None
     pos = [p for p, _, _ in found]
-    cut = {p for p, _, share in found if share >= 0.9}
+    cut = {p for p, _, share in found if share >= CUT_SHARE}
     if found:
         lead = torch.stack([u[:, 0] for _, u, _ in found])
         cos = (lead @ lead.T).abs()
-        cut |= {pos[i] for i in range(len(pos)) for j in range(i + 1, len(pos)) if pos[i] == pos[j] and cos[i, j] >= 0.9}
+        cut |= {pos[i] for i in range(len(pos)) for j in range(i + 1, len(pos)) if pos[i] == pos[j] and cos[i, j] >= CUT_COSINE}
     return {"cut": len(cut), "changed": len(set(pos))}
 
 
