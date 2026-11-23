@@ -60,6 +60,18 @@ def test_one_matching_part_is_not_enough_to_be_cleared():
     assert answer(mixed(KNOWN, OTHER, MLP)) == ("amber", None)             # a known model's attention over other MLPs
 
 
+def test_a_known_model_with_one_direction_cut_out_is_red():
+    r = light.light(Source(edits.rank1_edit(KNOWN)), WATCH, REGISTRY, NONCE)
+    assert (r["light"], r["matched"], r["finding"]) == ("red", "known", "cut")
+    assert answer(edits.rank1_edit(KNOWN), cuts=False) == ("green", "known")
+
+
+@pytest.mark.parametrize("copy_of_known", [edits.quantize(KNOWN), edits.noise(KNOWN, rel=0.02), edits.prune(KNOWN, frac=0.1)])
+def test_ordinary_changes_to_a_known_model_are_not_taken_for_a_cut(copy_of_known):
+    r = light.light(Source(copy_of_known), WATCH, REGISTRY, NONCE)
+    assert (r["light"], r["finding"]) == ("green", "known")
+
+
 def test_the_refusal_ablation_signature_is_red_whatever_the_origin():
     assert answer(OTHER, ablation=True) == ("red", None)
     assert answer(KNOWN, ablation=True) == ("red", None)

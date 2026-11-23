@@ -1,6 +1,7 @@
 """The traffic light: one of three answers about a model at load time.
 
-  Red     some part of the model matches a listed model, or the weights carry the refusal-ablation signature
+  Red     some part of the model matches a listed model; or it is a copy of a known model with one direction cut
+          out of several layers, which is how refusal-removal tools work
   Green   not Red, and every part of the model matches one known model
   Amber   anything else: the origin is unknown
 
@@ -21,6 +22,7 @@ from . import universal as U
 RED, GREEN, TOKENS = 0.5, 0.1, 256      # some part closer than RED to a listed model; every part closer than GREEN to a known one
 LAYERS = 2
 MIN_PLACED = 64                         # tokens that must be placed decisively before geometry matching is trusted
+CUT_LAYERS, CUT_MIN = 6, 2              # layers read for the cut test; this many cut layers flag a copy of a known model
 
 
 def sources(path):
@@ -85,6 +87,16 @@ def distances_by_geometry(src, anchor, nonce, tokens=TOKENS, cache=None):
     return None if r is None else (r["d"], r["d_all"])
 
 
+def direction_cut(src, anchor, nonce):
+    """True when a copy of a known model had one direction cut out of two or more of the layers read (see
+    `universal.cut_layers`). None when the two cannot be compared matrix by matrix."""
+    try:
+        r = U.cut_layers(src, anchor, layers_for(src, nonce, CUT_LAYERS), layers_for(anchor, nonce, CUT_LAYERS))
+    except Exception:
+        return None
+    return None if r is None else r["cut"] >= CUT_MIN
+
+
 def ablation_signature(src, nonce, tokens=TOKENS, layers=2):
     """The refusal-ablation signature, for architectures the design-aware reader knows. None when it cannot be read."""
     from . import protocol as LC
@@ -97,30 +109,37 @@ def ablation_signature(src, nonce, tokens=TOKENS, layers=2):
         return None
 
 
-def light(src, watch, known, nonce, tokens=TOKENS, ablation=None, cache=None, geometry=False):
+def light(src, watch, known, nonce, tokens=TOKENS, ablation=None, cache=None, geometry=False, cuts=True):
     """The light for `src`. `watch` and `known` are lists of (entry, source); `ablation` is the signature if computed.
     The returned distances are for the caller; a signed statement carries the light and the matched entry only.
     Pass the same `cache` dict across calls to fingerprint each list entry once.
     With `geometry`, a model that no listed model matches by token name is compared again with tokens matched by
-    geometry. That reads whole token tables, so it is slower."""
+    geometry. That reads whole token tables, so it is slower. With `cuts`, a model that would be Green is compared
+    with the known model matrix by matrix, and is Red if one direction was cut out of several layers.
+    `finding` names the rule that decided: listed, listed-by-geometry, signature, cut, known or none."""
     cache, seen = {} if cache is None else cache, {}
     for e, anchor in watch:
         seen[e["id"]] = distances(src, anchor, nonce, tokens, cache)
     hits = [(seen[e["id"]][0], e["id"]) for e, _ in watch if seen[e["id"]] and seen[e["id"]][0] < e.get("threshold", RED)]
     if hits:
-        return {"light": "red", "matched": min(hits)[1], "reason": "part of the model matches a listed model", "distances": seen}
+        return {"light": "red", "matched": min(hits)[1], "finding": "listed", "distances": seen,
+                "reason": "part of the model matches a listed model"}
     if geometry:
         for e, anchor in watch:
             seen[e["id"] + " (by geometry)"] = distances_by_geometry(src, anchor, nonce, tokens, cache)
         hits = [(d[0], e["id"]) for e, _ in watch for d in [seen[e["id"] + " (by geometry)"]] if d and d[0] < e.get("threshold", RED)]
         if hits:
-            return {"light": "red", "matched": min(hits)[1], "distances": seen,
+            return {"light": "red", "matched": min(hits)[1], "finding": "listed-by-geometry", "distances": seen,
                     "reason": "part of the model matches a listed model once tokens are matched by geometry, not by name"}
     if ablation:
-        return {"light": "red", "matched": None, "reason": "refusal-ablation signature", "distances": seen}
+        return {"light": "red", "matched": None, "finding": "signature", "reason": "refusal-ablation signature", "distances": seen}
     for e, anchor in known:
         seen[e["id"]] = distances(src, anchor, nonce, tokens, cache)
     hits = [(seen[e["id"]][1], e["id"]) for e, _ in known if seen[e["id"]] and seen[e["id"]][1] < e.get("clear", GREEN)]
     if hits:
-        return {"light": "green", "matched": min(hits)[1], "reason": "every part matches a known model", "distances": seen}
-    return {"light": "amber", "matched": None, "reason": "no listed or known model matches", "distances": seen}
+        name = min(hits)[1]
+        if cuts and direction_cut(src, next(a for e, a in known if e["id"] == name), nonce):
+            return {"light": "red", "matched": name, "finding": "cut", "distances": seen,
+                    "reason": "a copy of a known model with one direction cut out of several layers"}
+        return {"light": "green", "matched": name, "finding": "known", "reason": "every part matches a known model", "distances": seen}
+    return {"light": "amber", "matched": None, "finding": "none", "reason": "no listed or known model matches", "distances": seen}
