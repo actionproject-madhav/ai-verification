@@ -237,23 +237,27 @@ def common_direction(found, top=1):
     return v, [float((U_[:, :top].T @ v).norm()) for _, U_, _ in found]
 
 
-def shared_edit(src, anchor, layers_src, layers_anchor, top=1, dev="cpu"):
-    """Does the difference between two copies point one way in many layers?
+def shared_edit(src, anchor, layers_src, layers_anchor, dev="cpu"):
+    """Was one direction cut out of a copy, layer by layer?
 
-    Removing refusals subtracts one residual-stream direction from the matrices that write to the stream. So for a
-    copy edited that way, the difference from its base has the same leading direction in those matrices, layer
-    after layer. Fine-tuning and quantisation move each matrix its own way.
+    Removing refusals subtracts a residual-stream direction from the matrices that write to the stream. So in the
+    difference between such a copy and its base, the matrices of one layer change along the same direction, and
+    often the same direction shows in layer after layer. Fine-tuning and quantisation move each matrix its own way.
 
-    Returns {"layers": how many of the read layers hold a changed matrix that contains the common direction
-    (0.9 or more), "changed": how many layers changed at all}. None when the two models are not laid out alike."""
+    Returns {"paired": layers whose changed matrices agree on their leading direction (|cosine| of 0.9 or more),
+    "common": layers holding a changed matrix whose leading direction is the one most matrices share,
+    "changed": layers that changed at all}. None when the two models are not laid out alike."""
     found = edit_directions(src, anchor, layers_src, layers_anchor, dev)
     if found is None:
         return None
     if not found:
-        return {"layers": 0, "changed": 0}
-    _, fit = common_direction(found, top)
-    return {"layers": len({p for (p, _, _), c in zip(found, fit) if c >= 0.9}), "changed": len({p for p, _, _ in found})}
-
+        return {"paired": 0, "common": 0, "changed": 0}
+    lead = torch.stack([u[:, 0] for _, u, _ in found])
+    cos = (lead @ lead.T).abs()
+    pos = [p for p, _, _ in found]
+    paired = {pos[i] for i in range(len(pos)) for j in range(i + 1, len(pos)) if pos[i] == pos[j] and cos[i, j] >= 0.9}
+    _, fit = common_direction(found)
+    return {"paired": len(paired), "common": len({p for p, c in zip(pos, fit) if c >= 0.9}), "changed": len(set(pos))}
 
 
 def token_geometry(src, k=GEO_AXES, chunk=16384, dev="cpu", keep_table=True):

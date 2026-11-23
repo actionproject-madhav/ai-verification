@@ -1,6 +1,7 @@
 """The design-free fingerprint: no knowledge of the architecture, matrices matched by content."""
 import numpy as np
 import pytest
+import torch
 
 from conftest import TinySource, tiny_model, universal_distance
 from lineage_check import edits, remote, universal
@@ -74,20 +75,33 @@ def edit_layers(changed, base):
 
 
 def test_a_direction_removed_from_every_writer_shows_in_every_layer(model):
-    assert edit_layers(edits.rank1_edit(model), model) == {"layers": 3, "changed": 3}
+    assert edit_layers(edits.rank1_edit(model), model) == {"paired": 3, "common": 3, "changed": 3}
 
 
 def test_the_removed_direction_still_shows_under_fine_tuning_noise(model):
-    assert edit_layers(edits.noise(edits.rank1_edit(model), rel=0.01), model)["layers"] == 3
+    r = edit_layers(edits.noise(edits.rank1_edit(model), rel=0.01), model)
+    assert r["paired"] == 3 and r["common"] == 3
+
+
+def test_a_different_direction_in_every_layer_still_pairs_up_inside_each_layer(model):
+    m = edits.clone(model)
+    g = torch.Generator().manual_seed(5)
+    for layer in m["layers"]:                                     # newer tools remove a direction of its own per layer
+        r = torch.randn(m["d"], generator=g)
+        P = torch.eye(m["d"]) - torch.outer(r, r) / (r @ r)
+        layer["o"], layer["down"] = P @ layer["o"], P @ layer["down"]
+    r = edit_layers(m, model)
+    assert r["paired"] == 3 and r["common"] < 2                   # no direction is shared across layers, each layer agrees with itself
 
 
 @pytest.mark.parametrize("edit", [lambda m: edits.noise(m, rel=0.02), edits.quantize, lambda m: edits.prune(m, frac=0.3)])
 def test_noise_quantisation_and_pruning_share_no_direction(model, edit):
-    assert edit_layers(edit(model), model) == {"layers": 0, "changed": 3}
+    r = edit_layers(edit(model), model)
+    assert r["paired"] == 0 and r["changed"] == 3
 
 
 def test_an_unchanged_copy_has_no_difference_to_read(model):
-    assert edit_layers(model, model) == {"layers": 0, "changed": 0}
+    assert edit_layers(model, model) == {"paired": 0, "common": 0, "changed": 0}
 
 
 def test_models_of_different_width_are_not_compared_for_an_edit(model):
