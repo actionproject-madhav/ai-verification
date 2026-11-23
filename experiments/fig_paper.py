@@ -4,6 +4,7 @@
   hashes        what exact hashes recognise against what the fingerprint recognises (hash_baseline)
   robustness    retraining aimed at the tool: leaving Red, and trying to reach Green (gpu/, round7_forge_long_135m)
   census        declared bases against the weights, on the most-downloaded Hub models (hub_scan/compare.json)
+  outputs       outputs of honest copies and of stress-test models, between a listed and a known model (output_check_135m)
   architecture  the mechanism as a diagram
 
 Usage: python fig_paper.py <results dir> <out dir> [figure ...]
@@ -225,6 +226,39 @@ def tradeoff(res, out):
     ax.legend(loc="center left", bbox_to_anchor=(1.0, 0.5), handletextpad=0.4)
     save(fig, out, "fig_tradeoff")
     return found
+
+
+def outputs(res, out):
+    """Where each model's outputs sit between the listed model X and the known model Y, in total variation between
+    next-token distributions on held-out text. No model can sit below the diagonal: TV(m, X) + TV(m, Y) >= TV(X, Y).
+    Models further than 0.6 from both are left off the axes; the table in docs/RESULTS.md lists them."""
+    d = json.load(open(os.path.join(res, "output_check_135m.json")))
+    gap, rows = d["tv_X_Y"], d["rows"]
+    kind = lambda n: "pair" if n.startswith(("X, the listed", "Y, the known")) else "Y" if n.startswith(("Y,", "Y's", "Y trained")) else "X"
+    fig, ax = plt.subplots(figsize=(3.5, 3.3))
+    top = 0.45
+    ax.add_patch(Polygon([(0, 0), (gap, 0), (0, gap)], closed=True, fc=HAIR, ec="none", zorder=0, label="ruled out"))
+    ax.plot([0, gap], [gap, 0], color=SOFT, lw=0.8, zorder=1)
+    shown = [r for r in rows if max(r["tv_to_Y"], r["tv_to_X"]) <= 0.6]
+    for key, colour, label in (("Y", FOREST, "copies of Y"), ("X", VERM, "made from X")):
+        pts = [r for r in shown if kind(r["model"]) == key]
+        ax.scatter([r["tv_to_Y"] for r in pts], [r["tv_to_X"] for r in pts], s=22, color=colour, lw=0, zorder=3, label=label, clip_on=False)
+    ax.scatter([0, gap], [gap, 0], s=26, color=INK, lw=0, zorder=4, clip_on=False)
+    ax.annotate("Y", (0, gap), xytext=(6, 5), textcoords="offset points", fontsize=9, fontweight="medium")
+    ax.annotate("X", (gap, 0), xytext=(5, 6), textcoords="offset points", fontsize=9, fontweight="medium")
+    ax.set_xlim(0, top)
+    ax.set_ylim(0, top)
+    ax.set_aspect("equal")
+    ticks = [0, 0.1, 0.2, 0.3, 0.4]
+    ax.set_xticks(ticks)
+    ax.set_yticks(ticks)
+    ax.set_xlabel("outputs, to the known model Y")
+    ax.set_ylabel("outputs, to the listed model X")
+    ax.legend(loc="upper right", handletextpad=0.3, borderaxespad=0.2)
+    save(fig, out, "fig_outputs")
+    return {"tv_X_Y": gap, "shown": len(shown), "left_off": [r["model"] for r in rows if r not in shown],
+            "copies_of_Y_furthest_from_Y": max(r["tv_to_Y"] for r in shown if kind(r["model"]) == "Y"),
+            "made_from_X_closest_to_Y": min(r["tv_to_Y"] for r in shown if kind(r["model"]) == "X")}
 
 
 def census(res, out):
