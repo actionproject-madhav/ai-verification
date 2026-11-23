@@ -136,6 +136,37 @@ kept, dropped = [r for r in trade if r["keep"] == 0.1], [r for r in trade if r["
 three = [round(at(both[1], 2000)["to_Y"][1], 2), round(at(kept, 2000)["to_Y"][1], 2), round(at(dropped, 2000)["to_Y"][1], 2)]
 claim("keeping the listed model's outputs does not slow the pull toward a known model: 0.50, 0.46, 0.47 at 2,000 steps for weights 1, 0.1, 0",
       three == [0.50, 0.46, 0.47] and all(r["light"] != "green" for r in trade) and dropped[-1]["lambada"] == 0.0 and round(kept[-1]["lambada"], 2) == 0.38, three)
+cont = [json.loads(l) for l in open(os.path.join(RES, "round7_continue_135m.jsonl"))]
+claim("pulled toward the known model's activations as well, 2,000 steps: 0.41 to 0.12 from it, 0.03 to 0.32 from the listed model, outputs kept",
+      (cont[-1]["step"], round(cont[0]["act_to_Y"], 2), round(cont[-1]["act_to_Y"], 2), round(cont[0]["v4_all"], 2), round(cont[-1]["v4_all"], 2),
+       round(cont[-1]["kl"], 2), round(cont[-1]["lambada"], 2), round(cont[-1]["to_Y"][1], 2)) == (2000, 0.41, 0.12, 0.03, 0.32, 0.16, 0.35, 0.34)
+      and all(r["light"] == "amber" for r in cont) and cont[-1]["kl_to_Y"] > 2 * cont[-1]["kl"],
+      (cont[-1]["act_to_Y"], cont[-1]["v4_all"], cont[-1]["kl"], cont[-1]["kl_to_Y"]))
+oc = load("output_check_135m.json")
+O = {r["model"]: r for r in oc["rows"]}
+tv = lambda k: round(O[k]["tv_to_Y"], 2)
+claim("outputs: X and Y are 0.255 apart over 128 windows; every mean has a standard error of 0.003 or less; the inequality holds in every window",
+      (oc["windows"], round(oc["tv_X_Y"], 3)) == (128, 0.255) and max(r["tv_to_Y_se"] for r in oc["rows"]) <= 0.003
+      and all(r["bound_holds_in_every_window"] is not False for r in oc["rows"]), (oc["tv_X_Y"], len(oc["rows"])))
+faithful = [O[k] for k in ("Y, stored in blocks at 8 bits", "Y, published GGUF file Q8_0", "Y, published GGUF file Q6_K", "Y, published GGUF file Q5_K_M",
+                           "Y, fine-tuned for 200 steps", "Y, fine-tuned for 1,000 steps")]
+claim("faithful copies of Y (8-bit to 5-bit files, fine-tunes of 200 and 1,000 steps) are 0.02 to 0.10 from its outputs and under 0.14 in every window",
+      (round(min(r["tv_to_Y"] for r in faithful), 2), round(max(r["tv_to_Y"] for r in faithful), 2)) == (0.02, 0.10)
+      and max(r["tv_to_Y_windows"][1] for r in faithful) < 0.14 and len(oc["rows"]) >= 22, max(r["tv_to_Y_windows"][1] for r in faithful))
+made = [r for k, r in O.items() if k.startswith(("X", "the ", "that "))]                # X and every model made from it
+claim("X and every model made from it are more than 0.18 from Y's outputs in every window; none is closer on average than X",
+      len(made) >= 8 and min(r["tv_to_Y_windows"][0] for r in made) > 0.18 and min(r["tv_to_Y"] for r in made) == O["X, the listed model"]["tv_to_Y"],
+      (len(made), min(r["tv_to_Y_windows"][0] for r in made)))
+claim("pulled to Y's tables for 10,000 steps, then to its activations for 2,000: outputs 0.27 and 0.28 from Y",
+      (tv("X pulled to Y's tables, 10,000 steps"), tv("the same model, then pulled to Y's activations, 2,000 steps")) == (0.27, 0.28),
+      O["the same model, then pulled to Y's activations, 2,000 steps"]["tv_to_Y"])
+claim("Y's 4-bit files move its outputs by 0.14 to 0.21, a 2-bit file by 0.23, its published instruct version by 0.26",
+      [tv("Y, published GGUF file Q4_K_M"), tv("Y, published GGUF file Q4_0"), tv("Y, published GGUF file Q2_K"), tv("Y's published instruct version")]
+      == [0.14, 0.21, 0.23, 0.26], tv("Y's published instruct version"))
+honest = [r for k, r in O.items() if k.startswith("Y") and "imitate" not in k and k != "Y, the known model"]
+claim("no honest copy of Y is closer to X's outputs than Y is; the model trained to imitate X is (0.24)",
+      len(honest) >= 12 and min(r["tv_to_X"] for r in honest) >= round(oc["tv_X_Y"], 3) and round(O["Y trained to imitate X, 3,000 steps"]["tv_to_X"], 2) == 0.24,
+      (len(honest), min(r["tv_to_X"] for r in honest)))
 act = load("gpu/1.7b-v2-forge-lights_redteam.json")["rows"][-1]
 claim("that 1.7B model's activations: 0.09 from the listed model, 0.58 from the known one",
       (round(act["act_to_X"], 2), round(act["act_to_Y"], 2)) == (0.09, 0.58), (act["act_to_X"], act["act_to_Y"]))
