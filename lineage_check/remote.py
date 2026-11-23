@@ -1,9 +1,11 @@
 """Read just the parts of a model the fingerprint needs.
 
 Sources share one interface (config, vocab, has, get, rows):
-  Remote   - a Hub repo, read with HTTP Range requests against its safetensors files (raw bytes cached on disk)
-  LocalST  - safetensors files on disk
-  LocalBin - a pytorch_model.bin on disk (torch.load weights_only, for repos with no safetensors)
+  Remote    - a Hub repo, read with HTTP Range requests against its safetensors files (raw bytes cached on disk),
+              or against a GGUF file when the repo has no safetensors
+  LocalST   - safetensors files on disk
+  LocalGGUF - a GGUF file on disk
+  LocalBin  - a pytorch_model.bin on disk (torch.load weights_only, for repos with no safetensors)
 build() turns a source into the partial canonical model the fingerprint reads: a contiguous block of embedding
 (and unembedding) rows plus a chosen set of layers, all float32, linear weights as (out, in).
 Quantised linears are dequantised the way a scanner would see them: AWQ (GEMM), GPTQ (v1 zeros), MLX affine.
@@ -15,6 +17,7 @@ import requests
 import torch
 from huggingface_hub import HfApi, hf_hub_url
 
+from . import gguf as G
 from .paths import ZOO, PARTIAL as CACHE
 ROW_LO, ROW_HI = 300, 20000                       # embedding rows fetched: the token pool lives here
 _tl = threading.local()
@@ -55,6 +58,8 @@ _E4M3, _E8M0 = _fp8_tables()
 
 
 def _decode(raw, dtype, shape):
+    if dtype.startswith(G.PREFIX):
+        return G.decode(raw, dtype[len(G.PREFIX):], shape)
     a = np.frombuffer(raw, dtype=DT[dtype][0]).reshape(shape)
     if dtype == "BF16":
         return (a.astype(np.uint32) << 16).view(np.float32)
@@ -98,7 +103,8 @@ SUPPORTED = ("llama", "qwen2", "qwen3", "mistral", "olmo", "qwen3_moe", "olmoe",
 
 
 class Remote:
-    def __init__(self, repo, revision=None):
+    def __init__(self, repo, revision=None, file=None):
+        """`file` picks one GGUF file by part of its name ("Q8_0") in a repo that holds several."""
         self.repo = repo
         info = _patient(lambda: HfApi().model_info(repo, revision=revision))
         self.sha = info.sha
@@ -108,6 +114,13 @@ class Remote:
         self.index = {}
         for f in sorted(x for x in self.files if x.endswith(".safetensors") and "/" not in x):
             self._header(f)                           # top-level weights only (subfolders hold duplicates)
+        self.gguf = [] if self.index and not file else G.choose(self.files, file)
+        if self.gguf:                                 # no safetensors, or a GGUF file asked for by name
+            self.index = {}
+            self.dir = os.path.join(self.dir, self.gguf[0].replace("/", "--"))
+            os.makedirs(self.dir, exist_ok=True)
+            for f in self.gguf:
+                self._gguf(f)
         if not any(k.startswith("model.layers.") for k in self.index):
             # Weights saved without the causal-LM wrapper (embedding models, rerankers) or inside a vision-language
             # wrapper: alias them to the causal-LM names. Applied only when the standard names are absent.
@@ -118,18 +131,23 @@ class Remote:
                 for old, new in rules:
                     if k.startswith(old):
                         self.index.setdefault(new + k[len(old):], self.index[k])
-        self.config = json.loads(self._small("config.json"))
+        self.config = json.loads(self._small("config.json")) if "config.json" in self.files and not self.gguf \
+            else {"model_type": "gguf" if self.gguf else "unknown"}
         for sub in ("text_config", "llm_config"):    # a vision-language wrapper: scan its language backbone
             if self.config.get("model_type") not in SUPPORTED and isinstance(self.config.get(sub), dict) \
                     and self.config[sub].get("model_type") in SUPPORTED:
                 self.config = dict(self.config[sub])
                 break
-        self.label = repo + (f"@{revision}" if revision else "")
+        self.label = repo + (f"@{revision}" if revision else "") + (f" [{self.gguf[0]}]" if self.gguf else "")
 
     @property
     def vocab(self):
         if not hasattr(self, "_vocab"):
-            if "tokenizer.json" in self.files:
+            if self.gguf:                             # a GGUF file carries its own token list
+                self._vocab = {}
+                for i, t in enumerate(self._tokens):
+                    self._vocab.setdefault(t, i)
+            elif "tokenizer.json" in self.files:
                 self._vocab = _vocab_from_tokenizer_json(json.loads(self._small("tokenizer.json")))
             elif "tiktoken.model" in self.files:
                 self._vocab = _vocab_from_tiktoken(self._small("tiktoken.model"))
@@ -216,6 +234,20 @@ class Remote:
                 a, b = v["data_offsets"]
                 self.index[k] = (f, v["dtype"], tuple(v["shape"]), base + a, base + b)
 
+    def _gguf(self, f):
+        """Index one GGUF file: its header is fetched once and kept on disk."""
+        p = os.path.join(self.dir, f.replace("/", "--") + ".header.json")
+        if os.path.exists(p):
+            h = json.load(open(p))
+        else:
+            r = _patient(lambda: requests.get(hf_hub_url(self.repo, f, revision=self.sha), headers={"Range": "bytes=0-0"},
+                                              allow_redirects=True, timeout=120))
+            h = G.header(lambda a, b: self._range(f, a, b), int(r.headers["Content-Range"].split("/")[1]))
+            json.dump(h, open(p, "w"))
+        if h["tokens"] is not None:
+            self._tokens = h["tokens"]
+        self.index.update(G.entries(h, f))
+
     def has(self, name):
         return name in self.index
 
@@ -242,8 +274,55 @@ class Remote:
     def rows(self, name, lo, hi):
         f, dt, shape, a, b = self.index[name]
         hi = min(hi, shape[0])
+        if dt.startswith(G.PREFIX):                   # blocks run across row ends: read whole blocks and trim
+            width = int(np.prod(shape[1:]))
+            x, y, drop = G.row_span(dt[len(G.PREFIX):], width, lo, hi)
+            flat = G.decode(self._cached(f"{name}.rows{lo}-{hi}", f, a + x, a + y), dt[len(G.PREFIX):])
+            return flat[drop:drop + (hi - lo) * width].reshape((hi - lo,) + shape[1:])
         rb = int(np.prod(shape[1:])) * DT[dt][1]
         return _decode(self._cached(f"{name}.rows{lo}-{hi}", f, a + lo * rb, a + hi * rb), dt, (hi - lo,) + shape[1:])
+
+
+class LocalGGUF:
+    """A GGUF file on disk, or the shards of one. Tensors are read in place."""
+
+    def __init__(self, paths, label=None):
+        self.paths = sorted(glob.glob(paths)) if isinstance(paths, str) else list(paths)
+        self.label, self.config, self.index, self._tokens = label or self.paths[0], {"model_type": "gguf"}, {}, None
+        for p in self.paths:
+            h = G.header(lambda a, b, p=p: self._read(p, a, b + 1), os.path.getsize(p))
+            if h["tokens"] is not None:
+                self._tokens = h["tokens"]
+            self.index.update(G.entries(h, p))
+
+    @staticmethod
+    def _read(path, a, b):
+        with open(path, "rb") as f:
+            f.seek(a)
+            return f.read(b - a)
+
+    @property
+    def vocab(self):
+        v = {}
+        for i, t in enumerate(self._tokens):
+            v.setdefault(t, i)
+        return v
+
+    def has(self, name):
+        return name in self.index
+
+    def shape(self, name):
+        return self.index[name][2]
+
+    def get(self, name):
+        f, dt, shape, a, b = self.index[name]
+        return _decode(self._read(f, a, b), dt, shape)
+
+    def rows(self, name, lo, hi):
+        f, dt, shape, a, b = self.index[name]
+        hi, width, fmt = min(hi, shape[0]), int(np.prod(shape[1:])), dt[len(G.PREFIX):]
+        x, y, drop = G.row_span(fmt, width, lo, hi)
+        return G.decode(self._read(f, a + x, a + y), fmt)[drop:drop + (hi - lo) * width].reshape((hi - lo,) + shape[1:])
 
 
 class LocalST:
