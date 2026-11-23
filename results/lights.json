@@ -7,7 +7,9 @@
    "revision": "53e0691e21895a3863a606dfd12910c69eba94ab",
    "light": "red",
    "matched": "glm-5.2",
+   "finding": "listed",
    "reason": "part of the model matches a listed model",
+   "signature": null,
    "distances": {
     "glm-5.3": [
      0.0406,
@@ -22,7 +24,7 @@
      0.0
     ]
    },
-   "seconds": 97
+   "seconds": 69
   },
   {
    "repo": "dealignai/GLM-5.3-CYBERSECURITY-FP8",
@@ -30,7 +32,9 @@
    "revision": "5915c1b88f998a9c1e1a0c83688e285a08ae3ca5",
    "light": "red",
    "matched": "glm-5.3",
+   "finding": "listed",
    "reason": "part of the model matches a listed model",
+   "signature": null,
    "distances": {
     "glm-5.3": [
      0.0,
@@ -45,7 +49,7 @@
      0.1312
     ]
    },
-   "seconds": 181
+   "seconds": 18
   },
   {
    "repo": "nvidia/Kimi-K3-NVFP4",
@@ -53,7 +57,9 @@
    "revision": "b2428a0b83a8b712ff2e1a8448a103d4175341f1",
    "light": "red",
    "matched": "kimi-k3",
+   "finding": "listed",
    "reason": "part of the model matches a listed model",
+   "signature": null,
    "distances": {
     "glm-5.3": [
      0.9713,
@@ -68,7 +74,7 @@
      0.9808
     ]
    },
-   "seconds": 85
+   "seconds": 51
   },
   {
    "repo": "moonshotai/Kimi-K3.1-Pro",
@@ -76,7 +82,9 @@
    "revision": "d9e99b0792a5e93b78ea9bea62a68167e36ddd9e",
    "light": "red",
    "matched": "kimi-k3",
+   "finding": "listed",
    "reason": "part of the model matches a listed model",
+   "signature": null,
    "distances": {
     "glm-5.3": [
      0.9721,
@@ -91,7 +99,7 @@
      0.9813
     ]
    },
-   "seconds": 83
+   "seconds": 44
   },
   {
    "repo": "zai-org/GLM-5.3-Flash",
@@ -99,7 +107,9 @@
    "revision": "46a050bec13002ad29ee795c16e61cf4fa3c4a9c",
    "light": "amber",
    "matched": null,
+   "finding": "none",
    "reason": "no listed or known model matches",
+   "signature": null,
    "distances": {
     "glm-5.3": [
      0.9783,
@@ -138,7 +148,7 @@
      0.9774
     ]
    },
-   "seconds": 126
+   "seconds": 60
   },
   {
    "repo": "tiny-random/glm-5.2",
@@ -146,7 +156,9 @@
    "revision": "d81c5b8a604cfa3a12622d8899153f7ac2b7220c",
    "light": "amber",
    "matched": null,
+   "finding": "none",
    "reason": "no listed or known model matches",
+   "signature": null,
    "distances": {
     "glm-5.3": [
      0.9899,
@@ -193,7 +205,9 @@
    "revision": "a09a35458c702b33eeacc393d103063234e8bc28",
    "light": "green",
    "matched": "qwen2.5-7b",
+   "finding": "known",
    "reason": "every part matches a known model",
+   "signature": false,
    "distances": {
     "glm-5.3": [
      0.9847,
@@ -232,7 +246,7 @@
      0.9857
     ]
    },
-   "seconds": 54
+   "seconds": 80
   },
   {
    "repo": "NousResearch/Hermes-3-Llama-3.1-8B",
@@ -240,7 +254,9 @@
    "revision": "896ea440e5a9e6070e3d8a2774daf2b481ab425b",
    "light": "green",
    "matched": "llama-3.1-8b",
+   "finding": "known",
    "reason": "every part matches a known model",
+   "signature": false,
    "distances": {
     "glm-5.3": [
      0.9787,
@@ -279,15 +295,17 @@
      0.9898
     ]
    },
-   "seconds": 58
+   "seconds": 83
   },
   {
    "repo": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated",
    "what": "a known model with its refusals removed",
    "revision": "368c8ed94ce4c986e7b9ca5c159651ef753908ce",
    "light": "red",
-   "matched": null,
-   "reason": "refusal-ablation signature",
+   "matched": "llama-3.1-8b",
+   "finding": "cut",
+   "reason": "a copy of a known model with one direction cut out of several layers",
+   "signature": true,
    "distances": {
     "glm-5.3": [
      0.9821,
@@ -300,9 +318,131 @@
     "glm-5.2": [
      0.9785,
      0.9883
+    ],
+    "qwen2.5-7b": [
+     0.9849,
+     0.9945
+    ],
+    "qwen3-8b": [
+     0.9755,
+     0.984
+    ],
+    "llama-3.1-8b": [
+     0.0627,
+     0.0693
+    ],
+    "mistral-7b-v0.3": [
+     0.9423,
+     0.9667
+    ],
+    "marin-8b": [
+     0.9443,
+     0.9661
+    ],
+    "smollm2-1.7b": [
+     0.971,
+     0.9896
     ]
    },
-   "seconds": 42
+   "seconds": 90
+  },
+  {
+   "repo": "huihui-ai/Qwen2.5-7B-Instruct-abliterated-v2",
+   "what": "a known model with its refusals removed",
+   "revision": "447ff10df7c9b7031f28eec54b9042a362d09696",
+   "light": "red",
+   "matched": "qwen2.5-7b",
+   "finding": "cut",
+   "reason": "a copy of a known model with one direction cut out of several layers",
+   "signature": true,
+   "distances": {
+    "glm-5.3": [
+     0.985,
+     0.9919
+    ],
+    "kimi-k3": [
+     0.971,
+     0.9843
+    ],
+    "glm-5.2": [
+     0.9827,
+     0.9905
+    ],
+    "qwen2.5-7b": [
+     0.0007,
+     0.0012
+    ],
+    "qwen3-8b": [
+     0.9885,
+     0.9928
+    ],
+    "llama-3.1-8b": [
+     0.9869,
+     0.9912
+    ],
+    "mistral-7b-v0.3": [
+     0.9554,
+     0.972
+    ],
+    "marin-8b": [
+     0.9777,
+     0.9862
+    ],
+    "smollm2-1.7b": [
+     0.9777,
+     0.9856
+    ]
+   },
+   "seconds": 79
+  },
+  {
+   "repo": "DreamFast/qwen3-8b-heretic",
+   "what": "a known model with its refusals removed, by a newer tool",
+   "revision": "07019d2298fc4802707f8a97e1afe052024cce48",
+   "light": "red",
+   "matched": "qwen3-8b",
+   "finding": "cut",
+   "reason": "a copy of a known model with one direction cut out of several layers",
+   "signature": false,
+   "distances": {
+    "glm-5.3": [
+     0.9881,
+     0.9956
+    ],
+    "kimi-k3": [
+     0.9852,
+     0.9917
+    ],
+    "glm-5.2": [
+     0.9894,
+     0.9978
+    ],
+    "qwen2.5-7b": [
+     0.9889,
+     0.9931
+    ],
+    "qwen3-8b": [
+     0.0076,
+     0.0088
+    ],
+    "llama-3.1-8b": [
+     0.9785,
+     0.99
+    ],
+    "mistral-7b-v0.3": [
+     0.9595,
+     0.9751
+    ],
+    "marin-8b": [
+     0.9557,
+     0.97
+    ],
+    "smollm2-1.7b": [
+     0.9731,
+     0.9844
+    ]
+   },
+   "seconds": 91
   },
   {
    "repo": "deepseek-ai/DeepSeek-V4-Flash",
@@ -310,7 +450,9 @@
    "revision": "60d8d70770c6776ff598c94bb586a859a38244f1",
    "light": "amber",
    "matched": null,
+   "finding": "none",
    "reason": "no listed or known model matches",
+   "signature": null,
    "distances": {
     "glm-5.3": [
      0.9659,
@@ -349,7 +491,7 @@
      0.9694
     ]
    },
-   "seconds": 29
+   "seconds": 18
   }
  ]
 }
