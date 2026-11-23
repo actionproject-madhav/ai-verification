@@ -13,10 +13,10 @@ are readers. Output and down projections are writers.
 
 The audit's nonce picks $n$ tokens. Let $E_S \in \mathbb{R}^{n \times d}$ be their embeddings.
 
-For a reader, fold the gain in and scale every row to unit length: $\hat W = \mathrm{rownorm}(W\,\mathrm{diag}(g))$.
+For a reader, fold the gain in and scale every row to unit length: $\hat W = \mathrm{rownorm}(W \mathrm{diag}(g))$.
 For a writer, scale every column to unit length: $\hat W = \mathrm{colnorm}(W)$. The table is
 
-$$T = E_S\,\hat W^{\top}\hat W\,E_S^{\top} \quad\text{(reader)}, \qquad T = E_S\,\hat W\,\hat W^{\top}E_S^{\top} \quad\text{(writer)}.$$
+$$T = E_S \hat W^{\top} \hat W E_S^{\top} \quad\text{(reader)}, \qquad T = E_S \hat W \hat W^{\top}E_S^{\top} \quad\text{(writer)}.$$
 
 $T[a,b]$ says how alike the matrix treats token $a$ and token $b$.
 
@@ -35,16 +35,19 @@ Take two models and the same tokens. For each table $t$ of one model, find its b
 kind of the other: $c(t) = \max_u \langle r(t), r(u)\rangle$. Matching by content means the tool needs no tensor
 names and no knowledge of the architecture.
 
-- Closest part: $d_{\min} = 1 - $ the mean of the top third of the $c(t)$.
-- All parts: $d_{\mathrm{all}} = 1 - $ the mean of all $c(t)$.
+- Closest part: $d_{\min}$ is one minus the mean of the top third of the $c(t)$.
+- All parts: $d_{\mathrm{all}}$ is one minus the mean of all $c(t)$.
 
 ## The rule
 
 | Light | Condition |
 |---|---|
-| Red | $d_{\min} < 0.5$ to a listed model, or the refusal-ablation signature |
+| Red | $d_{\min} < 0.5$ to a listed model; or $d_{\mathrm{all}} < 0.1$ to a known model and one direction cut out of two or more of six layers |
 | Green | not Red, and $d_{\mathrm{all}} < 0.1$ to a known model |
 | Amber | otherwise |
+
+The tool also raises Red on an older signal, a direction that nothing in the model writes to. It needs no base to
+compare with and misses most current refusal-removal tools; see below.
 
 ## What cannot change a table
 
@@ -60,7 +63,7 @@ the function, each reader must satisfy $W' \mathrm{diag}(g') = W \mathrm{diag}(g
 $R W$. Rotation keeps row and column lengths, so $\hat W' = \hat W R^{\top}$ for readers and $\hat W' = R \hat W$ for
 writers. Then
 
-$$E_S R^{\top} \, (\hat W R^{\top})^{\top} (\hat W R^{\top}) \, R E_S^{\top} = E_S\,\hat W^{\top}\hat W\,E_S^{\top},$$
+$$E_S R^{\top}   (\hat W R^{\top})^{\top} (\hat W R^{\top})   R E_S^{\top} = E_S \hat W^{\top}\hat W E_S^{\top},$$
 
 and the writer case is the same with $R R^{\top} = I$. Both projected-out pieces depend only on
 $E_S E_S^{\top}$, which is unchanged for the same reason. This is why the gain is folded into the reader before
@@ -86,6 +89,56 @@ by 0.0005 to 0.004, and removing refusals moves them by 0.070. Public 4-bit, 8-b
 million to 2.8 trillion parameters, the largest closest-part distance is 0.066. Over 151 pairs of separately
 trained models the smallest is 0.839. See `docs/RESULTS.md`.
 
+## A known model with one direction cut out
+
+Tools that remove refusals edit weights in one particular way. They find a direction $r$ in the residual stream
+and subtract it from the matrices that write to the stream:
+
+$$W' = W - \alpha  r r^{\top} W.$$
+
+Against the known model, each such matrix differs by a rank-one amount, and the writing matrices of one layer
+differ along the same $r$. A fine-tune or a quantised copy differs by a matrix of high rank, and its leading
+direction is a different one in every matrix.
+
+The test reads six layers drawn from the nonce. A layer counts as cut when the difference of one writing matrix
+is rank one (its leading direction holds 0.9 of the difference or more), or when two writing matrices differ
+along the same leading direction (cosine of 0.95 or more). Two cut layers make the model Red.
+
+Measured on close copies of registry bases from the Hub scan (`results/refusal_edit.jsonl`): the test flags 45 of 49
+models whose names say "abliterated" and 47 of 53 that say "heretic", a newer tool. An older signature, which
+looks at a model alone for a direction that nothing writes to, flags 27 and 0 of the same models. Of 314 other
+close copies the test flags 11. For seven of them the model's own card says refusals were removed, and in one of
+those the edited model is the registry entry. Two more show the same cut in four or more layers and their cards
+say nothing. The last two are false alarms for this purpose: a rank-one fine-tune, and a model edited to resist
+refusal removal.
+
+The bar is high for a reason. In ordinary fine-tunes the leading directions of a layer's two writing matrices
+often agree loosely: 0.67 at the median and 0.93 at the 95th percentile of the copies above. So agreement has
+to reach 0.95, and one layer is not enough. On seven pairs read under four nonces each, three refusal-removed
+models showed 2 to 6 cut layers on every nonce and four honest versions showed none (`results/cut_pairs.json`).
+
+## Matching tokens without trusting their names
+
+A table needs to know which row of the token matrix is which token. The tool first believes the tokenizer file.
+That file comes from the operator, and one that names the wrong rows would make a copy look unrelated. So when no
+listed model matches by name, tokens are paired by geometry.
+
+Project the token matrix on its own leading principal axes, scale each axis to unit spread and fix its sign by
+its skew. These coordinates survive the two things an operator can do for free. For a copy $E' = P E R^{\top}$,
+with rows reordered by $P$ and the stream rotated by $R$, the covariance becomes $R \mathrm{Cov}(E) R^{\top}$,
+its axes turn with $R$, and the coordinates are $P$ times the old ones: the same numbers, in the new row order.
+
+Each token the nonce chose from the listed model is paired with the nearest row of the other model in the 32
+leading coordinates. The most decisive pairs then fix a rotation between all 128, and the pairing is repeated
+three times. A token whose nearest row is not clearly nearer than the second (ratio above 0.7) is dropped, and
+with fewer than 64 tokens left the two models are not compared.
+
+Measured (`results/relabelled.json`): 4-bit and 8-bit copies of GLM-5.2, GLM-5.3 and Kimi K3, and a later version
+of Kimi K3, each read with its 155,000 to 164,000 token rows shuffled behind the old names. By name all four are
+Amber, at 0.98 or more from every listed model. By geometry all four are Red, at 0.011 or less from the model they
+copy. Five models that are not copies go through the same pass and none changes: the token tables of unrelated
+models do not line up, so nothing is compared.
+
 ## What a table does not fix
 
 Two facts bound what this check can prove. Both show up in the stress tests.
@@ -106,7 +159,9 @@ and layers the operator cannot predict. In the stress tests no run got there (`d
 
 Closing the first gap needs a check on what layers compute, not on their second moments: compare activations on
 text drawn from the nonce, inside the enclave, where the model is loaded anyway. `experiments/exp_v4.py` has a
-first version. It is not in the tool yet.
+first version, and on the stress-test models it sees what the tables do not. The 1.7B copy whose tables were
+pulled toward a known model (0.40 on the closest part) is still 0.09 from the listed model on activations, and
+0.58 from the known one: as far as an unrelated model. It is not in the tool yet.
 
 ## What the nonce is for
 
@@ -126,4 +181,6 @@ nothing. A single threshold would clear it. With the rule above it is Amber.
 - No protection against retraining aimed at the check. An operator who trains against these tables on every layer
   moves a copy from Red to Amber. `docs/RESULTS.md` has the numbers.
 - No proof that a model cleared as Green is the known model. It is what every run so far shows.
+- No claim to find every removal of refusals. The cut test finds about nine in ten public cases, and none made by
+  fine-tuning.
 - Nothing about behaviour. Two models can be far apart here and act alike.
