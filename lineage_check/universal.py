@@ -27,6 +27,7 @@ ATTN = re.compile(r"attn|attention")
 MLP = re.compile(r"mlp|ffn|moe|feed_forward|gate")
 NORM1 = re.compile(r"input|attn|attention|norm1|ln_1|pre")
 NORM2 = re.compile(r"post|ffn|mlp|norm2|ln_2")
+FLOATS = ("BF16", "F16", "F32", "F64", "F8_E4M3")             # tensor types read as plain numbers
 MIN_SIDE = 8
 
 
@@ -52,7 +53,7 @@ def layout(src):
             continue
         where = src.index[n]
         if isinstance(where, tuple):                              # the same bytes under an alias: read once
-            if where in seen:
+            if where in seen or where[1] not in FLOATS:
                 continue
             seen.add(where)
         i, short, sh = int(m.group(1)), m.group(2), shape_of(src, n)
@@ -86,11 +87,13 @@ def fingerprint(src, vocab, strings, layers=None, k=2, lo=300, hi=20000, dev="cp
     out = {"keep": keep, "EE": (E @ E.T).float().cpu(), "layers": [], "layer_ids": list(layers), "d": d, "used": []}
     def get(n):
         W = torch.from_numpy(np.ascontiguousarray(src.get(n))).to(dev).double()
-        sc = n[: -len("weight")] + "scale" if n.endswith("weight") else None
-        if sc in src.index and W.dim() == 2:                      # block floating point: one scale per block
-            S = torch.from_numpy(np.ascontiguousarray(src.get(sc))).to(dev).double()
-            if S.dim() == 2 and W.shape[0] % S.shape[0] == 0 and W.shape[1] % S.shape[1] == 0:
-                W = W * S.repeat_interleave(W.shape[0] // S.shape[0], 0).repeat_interleave(W.shape[1] // S.shape[1], 1)
+        for sc, inverse in ((n[: -len("weight")] + "scale", False), (n + "_scale", False), (n + "_scale_inv", True)):
+            if n.endswith("weight") and sc in src.index and W.dim() == 2:      # block floating point: one scale per block
+                S = torch.from_numpy(np.ascontiguousarray(src.get(sc))).to(dev).double()
+                if S.dim() == 2 and W.shape[0] % S.shape[0] == 0 and W.shape[1] % S.shape[1] == 0:
+                    S = S.repeat_interleave(W.shape[0] // S.shape[0], 0).repeat_interleave(W.shape[1] // S.shape[1], 1)
+                    W = W / S if inverse else W * S
+                break
         return W
     for i in layers:
         L, tabs = lay[i], []

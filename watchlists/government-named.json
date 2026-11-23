@@ -1,0 +1,13 @@
+{"name": "open-weight models named by government evaluation bodies for cyber capability (as of November 2026)",
+ "rule": "A model is listed once a government evaluation body publishes that it is the most cyber-capable open-weight model at release, or that it outperforms a model so named. Derivatives inherit the listing.",
+ "models": [
+  {"id": "glm-5.3", "repo": "zai-org/GLM-5.3", "threshold": 0.5,
+   "source": "US CAISI, assessment of GLM-5.3's cyber capabilities, 17 September 2026",
+   "url": "https://www.nist.gov/news-events/news/2026/09/caisis-assessment-zais-glm-53-cyber-capabilities"},
+  {"id": "kimi-k3", "repo": "moonshotai/Kimi-K3", "threshold": 0.5,
+   "source": "UK AISI with US CAISI, preliminary assessment of Kimi K3's cyber capabilities, 23 July 2026",
+   "url": "https://www.aisi.gov.uk/blog/preliminary-assessment-of-kimi-k3s-cyber-capabilities"},
+  {"id": "glm-5.2", "repo": "zai-org/GLM-5.2", "threshold": 0.5,
+   "source": "US CAISI, assessment of GLM-5.2, 17 July 2026",
+   "url": "https://www.nist.gov/document/caisi-assessment-zais-glm-52"}
+ ]}
