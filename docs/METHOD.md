@@ -20,9 +20,14 @@ $$T = E_S\,\hat W^{\top}\hat W\,E_S^{\top} \quad\text{(reader)}, \qquad T = E_S\
 
 $T[a,b]$ says how alike the matrix treats token $a$ and token $b$.
 
-Separately trained models with the same tokenizer still share most of their embedding geometry: the tables
-$E_S E_S^{\top}$ of unrelated models correlate at 0.87 to 0.98. So that shared part is removed. Centre $T$, project
-out the centred $E_S E_S^{\top}$, and scale to unit norm. Call the result $r(T)$.
+Separately trained models with the same tokenizer still share most of their token geometry: the tables
+$E_S E_S^{\top}$ of unrelated models correlate at 0.87 to 0.98. So that shared part is removed. Centre $T$, then
+project out two things: the table $E_S E_S^{\top}$, and every symmetric table that lives in its top eight
+directions. Scale the rest to unit norm and call it $r(T)$.
+
+The second projection matters for models built with one recipe. Without it, two unrelated models from the same
+developer, of different widths, scored 0.40. With it they score 0.84, and true copies stay near 0.02
+(`results/universal_cross.json`).
 
 ## Distance
 
@@ -57,8 +62,9 @@ writers. Then
 
 $$E_S R^{\top} \, (\hat W R^{\top})^{\top} (\hat W R^{\top}) \, R E_S^{\top} = E_S\,\hat W^{\top}\hat W\,E_S^{\top},$$
 
-and the writer case is the same with $R R^{\top} = I$. The projected-out table $E_S E_S^{\top}$ is unchanged for
-the same reason. This is why the gain is folded into the reader before anything else.
+and the writer case is the same with $R R^{\top} = I$. Both projected-out pieces depend only on
+$E_S E_S^{\top}$, which is unchanged for the same reason. This is why the gain is folded into the reader before
+anything else.
 
 These are the symmetries known from the weight-space literature
 ([Entezari et al., 2021](https://arxiv.org/abs/2110.06296); [Ainsworth et al., 2022](https://arxiv.org/abs/2209.04836)),
@@ -68,7 +74,7 @@ checks each one on a small model to $10^{-9}$.
 **One edit that is not covered exactly.** Inside an attention head, queries and keys can be mixed by an invertible
 matrix and its inverse without changing the product. That changes the separate tables of the query and key
 matrices. On the test model, all function-preserving edits applied together move the closest part by 0.00 and all
-parts by 0.095. So such a copy of a listed model is still Red. Such a copy of a known model may fall to Amber, and
+parts by 0.091. So such a copy of a listed model is still Red. Such a copy of a known model may fall to Amber, and
 an honest operator has no reason to do it. The design-aware reader in `lineage_check/fingerprint.py` works on the
 products instead and is exact for these edits too, for the architectures it knows.
 

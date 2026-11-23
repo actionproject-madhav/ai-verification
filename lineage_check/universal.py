@@ -7,8 +7,10 @@ Every language model has a table of token vectors E (tokens x d), and matrices t
   writer:  G = (E_S W')(W'^T E_S^T)      W' = W with every column scaled to unit length
 
 G is a token-by-token table. It does not change when the layer's internal units are permuted or rescaled, or when
-the residual stream is rotated. Two tables are compared after the plain token Gram E_S E_S^T is projected out of
-both: independently trained models share most of that geometry, so it says nothing about lineage.
+the residual stream is rotated. Two tables are compared after token geometry is projected out of both: the plain
+token Gram E_S E_S^T, and everything that lives in its top few directions. Models trained separately on similar
+text with the same tokenizer share that geometry, so it says nothing about lineage. Without the second step, two
+unrelated models from one developer's recipe scored 0.40; with it they score 0.84, and true copies stay near 0.02.
 
 Matrices are matched by content, not by name: each table is scored against its best match in the same layer of the
 other model. Mixture-of-experts expert weights are skipped, so a trillion-parameter model is read from a few
@@ -29,6 +31,7 @@ NORM1 = re.compile(r"input|attn|attention|norm1|ln_1|pre")
 NORM2 = re.compile(r"post|ffn|mlp|norm2|ln_2")
 FLOATS = ("BF16", "F16", "F32", "F64", "F8_E4M3")             # tensor types read as plain numbers
 MIN_SIDE = 8
+TOP = 8                                                       # leading directions of token geometry removed from every table
 MAX_VOCAB = 4_000_000                                         # more rows than this is a lookup table, not a vocabulary
 MAX_ELEMS = 1 << 28                                           # a larger tensor is a packed table, not one matrix
 
@@ -123,10 +126,23 @@ def fingerprint(src, vocab, strings, layers=None, k=2, lo=300, hi=20000, dev="cp
     return out
 
 
-def _resid(G, EE):
-    g, e = G.flatten().double(), EE.flatten().double()
-    g, e = g - g.mean(), e - e.mean()
-    r = g - (g @ e) / (e @ e).clamp_min(1e-30) * e
+def _basis(EE, top=None):
+    """An orthonormal basis for what a table can owe to token geometry alone: the token Gram, and every symmetric
+    table supported on its leading directions. Both are unchanged by the symmetries the tables are unchanged by."""
+    e = EE.double()
+    k = min(TOP if top is None else top, e.shape[0] - 1)
+    cols = [e.flatten()]
+    if k > 0:
+        v = torch.linalg.eigh(e).eigenvectors[:, -k:]
+        cols += [(torch.outer(v[:, i], v[:, j]) + torch.outer(v[:, j], v[:, i])).flatten() for i in range(k) for j in range(i, k)]
+    B = torch.stack(cols, 1)
+    return torch.linalg.qr(B - B.mean(0, keepdim=True)).Q
+
+
+def _resid(G, Q):
+    g = G.flatten().double()
+    g = g - g.mean()
+    r = g - Q @ (Q.T @ g)
     n = r.norm()
     return r / n if n > 0 else r
 
@@ -139,7 +155,7 @@ def _std(G):
 
 def compare(fa, fb):
     """Distance in [0, 2]: 1 minus the mean best-match correlation over the best-matching third of the two models'
-    tables, layer by layer, on the tokens both models have, with the plain token Gram projected out.
+    tables, layer by layer, on the tokens both models have, with token geometry projected out.
     A few strong matches are conclusive: tables of unrelated models correlate at about zero. Scoring the best third
     also covers free transforms inside attention heads, which can move attention tables but not MLP tables.
     `d_all` is the mean over every table. None if nothing is comparable."""
@@ -150,11 +166,12 @@ def compare(fa, fb):
     ib = torch.as_tensor([fb["keep"].index(t) for t in common])
     sub = lambda M, ix: M[ix][:, ix]
     EEa, EEb = sub(fa["EE"], ia), sub(fb["EE"], ib)
+    Qa, Qb = _basis(EEa), _basis(EEb)
     best = []
     for La, Lb in zip(fa["layers"], fb["layers"]):
         for kind in ("r", "w"):
-            A = [_resid(sub(G, ia), EEa) for k_, G in La if k_ == kind]
-            B = [_resid(sub(G, ib), EEb) for k_, G in Lb if k_ == kind]
+            A = [_resid(sub(G, ia), Qa) for k_, G in La if k_ == kind]
+            B = [_resid(sub(G, ib), Qb) for k_, G in Lb if k_ == kind]
             if not A or not B:
                 continue
             S = torch.stack(A) @ torch.stack(B).T                 # correlations: rows a, columns b
