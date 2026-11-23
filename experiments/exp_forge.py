@@ -21,7 +21,7 @@ import exp_round4 as R4
 torch.set_grad_enabled(True)
 DEV = A.DEV
 STEPS, EVAL_EVERY = int(os.environ.get("R5_STEPS", 400)), int(os.environ.get("R5_EVAL", 100))
-TARGET = "HuggingFaceTB/SmolLM-135M"
+TARGET = A.INDEP
 PUSH = float(os.environ.get("R5_PUSH", 0))   # > 0: also push away from X (erase and forge together)
 
 
@@ -42,7 +42,9 @@ def run(fh, lam):
         f3 = A.fp_live(m, A.S_EVAL)
         f4 = R2.v4_live(m, R2.SECRET_IDS.to(DEV), R2.LAYERS, grad=False)
         v4 = float(np.mean([1 - float(A.corr32(t4[l][c], f4[l][c])) for l in f4 for c in ("qk", "ov")]))
-        return {"v3_to_target": float(A.dist(t3, f3, ("qk", "ov"))), "v4_to_target": v4}
+        return {"v3_to_target": float(A.dist(t3, f3, ("qk", "ov"))), "v4_to_target": v4,
+                "to_target": {c: round(float(A.dist(t3, f3, (c,))), 4) for c in ("qk", "ov", "mlp", "gate")},
+                "to_parent": {c: round(float(A.dist(p3, f3, (c,))), 4) for c in ("qk", "ov", "mlp", "gate")}}
 
     opt = torch.optim.AdamW(m.parameters(), lr=1e-4, weight_decay=0.0)
     g = torch.Generator().manual_seed(29)
