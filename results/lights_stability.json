@@ -22,6 +22,13 @@
     "glm-5.2",
     "glm-5.2",
     "glm-5.2"
+   ],
+   "findings": [
+    "listed",
+    "listed",
+    "listed",
+    "listed",
+    "listed"
    ]
   },
   {
@@ -39,6 +46,13 @@
     "glm-5.3",
     "glm-5.3",
     "glm-5.3"
+   ],
+   "findings": [
+    "listed",
+    "listed",
+    "listed",
+    "listed",
+    "listed"
    ]
   },
   {
@@ -56,6 +70,13 @@
     "kimi-k3",
     "kimi-k3",
     "kimi-k3"
+   ],
+   "findings": [
+    "listed",
+    "listed",
+    "listed",
+    "listed",
+    "listed"
    ]
   },
   {
@@ -73,6 +94,13 @@
     "kimi-k3",
     "kimi-k3",
     "kimi-k3"
+   ],
+   "findings": [
+    "listed",
+    "listed",
+    "listed",
+    "listed",
+    "listed"
    ]
   },
   {
@@ -90,6 +118,13 @@
     null,
     null,
     null
+   ],
+   "findings": [
+    "none",
+    "none",
+    "none",
+    "none",
+    "none"
    ]
   },
   {
@@ -107,6 +142,13 @@
     null,
     null,
     null
+   ],
+   "findings": [
+    "none",
+    "none",
+    "none",
+    "none",
+    "none"
    ]
   },
   {
@@ -124,6 +166,13 @@
     "qwen2.5-7b",
     "qwen2.5-7b",
     "qwen2.5-7b"
+   ],
+   "findings": [
+    "known",
+    "known",
+    "known",
+    "known",
+    "known"
    ]
   },
   {
@@ -141,6 +190,13 @@
     "llama-3.1-8b",
     "llama-3.1-8b",
     "llama-3.1-8b"
+   ],
+   "findings": [
+    "known",
+    "known",
+    "known",
+    "known",
+    "known"
    ]
   },
   {
@@ -153,11 +209,66 @@
     "red"
    ],
    "matched": [
+    "llama-3.1-8b",
     null,
-    null,
-    null,
-    null,
-    null
+    "llama-3.1-8b",
+    "llama-3.1-8b",
+    "llama-3.1-8b"
+   ],
+   "findings": [
+    "cut",
+    "signature",
+    "cut",
+    "cut",
+    "cut"
+   ]
+  },
+  {
+   "repo": "huihui-ai/Qwen2.5-7B-Instruct-abliterated-v2",
+   "lights": [
+    "red",
+    "red",
+    "red",
+    "red",
+    "red"
+   ],
+   "matched": [
+    "qwen2.5-7b",
+    "qwen2.5-7b",
+    "qwen2.5-7b",
+    "qwen2.5-7b",
+    "qwen2.5-7b"
+   ],
+   "findings": [
+    "cut",
+    "cut",
+    "cut",
+    "cut",
+    "cut"
+   ]
+  },
+  {
+   "repo": "DreamFast/qwen3-8b-heretic",
+   "lights": [
+    "red",
+    "red",
+    "red",
+    "red",
+    "red"
+   ],
+   "matched": [
+    "qwen3-8b",
+    "qwen3-8b",
+    "qwen3-8b",
+    "qwen3-8b",
+    "qwen3-8b"
+   ],
+   "findings": [
+    "cut",
+    "cut",
+    "cut",
+    "cut",
+    "cut"
    ]
   },
   {
@@ -175,6 +286,13 @@
     null,
     null,
     null
+   ],
+   "findings": [
+    "none",
+    "none",
+    "none",
+    "none",
+    "none"
    ]
   }
  ]
