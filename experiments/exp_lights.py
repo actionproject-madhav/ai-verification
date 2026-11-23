@@ -1,5 +1,5 @@
-"""The traffic light on real models: copies of the government-named models, close copies of known models, a model
-with its refusals removed, and models on neither list.
+"""The traffic light on real models: copies of the government-named models, close copies of known models, models
+with their refusals removed, and models on neither list.
 
 Usage: python exp_lights.py <watchlist.json> <known.json> <out.json>
 """
@@ -19,6 +19,8 @@ CASES = [
     ("Qwen/Qwen2.5-7B-Instruct", "the instruct version of a known model"),
     ("NousResearch/Hermes-3-Llama-3.1-8B", "a fine-tune of a known model"),
     ("mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated", "a known model with its refusals removed"),
+    ("huihui-ai/Qwen2.5-7B-Instruct-abliterated-v2", "a known model with its refusals removed"),
+    ("DreamFast/qwen3-8b-heretic", "a known model with its refusals removed, by a newer tool"),
     ("deepseek-ai/DeepSeek-V4-Flash", "a model on neither list"),
 ]
 
@@ -30,8 +32,9 @@ def main(watch_path, known_path, out):
         row = {"repo": repo, "what": what}
         try:
             src = R.Remote(repo)
-            r = LT.light(src, watch, known, NONCE, ablation=LT.ablation_signature(src, NONCE), cache=cache)
-            row.update(revision=src.sha, light=r["light"], matched=r["matched"], reason=r["reason"],
+            signature = LT.ablation_signature(src, NONCE)
+            r = LT.light(src, watch, known, NONCE, ablation=signature, cache=cache)
+            row.update(revision=src.sha, light=r["light"], matched=r["matched"], finding=r["finding"], reason=r["reason"], signature=signature,
                        distances={k: None if v is None else [round(v[0], 4), round(v[1], 4)] for k, v in r["distances"].items()})
             for k in [k for k in cache if k[0] == id(src)]:      # keep the list entries' fingerprints, drop this model's
                 del cache[k]

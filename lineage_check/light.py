@@ -131,15 +131,15 @@ def light(src, watch, known, nonce, tokens=TOKENS, ablation=None, cache=None, ge
         if hits:
             return {"light": "red", "matched": min(hits)[1], "finding": "listed-by-geometry", "distances": seen,
                     "reason": "part of the model matches a listed model once tokens are matched by geometry, not by name"}
-    if ablation:
-        return {"light": "red", "matched": None, "finding": "signature", "reason": "refusal-ablation signature", "distances": seen}
     for e, anchor in known:
         seen[e["id"]] = distances(src, anchor, nonce, tokens, cache)
     hits = [(seen[e["id"]][1], e["id"]) for e, _ in known if seen[e["id"]] and seen[e["id"]][1] < e.get("clear", GREEN)]
-    if hits:
-        name = min(hits)[1]
-        if cuts and direction_cut(src, next(a for e, a in known if e["id"] == name), nonce):
-            return {"light": "red", "matched": name, "finding": "cut", "distances": seen,
-                    "reason": "a copy of a known model with one direction cut out of several layers"}
+    name = min(hits)[1] if hits else None
+    if name and cuts and direction_cut(src, next(a for e, a in known if e["id"] == name), nonce):
+        return {"light": "red", "matched": name, "finding": "cut", "distances": seen,
+                "reason": "a copy of a known model with one direction cut out of several layers"}
+    if ablation:
+        return {"light": "red", "matched": None, "finding": "signature", "reason": "refusal-ablation signature", "distances": seen}
+    if name:
         return {"light": "green", "matched": name, "finding": "known", "reason": "every part matches a known model", "distances": seen}
     return {"light": "amber", "matched": None, "finding": "none", "reason": "no listed or known model matches", "distances": seen}
