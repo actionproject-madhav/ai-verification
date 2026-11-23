@@ -1,5 +1,7 @@
 """GGUF files: the header, the block formats, and a quantised GGUF copy going through the traffic light."""
 import struct
+import sys
+import types
 
 import numpy as np
 import pytest
@@ -217,6 +219,21 @@ def test_a_block_decodes_to_what_the_format_says(fmt):
     want = np.array([globals()["ref_" + fmt.lower()]([int(v) for v in b]) for b in blocks])
     got = gguf.decode(blocks.tobytes(), fmt).reshape(20, per)
     assert np.allclose(got, want, rtol=1e-5, atol=1e-7)
+
+
+def test_block_decoders_agree_bit_for_bit_with_the_reference_library(monkeypatch):
+    """Runs where llama.cpp's `gguf` package is installed (`pip install -e ".[dev]"`); skipped elsewhere."""
+    monkeypatch.setitem(sys.modules, "sentencepiece", sys.modules.get("sentencepiece") or types.SimpleNamespace(SentencePieceProcessor=object))
+    reference = pytest.importorskip("gguf.quants")                # older releases import sentencepiece, which this never uses
+    kinds = pytest.importorskip("gguf.constants").GGMLQuantizationType
+    rng = np.random.default_rng(0)
+    for fmt in sorted(HALVES):
+        per, size = gguf.BLOCK[fmt]
+        blocks = rng.integers(0, 256, (300, size), dtype=np.uint8)
+        for at in HALVES[fmt]:
+            blocks[:, at:at + 2] = rng.normal(0, 0.01, (300, 1)).astype("<f2").view(np.uint8).reshape(300, 2)
+        want = reference.dequantize(blocks, getattr(kinds, fmt)).reshape(300, per)
+        assert np.array_equal(gguf.decode(blocks.tobytes(), fmt).reshape(300, per), want), fmt
 
 
 def test_rows_are_cut_out_of_blocks_that_run_across_row_ends(tmp_path):
