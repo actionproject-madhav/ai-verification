@@ -5,7 +5,7 @@
 ## TL;DR
 
 As open weight models become capable and accessible, there's a higher risk of misuse. Crude methods of hash checking fail as models can be quantised,
-fine-tuned, merged or stripped away from safety trainnig. Recent
+fine-tuned, merged or stripped away from safety training. Recent
 [weight-space programming experiments](https://rikiyat.github.io/blog/weight-space-programming/) show frontier
 LLMs inspecting and editing raw weights directly, making deployed weights to diverge from a
 published checkpoint convenient for anyone.
@@ -98,11 +98,33 @@ a registry model. Long training, merges and resized architectures account for ma
 metadata audit rather than a verdict on model cards.
 
 Refusal-removal tools often subtract one direction from matrices that write to the residual stream. Compared
-with the original, this appears as a low-rank edit. The current test finds roughly nine in ten public cases it
-can compare. Fine-tuning can remove refusals without leaving that signature.
+with the original, this appears as a low-rank edit, and what went missing is the matrix's own content along that
+direction. The second property keeps quantised copies and merged adapters from being flagged. The current test
+finds roughly nine in ten public cases it can compare. Fine-tuning can remove refusals without leaving that
+signature.
 
 Relabelling token rows also failed in the measured cases. Geometry matching recovered four shuffled copies of
-watchlisted models and did not change the results for five unrelated controls.
+watchlisted models and did not change the results for five other cases.
+
+## Does it read the files people run?
+
+Most public copies of the watchlisted models are GGUF files, quantised to a few bits per weight. The reader
+parses GGUF headers by byte range and decodes sixteen storage formats. Its block decoders are checked against
+llama.cpp's reference library.
+
+![Fingerprint distance stays small as GGUF files drop from 16 bits per weight to 3.](docs/figures/fig_gguf.png)
+
+*Every GGUF file of three public models, compared with the original it was converted from. The lines mark the
+Green (0.1) and Red (0.5) thresholds.*
+
+Across 36 GGUF files of two unmodified models, the tables moved by 0.03 or less down to 3.6 bits per weight, and
+35 files still cleared as their known base. The plain 2-bit files sat at 0.10: far inside Red for a watchlisted
+model, and at the edge of Green for a known one.
+
+A search of the Hub found 178 repositories that declare or name a watchlisted model. 62 held a copy the reader
+could decode, 48 of them GGUF files at 1 to 4 bits per weight, and all 62 matched. Eight of those advertise
+removed refusals. 38 other models with look-alike names did not match. The remaining 78 could not be read: EXL3
+and MLX files, draft models and gated repositories.
 
 ## What did the enclave prove?
 
@@ -146,9 +168,10 @@ Stress tests have reached 1.7 billion parameters. Larger adaptive runs remain un
 pretraining also removes the signal: five coding and mathematics variants of Qwen2.5 scored between 0.63 and
 0.95 from their starting base.
 
-The reader supports safetensors and GGUF. EXL3, MLX and other unsupported formats receive Amber. The
-refusal-removal test can miss edits made through fine-tuning and produced two false alarms among 314 other close
-copies. Green is strict enough that one honest 4-bit release scored 0.22 and would receive Amber.
+The reader supports safetensors and GGUF. EXL3, MLX and other unsupported formats receive Amber, and so do GGUF
+files that keep the sampled matrices in 2 and 3 bit codebook formats. The refusal-removal test can miss edits
+made through fine-tuning and produced one false alarm among 310 other close copies. Green is strict enough that
+one honest 4-bit release scored 0.22 and would receive Amber.
 
 Hardware attestation shifts trust to AMD's and Microsoft's signing keys. A production version should load and
 serve the model in the same enclave, allowing one receipt to name the bytes used for both checking and
