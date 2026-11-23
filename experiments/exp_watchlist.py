@@ -83,8 +83,12 @@ def main(wl_path, out, per=10):
         try:
             src = R.Remote(c["repo"])
             dist = {}
+            qvocab, qhow = vocab_of(src)
             for mid, (fa, strings, how) in anchors.items():
-                vocab = vocab_of(src)[0] if how == "tokenizer" else {s: int(s) for s in strings}
+                if how == "tokenizer" and qhow != "tokenizer":
+                    dist[mid] = None                              # no tokenizer file: cannot line tokens up by string
+                    continue
+                vocab = qvocab if how == "tokenizer" else {s: int(s) for s in strings}
                 fq = U.fingerprint(src, vocab, strings)
                 r = U.compare(fa, fq)
                 dist[mid] = None if r is None else round(r["d"], 4)

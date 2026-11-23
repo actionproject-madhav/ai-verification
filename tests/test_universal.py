@@ -37,3 +37,16 @@ def test_layout_is_found_from_shapes_alone(model):
 def test_eight_bit_floats_decode():
     assert [float(remote._E4M3[b]) for b in (0x00, 0x38, 0x3C, 0x7E, 0xB8)] == [0.0, 1.0, 1.5, 448.0, -1.0]
     assert float(remote._E8M0[127]) == 1.0 and float(remote._E8M0[130]) == 8.0
+
+
+def test_tiktoken_vocabulary_is_read_with_byte_level_spelling():
+    import base64
+    raw = b"\n".join(base64.b64encode(t) + b" " + str(i).encode() for i, t in enumerate([b"the", b" the", b"\n", b"\xff\xfe"]))
+    assert remote._vocab_from_tiktoken(raw) == {"the": 0, "\u0120the": 1, "\u010a": 2}
+
+
+def test_models_with_no_shared_tokens_are_not_comparable(model):
+    vocab = {f"t{i}": i for i in range(400)}
+    f = universal.fingerprint(TinySource(model), vocab, [f"t{i}" for i in range(256)], lo=0, hi=400)
+    g = universal.fingerprint(TinySource(model), vocab, [f"other{i}" for i in range(256)], lo=0, hi=400)
+    assert universal.compare(f, g) is None

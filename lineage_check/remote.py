@@ -50,6 +50,23 @@ def _decode(raw, dtype, shape):
     return a
 
 
+def _vocab_from_tiktoken(raw):
+    """A tiktoken BPE file: one `base64(token bytes) rank` per line. Spaces and newlines are written the way
+    byte-level BPE vocabularies write them, so token strings line up across tokenizer families."""
+    import base64
+    v = {}
+    for line in raw.decode("utf-8", "replace").splitlines():
+        parts = line.split()
+        if len(parts) != 2:
+            continue
+        try:
+            s = base64.b64decode(parts[0]).decode("utf-8")
+        except (ValueError, UnicodeDecodeError):
+            continue
+        v[s.replace(" ", "\u0120").replace("\n", "\u010a")] = int(parts[1])
+    return v
+
+
 def _vocab_from_tokenizer_json(tj):
     v = dict(tj["model"].get("vocab", {})) if isinstance(tj["model"].get("vocab"), dict) else {}
     if not v and isinstance(tj["model"].get("vocab"), list):          # unigram: list of [piece, score]
@@ -97,6 +114,8 @@ class Remote:
         if not hasattr(self, "_vocab"):
             if "tokenizer.json" in self.files:
                 self._vocab = _vocab_from_tokenizer_json(json.loads(self._small("tokenizer.json")))
+            elif "tiktoken.model" in self.files:
+                self._vocab = _vocab_from_tiktoken(self._small("tiktoken.model"))
             else:
                 self._vocab = json.loads(self._small("vocab.json"))
         return self._vocab

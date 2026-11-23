@@ -80,9 +80,11 @@ def fingerprint(src, vocab, strings, layers=None, k=2, lo=300, hi=20000, dev="cp
     if layers is None:
         layers = sorted({idx[int(round((j + 0.5) * len(idx) / k - 0.5))] for j in range(k)}) if len(idx) > k else idx
     hi = min(hi, shape_of(src, emb)[0])
-    block = torch.from_numpy(np.ascontiguousarray(src.rows(emb, lo, hi))).to(dev)
     rows = [vocab.get(s) for s in strings]
     keep = [t for t, r in enumerate(rows) if r is not None and lo <= r < hi]
+    if len(keep) < 16:                                             # too few shared tokens to say anything
+        return {"keep": keep, "EE": None, "layers": [], "layer_ids": list(layers), "d": d, "used": []}
+    block = torch.from_numpy(np.ascontiguousarray(src.rows(emb, lo, hi))).to(dev)
     E = block[torch.as_tensor([rows[t] - lo for t in keep], device=dev)].double()
     out = {"keep": keep, "EE": (E @ E.T).float().cpu(), "layers": [], "layer_ids": list(layers), "d": d, "used": []}
     def get(n):
