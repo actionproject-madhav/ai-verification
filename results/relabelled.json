@@ -1,0 +1,764 @@
+{
+ "nonce": "relabelled-2026-11",
+ "rows": [
+  {
+   "model": "nvidia/GLM-5.2-NVFP4",
+   "relabelled": true,
+   "what": "4-bit release of a listed model",
+   "by_name": {
+    "light": "amber",
+    "matched": null,
+    "distances": {
+     "glm-5.3": [
+      0.9877,
+      0.9936
+     ],
+     "kimi-k3": [
+      0.9812,
+      0.9896
+     ],
+     "glm-5.2": [
+      0.9894,
+      0.9943
+     ],
+     "qwen2.5-7b": [
+      0.9945,
+      0.9971
+     ],
+     "qwen3-8b": [
+      0.9914,
+      0.9953
+     ],
+     "llama-3.1-8b": [
+      0.986,
+      0.9921
+     ],
+     "mistral-7b-v0.3": [
+      0.9707,
+      0.9872
+     ],
+     "marin-8b": [
+      0.9895,
+      0.9948
+     ],
+     "smollm2-1.7b": [
+      0.9873,
+      0.9939
+     ]
+    }
+   },
+   "with_geometry": {
+    "light": "red",
+    "matched": "glm-5.2",
+    "distances": {
+     "glm-5.3": [
+      0.9877,
+      0.9936
+     ],
+     "kimi-k3": [
+      0.9812,
+      0.9896
+     ],
+     "glm-5.2": [
+      0.9894,
+      0.9943
+     ],
+     "glm-5.3 (by geometry)": [
+      0.0508,
+      0.1399
+     ],
+     "kimi-k3 (by geometry)": null,
+     "glm-5.2 (by geometry)": [
+      -0.0,
+      -0.0
+     ]
+    }
+   },
+   "seconds": 736
+  },
+  {
+   "model": "dealignai/GLM-5.3-CYBERSECURITY-FP8",
+   "relabelled": true,
+   "what": "8-bit release of a listed model, renamed",
+   "by_name": {
+    "light": "amber",
+    "matched": null,
+    "distances": {
+     "glm-5.3": [
+      0.9882,
+      0.9937
+     ],
+     "kimi-k3": [
+      0.9811,
+      0.9894
+     ],
+     "glm-5.2": [
+      0.9902,
+      0.9955
+     ],
+     "qwen2.5-7b": [
+      0.9945,
+      0.9972
+     ],
+     "qwen3-8b": [
+      0.9924,
+      0.9958
+     ],
+     "llama-3.1-8b": [
+      0.9897,
+      0.9946
+     ],
+     "mistral-7b-v0.3": [
+      0.966,
+      0.9841
+     ],
+     "marin-8b": [
+      0.9879,
+      0.994
+     ],
+     "smollm2-1.7b": [
+      0.9865,
+      0.9919
+     ]
+    }
+   },
+   "with_geometry": {
+    "light": "red",
+    "matched": "glm-5.3",
+    "distances": {
+     "glm-5.3": [
+      0.9882,
+      0.9937
+     ],
+     "kimi-k3": [
+      0.9811,
+      0.9894
+     ],
+     "glm-5.2": [
+      0.9902,
+      0.9955
+     ],
+     "glm-5.3 (by geometry)": [
+      0.0,
+      0.001
+     ],
+     "kimi-k3 (by geometry)": null,
+     "glm-5.2 (by geometry)": [
+      0.0508,
+      0.1408
+     ]
+    }
+   },
+   "seconds": 270
+  },
+  {
+   "model": "nvidia/Kimi-K3-NVFP4",
+   "relabelled": true,
+   "what": "4-bit release of a listed model",
+   "by_name": {
+    "light": "amber",
+    "matched": null,
+    "distances": {
+     "glm-5.3": [
+      0.9847,
+      0.9914
+     ],
+     "kimi-k3": [
+      0.9909,
+      0.9949
+     ],
+     "glm-5.2": [
+      0.9846,
+      0.9912
+     ],
+     "qwen2.5-7b": [
+      0.9832,
+      0.9909
+     ],
+     "qwen3-8b": [
+      0.9811,
+      0.9897
+     ],
+     "llama-3.1-8b": [
+      0.9787,
+      0.9871
+     ],
+     "mistral-7b-v0.3": [
+      0.9467,
+      0.9712
+     ],
+     "marin-8b": [
+      0.9794,
+      0.9893
+     ],
+     "smollm2-1.7b": [
+      0.9663,
+      0.9804
+     ]
+    }
+   },
+   "with_geometry": {
+    "light": "red",
+    "matched": "kimi-k3",
+    "distances": {
+     "glm-5.3": [
+      0.9847,
+      0.9914
+     ],
+     "kimi-k3": [
+      0.9909,
+      0.9949
+     ],
+     "glm-5.2": [
+      0.9846,
+      0.9912
+     ],
+     "glm-5.3 (by geometry)": null,
+     "kimi-k3 (by geometry)": [
+      0.0,
+      0.0038
+     ],
+     "glm-5.2 (by geometry)": null
+    }
+   },
+   "seconds": 257
+  },
+  {
+   "model": "moonshotai/Kimi-K3.1-Pro",
+   "relabelled": true,
+   "what": "a later version of a listed model",
+   "by_name": {
+    "light": "amber",
+    "matched": null,
+    "distances": {
+     "glm-5.3": [
+      0.9846,
+      0.9916
+     ],
+     "kimi-k3": [
+      0.9901,
+      0.9948
+     ],
+     "glm-5.2": [
+      0.985,
+      0.9919
+     ],
+     "qwen2.5-7b": [
+      0.9826,
+      0.9904
+     ],
+     "qwen3-8b": [
+      0.9817,
+      0.9905
+     ],
+     "llama-3.1-8b": [
+      0.9754,
+      0.9867
+     ],
+     "mistral-7b-v0.3": [
+      0.949,
+      0.9715
+     ],
+     "marin-8b": [
+      0.9785,
+      0.9899
+     ],
+     "smollm2-1.7b": [
+      0.9682,
+      0.9812
+     ]
+    }
+   },
+   "with_geometry": {
+    "light": "red",
+    "matched": "kimi-k3",
+    "distances": {
+     "glm-5.3": [
+      0.9846,
+      0.9916
+     ],
+     "kimi-k3": [
+      0.9901,
+      0.9948
+     ],
+     "glm-5.2": [
+      0.985,
+      0.9919
+     ],
+     "glm-5.3 (by geometry)": null,
+     "kimi-k3 (by geometry)": [
+      0.0108,
+      0.0449
+     ],
+     "glm-5.2 (by geometry)": null
+    }
+   },
+   "seconds": 192
+  },
+  {
+   "model": "zai-org/GLM-5.3-Flash",
+   "relabelled": false,
+   "what": "a different model that shares a listed name",
+   "by_name": {
+    "light": "amber",
+    "matched": null,
+    "distances": {
+     "glm-5.3": [
+      0.9749,
+      0.9876
+     ],
+     "kimi-k3": [
+      0.9571,
+      0.9746
+     ],
+     "glm-5.2": [
+      0.9746,
+      0.9857
+     ],
+     "qwen2.5-7b": [
+      0.9785,
+      0.9875
+     ],
+     "qwen3-8b": [
+      0.9838,
+      0.9899
+     ],
+     "llama-3.1-8b": [
+      0.982,
+      0.9898
+     ],
+     "mistral-7b-v0.3": [
+      0.9715,
+      0.9858
+     ],
+     "marin-8b": [
+      0.9405,
+      0.9714
+     ],
+     "smollm2-1.7b": [
+      0.9462,
+      0.9714
+     ]
+    }
+   },
+   "with_geometry": {
+    "light": "amber",
+    "matched": null,
+    "distances": {
+     "glm-5.3": [
+      0.9749,
+      0.9876
+     ],
+     "kimi-k3": [
+      0.9571,
+      0.9746
+     ],
+     "glm-5.2": [
+      0.9746,
+      0.9857
+     ],
+     "glm-5.3 (by geometry)": null,
+     "kimi-k3 (by geometry)": null,
+     "glm-5.2 (by geometry)": null,
+     "qwen2.5-7b": [
+      0.9785,
+      0.9875
+     ],
+     "qwen3-8b": [
+      0.9838,
+      0.9899
+     ],
+     "llama-3.1-8b": [
+      0.982,
+      0.9898
+     ],
+     "mistral-7b-v0.3": [
+      0.9715,
+      0.9858
+     ],
+     "marin-8b": [
+      0.9405,
+      0.9714
+     ],
+     "smollm2-1.7b": [
+      0.9462,
+      0.9714
+     ]
+    }
+   },
+   "seconds": 66
+  },
+  {
+   "model": "deepseek-ai/DeepSeek-V4-Flash",
+   "relabelled": false,
+   "what": "a model on neither list",
+   "by_name": {
+    "light": "amber",
+    "matched": null,
+    "distances": {
+     "glm-5.3": [
+      0.9578,
+      0.9746
+     ],
+     "kimi-k3": [
+      0.9289,
+      0.9645
+     ],
+     "glm-5.2": [
+      0.9571,
+      0.9726
+     ],
+     "qwen2.5-7b": [
+      0.968,
+      0.9839
+     ],
+     "qwen3-8b": [
+      0.9736,
+      0.9838
+     ],
+     "llama-3.1-8b": [
+      0.9615,
+      0.9828
+     ],
+     "mistral-7b-v0.3": [
+      0.9303,
+      0.9614
+     ],
+     "marin-8b": [
+      0.9205,
+      0.9619
+     ],
+     "smollm2-1.7b": [
+      0.9638,
+      0.981
+     ]
+    }
+   },
+   "with_geometry": {
+    "light": "amber",
+    "matched": null,
+    "distances": {
+     "glm-5.3": [
+      0.9578,
+      0.9746
+     ],
+     "kimi-k3": [
+      0.9289,
+      0.9645
+     ],
+     "glm-5.2": [
+      0.9571,
+      0.9726
+     ],
+     "glm-5.3 (by geometry)": null,
+     "kimi-k3 (by geometry)": null,
+     "glm-5.2 (by geometry)": null,
+     "qwen2.5-7b": [
+      0.968,
+      0.9839
+     ],
+     "qwen3-8b": [
+      0.9736,
+      0.9838
+     ],
+     "llama-3.1-8b": [
+      0.9615,
+      0.9828
+     ],
+     "mistral-7b-v0.3": [
+      0.9303,
+      0.9614
+     ],
+     "marin-8b": [
+      0.9205,
+      0.9619
+     ],
+     "smollm2-1.7b": [
+      0.9638,
+      0.981
+     ]
+    }
+   },
+   "seconds": 53
+  },
+  {
+   "model": "Qwen/Qwen2.5-7B-Instruct",
+   "relabelled": false,
+   "what": "the instruct version of a known model",
+   "by_name": {
+    "light": "green",
+    "matched": "qwen2.5-7b",
+    "distances": {
+     "glm-5.3": [
+      0.986,
+      0.9925
+     ],
+     "kimi-k3": [
+      0.9792,
+      0.99
+     ],
+     "glm-5.2": [
+      0.9859,
+      0.9924
+     ],
+     "qwen2.5-7b": [
+      0.0009,
+      0.0011
+     ],
+     "qwen3-8b": [
+      0.9891,
+      0.9942
+     ],
+     "llama-3.1-8b": [
+      0.9853,
+      0.9908
+     ],
+     "mistral-7b-v0.3": [
+      0.9726,
+      0.9848
+     ],
+     "marin-8b": [
+      0.9741,
+      0.9836
+     ],
+     "smollm2-1.7b": [
+      0.9678,
+      0.9846
+     ]
+    }
+   },
+   "with_geometry": {
+    "light": "green",
+    "matched": "qwen2.5-7b",
+    "distances": {
+     "glm-5.3": [
+      0.986,
+      0.9925
+     ],
+     "kimi-k3": [
+      0.9792,
+      0.99
+     ],
+     "glm-5.2": [
+      0.9859,
+      0.9924
+     ],
+     "glm-5.3 (by geometry)": null,
+     "kimi-k3 (by geometry)": null,
+     "glm-5.2 (by geometry)": null,
+     "qwen2.5-7b": [
+      0.0009,
+      0.0011
+     ],
+     "qwen3-8b": [
+      0.9891,
+      0.9942
+     ],
+     "llama-3.1-8b": [
+      0.9853,
+      0.9908
+     ],
+     "mistral-7b-v0.3": [
+      0.9726,
+      0.9848
+     ],
+     "marin-8b": [
+      0.9741,
+      0.9836
+     ],
+     "smollm2-1.7b": [
+      0.9678,
+      0.9846
+     ]
+    }
+   },
+   "seconds": 54
+  },
+  {
+   "model": "NousResearch/Hermes-3-Llama-3.1-8B",
+   "relabelled": false,
+   "what": "a fine-tune of a known model",
+   "by_name": {
+    "light": "green",
+    "matched": "llama-3.1-8b",
+    "distances": {
+     "glm-5.3": [
+      0.9824,
+      0.9902
+     ],
+     "kimi-k3": [
+      0.9795,
+      0.9902
+     ],
+     "glm-5.2": [
+      0.9825,
+      0.9901
+     ],
+     "qwen2.5-7b": [
+      0.9899,
+      0.9968
+     ],
+     "qwen3-8b": [
+      0.9828,
+      0.9878
+     ],
+     "llama-3.1-8b": [
+      0.0014,
+      0.0016
+     ],
+     "mistral-7b-v0.3": [
+      0.9469,
+      0.9629
+     ],
+     "marin-8b": [
+      0.917,
+      0.9371
+     ],
+     "smollm2-1.7b": [
+      0.9585,
+      0.9794
+     ]
+    }
+   },
+   "with_geometry": {
+    "light": "green",
+    "matched": "llama-3.1-8b",
+    "distances": {
+     "glm-5.3": [
+      0.9824,
+      0.9902
+     ],
+     "kimi-k3": [
+      0.9795,
+      0.9902
+     ],
+     "glm-5.2": [
+      0.9825,
+      0.9901
+     ],
+     "glm-5.3 (by geometry)": null,
+     "kimi-k3 (by geometry)": null,
+     "glm-5.2 (by geometry)": null,
+     "qwen2.5-7b": [
+      0.9899,
+      0.9968
+     ],
+     "qwen3-8b": [
+      0.9828,
+      0.9878
+     ],
+     "llama-3.1-8b": [
+      0.0014,
+      0.0016
+     ],
+     "mistral-7b-v0.3": [
+      0.9469,
+      0.9629
+     ],
+     "marin-8b": [
+      0.917,
+      0.9371
+     ],
+     "smollm2-1.7b": [
+      0.9585,
+      0.9794
+     ]
+    }
+   },
+   "seconds": 61
+  },
+  {
+   "model": "zai-org/GLM-5.3-Flash",
+   "relabelled": true,
+   "what": "a different model, relabelled",
+   "by_name": {
+    "light": "amber",
+    "matched": null,
+    "distances": {
+     "glm-5.3": [
+      0.9854,
+      0.9918
+     ],
+     "kimi-k3": [
+      0.9882,
+      0.9943
+     ],
+     "glm-5.2": [
+      0.9866,
+      0.9913
+     ],
+     "qwen2.5-7b": [
+      0.9909,
+      0.9953
+     ],
+     "qwen3-8b": [
+      0.9928,
+      0.9961
+     ],
+     "llama-3.1-8b": [
+      0.9774,
+      0.9897
+     ],
+     "mistral-7b-v0.3": [
+      0.9756,
+      0.9864
+     ],
+     "marin-8b": [
+      0.975,
+      0.9876
+     ],
+     "smollm2-1.7b": [
+      0.9751,
+      0.9871
+     ]
+    }
+   },
+   "with_geometry": {
+    "light": "amber",
+    "matched": null,
+    "distances": {
+     "glm-5.3": [
+      0.9854,
+      0.9918
+     ],
+     "kimi-k3": [
+      0.9882,
+      0.9943
+     ],
+     "glm-5.2": [
+      0.9866,
+      0.9913
+     ],
+     "glm-5.3 (by geometry)": null,
+     "kimi-k3 (by geometry)": null,
+     "glm-5.2 (by geometry)": null,
+     "qwen2.5-7b": [
+      0.9909,
+      0.9953
+     ],
+     "qwen3-8b": [
+      0.9928,
+      0.9961
+     ],
+     "llama-3.1-8b": [
+      0.9774,
+      0.9897
+     ],
+     "mistral-7b-v0.3": [
+      0.9756,
+      0.9864
+     ],
+     "marin-8b": [
+      0.975,
+      0.9876
+     ],
+     "smollm2-1.7b": [
+      0.9751,
+      0.9871
+     ]
+    }
+   },
+   "seconds": 44
+  }
+ ]
+}
