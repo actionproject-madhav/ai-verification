@@ -1,0 +1,52 @@
+[
+ {
+  "model": "parent (SmolLM2-135M)",
+  "kl_to_parent": 0.0,
+  "top1_agreement": 1.0
+ },
+ {
+  "model": "derivative: SmolLM2-135M-Instruct",
+  "kl_to_parent": 0.2527575194835663,
+  "top1_agreement": 0.7249755859375
+ },
+ {
+  "model": "honest fine-tune, narrow data",
+  "kl_to_parent": 0.9462053179740906,
+  "top1_agreement": 0.6400146484375
+ },
+ {
+  "model": "honest fine-tune, broad data",
+  "kl_to_parent": 0.12873660027980804,
+  "top1_agreement": 0.79931640625
+ },
+ {
+  "model": "round 1: attack on v3",
+  "kl_to_parent": 0.9708117246627808,
+  "top1_agreement": 0.6290283203125
+ },
+ {
+  "model": "round 2: attack on v4",
+  "kl_to_parent": 1.1780304908752441,
+  "top1_agreement": 0.5400390625
+ },
+ {
+  "model": "round 2: attack on both",
+  "kl_to_parent": 1.2025707960128784,
+  "top1_agreement": 0.5235595703125
+ },
+ {
+  "model": "round 4: distil + attack both, lambda=3",
+  "kl_to_parent": 0.2842232882976532,
+  "top1_agreement": 0.701171875
+ },
+ {
+  "model": "round 4: distil + attack both, lambda=1",
+  "kl_to_parent": 0.13817907869815826,
+  "top1_agreement": 0.7822265625
+ },
+ {
+  "model": "independent: SmolLM-135M v1",
+  "kl_to_parent": 0.4151245951652527,
+  "top1_agreement": 0.6885986328125
+ }
+]
