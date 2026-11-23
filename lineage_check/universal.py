@@ -189,32 +189,25 @@ def compare(fa, fb):
 
 
 def _leading(D, k=8, sweeps=6):
-    """The leading left singular vector of D and its share of D's squared norm, by block power iteration from a
-    fixed start (the same answer on every run)."""
+    """The k leading left singular vectors of D (as columns) and the share of D's squared norm that the first one
+    holds, by block power iteration from a fixed start (the same answer on every run)."""
     Q = torch.linalg.qr(torch.randn(D.shape[1], min(k, *D.shape), generator=torch.Generator().manual_seed(0), dtype=D.dtype)).Q
     for _ in range(sweeps):
         Q = torch.linalg.qr(D @ Q).Q
         Q = torch.linalg.qr(D.T @ Q).Q
     Uq, S, _ = torch.linalg.svd(D @ Q, full_matrices=False)
-    return Uq[:, 0], float(S[0] ** 2 / (D ** 2).sum())
+    return Uq, float(S[0] ** 2 / (D ** 2).sum())
 
 
-def shared_edit(src, anchor, layers_src, layers_anchor, dev="cpu"):
-    """Does the difference between two copies point one way in many layers?
-
-    Removing refusals subtracts one residual-stream direction from the matrices that write to the stream. So for a
-    copy edited that way, the difference from its base has the same leading direction in those matrices, layer
-    after layer. Fine-tuning and quantisation move each matrix its own way.
-
-    Matrices are paired by name within the paired layers. Returns {"layers": how many of the read layers hold a
-    changed matrix whose leading direction is the common one (|cosine| of 0.9 or more), "changed": how many layers
-    changed at all, "directions": per changed matrix its layer position, |cosine| with the common direction and the
-    share of its difference that the leading direction holds}. None when the two models are not laid out alike."""
+def edit_directions(src, anchor, layers_src, layers_anchor, dev="cpu"):
+    """For every matrix that writes to the residual stream in the paired layers, and that differs between the two
+    models: (position of the layer, leading directions of the difference, share held by the first).
+    Matrices are paired by name. None when the two models are not laid out alike."""
     _, da, la = layout(anchor)
     _, ds, ls = layout(src)
     if da != ds or len(layers_src) != len(layers_anchor):
         return None
-    found, paired = [], 0                                         # (position of the layer, direction, share)
+    found, paired = [], 0
     for pos, (i, j) in enumerate(zip(layers_src, layers_anchor)):
         a = {LAYER.search(n).group(2): n for n, kind in la.get(j, {"mats": []})["mats"] if kind == "w"}
         for n, kind in ls.get(i, {"mats": []})["mats"]:
@@ -224,19 +217,33 @@ def shared_edit(src, anchor, layers_src, layers_anchor, dev="cpu"):
             paired += 1
             Wa = matrix(anchor, a[short], dev)
             D = matrix(src, n, dev) - Wa
-            if float(D.norm()) <= 1e-9 * float(Wa.norm()):       # this matrix is unchanged
-                continue
-            u, share = _leading(D)
-            found.append((pos, u, share))
+            if float(D.norm()) > 1e-9 * float(Wa.norm()):        # skip a matrix that is unchanged
+                found.append((pos, *_leading(D)))
             del Wa, D
-    if not paired:
+    return found if paired else None
+
+
+def common_direction(found, top=1):
+    """The one direction that the leading `top` directions of the most differences contain, and how well each
+    difference contains it (1 = entirely)."""
+    M = sum(U_[:, :top] @ U_[:, :top].T for _, U_, _ in found)
+    v = torch.linalg.eigh(M).eigenvectors[:, -1]
+    return v, [float((U_[:, :top].T @ v).norm()) for _, U_, _ in found]
+
+
+def shared_edit(src, anchor, layers_src, layers_anchor, top=1, dev="cpu"):
+    """Does the difference between two copies point one way in many layers?
+
+    Removing refusals subtracts one residual-stream direction from the matrices that write to the stream. So for a
+    copy edited that way, the difference from its base has the same leading direction in those matrices, layer
+    after layer. Fine-tuning and quantisation move each matrix its own way.
+
+    Returns {"layers": how many of the read layers hold a changed matrix that contains the common direction
+    (0.9 or more), "changed": how many layers changed at all}. None when the two models are not laid out alike."""
+    found = edit_directions(src, anchor, layers_src, layers_anchor, dev)
+    if found is None:
         return None
     if not found:
-        return {"layers": 0, "changed": 0, "directions": []}
-    U_ = torch.stack([u for _, u, _ in found])
-    common = torch.linalg.eigh(U_.T @ U_ if U_.shape[1] <= U_.shape[0] else U_ @ U_.T)
-    v = common.eigenvectors[:, -1]
-    v = v if U_.shape[1] <= U_.shape[0] else (U_.T @ v) / (U_.T @ v).norm()   # the direction most of them share
-    cos = (U_ @ v).abs().tolist()
-    return {"layers": len({p for (p, _, _), c in zip(found, cos) if c >= 0.9}), "changed": len({p for p, _, _ in found}),
-            "directions": [(p, round(c, 4), round(sh, 4)) for (p, _, sh), c in zip(found, cos)]}
+        return {"layers": 0, "changed": 0}
+    _, fit = common_direction(found, top)
+    return {"layers": len({p for (p, _, _), c in zip(found, fit) if c >= 0.9}), "changed": len({p for p, _, _ in found})}

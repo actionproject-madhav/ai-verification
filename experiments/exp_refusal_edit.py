@@ -12,7 +12,7 @@ Usage: python exp_refusal_edit.py <scan dir> <out.jsonl> [workers] [controls]
 """
 import json, multiprocessing as mp, os, random, re, shutil, sys, time
 
-LAYERS = 6
+LAYERS, TOPS = 6, (1, 2, 4, 8)
 EDIT = re.compile(r"abliterat|heretic", re.I)
 HINT = re.compile(r"uncensor|josiefied|dolphin|lexi|unfilter|decensor|derestrict|obliter|jailb|refusal|lorablated|\bdan\b", re.I)
 
@@ -31,8 +31,12 @@ def one(job):
     t0, out = time.time(), dict(row)
     try:
         src, anchor = R.Remote(repo, sha), R.Remote(base, base_sha)
-        r = U.shared_edit(src, anchor, LT.layers_for(src, nonce, LAYERS), LT.layers_for(anchor, nonce, LAYERS))
-        out.update(r if r else {"layers": None})
+        found = U.edit_directions(src, anchor, LT.layers_for(src, nonce, LAYERS), LT.layers_for(anchor, nonce, LAYERS))
+        out["changed"] = None if found is None else len({p for p, _, _ in found})
+        if found:
+            out["positions"], out["share"] = [p for p, _, _ in found], [round(s, 4) for _, _, s in found]
+            for top in TOPS:                                      # how well each difference holds the common direction
+                out[f"fit{top}"] = [round(c, 4) for c in U.common_direction(found, top)[1]]
     except Exception as e:
         out["error"] = f"{type(e).__name__}: {str(e)[:140]}"
     shutil.rmtree(os.path.join(R.CACHE, repo.replace("/", "--")), ignore_errors=True)
