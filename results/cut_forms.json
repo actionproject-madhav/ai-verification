@@ -1,0 +1,212 @@
+[
+ {
+  "base": "unsloth/Qwen2.5-0.5B-Instruct",
+  "model": "huihui-ai/Qwen2.5-0.5B-Instruct-abliterated-v3",
+  "name_says": "abliterated",
+  "matrices_changed": 12,
+  "rank_one_share": [
+   0.998,
+   0.998,
+   0.998,
+   0.998,
+   0.998,
+   0.998,
+   0.998,
+   0.999,
+   0.997,
+   0.997,
+   0.998,
+   0.998
+  ],
+  "own_content_plain": [
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0
+  ],
+  "own_content_rows_scaled": [
+   0.976,
+   0.886,
+   0.934,
+   0.886,
+   0.936,
+   0.821,
+   0.883,
+   0.92,
+   0.861,
+   0.845,
+   0.96,
+   0.713
+  ]
+ },
+ {
+  "base": "Qwen/Qwen3-1.7B",
+  "model": "huihui-ai/Huihui-Qwen3-1.7B-abliterated-v2",
+  "name_says": "abliterated",
+  "matrices_changed": 12,
+  "rank_one_share": [
+   0.995,
+   0.995,
+   0.995,
+   0.996,
+   0.996,
+   0.996,
+   0.995,
+   0.995,
+   0.995,
+   0.995,
+   0.995,
+   0.995
+  ],
+  "own_content_plain": [
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0
+  ],
+  "own_content_rows_scaled": [
+   0.98,
+   0.963,
+   0.979,
+   0.958,
+   0.946,
+   0.893,
+   0.982,
+   0.89,
+   0.834,
+   0.95,
+   0.982,
+   0.957
+  ]
+ },
+ {
+  "base": "Qwen/Qwen3-1.7B",
+  "model": "mlabonne/Qwen3-1.7B-abliterated",
+  "name_says": "abliterated",
+  "matrices_changed": 12,
+  "rank_one_share": [
+   0.998,
+   0.996,
+   0.997,
+   0.996,
+   0.998,
+   0.997,
+   0.998,
+   0.996,
+   0.997,
+   0.996,
+   0.997,
+   0.996
+  ],
+  "own_content_plain": [
+   1.0,
+   0.587,
+   1.0,
+   0.636,
+   1.0,
+   0.543,
+   1.0,
+   0.584,
+   1.0,
+   0.652,
+   1.0,
+   0.661
+  ],
+  "own_content_rows_scaled": [
+   0.885,
+   0.6,
+   0.952,
+   0.644,
+   0.974,
+   0.553,
+   0.985,
+   0.603,
+   0.917,
+   0.674,
+   0.977,
+   0.669
+  ]
+ },
+ {
+  "base": "Qwen/Qwen2.5-1.5B-Instruct",
+  "model": "SonGT1/Qwen2.5-1.5B-Instruct-abliterated",
+  "name_says": "abliterated",
+  "matrices_changed": 8,
+  "rank_one_share": [
+   0.997,
+   0.997,
+   0.998,
+   0.998,
+   0.997,
+   0.998,
+   0.996,
+   0.996
+  ],
+  "own_content_plain": [
+   0.972,
+   0.944,
+   0.903,
+   0.88,
+   0.967,
+   0.965,
+   0.967,
+   0.593
+  ],
+  "own_content_rows_scaled": [
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0
+  ]
+ },
+ {
+  "base": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+  "model": "saidutta69/SmolLM2-1.7B-Instruct-heretic",
+  "name_says": "heretic",
+  "matrices_changed": 6,
+  "rank_one_share": [
+   0.995,
+   0.997,
+   0.997,
+   0.997,
+   0.996,
+   0.994
+  ],
+  "own_content_plain": [
+   0.787,
+   0.968,
+   0.55,
+   0.972,
+   0.395,
+   0.17
+  ],
+  "own_content_rows_scaled": [
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0
+  ]
+ }
+]
