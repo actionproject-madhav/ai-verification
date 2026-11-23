@@ -211,6 +211,30 @@ The figure shows one more thing. Honest copies of Y do not move toward X as they
 more from X's outputs, which is where Y is. The one copy of Y that moved toward X is the model trained to imitate
 it (0.24).
 
+The same measurement one and two sizes up (`results/output_check_360m.json`, `results/output_check_1.7b.json`;
+SmolLM2 against SmolLM at each size; 64 windows at 1.7B, where no stress-test model exists):
+
+| Outputs, to Y | 135M | 360M | 1.7B |
+|---|---|---|---|
+| X, the listed model | 0.255 | 0.240 | 0.226 |
+| Y, published 8-bit file (Q8_0) | 0.022 | 0.017 | 0.011 |
+| Y, published 6-bit file (Q6_K) | 0.040 | 0.029 | 0.037 |
+| Y, published 5-bit file (Q5_K_M) | 0.096 | 0.063 | 0.054 |
+| Y, published 4-bit files (Q4_K_M, Q4_0) | 0.139, 0.206 | 0.085, 0.147 | 0.090, 0.126 |
+| Y, published 2-bit file (Q2_K) | 0.231 | 0.170 | 0.333 |
+| Y, the same 4-bit rounding at every size | 0.274 | 0.223 | 0.155 |
+| Y, fine-tuned for 200 steps | 0.043 | 0.040 | not run |
+| Y's published instruct version | 0.257 | 0.244 | 0.298 |
+| X, tables and activations pulled toward Y | 0.277 (12,000 steps) | 0.250 (200 steps) | not run |
+
+- At 360M the model whose activations were pulled toward Y is 0.250 from Y's outputs, and X is 0.240. As at 135M,
+  the outputs did not follow.
+- Compression costs less as the model grows, slowly. The same 4-bit rounding moves Y's outputs by 0.27, 0.22 and
+  0.16. That row is the fair comparison across sizes, because a file's label does not fix the precision of every
+  matrix: at 135M the file labelled Q4_K_M stores most matrices in a 5-bit format.
+- A fine-tuned release stays far at every size. The published instruct version is 0.26, 0.24 and 0.30 from its
+  base, at least as far as X is.
+
 The inequality behind reading 1 holds for any model and any text. Total variation is a metric, so a model within
 $\varepsilon$ of Y's outputs is at least $0.255 - \varepsilon$ from X's. In the figure no point can fall below
 the diagonal, and the script checks that in every window of every row. `docs/DESIGN.md` says what a check built

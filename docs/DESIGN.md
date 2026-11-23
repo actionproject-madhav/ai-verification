@@ -160,11 +160,11 @@ Red only has to be costly to leave. Green waives checks, so it has to be hard to
 the three things a check can read, each time with the same question: can a listed model X be made to match a
 known model Y on it and still give X's outputs?
 
-| What Green is tied to | Can X match Y on it and keep X's outputs? | Evidence, on a 135M pair |
+| What Green is tied to | Can X match Y on it and keep X's outputs? | Evidence, on a 135M pair unless a size is given |
 |---|---|---|
 | Weight tables, as in the tool today | not in these runs, and nothing rules it out | 0.34 from Y after 10,000 steps, where Green needs 0.1; keeping X's outputs did not slow the pull |
-| What layers compute | yes, most of the way | from 0.41 to 0.12 from Y in 2,000 steps, inside the range of Y's honest derivatives, with X's outputs kept |
-| Outputs | no | after both pulls the model is 0.28 from Y's outputs; X itself is 0.255 |
+| What layers compute | yes, most of the way | from 0.41 to 0.12 from Y in 2,000 steps, inside the range of Y's honest derivatives, with X's outputs kept; at 360M, from 0.58 to 0.18 in 200 steps |
+| Outputs | no | after both pulls the model is 0.28 from Y's outputs, and X itself is 0.255; at 360M, 0.25 against 0.24 |
 
 Outputs are different in kind. Total variation between next-token distributions is a metric, so for any model
 $m$ and any text
@@ -188,8 +188,9 @@ behind it, on one small pair. It is not in the tool. It has four costs.
 
 1. Only faithful copies pass. At this size a 4-bit file moves the known model's outputs by 0.14 to 0.21 and its
    published instruct version by 0.26, as much as swapping it for X. Such a copy would be Amber unless the
-   registry lists that file, where a hash settles it, or that version itself. Whether larger models lose less to
-   compression was not measured.
+   registry lists that file, where a hash settles it, or that version itself. Larger models lose less to
+   compression, slowly: the same 4-bit rounding moves outputs by 0.27 at 135M, 0.22 at 360M and 0.16 at 1.7B. A
+   published instruct version stays as far from its base as X is at every size.
 2. It sees the text that is probed and nothing else. A model that departs from Y on one window in twenty escapes
    128 probes with probability 0.1%. One that departs on one window in a hundred escapes with probability 28%.
    A model built to answer as Y unless a trigger is present is not caught by probing at all. The table rule
