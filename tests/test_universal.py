@@ -75,7 +75,7 @@ def cuts(changed, base):
 
 
 def test_a_direction_removed_from_every_writer_shows_as_a_cut_in_every_layer(model):
-    assert cuts(edits.rank1_edit(model), model) == {"cut": 3, "changed": 3}
+    assert cuts(edits.rank1_edit(model), model) == {"cut": 3, "changed": 3, "aligned": True}
 
 
 def test_the_cut_still_shows_under_fine_tuning_noise(model):
@@ -89,7 +89,7 @@ def test_a_different_direction_in_every_layer_is_still_a_cut_in_every_layer(mode
         r = torch.randn(m["d"], generator=g)
         P = torch.eye(m["d"]) - torch.outer(r, r) / (r @ r)
         layer["o"], layer["down"] = P @ layer["o"], P @ layer["down"]
-    assert cuts(m, model) == {"cut": 3, "changed": 3}
+    assert cuts(m, model) == {"cut": 3, "changed": 3, "aligned": True}
 
 
 def test_a_cut_in_only_one_matrix_per_layer_shows_as_a_rank_one_change(model):
@@ -98,16 +98,30 @@ def test_a_cut_in_only_one_matrix_per_layer_shows_as_a_rank_one_change(model):
     P = torch.eye(m["d"]) - 0.6 * torch.outer(r, r) / (r @ r)    # partial strength, attention output only
     for layer in m["layers"]:
         layer["o"] = P @ layer["o"]
-    assert cuts(m, model) == {"cut": 3, "changed": 3}
+    assert cuts(m, model) == {"cut": 3, "changed": 3, "aligned": True}
 
 
 @pytest.mark.parametrize("edit", [lambda m: edits.noise(m, rel=0.02), edits.quantize, lambda m: edits.prune(m, frac=0.3)])
 def test_noise_quantisation_and_pruning_cut_nothing(model, edit):
-    assert cuts(edit(model), model) == {"cut": 0, "changed": 3}
+    assert cuts(edit(model), model) == {"cut": 0, "changed": 3, "aligned": True}
 
 
 def test_an_unchanged_copy_has_no_difference_to_read(model):
-    assert cuts(model, model) == {"cut": 0, "changed": 0}
+    assert cuts(model, model) == {"cut": 0, "changed": 0, "aligned": True}
+
+
+@pytest.mark.parametrize("name", ["perm_mlp", "perm_heads", "rotate_residual"])
+def test_a_shuffled_or_rotated_copy_is_not_aligned_so_the_cut_test_says_nothing(model, name):
+    hidden = getattr(edits, name)(edits.rank1_edit(model))       # a cut, then a free transform that hides it entry by entry
+    r = cuts(hidden, model)
+    assert r["aligned"] is False
+
+
+def test_a_layer_with_other_matrices_cannot_be_compared(model):
+    other = TinySource(model)
+    other.tensors = {n.replace("o_proj", "out_matrix"): v for n, v in other.tensors.items()}
+    other.index = dict.fromkeys(other.tensors)
+    assert universal.cut_layers(other, TinySource(model), [0, 1], [0, 1]) is None
 
 
 def test_models_of_different_width_are_not_compared_for_an_edit(model):

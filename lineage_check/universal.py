@@ -35,7 +35,7 @@ TOP = 8                                                       # leading directio
 MAX_VOCAB = 4_000_000                                         # more rows than this is a lookup table, not a vocabulary
 MAX_ELEMS = 1 << 28                                           # a larger tensor is a packed table, not one matrix
 GEO_AXES, GEO_SEED, GEO_POOL, GEO_SURE = 128, 32, 1024, 0.7   # matching tokens by geometry: see `token_geometry`
-CUT_SHARE, CUT_COSINE = 0.9, 0.95                             # when a layer counts as cut: see `cut_layers`
+CUT_SHARE, CUT_COSINE, ALIGNED = 0.9, 0.95, 0.5               # when a layer counts as cut: see `cut_layers`
 
 
 def shape_of(src, name):
@@ -207,35 +207,38 @@ def _leading(D, k=8, sweeps=6):
 
 
 def edit_directions(src, anchor, layers_src, layers_anchor, dev="cpu"):
-    """For every matrix that writes to the residual stream in the paired layers, and that differs between the two
-    models: (position of the layer, leading directions of the difference, share held by the first).
-    Matrices are paired by name. None when the two models are not laid out alike."""
+    """For every matrix that writes to the residual stream in the paired layers: (position of the layer, leading
+    directions of its difference from the other model's matrix, share of the difference held by the first, size of
+    the difference relative to the matrix). An unchanged matrix has no entry.
+
+    Matrices are paired by name and shape. None when a layer of the two models does not hold the same writing
+    matrices: then they cannot be compared matrix by matrix."""
     _, da, la = layout(anchor)
     _, ds, ls = layout(src)
-    if da != ds or len(layers_src) != len(layers_anchor):
+    if da != ds or len(layers_src) != len(layers_anchor) or not layers_src:
         return None
-    found, paired = [], 0
+    found = []
     for pos, (i, j) in enumerate(zip(layers_src, layers_anchor)):
         a = {LAYER.search(n).group(2): n for n, kind in la.get(j, {"mats": []})["mats"] if kind == "w"}
-        for n, kind in ls.get(i, {"mats": []})["mats"]:
-            short = LAYER.search(n).group(2)
-            if kind != "w" or short not in a or shape_of(src, n) != shape_of(anchor, a[short]):
-                continue
-            paired += 1
+        b = {LAYER.search(n).group(2): n for n, kind in ls.get(i, {"mats": []})["mats"] if kind == "w"}
+        if not a or set(a) != set(b) or any(shape_of(src, b[k]) != shape_of(anchor, a[k]) for k in a):
+            return None
+        for short in sorted(a):
             Wa = matrix(anchor, a[short], dev)
-            D = matrix(src, n, dev) - Wa
-            if float(D.norm()) > 1e-9 * float(Wa.norm()):        # skip a matrix that is unchanged
-                found.append((pos, *_leading(D)))
+            D = matrix(src, b[short], dev) - Wa
+            rel = float(D.norm()) / max(float(Wa.norm()), 1e-30)
+            if rel > 1e-9:                                         # skip a matrix that is unchanged
+                found.append((pos, *_leading(D), rel))
             del Wa, D
-    return found if paired else None
+    return found
 
 
 def common_direction(found, top=1):
     """The one direction that the leading `top` directions of the most differences contain, and how well each
     difference contains it (1 = entirely)."""
-    M = sum(U_[:, :top] @ U_[:, :top].T for _, U_, _ in found)
+    M = sum(f[1][:, :top] @ f[1][:, :top].T for f in found)
     v = torch.linalg.eigh(M).eigenvectors[:, -1]
-    return v, [float((U_[:, :top].T @ v).norm()) for _, U_, _ in found]
+    return v, [float((f[1][:, :top].T @ v).norm()) for f in found]
 
 
 def cut_layers(src, anchor, layers_src, layers_anchor, dev="cpu"):
@@ -243,24 +246,27 @@ def cut_layers(src, anchor, layers_src, layers_anchor, dev="cpu"):
 
     Removing refusals subtracts a residual-stream direction from the matrices that write to the stream. Against the
     base, such a matrix changes by a rank-one amount, and the matrices of one layer change along the same direction.
-    Fine-tuning and quantisation spread a change over many directions, a different set in every matrix.
+    Fine-tuning and quantisation spread a change over many directions.
 
     A layer counts as cut when the change in one of its writing matrices is rank one (its leading direction holds
     CUT_SHARE of it or more), or when two of them change along the same leading direction (|cosine| of CUT_COSINE
-    or more). In ordinary fine-tunes the two leading directions of a layer often agree loosely (0.65 at the median,
-    0.91 at the 95th percentile of 151 public fine-tunes), so the bar is high and one layer is not enough.
-    Returns {"cut": layers cut, "changed": layers that changed at all}. None when the two models are not laid out
+    or more). The second bar is high because in ordinary fine-tunes the two leading directions of a layer often
+    agree loosely, so one layer is never enough.
+
+    Returns {"cut": layers cut, "changed": layers that changed at all, "aligned": whether every difference is small
+    next to its matrix (at most ALIGNED)}. A copy that was shuffled or rotated is not aligned: its matrices differ
+    from the base entry by entry and this test says nothing about it. None when the two models are not laid out
     alike."""
     found = edit_directions(src, anchor, layers_src, layers_anchor, dev)
     if found is None:
         return None
-    pos = [p for p, _, _ in found]
-    cut = {p for p, _, share in found if share >= CUT_SHARE}
+    pos = [f[0] for f in found]
+    cut = {f[0] for f in found if f[2] >= CUT_SHARE}
     if found:
-        lead = torch.stack([u[:, 0] for _, u, _ in found])
+        lead = torch.stack([f[1][:, 0] for f in found])
         cos = (lead @ lead.T).abs()
         cut |= {pos[i] for i in range(len(pos)) for j in range(i + 1, len(pos)) if pos[i] == pos[j] and cos[i, j] >= CUT_COSINE}
-    return {"cut": len(cut), "changed": len(set(pos))}
+    return {"cut": len(cut), "changed": len(set(pos)), "aligned": all(f[3] <= ALIGNED for f in found)}
 
 
 def token_geometry(src, k=GEO_AXES, chunk=16384, dev="cpu", keep_table=True):
