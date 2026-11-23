@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+.pytest_cache/
+build/
+dist/
+
+# signing keys: generate your own with `lineage-check keygen`
+*.pem
+!demo/keys/pk.pem
+
+# caches and logs written by the experiments
+results/fps*/
+results/log_*.txt
+*.pt
+.DS_Store
