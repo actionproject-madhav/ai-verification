@@ -18,6 +18,23 @@ from huggingface_hub import HfApi, hf_hub_url
 from .paths import ZOO, PARTIAL as CACHE
 ROW_LO, ROW_HI = 300, 20000                       # embedding rows fetched: the token pool lives here
 _tl = threading.local()
+WAITS = (20, 40, 60, 120, 180, 240, 300)        # seconds to wait when the Hub says "too many requests"
+
+
+def _patient(call):
+    """Run a Hub request, waiting and retrying while the answer is HTTP 429."""
+    for wait in WAITS + (None,):
+        try:
+            out = call()
+            if getattr(out, "status_code", 200) != 429:
+                return out
+        except Exception as e:
+            if "429" not in str(e):
+                raise
+        if wait is None:
+            raise IOError("HTTP 429 from the Hub after waiting 16 minutes")
+        time.sleep(wait)
+
 
 DT = {"BF16": (np.uint16, 2), "F16": (np.float16, 2), "F32": (np.float32, 4), "I32": (np.int32, 4),
       "U32": (np.uint32, 4), "I8": (np.int8, 1), "U8": (np.uint8, 1), "I64": (np.int64, 8), "F64": (np.float64, 8),
@@ -83,7 +100,7 @@ SUPPORTED = ("llama", "qwen2", "qwen3", "mistral", "olmo", "qwen3_moe", "olmoe",
 class Remote:
     def __init__(self, repo, revision=None):
         self.repo = repo
-        info = HfApi().model_info(repo, revision=revision)
+        info = _patient(lambda: HfApi().model_info(repo, revision=revision))
         self.sha = info.sha
         self.files = [s.rfilename for s in info.siblings]
         self.dir = os.path.join(CACHE, repo.replace("/", "--"), self.sha)
@@ -123,7 +140,7 @@ class Remote:
     def _small(self, name):
         p = os.path.join(self.dir, name)
         if not os.path.exists(p):
-            r = requests.get(hf_hub_url(self.repo, name, revision=self.sha), timeout=120)
+            r = _patient(lambda: requests.get(hf_hub_url(self.repo, name, revision=self.sha), timeout=120))
             r.raise_for_status()
             with open(p, "wb") as o:
                 o.write(r.content)
@@ -133,8 +150,8 @@ class Remote:
         """The CDN location of a file, resolved once (signed URLs last about an hour; refreshed on failure)."""
         locs = self.__dict__.setdefault("_locs", {})
         if refresh or f not in locs or time.time() - locs[f][1] > 1800:
-            r = requests.get(hf_hub_url(self.repo, f, revision=self.sha), headers={"Range": "bytes=0-0"},
-                             allow_redirects=True, timeout=120)
+            r = _patient(lambda: requests.get(hf_hub_url(self.repo, f, revision=self.sha), headers={"Range": "bytes=0-0"},
+                                              allow_redirects=True, timeout=120))
             locs[f] = (r.url, time.time())
         return locs[f][0]
 
@@ -144,7 +161,7 @@ class Remote:
             s = _tl.s = requests.Session()
         for attempt in range(5):
             try:
-                r = s.get(self._loc(f, refresh=attempt > 0), headers={"Range": f"bytes={a}-{b}"}, timeout=600)
+                r = _patient(lambda: s.get(self._loc(f, refresh=attempt > 0), headers={"Range": f"bytes={a}-{b}"}, timeout=600))
                 if r.status_code == 206 and len(r.content) == b - a + 1:
                     return r.content
                 raise IOError(f"HTTP {r.status_code}, {len(r.content)} bytes")
