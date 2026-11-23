@@ -14,6 +14,7 @@ own tools.
 | `Dockerfile`, `requirements.txt` | the container, pinned to the versions every result in `results/` used |
 | `concern-demo.json` | the demo list: an independent model with the same tokenizer, and TinyLlama's 3T base |
 | `azure/template.json` | the same service as an Azure confidential container group, with Microsoft's attestation sidecar |
+| `azure/template-light.json` | the traffic-light mode in the same kind of enclave, on a copy of a listed model |
 
 ## The statement
 
@@ -95,6 +96,34 @@ and was deleted after the run.
 
 To repeat it: build the image, put its digest in `azure/template.json`, generate the policy with
 `az confcom acipolicygen -a template.json`, and deploy with `az deployment group create`.
+
+## The traffic light in the same enclave (23 Nov 2026)
+
+`azure/template-light.json` runs the service with `MODE=light` on `dealignai/GLM-5.3-CYBERSECURITY-FP8`: an 8-bit
+copy of a government-named model, published under another name. The model has 753 billion parameters. The enclave
+read a few matrices of two layers by byte range, compared them with three listed and six known models, and
+answered in 85 seconds.
+
+```
+python enclave/verify_statement.py demo/azure-light/response.json --nonce $(cat demo/azure-light/nonce.txt) \
+    --watchlist watchlists/government-named.json --known watchlists/known-demo.json --policy demo/azure-light/policy.b64
+
+PASS  signature verifies under the statement key
+PASS  predicate type urn:lineage-check:LightStatement:v0.3
+PASS  the signing key is the statement key it names
+PASS  issued for this verifier's nonce (no replay)
+PASS  watchlist digest matches
+PASS  registry digest matches
+PASS  AMD SEV-SNP report verifies down to AMD's root (ARK-Genoa), debugging off
+PASS  the report names this statement key and this nonce (report_data)
+PASS  launched under the expected policy: host_data 590e0098e148df4d...
+PASS  the base system is one Microsoft signed: ContainerPlat-AMD-UVM, version 104, measurement dc3f5a934489232a...
+light: RED -> glm-5.3
+```
+
+The statement carries the light and the matched entry. It carries no distances. Because the model was read by byte
+range, the statement names it by Hub revision. An enclave that serves a model holds all of its bytes and names it
+by hash, as the first run does.
 
 ## What deployment still needs
 
