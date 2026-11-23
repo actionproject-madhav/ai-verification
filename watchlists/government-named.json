@@ -1,13 +1,17 @@
 {"name": "open-weight models named by government evaluation bodies for cyber capability (as of November 2026)",
  "rule": "A model is listed once a government evaluation body publishes that it is the most cyber-capable open-weight model at release, or that it outperforms a model so named. Derivatives inherit the listing.",
+ "checked": "2026-11-23",
  "models": [
   {"id": "glm-5.3", "repo": "zai-org/GLM-5.3", "threshold": 0.5,
-   "source": "US CAISI, assessment of GLM-5.3's cyber capabilities, 17 September 2026",
+   "finding": "Named the most cyber-capable open-weight model released to date.",
+   "source": "US CAISI, Assessment of Z.ai's GLM-5.3 Cyber Capabilities, 17 September 2026",
    "url": "https://www.nist.gov/news-events/news/2026/09/caisis-assessment-zais-glm-53-cyber-capabilities"},
   {"id": "kimi-k3", "repo": "moonshotai/Kimi-K3", "threshold": 0.5,
-   "source": "UK AISI with US CAISI, preliminary assessment of Kimi K3's cyber capabilities, 23 July 2026",
+   "finding": "Outperforms GLM-5.2, which the same assessment calls the most cyber-capable open-weight model as of June 2026; its safeguards did not prevent offensive cyber work in the evaluation.",
+   "source": "UK AISI and US CAISI, Preliminary Assessment of Kimi K3's Cyber Capabilities, July 2026",
    "url": "https://www.aisi.gov.uk/blog/preliminary-assessment-of-kimi-k3s-cyber-capabilities"},
   {"id": "glm-5.2", "repo": "zai-org/GLM-5.2", "threshold": 0.5,
-   "source": "US CAISI, assessment of GLM-5.2, 17 July 2026",
+   "finding": "Probably the most capable open-weight model when released; its safeguards allow help with agentic exploit development, and the report notes that safeguards on open weights can be circumvented when self-hosted.",
+   "source": "US CAISI, Assessment of Z.ai's GLM-5.2, July 2026",
    "url": "https://www.nist.gov/document/caisi-assessment-zais-glm-52"}
  ]}
