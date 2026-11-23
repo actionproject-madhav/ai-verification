@@ -105,6 +105,7 @@ run on rented GPUs with `modal_redteam.py`. Files are in `results/gpu/` unless a
 | same, long run | 135M, 10,000 | Amber, never Green | to Y 0.24, 0.34; fresh nonce 0.33, 0.43 | to X 0.03 | 0.43 to 0.38; KL 0.09 | `results/round7_forge_long_135m.jsonl`, `results/round7_forge_long_135m_lights.json` |
 | the same pull, with the weight on keeping X's outputs at 0.1 instead of 1 | 135M, 2,000 | Amber, never Green | to Y 0.34, 0.46 | to X 0.04 | 0.43 to 0.38; KL 0.10 | `results/round7_tradeoff_135m.jsonl` |
 | the same pull, X's outputs not kept at all | 135M, 3,000 | Amber, never Green | to Y 0.30, 0.43 | to X 0.60 | 0.43 to 0.00; KL 6.4 | same |
+| the long-run model, trained on: the same pull, and a pull toward what Y's layers compute | 135M, 2,000 more | Amber, never Green | to Y 0.24, 0.34 | to Y from 0.41 to 0.12; to X from 0.03 to 0.32 | 0.38 to 0.35; KL 0.16 | `results/round7_continue_135m.jsonl` |
 | start from Y, train every weight to imitate X | 135M, 3,000 | Green as Y | to Y 0.001, 0.002 | to Y 0.02, to X 0.41 | 0.36 to 0.29; KL to X 0.38 to 0.29 | `135m-distil-exp_transplant.jsonl` |
 | same | 1.7B, 2,500 | Green as Y | to Y 0.002, 0.004; fresh nonce 0.002, 0.003 | to Y 0.03 | 0.57 to 0.47; KL to X 0.29 to 0.29 | `1.7b-distil-exp_transplant.jsonl` |
 | Y's attention kept, MLPs trained to imitate X | 135M, 3,000; 1.7B, 2,500 | Green as Y | to Y 0.000 | to Y 0.01 | 0.36 to 0.31; 0.57 to 0.53 | `135m-exp_transplant.jsonl`, `1.7b-exp_transplant.jsonl` |
@@ -113,8 +114,9 @@ run on rented GPUs with `modal_redteam.py`. Files are in `results/gpu/` unless a
 
 What the rows say. Leaving Red by retraining works, at a loss of 6 to 7 points of accuracy. Each reader that the
 operator trains against can be left. A reader they did not train against still names X. Pulling the tables toward
-a known model stops well short of Green in these runs, and the activations of that model stay those of X. A known
-model trained to imitate X stays Green and stays itself.
+a known model stops well short of Green in these runs, and the activations of that model stay those of X until
+the operator trains against the activation reader as well (the last row before the imitation rows, and the
+section on what layers compute below). A known model trained to imitate X stays Green and stays itself.
 
 ![Retraining aimed at the check](figures/fig_stress.png)
 
@@ -123,9 +125,87 @@ on X's outputs from 1 to 0.1 and to 0. After 2,000 steps the three runs sit at 0
 parts, and the two that keep X's outputs still score 0.37 to 0.38 on the held-out task. The run that does not keep
 them ends as a model that computes nothing useful (accuracy 0.00), and is no closer to Green. So in these runs
 Green held because the approach is slow, and the tables alone do not force a choice between passing as Y and
-behaving as X. A check on what layers compute has to carry that (`exp_adaptive_light.py`, `R7_KEEP`).
+behaving as X. Something else has to carry that. The next two parts test the two candidates: what layers
+compute, and outputs (`exp_adaptive_light.py`, `R7_KEEP`, `R7_ACT`).
 
 ![Accuracy against distance to the known model, for three weights on keeping the listed model's outputs](figures/fig_tradeoff.png)
+
+### What layers compute can be imitated too
+
+The activation reader compares what layers compute on secret text. On models trained against the tables alone
+it still names X: the 10,000-step model above is 0.03 from X and 0.41 from Y on it, as far as an unrelated
+model. So the run went on from that model for 2,000 more steps with one term added to the loss: the activation
+reader's distance to Y, on fresh text at every step (`results/round7_continue_135m.jsonl`).
+
+| Steps after the 10,000 | Activations to Y | Activations to X | Tables to Y, all parts | KL from X's outputs | KL from Y's outputs | Accuracy |
+|---|---|---|---|---|---|---|
+| 0 | 0.41 | 0.03 | 0.34 | 0.09 | 0.37 | 0.38 |
+| 250 | 0.18 | 0.27 | 0.34 | 0.15 | 0.38 | 0.38 |
+| 1,000 | 0.13 | 0.30 | 0.34 | 0.16 | 0.37 | 0.33 |
+| 2,000 | 0.12 | 0.32 | 0.34 | 0.16 | 0.38 | 0.35 |
+
+On the reader's secret text the model ends nearer to Y than to X. A distance of 0.12 is where honest derivatives
+of a model sit: instruct versions are at 0.02 to 0.07, a checkpoint 30% of a run earlier at 0.15, a coding
+version at 0.18, and separately trained models start at 0.41 (`results/v4.json`). Most of the move takes 250
+steps. The model's outputs did not follow: it is as far from Y's outputs as before, and it still scores 0.35 on
+the held-out task. So a check on activations would fail the way the tables can fail in principle, and faster.
+
+### What a check on outputs would see
+
+The tool never runs a model. This experiment asks what it would gain if it did (`experiments/exp_output_check.py`,
+`results/output_check_135m.json`). The distance is total variation between next-token distributions: 0 is the
+same outputs, 1 is no overlap. It is averaged over 128 held-out windows of 128 tokens chosen by a nonce. X and Y
+are 0.255 apart, and the standard error of every mean below is 0.003 or less.
+
+<!-- output table: written from results/output_check_135m.json -->
+| Model | Light by tables | Outputs, to Y: mean (lowest to highest window) | Outputs, to X |
+|---|---|---|---|
+| X, the listed model | Red | 0.255 (0.18 to 0.34) | 0.000 |
+| Y, the known model | Green | 0.000 (0.00 to 0.00) | 0.255 |
+| Y, weights rounded to 8 bits in blocks of 32 | Green | 0.018 (0.01 to 0.02) | 0.257 |
+| Y, published GGUF file, 8-bit (Q8_0) | Green | 0.022 (0.02 to 0.03) | 0.257 |
+| Y, published GGUF file, 6-bit (Q6_K) | Green | 0.040 (0.03 to 0.05) | 0.260 |
+| Y, fine-tuned for 200 steps | Green | 0.043 (0.03 to 0.10) | 0.255 |
+| Y, fine-tuned for 1,000 steps | Green | 0.064 (0.04 to 0.14) | 0.259 |
+| Y, published GGUF file, 5-bit (Q5_K_M) | Green | 0.096 (0.07 to 0.11) | 0.274 |
+| Y, published GGUF file, 4-bit (Q4_K_M) | Green | 0.139 (0.10 to 0.16) | 0.287 |
+| Y, published GGUF file, 4-bit (Q4_0) | Green | 0.206 (0.16 to 0.28) | 0.321 |
+| Y, published GGUF file, 3-bit (Q3_K_M) | Green | 0.177 (0.14 to 0.21) | 0.305 |
+| Y, published GGUF file, 2-bit (Q2_K) | Green | 0.231 (0.19 to 0.27) | 0.332 |
+| Y, weights rounded to 4 bits in blocks of 32 | Green | 0.274 (0.21 to 0.33) | 0.360 |
+| Y's published instruct version | Green | 0.257 (0.17 to 0.33) | 0.344 |
+| Y trained to imitate X, 3,000 steps | Green | 0.149 (0.10 to 0.27) | 0.243 |
+| X pulled to Y's tables, 10,000 steps | Amber | 0.268 (0.19 to 0.36) | 0.132 |
+| that model, pulled to Y's activations as well, 2,000 steps | Amber | 0.277 (0.20 to 0.38) | 0.181 |
+| X pulled to Y's tables with weight 0.1 on X's outputs, 2,000 steps | Amber | 0.277 (0.20 to 0.36) | 0.144 |
+| X pulled to Y's tables, X's outputs not kept, 3,000 steps | Amber | 0.859 (0.81 to 0.91) | 0.859 |
+| X, an honest fine-tune, 400 steps | Red | 0.284 (0.21 to 0.36) | 0.167 |
+| X, the fine-tune from round 1 | Red | 0.390 (0.30 to 0.47) | 0.290 |
+| X's published instruct version | Red | 0.308 (0.22 to 0.39) | 0.215 |
+<!-- end of output table -->
+
+![Outputs of each model, between the listed and the known model](figures/fig_outputs.png)
+
+1. **No model made from X is closer to Y's outputs than X is.** X is 0.255 from Y. After 10,000 steps of pulling
+   its tables toward Y it is at 0.27, and after 2,000 more steps of pulling its activations it is at 0.28. The
+   readers that were trained against moved. The outputs did not. In every one of the 128 windows, X and every
+   model made from it are more than 0.18 from Y.
+2. **Faithful copies of Y stay close.** Its 8-bit, 6-bit and 5-bit files and its fine-tunes of 200 and 1,000 steps
+   are 0.02 to 0.10 from it, and under 0.14 in every window. A bar between 0.14 and 0.18, asked of every window,
+   passes these copies and fails every model made from X, and a single window is enough to tell.
+3. **Other honest copies do not stay close.** At this size a 4-bit file moves Y's outputs by 0.14 to 0.21, a 2-bit
+   file by 0.23, and the published instruct version by 0.26: as much as swapping Y for X. Outputs cannot tell
+   such a copy from a different model. Under an output bar it would be Amber unless the registry lists that file
+   or that version itself.
+
+The figure shows one more thing. Honest copies of Y do not move toward X as they drift from Y: each is 0.255 or
+more from X's outputs, which is where Y is. The one copy of Y that moved toward X is the model trained to imitate
+it (0.24).
+
+The inequality behind reading 1 holds for any model and any text. Total variation is a metric, so a model within
+$\varepsilon$ of Y's outputs is at least $0.255 - \varepsilon$ from X's. In the figure no point can fall below
+the diagonal, and the script checks that in every window of every row. `docs/DESIGN.md` says what a check built
+on this would cost.
 
 ## Earlier results with the first reader
 
