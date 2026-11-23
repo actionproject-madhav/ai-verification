@@ -1,0 +1,114 @@
+[
+ {
+  "attack": "insert 3 dummy layers (30 -> 33)",
+  "logit_rel_err": 0.0,
+  "shape": {
+   "L": 33,
+   "H": 9,
+   "d": 576,
+   "ffn": 1536
+  },
+  "naive_index_ids": NaN,
+  "naive_ids_aligned": -4.2133873803397333e-16,
+  "v3_text_aligned": -4.2133873803397333e-16,
+  "v2_unweighted_text_aligned": -8.099167966527781e-16,
+  "v3_attn": -6.513308411134251e-16,
+  "coverage": 1.0
+ },
+ {
+  "attack": "pad one KV group (9 -> 12 heads)",
+  "logit_rel_err": 0.0,
+  "shape": {
+   "L": 30,
+   "H": 12,
+   "d": 576,
+   "ffn": 1536
+  },
+  "naive_index_ids": -4.2133873803397333e-16,
+  "naive_ids_aligned": -4.2133873803397333e-16,
+  "v3_text_aligned": -4.2133873803397333e-16,
+  "v2_unweighted_text_aligned": 0.01341587098604823,
+  "v3_attn": -6.513308411134251e-16,
+  "coverage": 1.0
+ },
+ {
+  "attack": "widen MLP (1536 -> 2048)",
+  "logit_rel_err": 0.0,
+  "shape": {
+   "L": 30,
+   "H": 9,
+   "d": 576,
+   "ffn": 2048
+  },
+  "naive_index_ids": -4.2133873803397333e-16,
+  "naive_ids_aligned": -4.2133873803397333e-16,
+  "v3_text_aligned": -4.2133873803397333e-16,
+  "v2_unweighted_text_aligned": 0.000677818052559064,
+  "v3_attn": -6.513308411134251e-16,
+  "coverage": 1.0
+ },
+ {
+  "attack": "widen residual + rotate (576 -> 640)",
+  "logit_rel_err": 4.103049650439061e-05,
+  "shape": {
+   "L": 30,
+   "H": 9,
+   "d": 640,
+   "ffn": 1536
+  },
+  "naive_index_ids": 9.364521908372488e-13,
+  "naive_ids_aligned": 9.364521908372488e-13,
+  "v3_text_aligned": 9.364521908372488e-13,
+  "v2_unweighted_text_aligned": 9.265994165031367e-13,
+  "v3_attn": 6.775783637872716e-13,
+  "coverage": 1.0
+ },
+ {
+  "attack": "all four + the six reparameterisations",
+  "logit_rel_err": 3.7648431316483766e-05,
+  "shape": {
+   "L": 33,
+   "H": 12,
+   "d": 640,
+   "ffn": 2048
+  },
+  "naive_index_ids": NaN,
+  "naive_ids_aligned": 1.4501269038028746e-12,
+  "v3_text_aligned": 1.4501269038028746e-12,
+  "v2_unweighted_text_aligned": 0.037519745492743,
+  "v3_attn": 1.5873709754051409e-12,
+  "coverage": 1.0
+ },
+ {
+  "attack": "permute the vocabulary (+ permuted tokenizer)",
+  "logit_rel_err": 0.0,
+  "shape": {
+   "L": 30,
+   "H": 9,
+   "d": 576,
+   "ffn": 1536
+  },
+  "naive_index_ids": 1.0004068142437774,
+  "naive_ids_aligned": 0.9862463315831436,
+  "v3_text_aligned": -4.2133873803397333e-16,
+  "v2_unweighted_text_aligned": -8.099167966527781e-16,
+  "v3_attn": -6.513308411134251e-16,
+  "coverage": 1.0
+ },
+ {
+  "attack": "everything at once",
+  "logit_rel_err": 5.028529994888231e-05,
+  "shape": {
+   "L": 33,
+   "H": 12,
+   "d": 640,
+   "ffn": 2048
+  },
+  "naive_index_ids": NaN,
+  "naive_ids_aligned": 0.9862463377330898,
+  "v3_text_aligned": 1.4503343881058373e-12,
+  "v2_unweighted_text_aligned": 0.03794046210532551,
+  "v3_attn": 1.6006103849737959e-12,
+  "coverage": 1.0
+ }
+]
