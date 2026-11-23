@@ -1,5 +1,6 @@
 """The figures in the README and the paper, drawn from the files in results/.
 
+  overview      the headline: copies traced by the check and by an exact hash, and what each attack ends with
   separation    distance against model size: copies, unrelated models, long retrains (universal_*, watchlist)
   hashes        what exact hashes recognise against what the fingerprint recognises (hash_baseline)
   robustness    retraining aimed at the tool: leaving Red, and trying to reach Green (gpu/, round7_forge_long_135m)
@@ -226,6 +227,72 @@ def tradeoff(res, out):
     ax.legend(loc="center left", bbox_to_anchor=(1.0, 0.5), handletextpad=0.4)
     save(fig, out, "fig_tradeoff")
     return found
+
+
+def overview(res, out):
+    """The headline figure. Left: copies among the 3,000 most-downloaded open models, by how the copy was made: the
+    share the check traces to the declared parent, and the share that shares a weight file with a base (what an
+    exact hash can see). Right: the light a copy of a listed model ends with after each attack, read from the
+    stress-test files."""
+    scan = json.load(open(os.path.join(res, "hub_scan", "compare.json")))["rows"]
+    pop = {p["repo"]: p for p in json.load(open(os.path.join(res, "hub_scan", "population.json")))["population"]}
+    files = {r["repo"]: r for r in json.load(open(os.path.join(res, "hub_scan", "scan_hashes.json")))["rows"]}
+    kind = lambda repo: "+".join(sorted({k for b in pop[repo]["declared"] for k in b["relations"]}))
+    rows = []
+    for key, label in (("finetune", "fine-tuned"), ("quantized", "compressed"), ("merge", "merged")):
+        pairs = [r for r in scan if r.get("claim") in ("declared base confirmed", "declared base not confirmed") and kind(r["repo"]) == key]
+        seen = [files[r["repo"]] for r in pairs if r["repo"] in files]
+        rows.append({"label": label, "copies": len(pairs), "check": 100 * sum(r["claim"] == "declared base confirmed" for r in pairs) / len(pairs),
+                     "hash": 100 * sum(r["shared_files"] > 0 for r in seen) / len(seen), "hash_checked": len(seen)})
+    last = lambda f, mode: _runs(os.path.join(res, f), mode)[-1]["light"]
+    relabelled = json.load(open(os.path.join(res, "relabelled.json")))["rows"]
+    lights = [("reorder or rename", {r["with_geometry"]["light"] for r in relabelled if r["relabelled"] and "listed model" in r["what"]}),
+              ("retrain to evade", {last("gpu/135m-v2-exp_adaptive_light.jsonl", "erase"), last("gpu/1.7b-v2-erase-exp_adaptive_light.jsonl", "erase")}),
+              ("disguise as a known model", {last("gpu/1.7b-v2-forge-exp_adaptive_light.jsonl", "forge"), last("round7_forge_long_135m.jsonl", "forge")})]
+    assert all(len(v) == 1 for _, v in lights), lights                # every run of an attack ends on the same light
+
+    fig = plt.figure(figsize=(7.4, 2.3))
+    ax, bx = fig.add_axes([0.125, 0.21, 0.34, 0.64]), fig.add_axes([0.775, 0.21, 0.2, 0.64])
+    h = 0.26
+    for i, r in enumerate(rows):
+        y = len(rows) - 1 - i
+        ax.barh(y + h / 2 + 0.02, r["check"], height=h, color=INK, lw=0, label="this check" if i == 0 else None)
+        ax.barh(y - h / 2 - 0.02, r["hash"], height=h, color=SOFT, lw=0, label="exact hash" if i == 0 else None)
+        ax.text(r["check"] + 1.5, y + h / 2 + 0.02, f"{r['check']:.0f}%", va="center", ha="left", fontsize=8.5)
+        ax.text(r["hash"] + 1.5, y - h / 2 - 0.02, f"{r['hash']:.0f}%", va="center", ha="left", fontsize=8.5, color=MUTED)
+    ax.set_yticks(range(len(rows)))
+    ax.set_yticklabels([r["label"] for r in reversed(rows)], fontsize=9)
+    ax.tick_params(axis="y", length=0, pad=6)
+    for i, r in enumerate(rows):                                # how many copies each row stands for
+        ax.annotate(f"{r['copies']:,}", (0, len(rows) - 1 - i), xytext=(-6, -11), textcoords="offset points", ha="right", va="center",
+                    fontsize=7, color=SOFT)
+    ax.set_xlim(0, 112)
+    ax.set_xticks([0, 50, 100])
+    ax.set_ylim(-0.55, len(rows) - 0.25)
+    ax.set_xlabel("copies traced to their parent (%)")
+    ax.legend(loc="lower left", bbox_to_anchor=(0, 1.0), ncol=2, handlelength=1.0, handleheight=0.7, columnspacing=1.4, borderaxespad=0.2)
+
+    colour = {"red": VERM, "amber": SUN, "green": FOREST}
+    for i, (label, light) in enumerate(lights):
+        y = len(lights) - 1 - i
+        for j, name in enumerate(("red", "amber", "green")):
+            on = name in light
+            bx.scatter([j], [y], s=150, facecolor=colour[name] if on else "white", edgecolor="none" if on else "#d2cfcb", lw=0.9, zorder=3)
+    bx.set_yticks(range(len(lights)))
+    bx.set_yticklabels([label for label, _ in reversed(lights)], fontsize=9)
+    bx.tick_params(axis="y", length=0, pad=8)
+    bx.set_xticks(range(3))
+    bx.set_xticklabels(["Red", "Amber", "Green"], fontsize=8.5)
+    bx.xaxis.tick_top()
+    bx.tick_params(axis="x", length=0, pad=4)
+    bx.set_xlim(-0.6, 2.6)
+    bx.set_ylim(-0.55, len(lights) - 0.25)
+    for side in ("left", "bottom", "top", "right"):
+        bx.spines[side].set_visible(False)
+    bx.set_xlabel("light after the attack")
+    save(fig, out, "fig_overview")
+    return {"rows": [{k: (round(v, 1) if isinstance(v, float) else v) for k, v in r.items()} for r in rows],
+            "lights": {label: sorted(v)[0] for label, v in lights}}
 
 
 def outputs(res, out):
