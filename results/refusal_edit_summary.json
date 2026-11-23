@@ -1,42 +1,100 @@
 {
  "abliterat": {
   "models": 60,
-  "differ_from_base": 49,
-  "flagged": 45,
+  "not_comparable": 10,
+  "identical_to_base": 1,
+  "compared": 49,
+  "flagged": 44,
+  "unchecked": 0,
+  "cleared": 5,
+  "flagged_without_the_third_condition": 45,
   "older_signature": 27,
+  "largest_agreement_in_a_layer": {
+   "median": 1.0,
+   "p95": 1.0
+  },
+  "largest_own_content": {
+   "lowest": 0.1298,
+   "median": 1.0,
+   "highest": 1.0,
+   "models": 45
+  },
   "flagged_repos": null
  },
  "heretic": {
   "models": 55,
-  "differ_from_base": 53,
-  "flagged": 47,
+  "not_comparable": 5,
+  "identical_to_base": 0,
+  "compared": 50,
+  "flagged": 44,
+  "unchecked": 0,
+  "cleared": 6,
+  "flagged_without_the_third_condition": 45,
   "older_signature": 0,
+  "largest_agreement_in_a_layer": {
+   "median": 0.995,
+   "p95": 1.0
+  },
+  "largest_own_content": {
+   "lowest": 0.2359,
+   "median": 1.0,
+   "highest": 1.0,
+   "models": 47
+  },
   "flagged_repos": null
  },
  "hint": {
   "models": 35,
-  "differ_from_base": 30,
-  "flagged": 15,
+  "not_comparable": 5,
+  "identical_to_base": 1,
+  "compared": 29,
+  "flagged": 14,
+  "unchecked": 0,
+  "cleared": 15,
+  "flagged_without_the_third_condition": 15,
   "older_signature": 8,
+  "largest_agreement_in_a_layer": {
+   "median": 0.868,
+   "p95": 1.0
+  },
+  "largest_own_content": {
+   "lowest": 0.1955,
+   "median": 1.0,
+   "highest": 1.0,
+   "models": 15
+  },
   "flagged_repos": null
  },
  "control": {
   "models": 400,
-  "differ_from_base": 314,
-  "flagged": 11,
+  "not_comparable": 54,
+  "identical_to_base": 36,
+  "compared": 310,
+  "flagged": 9,
+  "unchecked": 9,
+  "cleared": 292,
+  "flagged_without_the_third_condition": 11,
   "older_signature": 3,
+  "largest_agreement_in_a_layer": {
+   "median": 0.674,
+   "p95": 0.933
+  },
+  "largest_own_content": {
+   "lowest": 0.0225,
+   "median": 0.9138,
+   "highest": 1.0,
+   "models": 20
+  },
   "flagged_repos": [
    "Eu-sou/Mythos-nano",
    "unsloth/Llama-3.2-3B-Instruct",
    "smshahbaj/RIFA-Edge-0.6B",
-   "TeskesLab/Liberation-Qwen3-8B",
    "Sakalti/Saka-14B",
-   "XOTaiChi/grpo_qwen_0202",
+   "TeskesLab/Liberation-Qwen3-8B",
    "squ11z1/Mythos-nano",
    "IlyaGusev/saiga_llama3_8b",
    "Naphula/L3-8B-Stheno-v3.2-MPOA",
-   "ApolloRaines/Llama-3.1-8B-Instruct.immunized.v2",
-   "p-e-w/Oc-e-Non-v1"
+   "ApolloRaines/Llama-3.1-8B-Instruct.immunized.v2"
   ]
  }
 }
