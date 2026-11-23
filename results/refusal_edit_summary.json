@@ -4,10 +4,10 @@
   "not_comparable": 10,
   "identical_to_base": 1,
   "compared": 49,
-  "flagged": 44,
+  "flagged": 45,
   "unchecked": 0,
-  "cleared": 5,
-  "flagged_without_the_third_condition": 45,
+  "cleared": 4,
+  "flagged_without_the_third_condition": 46,
   "older_signature": 27,
   "largest_agreement_in_a_layer": {
    "median": 1.0,
@@ -17,7 +17,7 @@
    "lowest": 0.1298,
    "median": 1.0,
    "highest": 1.0,
-   "models": 45
+   "models": 46
   },
   "flagged_repos": null
  },
@@ -51,17 +51,17 @@
   "flagged": 14,
   "unchecked": 0,
   "cleared": 15,
-  "flagged_without_the_third_condition": 15,
+  "flagged_without_the_third_condition": 18,
   "older_signature": 8,
   "largest_agreement_in_a_layer": {
    "median": 0.868,
    "p95": 1.0
   },
   "largest_own_content": {
-   "lowest": 0.1955,
-   "median": 1.0,
+   "lowest": 0.0367,
+   "median": 0.9999,
    "highest": 1.0,
-   "models": 15
+   "models": 20
   },
   "flagged_repos": null
  },
@@ -73,7 +73,7 @@
   "flagged": 9,
   "unchecked": 9,
   "cleared": 292,
-  "flagged_without_the_third_condition": 11,
+  "flagged_without_the_third_condition": 34,
   "older_signature": 3,
   "largest_agreement_in_a_layer": {
    "median": 0.674,
@@ -81,9 +81,9 @@
   },
   "largest_own_content": {
    "lowest": 0.0225,
-   "median": 0.9138,
+   "median": 0.1022,
    "highest": 1.0,
-   "models": 20
+   "models": 60
   },
   "flagged_repos": [
    "Eu-sou/Mythos-nano",

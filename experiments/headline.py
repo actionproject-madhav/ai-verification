@@ -112,10 +112,10 @@ claim("4 relabelled copies: Amber by name, Red by geometry; 5 other cases unchan
        n(rel, lambda r: r["by_name"]["light"] == r["with_geometry"]["light"])) == (4, 5), f"{len(rel)} cases")
 c = load("refusal_edit_summary.json")
 got = [c[k][f] for k in ("abliterat", "heretic") for f in ("flagged", "compared", "older_signature")] + [c["control"][f] for f in ("flagged", "compared", "unchecked")]
-claim("cut test: 44 of 49 'abliterated', 44 of 50 'heretic' (older signature 27 and 0); 9 of 310 other copies, 9 more not aligned",
-      got == [44, 49, 27, 44, 50, 0, 9, 310, 9], got)
+claim("cut test: 45 of 49 'abliterated', 44 of 50 'heretic' (older signature 27 and 0); 9 of 310 other copies, 9 more not aligned",
+      got == [45, 49, 27, 44, 50, 0, 9, 310, 9], got)
 before = [c[k]["flagged_without_the_third_condition"] for k in ("abliterat", "heretic", "hint", "control")]
-claim("the third condition of the cut test changes 5 verdicts", before == [45, 45, 15, 11] and c["hint"]["flagged"] == 14, before)
+claim("without its third condition the cut test would flag 34 of the 310 other copies, not 9", before == [46, 45, 18, 34] and c["hint"]["flagged"] == 14, before)
 
 # stress tests
 small, big = run("gpu/135m-v2-exp_adaptive_light.jsonl", "erase"), run("gpu/1.7b-v2-erase-exp_adaptive_light.jsonl", "erase")
