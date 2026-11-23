@@ -126,7 +126,8 @@ serve the right bytes.
 | None | run a public quantised or renamed copy of a listed model, or a later version | Red |
 | Free edits | shuffle, rescale or rotate the internals | Red: these cannot move the tables |
 | Free edits | relabel the tokenizer so names point at the wrong rows | Red: tokens are matched by geometry |
-| Free edits | convert the model to a format the reader does not parse (GGUF, packed 4-bit) | Amber: this is the largest open gap |
+| Free edits | convert the model to GGUF and quantise it to a few bits per weight | Red: the reader decodes GGUF |
+| Free edits | convert it to a format the reader does not decode (EXL3, MLX, a few others) | Amber |
 | A public tool | remove the refusals of a known model | Red in about 9 of 10 public cases that can be compared; Green in the rest |
 | A public tool, then a free edit | remove the refusals, then shuffle the weights | Amber: the copy can no longer be compared matrix by matrix |
 | Building a mixed model | a known model's attention with a listed model's MLPs | Amber: not every part matches, and the model did not work |
@@ -135,14 +136,15 @@ serve the right bytes.
 | The same, pulling toward a known model | make every part of a listed model match a known one | Amber in every run so far; never Green |
 | Training a known model to imitate a listed one | distil the listed model into the known one | Green, and still the known model: its outputs and accuracy did not follow |
 
-No fine-tuned or refusal-removed copy of a listed model was tested, because none could be read. All 22 public
-repositories that advertise a listed model with its refusals removed are in a format the reader does not parse,
-and so are 29 of the 32 that the Hub tags as fine-tunes of a listed model (the other three matched nothing). The
-evidence that fine-tunes and refusal removal stay within reach comes from smaller bases.
+Refusal-removed copies of the listed models are published as GGUF files, most of them at 1 or 2 bits per weight.
+The reader decodes them, and the eight it found are Red at 0.03 or less. No fine-tune of a listed model could be
+tested. The Hub tags 36 repositories as fine-tunes or merges of one, and none of them holds a fine-tuned copy in a
+format the reader decodes: they are tokenizers, vision towers, draft models and packed files. The evidence that
+fine-tunes stay within reach comes from smaller bases.
 
-Hiding an origin is possible, and the cheapest ways found are a file format and a retraining run. Both buy
+Hiding an origin is possible, and the cheapest ways found are an unusual file format and a retraining run. Both buy
 Amber, which still means an identity check. Green is the only result that waives checks, and no copy of a listed
-model reached it. The runs are small: 135M and 1.7B parameters, a few thousand steps. `docs/METHOD.md` says why
+model reached it. The runs are small: 135M and 1.7B parameters, ten thousand steps at most. `docs/METHOD.md` says why
 matching tables cannot prove that two models compute the same thing, so a longer run may get there.
 [`docs/RESULTS.md`](RESULTS.md) has every run.
 
@@ -156,8 +158,8 @@ matching tables cannot prove that two models compute the same thing, so a longer
 
 ## Open questions
 
-1. File formats. GGUF and packed 4-bit formats are not read, and most public derivatives of the listed models
-   use them. A model the reader cannot decode is Amber.
+1. File formats. Safetensors and GGUF are read. EXL3, MLX, a few packed 4-bit layouts and GGUF files whose
+   matrices use the 1 to 3 bit codebook formats are not, and a model the reader cannot decode is Amber.
 2. A check on what layers compute. Tables are second moments of weights and can in principle be imitated.
    Comparing activations on nonce-chosen text, inside the enclave, would make Green a statement about function.
 3. A cut test on tables instead of raw matrices, so that a shuffled copy can still be checked.
