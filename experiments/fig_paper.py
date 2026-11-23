@@ -44,7 +44,7 @@ def separation(res, out):
             if key in seen:
                 continue
             seen.add(key)
-            d = (p["qk"] + p["ov"]) / 2
+            d = p.get("attn", (p["qk"] + p["ov"]) / 2)
             earlier = "previous version" in p["b"] or p["b"].startswith("Qwen2-")
             kind = "long" if earlier or any(w in p["b"] for w in ("Coder", "Math")) else "copy" if p["role"] == "derivative" else "unrelated"
             pts[kind].append((SIZES[anchor], d))
@@ -74,12 +74,12 @@ def separation(res, out):
     ax.set_ylabel("distance")
     ax.legend(loc="center left", bbox_to_anchor=(1.0, 0.5), handletextpad=0.2)
     save(fig, out, "fig_separation")
-    return {k: len(v) for k, v in pts.items()}
+    return {k: (len(v), round(min(y for _, y in v), 3), round(max(y for _, y in v), 3)) for k, v in pts.items()}
 
 
 GROUPS = [("repackaged", ("4-bit release", "8-bit release", "8-bit release, renamed", "16-bit release")),
           ("new version", ("later version",)), ("fine-tuned", ("instruct version", "fine-tune")),
-          ("refusals removed", ("refusals removed",)), ("unrelated", ("unrelated", "unrelated, similar name"))]
+          ("refusals\nremoved", ("refusals removed",)), ("unrelated", ("unrelated", "unrelated, similar name"))]
 
 
 def hashes(res, out):
@@ -87,7 +87,7 @@ def hashes(res, out):
     rows = [r for r in json.load(open(os.path.join(res, "hash_baseline.json"))) if "error" not in r]
     methods = [("file hash", lambda r: r["files_identical"] > 0), ("tensor hash", lambda r: r["tensors_identical"] > 0),
                ("fingerprint", lambda r: r["closest_part"] is not None and r["closest_part"] < 0.5)]
-    fig, ax = plt.subplots(figsize=(6.6, 1.9))
+    fig, ax = plt.subplots(figsize=(7.2, 2.0))
     x, ticks, n_copy = 0.0, [], 0
     for name, kinds in GROUPS:
         members = [r for r in rows if r["kind"] in kinds]
@@ -104,15 +104,15 @@ def hashes(res, out):
             x += 1
         ticks.append(((x0 + x - 1) / 2, name))
         ax.plot([x0 - 0.3, x - 0.7], [-0.72, -0.72], color=INK, lw=0.8, clip_on=False)
-        x += 0.9
+        x += 1.5
     copies = [r for r in rows if not r["kind"].startswith("unrelated")]
     for j, (m, hit) in enumerate(methods):
         ax.text(-1.0, 2 - j, m, ha="right", va="center", fontsize=9)
-        ax.text(x - 0.3, 2 - j, f"{sum(hit(r) for r in copies)} / {len(copies)}", ha="left", va="center", fontsize=9,
+        ax.text(x - 0.9, 2 - j, f"{sum(hit(r) for r in copies)} / {len(copies)}", ha="left", va="center", fontsize=9,
                 color=FOREST if j == 2 else INK, fontweight="semibold" if j == 2 else "normal", **MONO)
     for xc, name in ticks:
-        ax.text(xc, -1.05, name, ha="center", va="top", fontsize=7.6, color=MUTED)
-    ax.set_xlim(-1.2, x + 1.2); ax.set_ylim(-1.6, 2.6); ax.axis("off")
+        ax.text(xc, -1.0, name, ha="center", va="top", fontsize=7.6, color=MUTED, linespacing=1.15)
+    ax.set_xlim(-1.2, x + 1.0); ax.set_ylim(-2.0, 2.6); ax.axis("off")
     save(fig, out, "fig_hashes")
     return {m: sum(hit(r) for r in copies) for m, hit in methods} | {"copies": len(copies), "false alarms": {m: sum(hit(r) for r in rows if r["kind"].startswith("unrelated")) for m, hit in methods}}
 
