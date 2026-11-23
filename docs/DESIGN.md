@@ -90,8 +90,8 @@ enclave pins its digest.
 
 `K` can be built from public releases. The Hub scan in `experiments/exp_hub_scan.py` derives a first draft from
 model cards: every repository that at least ten other cards name as their base. That rule is not enough. Twenty
-of the 362 bases it picked are uncensored releases by their own names. Three of those could be read, and a copy
-of one of them would be cleared. A registry needs a curator, or a rule about who published the base.
+of the 362 bases it picked are uncensored releases (19 say so in their names; the other is a Dolphin model). Three
+of those could be read, and a copy of one of them would be cleared. A registry needs a curator, or a rule about who published the base.
 
 ## Who sees what
 
@@ -140,9 +140,9 @@ to serve the right bytes. In the first run it fetched the whole model and named 
 | The same, pulling toward a known model | make every part of a listed model match a known one | Amber in every run so far; never Green |
 | Training a known model to imitate a listed one | distil the listed model into the known one | Green, and still the known model: its outputs and accuracy did not follow |
 
-22 of the scanned repositories advertise a listed model with its refusals removed. Eight are copies in GGUF files
-that the reader could decode, most of them labelled 1 or 2 bits per weight, and all eight are Red at 0.03 or less.
-Eight are other models under a listed name. Six could not be read. No fine-tune of a listed model could be
+22 of the scanned repositories carry a listed model's name and advertise removed refusals. Eight are copies in
+GGUF files that the reader could decode, most of them labelled 1 or 2 bits per weight, and all eight are Red at
+0.03 or less. Six are other models under a listed name. Eight could not be read. No fine-tune of a listed model could be
 tested. The Hub tags 36 repositories as fine-tunes or merges of one, and none of them holds a fine-tuned copy in a
 format the reader decodes: they are tokenizers, vision towers, draft models and packed files. The evidence that
 fine-tunes stay within reach comes from smaller bases.
