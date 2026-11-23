@@ -1,0 +1,163 @@
+{
+ "X": "HuggingFaceTB/SmolLM2-135M",
+ "Y": "HuggingFaceTB/SmolLM-135M",
+ "nonce": "redteam-lights-2026-11",
+ "rows": [
+  {
+   "model": "X itself",
+   "light": "red",
+   "matched": "X",
+   "to_X": [
+    -0.0,
+    -0.0
+   ],
+   "to_Y": [
+    0.9122,
+    0.9538
+   ]
+  },
+  {
+   "model": "Y itself",
+   "light": "green",
+   "matched": "Y",
+   "to_X": [
+    0.9122,
+    0.9538
+   ],
+   "to_Y": [
+    -0.0,
+    0.0
+   ]
+  },
+  {
+   "model": "both",
+   "light": "red",
+   "matched": "X",
+   "to_X": [
+    0.0083,
+    0.106
+   ],
+   "to_Y": [
+    0.8857,
+    0.9412
+   ]
+  },
+  {
+   "model": "ft",
+   "light": "red",
+   "matched": "X",
+   "to_X": [
+    0.0016,
+    0.002
+   ],
+   "to_Y": [
+    0.9163,
+    0.9558
+   ]
+  },
+  {
+   "model": "r3-honest",
+   "light": "red",
+   "matched": "X",
+   "to_X": [
+    0.0012,
+    0.0015
+   ],
+   "to_Y": [
+    0.9137,
+    0.954
+   ]
+  },
+  {
+   "model": "r4-distill-lam1",
+   "light": "red",
+   "matched": "X",
+   "to_X": [
+    0.0026,
+    0.0582
+   ],
+   "to_Y": [
+    0.8756,
+    0.9358
+   ]
+  },
+  {
+   "model": "r4-distill-lam3",
+   "light": "red",
+   "matched": "X",
+   "to_X": [
+    0.0072,
+    0.1019
+   ],
+   "to_Y": [
+    0.8795,
+    0.9384
+   ]
+  },
+  {
+   "model": "r5-forge-lam10-push3",
+   "light": "red",
+   "matched": "X",
+   "to_X": [
+    0.2203,
+    0.4575
+   ],
+   "to_Y": [
+    0.725,
+    0.8402
+   ]
+  },
+  {
+   "model": "r5-forge-lam3",
+   "light": "red",
+   "matched": "X",
+   "to_X": [
+    0.0262,
+    0.1173
+   ],
+   "to_Y": [
+    0.8665,
+    0.9183
+   ]
+  },
+  {
+   "model": "r6-transplant-lr0.0003",
+   "light": "amber",
+   "matched": null,
+   "to_X": [
+    0.9362,
+    0.9661
+   ],
+   "to_Y": [
+    -0.0,
+    0.3312
+   ]
+  },
+  {
+   "model": "sec10",
+   "light": "red",
+   "matched": "X",
+   "to_X": [
+    0.008,
+    0.1454
+   ],
+   "to_Y": [
+    0.8633,
+    0.9332
+   ]
+  },
+  {
+   "model": "v4",
+   "light": "red",
+   "matched": "X",
+   "to_X": [
+    0.0023,
+    0.0035
+   ],
+   "to_Y": [
+    0.9133,
+    0.9543
+   ]
+  }
+ ]
+}
