@@ -12,8 +12,9 @@ fields carry what a verifier of a lineage statement needs:
 returns the fields. The launch measurement is the base system the containers run on. On Azure that is Microsoft's
 utility VM, and `verify_uvm_endorsement` checks Microsoft's signed statement that it built that measurement.
 """
-from __future__ import warnings
-import annotations
+from __future__ import annotations
+
+import warnings
 
 import base64
 import binascii
