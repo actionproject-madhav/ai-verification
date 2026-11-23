@@ -2,20 +2,30 @@
 
 ## The short version
 
-| Tested on | Result |
+**Starting point: the 3,000 most-downloaded open models.** Could the check trace each copy back to its parent?
+
+| How the copy was made | Copies | Result |
+|---|---|---|
+| Fine-tuned | 766 | 96% traced to the right parent |
+| Compressed | 302 | 99% traced to the right parent |
+| Merged with other models | 42 | 93% traced to the right parent |
+| Refusals removed | 99 | 90% flagged as edited |
+| For comparison: a plain hash | 1,718 | recognises 4% of the copies the check found |
+
+The first three lines used the first version of the reader, described further down.
+
+**The three watchlisted models.** All 62 public copies that could be read were flagged Red. None of 38 look-alike
+models was. In sealed hardware, a compressed copy of GLM-5.3 was flagged in 99 seconds, and the proof verifies
+offline.
+
+**Attacks**, run on small stand-in models:
+
+| Attack | Result |
 |---|---|
-| 3,000 most-downloaded open models | the parent each one declares was confirmed for 1,070 of 1,110 |
-| 27 modified copies (compressed, fine-tuned, refusals removed) | all 27 traced back to their source |
-| 151 pairs of unrelated models | none mistaken for a copy |
-| 13 public copies, against a plain hash | the hash recognises 2; this check recognises all 13 |
-| Public copies of the three watchlisted models | all 62 flagged; none of the 38 look-alike models flagged |
-| 36 compressed files, down to 3 bits per weight | 35 still recognised |
-| 99 public models with refusals removed | 89 flagged |
-| Sealed hardware | a watchlisted copy flagged in 99 seconds; the proof verifies offline |
-| Attack: reorder, rescale or rename the internals | no effect |
-| Attack: retrain a copy to hide it | works after 500 to 1,250 steps, and only reaches Amber |
-| Attack: disguise a watchlisted model as a known one | failed in every run |
-| Can a disguise also copy a known model's outputs? | no: its outputs never moved toward the known model, at two model sizes |
+| Reorder, rescale or rename the internals | no effect |
+| Retrain the copy to hide it | works after 500 to 1,250 steps, and only reaches Amber |
+| Disguise a watchlisted model as a known one | failed in every run |
+| Copy a known model's outputs too | impossible without giving up its own outputs |
 
 The rest of this page is the detail behind these lines.
 
