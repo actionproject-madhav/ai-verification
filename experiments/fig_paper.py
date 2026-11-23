@@ -1,6 +1,6 @@
 """The figures in the README and the paper, drawn from the files in results/.
 
-  separation    distance against model size: copies, unrelated models, long retrains (scale, crossfamily, watchlist)
+  separation    distance against model size: copies, unrelated models, long retrains (universal_*, watchlist)
   hashes        what exact hashes recognise against what the fingerprint recognises (hash_baseline)
   architecture  the mechanism as a diagram
 
@@ -22,9 +22,13 @@ plt.rcParams.update({
     "legend.frameon": False, "legend.fontsize": 8, "figure.facecolor": "white", "savefig.facecolor": "white",
     "savefig.dpi": 300, "savefig.bbox": "tight", "svg.fonttype": "path"})
 MONO = {"family": "JetBrains Mono"}
-SIZES = {"pythia-14m": 14e6, "pythia-31m": 31e6, "pythia-70m": 70e6, "pythia-160m": 162e6, "pythia-410m": 405e6,
-         "smol-135M": 135e6, "smol-360M": 362e6, "smol-1.7B": 1.71e9, "qwen-0.5B": 0.49e9, "qwen-1.5B": 1.54e9,
-         "qwen-7B": 7.6e9, "qwen-72B": 72.7e9, "olmo-1B": 1.2e9, "olmo-7B": 6.9e9, "llama-3.1-8B": 8.0e9}
+# Parameter counts from each model's safetensors metadata on the Hub (read 23 Nov 2026).
+SIZES = {"EleutherAI/pythia-1.4b": 1.52e9, "HuggingFaceTB/SmolLM-1.7B": 1.71e9, "HuggingFaceTB/SmolLM-135M": 135e6,
+         "HuggingFaceTB/SmolLM-360M": 362e6, "HuggingFaceTB/SmolLM2-1.7B": 1.71e9, "HuggingFaceTB/SmolLM2-135M": 135e6,
+         "HuggingFaceTB/SmolLM2-360M": 362e6, "Qwen/Qwen2.5-1.5B": 1.54e9, "Qwen/Qwen2.5-7B": 7.62e9,
+         "Qwen/Qwen3-8B-Base": 8.19e9, "TinyLlama/TinyLlama-1.1B-Chat-v1.0": 1.10e9, "allenai/OLMo-2-1124-7B": 7.30e9,
+         "deepseek-ai/DeepSeek-V4-Flash": 291e9, "marin-community/marin-8b-base": 8.03e9,
+         "mistralai/Mistral-7B-v0.3": 7.25e9, "unsloth/Llama-3.1-8B": 8.03e9, "zai-org/GLM-5.3-Flash": 321e9}
 LISTED = {"glm-5.2": 753e9, "glm-5.3": 753e9, "kimi-k3": 2.78e12}
 
 
@@ -35,27 +39,25 @@ def save(fig, out, name):
 
 
 def separation(res, out):
-    """Every measured pair: x = parameters of the reference model, y = fingerprint distance."""
+    """Every pair measured with the shipped fingerprint: x = parameters, y = distance of the closest part.
+    Unrelated pairs sit at the geometric mean of their two sizes."""
+    load = lambda f: json.load(open(os.path.join(res, f)))
     pts = {"copy": [], "unrelated": [], "long": []}
-    seen = set()
-    for anchor, block in json.load(open(os.path.join(res, "scale.json"))).items():
-        for p in block["pairs"]:
-            key = (anchor[:6], frozenset((p["a"], p["b"])))
-            if key in seen:
-                continue
-            seen.add(key)
-            d = p.get("attn", (p["qk"] + p["ov"]) / 2)
-            earlier = "previous version" in p["b"] or p["b"].startswith("Qwen2-")
-            kind = "long" if earlier or any(w in p["b"] for w in ("Coder", "Math")) else "copy" if p["role"] == "derivative" else "unrelated"
-            pts[kind].append((SIZES[anchor], d))
-    for p in json.load(open(os.path.join(res, "crossfamily.json"))):
-        pts["unrelated"].append((8e9, p["attn"]))
-    for r in json.load(open(os.path.join(res, "watchlist.json")))["rows"]:
+    for r in load("universal_cross.json")["rows"]:
+        if r.get("closest_part") is not None:
+            pts["unrelated"].append(((SIZES[r["a"]] * SIZES[r["b"]]) ** 0.5, r["closest_part"]))
+    for r in load("watchlist.json")["rows"]:
         d = {k: v for k, v in (r.get("distances") or {}).items() if v is not None}
         if not d or r.get("relation") == "listed pair":
             continue
         best = min(d, key=d.get)
         pts["copy" if r.get("matched") else "unrelated"].append((LISTED[best], max(d[best], 0.0)))
+    for r in load("universal.json"):
+        if r["kind"] == "derivative":
+            pts["copy"].append((SIZES.get(r["anchor"], 7.62e9), r["d"]))
+    for r in load("universal_pairs.json")["rows"]:
+        if r.get("closest_part") is not None:
+            pts["long" if r["kind"] == "retrained at length" else "copy"].append((r["params"], max(r["closest_part"], 0.0)))
     rng = np.random.default_rng(3)
     jit = lambda xs: np.asarray(xs) * np.exp(rng.normal(0, 0.09, len(xs)))
     fig, ax = plt.subplots(figsize=(6.6, 2.9))
@@ -65,11 +67,11 @@ def separation(res, out):
     x, y = zip(*pts["long"]); ax.scatter(jit(x), y, s=13, marker="x", color=SOFT, linewidths=0.9, label="retrained at length")
     x, y = zip(*pts["copy"]); ax.scatter(jit(x), y, s=15, color=FOREST, linewidths=0, label="modified copy", zorder=3)
     ax.set_xscale("log")
-    ax.set_xlim(7e6, 6e12)
+    ax.set_xlim(7e7, 6e12)
     ax.set_ylim(-0.04, 1.08)
     ax.set_yticks([0, 0.1, 0.5, 1.0])
-    ax.set_xticks([1e7, 1e8, 1e9, 1e10, 1e11, 1e12])
-    ax.set_xticklabels(["10M", "100M", "1B", "10B", "100B", "1T"])
+    ax.set_xticks([1e8, 1e9, 1e10, 1e11, 1e12])
+    ax.set_xticklabels(["100M", "1B", "10B", "100B", "1T"])
     ax.set_xlabel("parameters")
     ax.set_ylabel("distance")
     ax.legend(loc="center left", bbox_to_anchor=(1.0, 0.5), handletextpad=0.2)
@@ -115,6 +117,47 @@ def hashes(res, out):
     ax.set_xlim(-1.2, x + 1.0); ax.set_ylim(-2.0, 2.6); ax.axis("off")
     save(fig, out, "fig_hashes")
     return {m: sum(hit(r) for r in copies) for m, hit in methods} | {"copies": len(copies), "false alarms": {m: sum(hit(r) for r in rows if r["kind"].startswith("unrelated")) for m, hit in methods}}
+
+
+def _runs(path, mode):
+    """The rows of one mode in a result file, after the last restart (a preempted run starts again from step 0)."""
+    if not os.path.exists(path):
+        return []
+    rows = [r for r in map(json.loads, filter(str.strip, open(path))) if r.get("mode") == mode]
+    cut = max([i for i in range(1, len(rows)) if rows[i]["step"] < rows[i - 1]["step"]], default=0)
+    return rows[cut:]
+
+
+def _curves(ax, series, key, threshold, ylabel):
+    ax.axhline(threshold, color=HAIR, lw=0.8, zorder=0)
+    for label, rows, colour in series:
+        if not rows:
+            continue
+        x, y = [r["step"] for r in rows], [key(r) for r in rows]
+        ax.plot(x, y, color=colour, lw=1.4, marker="o", ms=2.6)
+        ax.text(x[-1] * 1.02 + 30, y[-1], label, color=colour, fontsize=8, va="center", ha="left")
+    ax.set_ylim(-0.04, 1.06)
+    ax.set_yticks(sorted({0, threshold, 0.5, 1.0}))
+    ax.set_xlabel("training steps against the check")
+    ax.set_ylabel(ylabel)
+
+
+def robustness(res, out):
+    """Round 7, the attacker who knows the tool. Left figure: leaving Red. Right figure: trying to reach Green."""
+    g = os.path.join(res, "gpu")
+    erase = [("135M", _runs(os.path.join(g, "135m-v2-exp_adaptive_light.jsonl"), "erase"), INK),
+             ("1.7B", _runs(os.path.join(g, "1.7b-v2-erase-exp_adaptive_light.jsonl"), "erase"), FOREST)]
+    long = _runs(os.path.join(res, "round7_forge_long_135m.jsonl"), "forge")
+    forge = [("135M", long or _runs(os.path.join(g, "135m-v2-exp_adaptive_light.jsonl"), "forge"), INK),
+             ("1.7B", _runs(os.path.join(g, "1.7b-v2-forge-exp_adaptive_light.jsonl"), "forge"), FOREST)]
+    fig, ax = plt.subplots(figsize=(3.4, 2.5))
+    _curves(ax, erase, lambda r: r["to_X"][0], 0.5, "closest part, to the listed model")
+    save(fig, out, "fig_leave_red")
+    fig, ax = plt.subplots(figsize=(3.4, 2.5))
+    _curves(ax, forge, lambda r: r["to_Y"][1], 0.1, "all parts, to the known model")
+    save(fig, out, "fig_reach_green")
+    last = lambda rows: None if not rows else {k: rows[-1][k] for k in ("step", "light", "to_X", "to_Y", "kl", "lambada")}
+    return {"erase": {n: last(r) for n, r, _ in erase}, "forge": {n: last(r) for n, r, _ in forge}}
 
 
 # ---------------------------------------------------------------------------------------------------------------
