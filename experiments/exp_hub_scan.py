@@ -5,8 +5,8 @@ Three steps, each resumable:
   build    list the top models the reader can parse, with the base model each card declares, and derive the
            registry of known base models: every repo that at least MIN_REFS listed models name as their base
   scan     fingerprint every listed model and every registry model once: two layers at fixed relative depths,
-           256 tokens drawn from one nonce per tokenizer, plus the refusal-ablation signature (which reads every
-           layer, so only for models up to FORENSIC_MAX parameters)
+           256 tokens drawn from one nonce per tokenizer, plus the refusal-ablation signature (only for models up
+           to FORENSIC_MAX parameters: on 70B-class models it took 15 to 20 GB of memory a worker)
   compare  nearest registry model for every scanned model; agreement with the card; the share of models that are
            close copies (< 0.1), modified copies (< 0.5) or of unknown origin
 
@@ -35,7 +35,7 @@ N_TOK, K_LAYERS, MIN_REFS = 256, 2, int(os.environ.get("MIN_REFS", 10))
 READABLE_QUANT = (None, "awq", "gptq")
 MAX_PARAMS, MIN_PARAMS = 130e9, 50e6
 COMPS = ("qk", "ov", "mlp")
-FORENSIC_MAX = float(os.environ.get("FORENSIC_MAX", 16e9))    # the refusal-ablation check reads every layer: cap its size
+FORENSIC_MAX = float(os.environ.get("FORENSIC_MAX", 16e9))    # the refusal-ablation check is memory-heavy on wide layers
 PASS = os.environ.get("SCAN_PASS", "")                       # a failed model is retried in a later pass, not on every restart
 
 
