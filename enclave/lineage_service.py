@@ -21,13 +21,18 @@ entry, and whether the refusal-ablation signature is present. No scores, tokens 
   GET  /v1/model       the scanned model's identity, computed at boot
   GET  /v1/policy      Azure only: the launch policy (base64) whose hash the hardware report carries
   POST /v1/challenge   {"nonce": "<32-128 hex>"}  ->  {"envelope": <DSSE>, "publicKey": "<hex>"}
+  POST /v1/generate    MODE=light with SERVE=1, after a Green light: {"nonce", "prompt", "maxTokens"}  ->
+                       {"text", "envelope", "publicKey"}. The box answers with the model it has just checked.
 
 Settings (pinned in tinfoil-config.yml, so measured):
   MODEL_DIR, MODEL_NAME, MODEL_REF (repo@revision), MODEL_SCHEMA (modelwrap pack schema)
   CONCERN_LIST (path), CONCERN_LIST_DIGEST (jcs-sha256/1 of it; the service refuses to start on a mismatch)
   TOKENS (512), LAYERS (4), PORT (8080), ALLOW_DEV_KEY (1 outside an enclave: statements say keyBinding null)
   PLATFORM (tinfoil or azure-aci), ATTEST_URL (the sidecar, azure-aci only)
+  OUTPUTS (1: Green also needs the model's outputs to agree with the known model's; runs both models)
+  SERVE (1: with OUTPUTS, answer prompts with the checked model and sign what was served)
 """
+import hashlib
 import json
 import os
 import re
@@ -50,7 +55,10 @@ from lineage_check import remote as R
 from lineage_check import snp as SNP
 
 PREDICATE_TYPE = "urn:lineage-check:LineageStatement:v0.2"
-LIGHT_TYPE = "urn:lineage-check:LightStatement:v0.4"
+LIGHT_TYPE = "urn:lineage-check:LightStatement:v0.5"   # v0.5 adds the output check
+SERVED_TYPE = "urn:lineage-check:ServedStatement:v0.1"
+OUTPUTS = os.environ.get("OUTPUTS") == "1"         # Green also needs the outputs to agree with the known model's
+SERVE = OUTPUTS and os.environ.get("SERVE") == "1"  # then answer prompts with the model that was checked
 GEOMETRY = os.environ.get("GEOMETRY", "1") == "1"  # also match tokens by geometry when no listed model matches by name
 MODE = os.environ.get("MODE", "match")
 NONCE = re.compile(r"[0-9a-f]{32,128}")
@@ -145,6 +153,7 @@ class LightService:
         self.q = R.Remote(repo, revision, file=env.get("MODEL_FILE") or None)   # MODEL_FILE: which GGUF file of the repo
         self.started_at = now()
         self.used, self.lock = set(), threading.Lock()
+        self.held, self.last = {}, None                    # the checked model, kept for serving; the last light
 
     def component(self):
         return {"id": "scanned", "role": "base", "name": self.q.repo, "scheme": FP.HF_REVISION,
@@ -166,9 +175,16 @@ class LightService:
                 raise ValueError("nonce already used")
             self.used.add(nonce)
             t0 = time.time()
+            check = None
+            if OUTPUTS:                                    # run the loaded model and the known one on text from the nonce
+                from lineage_check import outputs as O
+                self.held.clear()
+                check = lambda entry: O.check(self.q, entry["repo"], nonce, entry["revision"], hold=self.held)
             r = LT.light(self.q, self.lists["watchlist"]["sources"], self.lists["registry"]["sources"], nonce, self.tokens,
-                         ablation=LT.ablation_signature(self.q, nonce, self.tokens), geometry=GEOMETRY)
+                         ablation=LT.ablation_signature(self.q, nonce, self.tokens), geometry=GEOMETRY, outputs=check)
             seconds = round(time.time() - t0, 1)
+            if r["light"] != "green":
+                self.held.clear()                          # only a Green model is kept for serving
         if DEBUG:
             print(f"  {r['light']} {r['matched']} {r['distances']}", file=sys.stderr, flush=True)
         pub = FP.raw_public_key(self.key)
@@ -192,7 +208,53 @@ class LightService:
                               "attestation": {"keyBinding": binding}},
             },
         }
+        if OUTPUTS:
+            from lineage_check import outputs as O
+            seen = r.get("outputs", "absent")
+            statement["predicate"]["light"]["outputs"] = ("not run" if seen == "absent" else "not compared" if seen is None
+                                                          else "agree" if seen["agree"] else "differ")
+            statement["predicate"]["method"]["outputs"] = {"bar": O.BAR, "windows": O.WINDOWS, "tokens": O.LENGTH,
+                                                           "textPool": f"{O.POOL[0]}@{O.POOL[2]}"}
+        self.last = {"light": r["light"], "matched": r["matched"], "digest": FP.jcs_sha256(statement)}
         return {"envelope": FP.sign_envelope(statement, self.key), "publicKey": pub.hex()}
+
+    def generate(self, body):
+        """Answer a prompt with the model this box has just checked, and sign what was served. One box and one key
+        do both, so the model that answers is the model the light was given for."""
+        nonce, prompt = body.get("nonce"), str(body.get("prompt") or "")
+        if not SERVE:
+            raise ValueError("this service does not serve (SERVE is off)")
+        if not NONCE.fullmatch(nonce or ""):
+            raise ValueError("the nonce must be 32 to 128 lowercase hex characters")
+        if not prompt or len(prompt) > 4000:
+            raise ValueError("the prompt must be 1 to 4,000 characters")
+        with self.lock:
+            if nonce in self.used:
+                raise ValueError("nonce already used")
+            if not self.held.get("model") or not self.last or self.last["light"] != "green":
+                raise ValueError("no checked model to serve: ask for a challenge first; only a Green model is served")
+            self.used.add(nonce)
+            tok, model = self.held["tokenizer"], self.held["model"]
+            enc = tok(prompt, return_tensors="pt")
+            limit = max(1, min(int(body.get("maxTokens") or 32), 64))
+            out = model.generate(**enc, max_new_tokens=limit, do_sample=False, pad_token_id=tok.eos_token_id)
+            text = tok.decode(out[0, enc["input_ids"].shape[1]:], skip_special_tokens=True)
+        sha = lambda s: hashlib.sha256(s.encode()).hexdigest()
+        pub = FP.raw_public_key(self.key)
+        binding = key_binding(pub, nonce, self.attested)
+        statement = {
+            "_type": FP.STATEMENT_TYPE,
+            "subject": [{"name": self.q.repo, "digest": {"gitCommit": self.q.sha}}],
+            "predicateType": SERVED_TYPE,
+            "predicate": {
+                "servedModel": self.component(),
+                "check": {"statement": self.last["digest"], "light": self.last["light"], "matched": self.last["matched"]},
+                "request": {"nonce": nonce, "promptSha256": sha(prompt), "completionSha256": sha(text), "maxTokens": limit},
+                "execution": {"platform": PLATFORM_NAMES[PLATFORM] if binding else "local", "issuedAt": now(),
+                              "statementKey": pub.hex(), "attestation": {"keyBinding": binding}},
+            },
+        }
+        return {"text": text, "envelope": FP.sign_envelope(statement, self.key), "publicKey": pub.hex()}
 
 
 class Service:
@@ -289,10 +351,12 @@ def serve(svc, port):
             self._send(404, {"error": "not found"})
 
         def do_POST(self):
-            if self.path != "/v1/challenge":
+            if self.path not in ("/v1/challenge", "/v1/generate") or (self.path == "/v1/generate" and not hasattr(svc, "generate")):
                 return self._send(404, {"error": "not found"})
             try:
                 body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))) or b"{}")
+                if self.path == "/v1/generate":
+                    return self._send(200, svc.generate(body))
                 return self._send(200, svc.challenge(body.get("nonce")))
             except ValueError as e:
                 return self._send(400, {"error": str(e)})

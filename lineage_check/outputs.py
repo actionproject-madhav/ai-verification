@@ -100,17 +100,21 @@ def load_like(reference, src):
     return model.eval()
 
 
-def check(src, known_repo, nonce, revision=None, texts=None, bar=BAR, windows=WINDOWS, length=LENGTH):
+def check(src, known_repo, nonce, revision=None, texts=None, bar=BAR, windows=WINDOWS, length=LENGTH, hold=None):
     """Compare the outputs of the loaded model `src` with those of the known model on text drawn from the nonce.
     Returns the number of windows, the mean and the largest window distance, the bar, and whether they agree.
-    Returns None when the loaded model cannot be run in the known model's architecture."""
+    Returns None when the loaded model cannot be run in the known model's architecture.
+    `hold`, a dict, receives the loaded model and the tokenizer, for a caller that goes on to serve that model."""
     from transformers import AutoModelForCausalLM, AutoTokenizer
     reference = AutoModelForCausalLM.from_pretrained(known_repo, revision=revision, dtype=torch.float32).eval()
     try:
         model = load_like(reference, src)
     except (KeyError, ValueError):
         return None
-    ids = probe_ids(AutoTokenizer.from_pretrained(known_repo, revision=revision), nonce, texts, windows, length)
+    tokenizer = AutoTokenizer.from_pretrained(known_repo, revision=revision)
+    if hold is not None:
+        hold.update(model=model, tokenizer=tokenizer)
+    ids = probe_ids(tokenizer, nonce, texts, windows, length)
     d = distance(model, reference, ids)
     return {"windows": len(d), "tokens": length, "mean": round(float(d.mean()), 4), "worst": round(float(d.max()), 4),
             "bar": bar, "agree": bool(d.mean() <= bar)}

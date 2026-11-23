@@ -16,7 +16,9 @@ from lineage_check import fourpillars as FP
 from lineage_check import snp as SNP
 
 PREDICATE_TYPE = "urn:lineage-check:LineageStatement:v0.2"
-LIGHT_TYPES = ("urn:lineage-check:LightStatement:v0.3", "urn:lineage-check:LightStatement:v0.4")   # v0.4 adds the finding
+LIGHT_TYPES = ("urn:lineage-check:LightStatement:v0.3", "urn:lineage-check:LightStatement:v0.4",    # v0.4 adds the finding,
+               "urn:lineage-check:LightStatement:v0.5")                                               # v0.5 the output check
+SERVED_TYPE = "urn:lineage-check:ServedStatement:v0.1"
 
 
 def main():
@@ -30,6 +32,8 @@ def main():
     ap.add_argument("--inference-statement")
     ap.add_argument("--upstream")
     ap.add_argument("--policy", help="Azure: the expected launch policy, as the base64 string in the deployment template")
+    ap.add_argument("--served", help="a /v1/generate response from the same box, to link to this light statement")
+    ap.add_argument("--served-nonce", help="the nonce that /v1/generate request carried")
     a = ap.parse_args()
     ok = True
 
@@ -115,7 +119,45 @@ def main():
         why = {"listed": "matches a listed model", "listed-by-geometry": "matches a listed model, tokens matched by geometry",
                "cut": "a known model with one direction cut out", "signature": "refusal-ablation signature",
                "known": "matches a known model", "none": "matches nothing listed or known",
-               "unchecked": "matches a known model but cannot be compared with it matrix by matrix"}.get(p["light"].get("finding"))
+               "unchecked": "matches a known model but cannot be compared with it matrix by matrix",
+               "outputs": "the weights match a known model, the outputs do not",
+               "outputs-unchecked": "the weights match a known model, the outputs could not be compared"}.get(p["light"].get("finding"))
+        if p["light"].get("outputs"):
+            o = p["method"]["outputs"]
+            print(f"NOTE  output check on: outputs {p['light']['outputs']} ({o['windows']} windows of {o['tokens']} tokens, bar {o['bar']})")
+            if p["light"]["outputs"] == "agree":
+                why = "weights and outputs match a known model"
+        if a.served:
+            import hashlib
+            served = json.load(open(a.served))
+            try:
+                sv = open_envelope(served["envelope"], bytes.fromhex(served["publicKey"]))
+                check(True, "served statement: signature verifies")
+            except Exception as e:
+                check(False, f"served statement: {e}")
+                sys.exit(1)
+            q = sv["predicate"]
+            check(sv["predicateType"] == SERVED_TYPE, f"served statement: predicate type {sv['predicateType']}")
+            check(served["publicKey"] == response["publicKey"], "served statement: signed by the same key as the light statement")
+            check(q["check"]["statement"] == FP.jcs_sha256(st), "served statement: names this light statement by digest")
+            check(q["check"]["light"] == "green" == p["light"]["result"], "served statement: the model served was Green")
+            check(q["servedModel"]["ref"] == p["scannedModel"]["ref"],
+                  f"served statement: the model served is the model checked ({q['servedModel']['ref']})")
+            check(q["request"]["completionSha256"] == hashlib.sha256(served["text"].encode()).hexdigest(),
+                  "served statement: the text returned is the text it signed")
+            if a.served_nonce:
+                check(q["request"]["nonce"] == a.served_nonce, "served statement: issued for this request's nonce")
+            sb = q["execution"]["attestation"]["keyBinding"]
+            if sb is None:
+                print("NOTE  served statement: keyBinding null (local twin)")
+            elif sb.get("platform") == SNP.PLATFORM_ACI and a.served_nonce:
+                import base64
+                policy = base64.b64decode(open(a.policy).read().strip()) if a.policy else None
+                try:
+                    SNP.verify_binding(sb, bytes.fromhex(served["publicKey"]), a.served_nonce, policy)
+                    check(True, "served statement: its own hardware report verifies, same key, same policy")
+                except SNP.AttestationError as e:
+                    check(False, f"served statement: hardware report: {e}")
         print(f"\nlight: {p['light']['result'].upper()}{' -> ' + p['light']['matched'] if p['light']['matched'] else ''}"
               f"{' [' + why + ']' if why else ''}  ({model['ref']}, "
               f"{'file ' + p['method']['fileRead'] + ', ' if p['method'].get('fileRead') else ''}"
