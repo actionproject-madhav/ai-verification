@@ -100,10 +100,12 @@ To repeat it: build the image, put its digest in `azure/template.json`, generate
 
 ## The traffic light in the same enclave (23 Nov 2026)
 
-`azure/template-light.json` runs the service with `MODE=light` on `dealignai/GLM-5.3-CYBERSECURITY-FP8`: an 8-bit
-copy of a government-named model, published under another name. The model has 753 billion parameters. The enclave
-read a few matrices of two layers by byte range, compared them with three listed and six known models, and
-answered in 122 seconds.
+`azure/template-light.json` runs the service with `MODE=light` on `unsloth/GLM-5.3-GGUF`, the most-downloaded GGUF
+copy of a government-named model (334,000 downloads), with `MODEL_FILE=UD-Q4_K_XL`: a 4-bit file in eleven shards.
+The model has 753 billion parameters. The enclave read the shard headers and a few matrices of two layers by byte
+range, compared them with the three listed models, and answered in 99 seconds. An earlier run of the same service on
+an 8-bit safetensors copy published under another name (`dealignai/GLM-5.3-CYBERSECURITY-FP8`) took 122 seconds;
+its evidence is in the repository's history.
 
 ```
 python enclave/verify_statement.py demo/azure-light/response.json --nonce $(cat demo/azure-light/nonce.txt) \
@@ -117,21 +119,19 @@ PASS  watchlist digest matches
 PASS  registry digest matches
 PASS  AMD SEV-SNP report verifies down to AMD's root (ARK-Genoa), debugging off
 PASS  the report names this statement key and this nonce (report_data)
-PASS  launched under the expected policy: host_data eda659112613531f...
+PASS  launched under the expected policy: host_data 962c3fe280825a6c...
 PASS  the base system is one Microsoft signed: ContainerPlat-AMD-UVM, version 104, measurement dc3f5a934489232a...
-light: RED -> glm-5.3 [matches a listed model]
+light: RED -> glm-5.3 [matches a listed model]  (unsloth/GLM-5.3-GGUF@346b3591..., file UD-Q4_K_XL/GLM-5.3-UD-Q4_K_XL-00001-of-00011.gguf)
 ```
 
-The statement carries the light, the matched entry and the rule that decided. It carries no distances. Because
-the model was read by byte range, the statement names it by Hub revision, and so it trusts the Hub to serve the
-right bytes for that revision. An enclave that serves a model holds all of its bytes and names it by hash, as the
+The statement carries the light, the matched entry, the rule that decided and the file that was read. It carries
+no distances. Because the model was read by byte range, the statement names it by Hub revision and file name, and
+so it trusts the Hub to serve the right bytes for that revision. An enclave that serves a model holds all of its bytes and names it by hash, as the
 first run does.
 
 Limits of this run. It is one challenge, decided by the first rule, a match by name. Matching tokens by geometry,
 the cut test, Green and Amber have run with the same code outside the enclave only. As in the first run, the
 policy leaves the containers' logs readable by the operator.
-
-
 
 ## What a Tinfoil deployment still needs
 

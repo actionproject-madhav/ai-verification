@@ -49,7 +49,11 @@
                 },
                 {
                   "name": "MODEL_REF",
-                  "value": "dealignai/GLM-5.3-CYBERSECURITY-FP8@5915c1b88f998a9c1e1a0c83688e285a08ae3ca5"
+                  "value": "unsloth/GLM-5.3-GGUF@346b3591c7f28d1a23716f97a065ecf12ec14771"
+                },
+                {
+                  "name": "MODEL_FILE",
+                  "value": "UD-Q4_K_XL"
                 },
                 {
                   "name": "WATCHLIST",
