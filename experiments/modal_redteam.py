@@ -53,5 +53,6 @@ def small(script: str, args: str = "", env: str = "", tag: str = "135m"):
 @app.local_entrypoint()
 def main(script: str, args: str = "", env: str = "", model: str = "HuggingFaceTB/SmolLM2-1.7B",
          indep: str = "HuggingFaceTB/SmolLM-1.7B", tag: str = "1.7b", toy: bool = False):
-    code = small.remote(script, args, env, "135m" if tag == "1.7b" else tag) if toy else run.remote(script, args, env, model, indep, tag)
-    print("exit code", code)
+    # spawn, not remote: with --detach the job then keeps running after this process and this computer are gone
+    call = small.spawn(script, args, env, "135m" if tag == "1.7b" else tag) if toy else run.spawn(script, args, env, model, indep, tag)
+    print("started", call.object_id)
