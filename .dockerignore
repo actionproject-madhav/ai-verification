@@ -6,3 +6,4 @@
 !enclave/requirements.txt
 !enclave/lineage_service.py
 !enclave/concern-demo.json
+!watchlists/

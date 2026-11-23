@@ -1,5 +1,10 @@
 """lineage-check as an enclave service, in the shape of SASH's verified inference demo.
 
+Two answers. MODE=match (the default) says whether the mounted model derives from an entry of one list.
+MODE=light gives the traffic light: Red, Green or Amber against a watchlist and a registry of known models, with
+the design-free fingerprint. In that mode the model is read by byte range at a pinned revision, so it can be far
+larger than the enclave (the government-named models are 0.75 to 2.8 trillion parameters).
+
 Two platforms. In Tinfoil (the default) the model is a mounted pack and the platform supplies the attested key.
 In an Azure confidential container group (PLATFORM=azure-aci) the service fetches the pinned revision itself,
 makes its signing key inside the enclave, and binds it to every statement with a fresh AMD SEV-SNP report from
@@ -39,11 +44,14 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from lineage_check import fingerprint as fp4
 from lineage_check import fourpillars as FP
+from lineage_check import light as LT
 from lineage_check import protocol as LC
 from lineage_check import remote as R
 from lineage_check import snp as SNP
 
 PREDICATE_TYPE = "urn:lineage-check:LineageStatement:v0.2"
+LIGHT_TYPE = "urn:lineage-check:LightStatement:v0.3"
+MODE = os.environ.get("MODE", "match")
 NONCE = re.compile(r"[0-9a-f]{32,128}")
 DEBUG = os.environ.get("DEBUG") == "1"  # local twin only: per-entry distances to stderr (pinned off in the enclave)
 PLATFORM = os.environ.get("PLATFORM", "tinfoil")
@@ -100,6 +108,89 @@ def scan(q, listed, nonce, n, k):
     return verdict, matched, bool(ablated), q_layers
 
 
+def signing_key(env):
+    """The key that signs statements, and whether hardware vouches for it."""
+    if PLATFORM == "azure-aci":
+        return Ed25519PrivateKey.generate(), True      # made here, never written out; bound by a report per statement
+    return FP.load_signing_key(Path(env.get("SIGNING_KEY_PATH", FP.ATTESTED_KEY_PATH)), env.get("ALLOW_DEV_KEY") == "1")
+
+
+def key_binding(pub, nonce, attested):
+    if not attested:
+        return None
+    if PLATFORM == "azure-aci":
+        return SNP.aci_attest(SNP.binding_payload(pub, nonce))
+    return FP.fetch_key_binding(pub, FP.jcs_sha256({"lineageChallenge": nonce}))
+
+
+class LightService:
+    """MODE=light: the traffic light for one model at a pinned revision, read by byte range inside the enclave."""
+
+    def __init__(self, env=os.environ):
+        repo, _, revision = env["MODEL_REF"].partition("@")
+        if not revision:
+            raise RuntimeError("MODEL_REF must pin a revision: repo@commit")
+        self.tokens = int(env.get("TOKENS", LT.TOKENS))
+        self.key, self.attested = signing_key(env)
+        self.lists = {}
+        for name, var in (("watchlist", "WATCHLIST"), ("registry", "KNOWN_LIST")):
+            doc = json.load(open(env[var]))
+            digest = FP.jcs_sha256(doc)
+            if env.get(var + "_DIGEST") not in (None, digest):
+                raise RuntimeError(f"{name} digest {digest} does not match the pinned {env[var + '_DIGEST']}")
+            if not all(e.get("revision") for e in doc["models"]):
+                raise ValueError(f"every {name} entry needs a pinned revision")
+            self.lists[name] = {"doc": doc, "digest": digest, "sources": [(e, R.Remote(e["repo"], e["revision"])) for e in doc["models"]]}
+        self.q = R.Remote(repo, revision)
+        self.started_at = now()
+        self.used, self.lock = set(), threading.Lock()
+
+    def component(self):
+        return {"id": "scanned", "role": "base", "name": self.q.repo, "scheme": FP.HF_REVISION,
+                "ref": f"{self.q.repo}@{self.q.sha}", "alsoKnownAs": []}
+
+    def info(self):
+        return {"model": self.component(), **{k: {"digest": v["digest"]} for k, v in self.lists.items()}}
+
+    def ready(self):
+        return (f"{self.q.repo}@{self.q.sha[:10]}, {len(self.lists['watchlist']['sources'])} listed and "
+                f"{len(self.lists['registry']['sources'])} known models")
+
+    def challenge(self, nonce):
+        if not NONCE.fullmatch(nonce or ""):
+            raise ValueError("the nonce must be 32 to 128 lowercase hex characters")
+        with self.lock:
+            if nonce in self.used:
+                raise ValueError("nonce already used")
+            self.used.add(nonce)
+            t0 = time.time()
+            r = LT.light(self.q, self.lists["watchlist"]["sources"], self.lists["registry"]["sources"], nonce, self.tokens,
+                         ablation=LT.ablation_signature(self.q, nonce, self.tokens))
+            seconds = round(time.time() - t0, 1)
+        if DEBUG:
+            print(f"  {r['light']} {r['matched']} {r['distances']}", file=sys.stderr, flush=True)
+        pub = FP.raw_public_key(self.key)
+        binding = key_binding(pub, nonce, self.attested)
+        described = lambda k: {"name": self.lists[k]["doc"]["name"], "scheme": FP.JCS, "digest": self.lists[k]["digest"],
+                               "entries": len(self.lists[k]["sources"])}
+        statement = {
+            "_type": FP.STATEMENT_TYPE,
+            "subject": [{"name": self.q.repo, "digest": {"gitCommit": self.q.sha}}],
+            "predicateType": LIGHT_TYPE,
+            "predicate": {
+                "scannedModel": self.component(),
+                "watchlist": described("watchlist"), "registry": described("registry"),
+                "challenge": {"nonce": nonce},
+                "light": {"result": r["light"], "matched": r["matched"]},
+                "method": {"name": "design-free token tables", "tokens": self.tokens, "layersSampled": 2},
+                "execution": {"platform": PLATFORM_NAMES[PLATFORM] if binding else "local", "startedAt": self.started_at,
+                              "issuedAt": now(), "scanSeconds": seconds, "statementKey": pub.hex(),
+                              "attestation": {"keyBinding": binding}},
+            },
+        }
+        return {"envelope": FP.sign_envelope(statement, self.key), "publicKey": pub.hex()}
+
+
 class Service:
     def __init__(self, env=os.environ):
         self.model_dir = Path(env["MODEL_DIR"])
@@ -107,14 +198,9 @@ class Service:
         self.model_ref = env.get("MODEL_REF") or None
         self.schema = env.get("MODEL_SCHEMA", "2")
         self.n, self.k = int(env.get("TOKENS", 512)), int(env.get("LAYERS", 4))
-        if PLATFORM == "azure-aci":
-            # made here and never written out; each statement carries a fresh hardware report that names it
-            self.key, self.attested = Ed25519PrivateKey.generate(), True
-            if not self.model_dir.exists():
-                fetch_model(env["MODEL_REF"], self.model_dir)
-        else:
-            self.key, self.attested = FP.load_signing_key(Path(env.get("SIGNING_KEY_PATH", FP.ATTESTED_KEY_PATH)),
-                                                          env.get("ALLOW_DEV_KEY") == "1")
+        self.key, self.attested = signing_key(env)
+        if PLATFORM == "azure-aci" and not self.model_dir.exists():
+            fetch_model(env["MODEL_REF"], self.model_dir)
         self.concern = json.load(open(env["CONCERN_LIST"]))
         self.concern_digest = FP.jcs_sha256(self.concern)
         pinned = env.get("CONCERN_LIST_DIGEST")
@@ -127,6 +213,13 @@ class Service:
         self.q = source(self.model_dir, self.model_name)
         self.listed = [(e, source(e)) for e in self.concern["models"]]
         self.used, self.lock = set(), threading.Lock()
+
+    def info(self):
+        return {"model": self.component(), "hashSeconds": self.hash_seconds, "concernList": {"digest": self.concern_digest}}
+
+    def ready(self):
+        return (f"{self.model_name} dirhash {self.dirhash[:16]}... ({self.hash_seconds}s), {len(self.listed)} listed models, "
+                f"concern list {self.concern_digest[:16]}...")
 
     def component(self):
         """The scanned model, in the inference statement's component shape (so `identifiers()` links them)."""
@@ -149,12 +242,7 @@ class Service:
             verdict, matched, ablated, layers = scan(self.q, self.listed, nonce, self.n, self.k)
             seconds = round(time.time() - t0, 1)
         pub = FP.raw_public_key(self.key)
-        if not self.attested:
-            binding = None
-        elif PLATFORM == "azure-aci":
-            binding = SNP.aci_attest(SNP.binding_payload(pub, nonce))
-        else:
-            binding = FP.fetch_key_binding(pub, FP.jcs_sha256({"lineageChallenge": nonce}))
+        binding = key_binding(pub, nonce, self.attested)
         model = self.component()
         statement = {
             "_type": FP.STATEMENT_TYPE,
@@ -190,8 +278,7 @@ def serve(svc, port):
             if self.path == "/health":
                 return self._send(200, {"ok": True})
             if self.path == "/v1/model":
-                return self._send(200, {"model": svc.component(), "hashSeconds": svc.hash_seconds,
-                                        "concernList": {"digest": svc.concern_digest}})
+                return self._send(200, svc.info())
             if self.path == "/v1/policy":                  # Azure: the launch policy the hardware report commits to
                 f = Path(os.environ.get("UVM_SECURITY_CONTEXT_DIR", "/nonexistent")) / "security-policy-base64"
                 return self._send(200, {"policy": f.read_text().strip() if f.exists() else None})
@@ -211,10 +298,9 @@ def serve(svc, port):
         def log_message(self, fmt, *args):
             sys.stderr.write("%s %s\n" % (now(), fmt % args))
 
-    print(f"{now()} ready: {svc.model_name} dirhash {svc.dirhash[:16]}... ({svc.hash_seconds}s), "
-          f"{len(svc.listed)} listed models, concern list {svc.concern_digest[:16]}...", flush=True)
+    print(f"{now()} ready: {svc.ready()}", flush=True)
     ThreadingHTTPServer(("0.0.0.0", port), H).serve_forever()
 
 
 if __name__ == "__main__":
-    serve(Service(), int(os.environ.get("PORT", 8080)))
+    serve(LightService() if MODE == "light" else Service(), int(os.environ.get("PORT", 8080)))

@@ -16,13 +16,16 @@ from lineage_check import fourpillars as FP
 from lineage_check import snp as SNP
 
 PREDICATE_TYPE = "urn:lineage-check:LineageStatement:v0.2"
+LIGHT_TYPE = "urn:lineage-check:LightStatement:v0.3"
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("response")
     ap.add_argument("--nonce", required=True)
-    ap.add_argument("--concern", required=True)
+    ap.add_argument("--concern", help="the list a match statement was issued against")
+    ap.add_argument("--watchlist", help="the watchlist a traffic-light statement was issued against")
+    ap.add_argument("--known", help="the registry of known models a traffic-light statement was issued against")
     ap.add_argument("--model-dir")
     ap.add_argument("--inference-statement")
     ap.add_argument("--upstream")
@@ -62,12 +65,16 @@ def main():
         check(False, f"signature: {e}")
         sys.exit(1)
     p = st["predicate"]
-    check(st["predicateType"] == PREDICATE_TYPE, f"predicate type {st['predicateType']}")
+    is_light = st["predicateType"] == LIGHT_TYPE
+    check(st["predicateType"] in (PREDICATE_TYPE, LIGHT_TYPE), f"predicate type {st['predicateType']}")
     check(p["execution"]["statementKey"] == response["publicKey"], "the signing key is the statement key it names")
     check(p["challenge"]["nonce"] == a.nonce, "issued for this verifier's nonce (no replay)")
-    concern = json.load(open(a.concern))
-    check(p["concernList"]["digest"] == up_identity.jcs_sha256(concern) == FP.jcs_sha256(concern),
-          f"concern list digest matches ({who} jcs_sha256 and the vendored copy agree)")
+    for field, path in (("watchlist", a.watchlist), ("registry", a.known)) if is_light else (("concernList", a.concern),):
+        if not path:
+            sys.exit(f"this statement needs the {field} file it was issued against")
+        doc = json.load(open(path))
+        check(p[field]["digest"] == up_identity.jcs_sha256(doc) == FP.jcs_sha256(doc),
+              f"{field} digest matches ({who} jcs_sha256 and the vendored copy agree)")
     binding = p["execution"]["attestation"]["keyBinding"]
     if binding is None:
         print("NOTE  keyBinding null: a local twin, signed with a dev key no hardware report binds")
@@ -104,6 +111,10 @@ def main():
         base = next(m for m in served["predicate"]["servingPipeline"]["models"] if m["role"] == "base")
         shared = sorted(s for s, _ in identifiers(model) & identifiers(base))
         check(shared, f"same model as the inference statement's served base {base['name']}: shared {', '.join(shared) or 'nothing'}")
+    if is_light:
+        print(f"\nlight: {p['light']['result'].upper()}{' -> ' + p['light']['matched'] if p['light']['matched'] else ''}"
+              f"  ({model['ref']}, {p['method']['tokens']} tokens, {p['execution']['platform']})")
+        sys.exit(0 if ok else 1)
     lin = p["lineage"]
     print(f"\nlineage: {lin['verdict']}{' -> ' + lin['matched'] if lin['matched'] else ''}"
           f"{'; refusal-ablation signature' if lin['refusalAblationSignature'] else ''}"
