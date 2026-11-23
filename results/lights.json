@@ -1,0 +1,355 @@
+{
+ "nonce": "lights-2026-11",
+ "rows": [
+  {
+   "repo": "nvidia/GLM-5.2-NVFP4",
+   "what": "4-bit release of a listed model",
+   "revision": "53e0691e21895a3863a606dfd12910c69eba94ab",
+   "light": "red",
+   "matched": "glm-5.2",
+   "reason": "part of the model matches a listed model",
+   "distances": {
+    "glm-5.3": [
+     0.0447,
+     0.1162
+    ],
+    "kimi-k3": [
+     0.8953,
+     0.9488
+    ],
+    "glm-5.2": [
+     -0.0,
+     -0.0
+    ]
+   },
+   "seconds": 109
+  },
+  {
+   "repo": "dealignai/GLM-5.3-CYBERSECURITY-FP8",
+   "what": "8-bit release of a listed model, renamed",
+   "revision": "5915c1b88f998a9c1e1a0c83688e285a08ae3ca5",
+   "light": "red",
+   "matched": "glm-5.3",
+   "reason": "part of the model matches a listed model",
+   "distances": {
+    "glm-5.3": [
+     0.0,
+     0.0117
+    ],
+    "kimi-k3": [
+     0.947,
+     0.9699
+    ],
+    "glm-5.2": [
+     0.0447,
+     0.1265
+    ]
+   },
+   "seconds": 164
+  },
+  {
+   "repo": "nvidia/Kimi-K3-NVFP4",
+   "what": "4-bit release of a listed model",
+   "revision": "b2428a0b83a8b712ff2e1a8448a103d4175341f1",
+   "light": "red",
+   "matched": "kimi-k3",
+   "reason": "part of the model matches a listed model",
+   "distances": {
+    "glm-5.3": [
+     0.9271,
+     0.9596
+    ],
+    "kimi-k3": [
+     -0.0,
+     0.0128
+    ],
+    "glm-5.2": [
+     0.8566,
+     0.9336
+    ]
+   },
+   "seconds": 154
+  },
+  {
+   "repo": "moonshotai/Kimi-K3.1-Pro",
+   "what": "a later version of a listed model",
+   "revision": "d9e99b0792a5e93b78ea9bea62a68167e36ddd9e",
+   "light": "red",
+   "matched": "kimi-k3",
+   "reason": "part of the model matches a listed model",
+   "distances": {
+    "glm-5.3": [
+     0.9183,
+     0.9555
+    ],
+    "kimi-k3": [
+     0.0077,
+     0.0322
+    ],
+    "glm-5.2": [
+     0.846,
+     0.9289
+    ]
+   },
+   "seconds": 128
+  },
+  {
+   "repo": "zai-org/GLM-5.3-Flash",
+   "what": "a different model that shares a listed name",
+   "revision": "46a050bec13002ad29ee795c16e61cf4fa3c4a9c",
+   "light": "amber",
+   "matched": null,
+   "reason": "no listed or known model matches",
+   "distances": {
+    "glm-5.3": [
+     0.9736,
+     0.9857
+    ],
+    "kimi-k3": [
+     0.9007,
+     0.956
+    ],
+    "glm-5.2": [
+     0.9629,
+     0.9816
+    ],
+    "qwen2.5-7b": [
+     0.9747,
+     0.9874
+    ],
+    "qwen3-8b": [
+     0.9839,
+     0.9943
+    ],
+    "llama-3.1-8b": [
+     0.9712,
+     0.9871
+    ],
+    "mistral-7b-v0.3": [
+     0.9352,
+     0.9663
+    ],
+    "marin-8b": [
+     0.9386,
+     0.9739
+    ],
+    "smollm2-1.7b": [
+     0.9601,
+     0.9814
+    ]
+   },
+   "seconds": 197
+  },
+  {
+   "repo": "tiny-random/glm-5.2",
+   "what": "random weights under a listed name",
+   "revision": "d81c5b8a604cfa3a12622d8899153f7ac2b7220c",
+   "light": "amber",
+   "matched": null,
+   "reason": "no listed or known model matches",
+   "distances": {
+    "glm-5.3": [
+     0.9911,
+     0.995
+    ],
+    "kimi-k3": [
+     0.9824,
+     0.9912
+    ],
+    "glm-5.2": [
+     0.9927,
+     0.9963
+    ],
+    "qwen2.5-7b": [
+     0.9925,
+     0.9963
+    ],
+    "qwen3-8b": [
+     0.9909,
+     0.9957
+    ],
+    "llama-3.1-8b": [
+     0.9902,
+     0.9941
+    ],
+    "mistral-7b-v0.3": [
+     0.9635,
+     0.98
+    ],
+    "marin-8b": [
+     0.9862,
+     0.9923
+    ],
+    "smollm2-1.7b": [
+     0.9864,
+     0.9935
+    ]
+   },
+   "seconds": 4
+  },
+  {
+   "repo": "Qwen/Qwen2.5-7B-Instruct",
+   "what": "the instruct version of a known model",
+   "revision": "a09a35458c702b33eeacc393d103063234e8bc28",
+   "light": "green",
+   "matched": "qwen2.5-7b",
+   "reason": "every part matches a known model",
+   "distances": {
+    "glm-5.3": [
+     0.9777,
+     0.9908
+    ],
+    "kimi-k3": [
+     0.9178,
+     0.9611
+    ],
+    "glm-5.2": [
+     0.9751,
+     0.989
+    ],
+    "qwen2.5-7b": [
+     0.0004,
+     0.0005
+    ],
+    "qwen3-8b": [
+     0.9759,
+     0.9861
+    ],
+    "llama-3.1-8b": [
+     0.9883,
+     0.9931
+    ],
+    "mistral-7b-v0.3": [
+     0.9628,
+     0.9837
+    ],
+    "marin-8b": [
+     0.9064,
+     0.9566
+    ],
+    "smollm2-1.7b": [
+     0.9677,
+     0.9826
+    ]
+   },
+   "seconds": 123
+  },
+  {
+   "repo": "NousResearch/Hermes-3-Llama-3.1-8B",
+   "what": "a fine-tune of a known model",
+   "revision": "896ea440e5a9e6070e3d8a2774daf2b481ab425b",
+   "light": "green",
+   "matched": "llama-3.1-8b",
+   "reason": "every part matches a known model",
+   "distances": {
+    "glm-5.3": [
+     0.9867,
+     0.9945
+    ],
+    "kimi-k3": [
+     0.9387,
+     0.9712
+    ],
+    "glm-5.2": [
+     0.9809,
+     0.9901
+    ],
+    "qwen2.5-7b": [
+     0.9826,
+     0.9912
+    ],
+    "qwen3-8b": [
+     0.9785,
+     0.9875
+    ],
+    "llama-3.1-8b": [
+     0.0013,
+     0.0016
+    ],
+    "mistral-7b-v0.3": [
+     0.9214,
+     0.954
+    ],
+    "marin-8b": [
+     0.9229,
+     0.9512
+    ],
+    "smollm2-1.7b": [
+     0.9723,
+     0.9967
+    ]
+   },
+   "seconds": 120
+  },
+  {
+   "repo": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated",
+   "what": "a known model with its refusals removed",
+   "revision": "368c8ed94ce4c986e7b9ca5c159651ef753908ce",
+   "light": "red",
+   "matched": null,
+   "reason": "refusal-ablation signature",
+   "distances": {
+    "glm-5.3": [
+     0.9851,
+     0.9936
+    ],
+    "kimi-k3": [
+     0.9358,
+     0.969
+    ],
+    "glm-5.2": [
+     0.9764,
+     0.9883
+    ]
+   },
+   "seconds": 87
+  },
+  {
+   "repo": "deepseek-ai/DeepSeek-V4-Flash",
+   "what": "a model on neither list",
+   "revision": "60d8d70770c6776ff598c94bb586a859a38244f1",
+   "light": "amber",
+   "matched": null,
+   "reason": "no listed or known model matches",
+   "distances": {
+    "glm-5.3": [
+     0.9592,
+     0.9748
+    ],
+    "kimi-k3": [
+     0.9161,
+     0.9558
+    ],
+    "glm-5.2": [
+     0.9596,
+     0.9761
+    ],
+    "qwen2.5-7b": [
+     0.9511,
+     0.9752
+    ],
+    "qwen3-8b": [
+     0.9614,
+     0.9806
+    ],
+    "llama-3.1-8b": [
+     0.9536,
+     0.9766
+    ],
+    "mistral-7b-v0.3": [
+     0.9112,
+     0.9555
+    ],
+    "marin-8b": [
+     0.9357,
+     0.9728
+    ],
+    "smollm2-1.7b": [
+     0.8592,
+     0.9311
+    ]
+   },
+   "seconds": 52
+  }
+ ]
+}
