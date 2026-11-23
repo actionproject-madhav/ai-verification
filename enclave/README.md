@@ -125,8 +125,9 @@ The statement carries the light, the matched entry and the rule that decided. It
 range, the statement names it by Hub revision. An enclave that serves a model holds all of its bytes and names it
 by hash, as the first run does.
 
-## What deployment still needs
+## What a Tinfoil deployment still needs
 
 1. A Tinfoil account: `tinfoil model wrap` the two listed models, fill in their `mpk` references.
-2. `docker build -f enclave/Dockerfile .` in CI, and pin the image digest in `tinfoil-config.yml`. The image has not been built yet.
+2. `docker build -f enclave/Dockerfile .` in CI, and pin the image digest in `tinfoil-config.yml`. The Azure runs above
+   built this Dockerfile; no image has been published for Tinfoil yet.
 3. Pin `CONCERN_LIST_DIGEST`, and point the listed models at their mounted packs (`path`).
