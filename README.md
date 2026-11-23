@@ -9,11 +9,11 @@ As open weight models become capable and accessible, there's a higher risk of mi
 LLMs inspecting and editing raw weights directly, making deployed weights to diverge from a
 published checkpoint to intended goal promising. A provider can run safeguards, but to ensure privacy of users, they may see only a private model and a self-reported name, making inspection challenging. 
 
-Building upon SAASH's inference prototype, this builds a lineage check robust to weight modifications. Inside a secure enclave, it compares the model's internal geometry with a
-signed dangerous model watchlist and a registry of known models, then returns Red, Amber or Green. Weights and comparison scores
+Building upon SASH's inference prototype, this builds a lineage check robust to weight modifications. Inside a secure enclave, it compares the model's internal geometry with a
+dangerous model watchlist and a registry of known models, then returns Red, Amber or Green. Weights and comparison scores
 are fully private.
 
-We ran it over 3,000 popular open-weight models and matched the listed parent for 1,070 of 1,110 models. We tested robustness on 27 existing fine-tunes, quantised releases, later versions and refusal-removed copies, and recovered the original lineage in all 27. 
+We ran an earlier version over 3,000 popular open-weight models and matched the listed parent for 1,070 of 1,110 models. We tested robustness on 27 existing fine-tunes, quantised releases, later versions and refusal-removed copies, and recovered the original lineage in all 27. 
 
 ![A private model is compared with public lists inside an enclave.](docs/figures/fig_architecture.png)
 
@@ -44,7 +44,7 @@ contains [GLM-5.2](https://www.nist.gov/document/caisi-assessment-zais-glm-52),
 based on published findings from US CAISI and UK AISI. A second list contains known models with public origins.
 
 Red means that one model part matches a watchlisted model, or that a known model shows a refusal-removal edit.
-Amber means the origin is unknown. Green requires each checked part to match one known, non-watchlisted model.
+Amber means the origin is unknown. Green requires all checked parts together to match one known, non-watchlisted model.
 These labels route deployments to different checks. They are not safety ratings.
 
 ## What is being compared?
@@ -106,19 +106,19 @@ Most public copies of the watchlisted models are GGUF files, quantised to a few 
 parses GGUF headers by byte range and decodes sixteen storage formats. Its block decoders are checked against
 llama.cpp's reference library.
 
-![Fingerprint distance stays small as GGUF files drop from 16 bits per weight to 3.](docs/figures/fig_gguf.png)
+![Fingerprint distance stays small as GGUF files drop from 32 bits per weight to 3.](docs/figures/fig_gguf.png)
 
-*Every GGUF file of three public models, compared with the original it was converted from. The lines mark the
+*43 GGUF files of three public models, each compared with the original it was converted from. The lines mark the
 Green (0.1) and Red (0.5) thresholds.*
 
 Across 36 GGUF files of two unmodified models, the tables moved by 0.03 or less down to 3.6 bits per weight, and
 35 files still cleared as their known base. The plain 2-bit files sat at 0.10: far inside Red for a watchlisted
 model, and at the edge of Green for a known one.
 
-A search of the Hub found 178 repositories that declare or name a watchlisted model. 62 held a copy the reader
-could decode, 48 of them GGUF files at 1 to 4 bits per weight, and all 62 matched. Eight of those advertise
-removed refusals. 38 other models with look-alike names did not match. The remaining 78 could not be read: EXL3
-and MLX files, draft models and gated repositories.
+A scan covered 178 of the most-downloaded repositories that declare or name a watchlisted model. 62 held a copy
+the reader could decode, 48 of them GGUF files labelled 1 to 4 bits per weight, and all 62 matched. Eight of those
+advertise removed refusals. 38 other models with look-alike names did not match. The remaining 78 could not be
+read: MLX and most EXL3 files, draft models and gated repositories.
 
 Run end to end, the traffic light gave the expected answer on seventeen public models, five of them GGUF files.
 Every answer held under five different nonces. The table is in [`docs/RESULTS.md`](docs/RESULTS.md).
@@ -140,7 +140,7 @@ in [`enclave/`](enclave/).
 Routine model conversions are one test; deliberate evasion is another. I gave the operator the code, model
 lists and thresholds, while keeping the audit nonce secret. Reordering, scaling and rotating weights left the
 fingerprint unchanged. Geometry matching handled a relabelled tokenizer. Combining known attention layers with
-unrelated MLPs produced Amber because only part of the model matched.
+a listed model's MLPs produced Amber because only part of the model matched.
 
 Retraining works better.
 
@@ -148,7 +148,7 @@ Retraining works better.
 
 A 135 million parameter model left Red after 500 steps. A 1.7 billion parameter model took 1,250 steps. Both
 became Amber. In the longer forgery test, the closest run reached 0.34 from a known model after 10,000 steps;
-Green requires each part to be below 0.1. The curve was still falling, so the experiment does not establish a
+Green requires the average over all parts to be below 0.1. The curve was still falling, so the experiment does not establish a
 lower bound on the cost of forgery.
 
 Starting from a known model and training it to imitate a listed one left it Green. Its activations and behaviour
@@ -165,10 +165,10 @@ Stress tests have reached 1.7 billion parameters. Larger adaptive runs remain un
 pretraining also removes the signal: five coding and mathematics variants of Qwen2.5 scored between 0.63 and
 0.95 from their starting base.
 
-The reader supports safetensors and GGUF. EXL3, MLX and other unsupported formats receive Amber, and so do GGUF
-files that keep the sampled matrices in 2 and 3 bit codebook formats. The refusal-removal test can miss edits
-made through fine-tuning and produced one false alarm among 310 other close copies. Green is strict enough that
-one honest 4-bit release scored 0.22 and would receive Amber.
+The reader supports safetensors and GGUF. MLX, most EXL3 files and other unsupported formats receive Amber, and
+so do GGUF files that keep the sampled matrices in 1 to 3 bit codebook formats. The refusal-removal test can miss
+edits made through fine-tuning and produced two false alarms among 310 other close copies. Green is strict enough
+that one honest 2-bit file scored 0.105 and received Amber.
 
 Hardware attestation shifts trust to AMD's and Microsoft's signing keys. A production version should load and
 serve the model in the same enclave, allowing one receipt to name the bytes used for both checking and
@@ -186,7 +186,7 @@ open-weight risk management. [Takehi et al.'s weight-space programming
 experiments](https://rikiyat.github.io/blog/weight-space-programming/) are adjacent motivation: frontier LLMs
 read and edit raw weights directly, though they do not perform lineage verification.
 
-This implementation combines an invariant matcher with a private load-time protocol, a signed watchlist and an
+This implementation combines an invariant matcher with a private load-time protocol, a public watchlist and an
 asymmetric policy: one matching part is enough to flag, while clearance requires a match across the sampled
 model. It emits statements in SASH's format. [`docs/PRIOR_WORK.md`](docs/PRIOR_WORK.md) has the longer review.
 
@@ -207,7 +207,7 @@ RED  glm-5.2  (part of the model matches a listed model)
 ```
 
 The command reads selected matrices over HTTP range and does not download the full model. It requires Python
-3.11 or newer and no GPU.
+3.11 or newer and no GPU. The numbers shift slightly between runs, because each run draws a fresh nonce.
 
 The saved enclave statement can be verified with:
 
