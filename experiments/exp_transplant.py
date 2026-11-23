@@ -15,6 +15,10 @@ R6_INIT=target is the smarter forger. X's MLPs expect X's residual stream, so th
 embeddings and attention. This forger starts from all of Y instead, keeps the same weights frozen, and teaches
 Y's MLPs to behave like X.
 
+R6_FREEZE=0 frees every weight: plain distillation of X into Y. A fine-tune moves the tables very little, so this
+asks the question the Green rule rests on: how much of X can a known model take on while it is still a close copy
+of itself? Every evaluation logs the tool's own distances to X and to Y next to the behaviour.
+
 Usage: python exp_transplant.py <out.jsonl> [lr ...]
 """
 import json, os, sys, time
@@ -24,6 +28,7 @@ import exp_round3 as R3
 import exp_round2 as R2
 import exp_adaptive as A
 import exp_round4 as R4
+from lineage_check import light as LT
 
 torch.set_grad_enabled(True)
 DEV = A.DEV
@@ -31,6 +36,8 @@ STEPS, EVAL_EVERY = int(os.environ.get("R6_STEPS", 2000)), int(os.environ.get("R
 TARGET = A.INDEP
 COPIED = ("embed_tokens", "self_attn", "input_layernorm")     # everything the attention verdict reads
 INIT = os.environ.get("R6_INIT", "parent")                    # where the weights that are not copied start: X or Y
+FREEZE = os.environ.get("R6_FREEZE", "1") == "1"              # keep the copied weights fixed
+AUDIT_NONCE = "round6-secret-audit-nonce"
 PARTS = ("qk", "ov", "mlp", "gate")
 
 
@@ -48,6 +55,18 @@ def run(fh, lr):
         p4 = R2.v4_live(ref, R2.SECRET_IDS.to(DEV), R2.LAYERS, grad=False)
         t4 = R2.v4_live(tgt, R2.SECRET_IDS.to(DEV), R2.LAYERS, grad=False)
         p3, t3 = A.fp_live(ref, A.S_EVAL), A.fp_live(tgt, A.S_EVAL)
+    from exp_adaptive_light import Live
+    anchors, cache = {"X": Live(ref), "Y": Live(tgt)}, {}
+
+    def tool(model):
+        """The traffic light's own distances (closest part, all parts) to X and to Y, on a secret nonce."""
+        src, out = Live(model), {}
+        for name, anchor in anchors.items():
+            d = LT.distances(src, anchor, AUDIT_NONCE, cache=cache)
+            out["tool_to_" + name] = None if d is None else [round(float(d[0]), 4), round(float(d[1]), 4)]
+        for k in [k for k in cache if k[0] == id(src)]:
+            del cache[k]
+        return out
 
     @torch.no_grad()
     def status(model):
@@ -56,10 +75,11 @@ def run(fh, lr):
         v4 = {c: float(np.mean([1 - float(A.corr32(t4[l][c], f4[l][c])) for l in f4])) for c in ("qk", "ov", "mlp", "act")}
         return {"to_target": parts(t3, f3), "to_parent": parts(p3, f3), "v4_to_target": float(np.mean([v4["qk"], v4["ov"]])),
                 "v4_to_target_all": float(np.mean(list(v4.values()))), "kl_to_parent": R4.held_out_kl(model, ref),
-                "kl_to_target": R4.held_out_kl(model, tgt), **R3.evaluate(model, p4, p3)}
+                "kl_to_target": R4.held_out_kl(model, tgt), **tool(model), **R3.evaluate(model, p4, p3)}
 
-    rec = {"run": f"transplant-{INIT}-lr{lr:g}", "init": INIT, "lr": lr, "target": TARGET, "copied": list(COPIED),
-           "objective": "KL to X, copied weights frozen"}
+    name = f"transplant-{INIT}-lr{lr:g}" + ("" if FREEZE else "-free")
+    rec = {"run": name, "init": INIT, "lr": lr, "target": TARGET, "copied": list(COPIED), "frozen": FREEZE,
+           "objective": "KL to X" + (", copied weights frozen" if FREEZE else ", every weight trained")}
     A.log(fh, {**rec, "step": -1, "what": "X, the listed model", **status(ref)})
     A.log(fh, {**rec, "step": -1, "what": "Y, the known model", **status(tgt)})
     with torch.no_grad():
@@ -69,7 +89,7 @@ def run(fh, lr):
                 sd[k].copy_(td[k])
     train = []
     for n, p in m.named_parameters():
-        p.requires_grad_(not any(c in n for c in COPIED))
+        p.requires_grad_(not (FREEZE and any(c in n for c in COPIED)))
         if p.requires_grad:
             train.append(p)
     rec["trained_params"] = sum(p.numel() for p in train)
@@ -95,7 +115,7 @@ def run(fh, lr):
             torch.mps.empty_cache()
         if step % EVAL_EVERY == 0:
             A.log(fh, {**rec, "step": step, "train_kl": loss_kl, "sec": round(time.time() - t0), **status(m)})
-    m.save_pretrained(os.path.join(R2.SAVE, f"r6-transplant-{INIT}-lr{lr:g}"), safe_serialization=True)
+    m.save_pretrained(os.path.join(R2.SAVE, "r6-" + name), safe_serialization=True)
     del m, ref, tgt
 
 
