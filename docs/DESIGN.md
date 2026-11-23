@@ -138,6 +138,7 @@ to serve the right bytes. In the first run it fetched the whole model and named 
 | Long retraining | continue training on far more data, as coding or maths versions do | Amber: the copy no longer matches |
 | Retraining against the check | gradient steps that push the tables away while copying the parent's outputs | Amber after 500 to 1,250 steps, at some loss of quality |
 | The same, pulling toward a known model | make every part of a listed model match a known one | Amber in every run so far; never Green |
+| The same, and matching what the known model's layers compute | train against an activation check as well | Amber: the tables did not move. The activations did |
 | Training a known model to imitate a listed one | distil the listed model into the known one | Green, and still the known model: its outputs and accuracy did not follow |
 
 22 of the scanned repositories carry a listed model's name and advertise removed refusals. Eight are copies in
@@ -153,11 +154,57 @@ model reached it. The runs are small: 135M and 1.7B parameters, ten thousand ste
 matching tables cannot prove that two models compute the same thing, so a longer run may get there.
 [`docs/RESULTS.md`](RESULTS.md) has every run.
 
+## What could hold Green
+
+Red only has to be costly to leave. Green waives checks, so it has to be hard to enter. The stress tests tried
+the three things a check can read, each time with the same question: can a listed model X be made to match a
+known model Y on it and still give X's outputs?
+
+| What Green is tied to | Can X match Y on it and keep X's outputs? | Evidence, on a 135M pair |
+|---|---|---|
+| Weight tables, as in the tool today | not in these runs, and nothing rules it out | 0.34 from Y after 10,000 steps, where Green needs 0.1; keeping X's outputs did not slow the pull |
+| What layers compute | yes, most of the way | from 0.41 to 0.12 from Y in 2,000 steps, inside the range of Y's honest derivatives, with X's outputs kept |
+| Outputs | no | after both pulls the model is 0.28 from Y's outputs; X itself is 0.255 |
+
+Outputs are different in kind. Total variation between next-token distributions is a metric, so for any model
+$m$ and any text
+
+$$\mathrm{TV}(m, X) \ge \mathrm{TV}(X, Y) - \mathrm{TV}(m, Y).$$
+
+A model within $\varepsilon$ of Y's outputs on a piece of text is at least $\mathrm{TV}(X, Y) - \varepsilon$
+from X's on that text. More to the point, it computes there what Y computes, up to $\varepsilon$, wherever its
+weights came from.
+
+![Outputs of each model, between the listed and the known model](figures/fig_outputs.png)
+
+Measured on 21 models (`docs/RESULTS.md`). Faithful copies of Y, meaning its 8-bit and 6-bit files and a short
+fine-tune, are within 0.04 of its outputs and under 0.10 in every one of 128 text windows. X and every model made
+from X are more than 0.18 away in every window.
+
+So a stricter Green is possible. The enclave runs the loaded model on text the verifier picks after the weights
+are fixed, compares its next-token distributions with the known model's, and signs whether they agree in every
+window. The known model is public, so the verifier can compute its side. This is a proposal with one measurement
+behind it, on one small pair. It is not in the tool. It has four costs.
+
+1. Only faithful copies pass. At this size a 4-bit file moves the known model's outputs by 0.14 to 0.21 and its
+   published instruct version by 0.26, as much as swapping it for X. Such a copy would be Amber unless the
+   registry lists that file, where a hash settles it, or that version itself. Whether larger models lose less to
+   compression was not measured.
+2. It sees the text that is probed and nothing else. A model that departs from Y on one window in twenty escapes
+   128 probes with probability 0.1%. One that departs on one window in a hundred escapes with probability 28%.
+   A model built to answer as Y unless a trigger is present is not caught by probing at all. The table rule
+   limits that case: every part of the model also has to match Y's tables, and in the stress tests X's weights
+   could not be brought there.
+3. The probes have to come from the kind of text that matters. Agreement on encyclopedia text says little about
+   exploit code.
+4. It needs a forward pass at load time, where the tables need a few byte ranges.
+
 ## What the check does not do
 
 - It does not read intent. The same weights serve research and abuse.
 - It does not see behaviour. Outputs track training data more than origin: an independent model trained on similar
-  data sits closer to a parent's outputs than some of that parent's honest fine-tunes.
+  data sits closer to a parent's outputs than some of that parent's honest fine-tunes. The section above uses
+  outputs for a different question: whether a model computes what a known model computes, wherever it came from.
 - It does not replace hashes. A hash is exact and cannot be fooled. The check covers what a hash cannot see.
 - It does not clear what it cannot read. A model in a format the reader cannot fully decode is Amber.
 
@@ -165,10 +212,10 @@ matching tables cannot prove that two models compute the same thing, so a longer
 
 1. File formats. Safetensors and GGUF are read. MLX, most EXL3 files, a few packed 4-bit layouts and GGUF files whose
    matrices use the 1 to 3 bit codebook formats are not, and a model the reader cannot decode is Amber.
-2. A check on what layers compute. Tables are second moments of weights and can in principle be imitated, and
-   an operator who pulls a listed model toward a known model's tables loses none of the listed model's behaviour
-   on the way (`docs/RESULTS.md`). Comparing activations on nonce-chosen text, inside the enclave, would make
-   Green a statement about function.
+2. A check on outputs for Green. Tables are second moments of weights and can in principle be imitated, and
+   what layers compute can be imitated in practice (`docs/RESULTS.md`). Outputs cannot be taken from a known
+   model and kept from a listed one. The section on what could hold Green has a first measurement and the costs.
+   Building it into the enclave is open.
 3. A cut test on tables instead of raw matrices, so that a shuffled copy can still be checked.
 4. Scale. The stress tests stop at 1.7B parameters and ten thousand steps.
 5. Refusal removal by fine-tuning leaves no cut direction. A behavioural probe inside the enclave may be needed.

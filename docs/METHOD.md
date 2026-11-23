@@ -213,11 +213,14 @@ The rule is built around these two gaps. A copy that uses the second gap leaves 
 still means an identity check. Passing as a known model needs the first gap, on every part at once, for tokens
 and layers the operator cannot predict. In the stress tests no run got there (`docs/RESULTS.md`).
 
-Closing the first gap needs a check on what layers compute, not on their second moments: compare activations on
-text drawn from the nonce, inside the enclave, where the model is loaded anyway. `experiments/exp_v4.py` has a
-first version, and on the stress-test models it sees what the tables do not. Take the 1.7B copy whose tables
-were pulled toward a known model, to 0.40 on the closest part. On activations it is still 0.09 from the listed
-model and 0.58 from the known one, as far as an unrelated model. This check is not in the tool yet.
+A check on what layers compute looks like the way to close the first gap: compare activations on text drawn from
+the nonce, inside the enclave, where the model is loaded anyway. `experiments/exp_v4.py` has a first version, and
+on models trained against the tables alone it sees what the tables do not. Take the 1.7B copy whose tables were
+pulled toward a known model, to 0.40 on the closest part. On activations it is still 0.09 from the listed model
+and 0.58 from the known one, as far as an unrelated model. But activations can be trained against as well. With
+that term in the loss, a 135M copy moves from 0.41 to 0.12 from the known model in 2,000 steps and keeps the
+listed model's outputs. Outputs are the one thing a copy cannot take from a known model and keep from a listed
+one, and `docs/DESIGN.md` says what a check on outputs would cost. Neither check is in the tool.
 
 ## What the nonce is for
 
