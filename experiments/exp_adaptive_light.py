@@ -15,6 +15,10 @@ and the layers after the weights are fixed, so the attacker works on random toke
 KEEP (R7_KEEP, default 1) weighs keeping X's outputs. Lower values trade X's behaviour for closeness to Y's tables;
 0 drops the term. A sweep over it traces how much of X is left at each distance from Green.
 
+ACT (R7_ACT, default 0) adds a pull on what the layers compute: ACT * (activation reader's distance to Y) on fresh
+probe text. With it the run asks whether a model can take on Y's activations as well as Y's tables and still give
+X's outputs. R7_INIT starts from a saved model instead of X, to continue an earlier run.
+
 c is the correlation the tool computes for each part: the best match within the same layer and kind. The verdict
 logged at every evaluation is the tool's own (`lineage_check.light`), on the secret nonce.
 
@@ -35,7 +39,7 @@ DEV = A.DEV
 STEPS, EVAL_EVERY = int(os.environ.get("R7_STEPS", 3000)), int(os.environ.get("R7_EVAL", 250))
 PUSH, PULL, MARGIN = float(os.environ.get("R7_PUSH", 10)), float(os.environ.get("R7_PULL", 10)), float(os.environ.get("R7_MARGIN", 0.6))
 LR, N_TOK, LAM = float(os.environ.get("R7_LR", 1e-4)), 128, float(os.environ.get("R7_LAM", 1))
-KEEP = float(os.environ.get("R7_KEEP", 1))
+KEEP, ACT, INIT = float(os.environ.get("R7_KEEP", 1)), float(os.environ.get("R7_ACT", 0)), os.environ.get("R7_INIT")
 AUDIT_NONCE = "round7-secret-audit-nonce"
 READERS = (("self_attn", "q_proj", "g1"), ("self_attn", "k_proj", "g1"), ("self_attn", "v_proj", "g1"),
            ("mlp", "gate_proj", "g2"), ("mlp", "up_proj", "g2"))
@@ -100,7 +104,7 @@ class Live:
 
 
 def run(fh, mode):
-    m, ref, tgt = A.load(), A.load(), A.load(A.INDEP)
+    m, ref, tgt = A.load(INIT) if INIT else A.load(), A.load(), A.load(A.INDEP)
     ref.requires_grad_(False)
     tgt.requires_grad_(False)
     m.config.use_cache = False
@@ -108,7 +112,14 @@ def run(fh, mode):
     watch, known, cache = [({"id": "X"}, Live(ref))], [({"id": "Y"}, Live(tgt))], {}
     with torch.no_grad():
         p4 = R2.v4_live(ref, R2.SECRET_IDS.to(DEV), R2.LAYERS, grad=False)
+        p4y = R2.v4_live(tgt, R2.SECRET_IDS.to(DEV), R2.LAYERS, grad=False)
         p3 = A.fp_live(ref, A.S_EVAL)
+
+    @torch.no_grad()
+    def behaviour():
+        """Held-out KL from X and from Y, and the activation reader's distance to Y on the secret probe."""
+        return {"kl": R4.held_out_kl(m, ref), "kl_to_Y": R4.held_out_kl(m, tgt),
+                "act_to_Y": float(R2.d_v4(p4y, R2.v4_live(m, R2.SECRET_IDS.to(DEV), R2.LAYERS, grad=False)))}
 
     @torch.no_grad()
     def verdict():
@@ -124,11 +135,13 @@ def run(fh, mode):
 
     opt = torch.optim.AdamW(m.parameters(), lr=LR, weight_decay=0.0)
     g = torch.Generator().manual_seed(41)
-    name = f"tool-{mode}" + ("" if KEEP == 1 else f"-keep{KEEP:g}")
+    name = f"tool-{mode}" + ("" if KEEP == 1 else f"-keep{KEEP:g}") + (f"-act{ACT:g}" if ACT else "") + ("-continued" if INIT else "")
     rec = {"run": name, "mode": mode, "push": PUSH, "pull": PULL if mode == "forge" else 0, "margin": MARGIN, "lr": LR, "keep": KEEP,
+           "act": ACT, "init": os.path.basename(os.path.dirname(INIT.rstrip("/"))) + "/" + os.path.basename(INIT.rstrip("/")) if INIT else None,
            "target": A.INDEP, "objective": ("KL to X + " if KEEP > 0 else "") + "push every table from X" + (" + pull every table to Y" if mode == "forge" else "")
-           + (" + push the design-aware and activation fingerprints from X" if mode == "erase-all" else "")}
-    A.log(fh, {**rec, "step": 0, **verdict(), **R3.evaluate(m, p4, p3), "kl": R4.held_out_kl(m, ref), "kl_to_Y": R4.held_out_kl(m, tgt)})
+           + (" + push the design-aware and activation fingerprints from X" if mode == "erase-all" else "")
+           + (" + pull the activation fingerprint to Y" if ACT else "")}
+    A.log(fh, {**rec, "step": 0, **verdict(), **R3.evaluate(m, p4, p3), **behaviour()})
     t0 = time.time()
     for step in range(1, STEPS + 1):
         b = R3.FW_TRAIN[torch.randint(0, R3.FW_TRAIN.shape[0], (A.BS,), generator=g)].to(DEV)[:, :-1]
@@ -157,6 +170,11 @@ def run(fh, mode):
             with torch.no_grad():
                 pr, r3 = R2.v4_live(ref, probe, R2.LAYERS, grad=False), A.fp_live(ref, S)
             loss = loss - LAM * R2.d_v4(pr, R2.v4_live(m, probe, R2.LAYERS)) - LAM * A.dist(r3, A.fp_live(m, S))
+        if ACT:
+            probe = R3.FW_TRAIN[torch.randint(0, R3.FW_TRAIN.shape[0], (R2.PB,), generator=g)][:, :R2.PT].to(DEV)
+            with torch.no_grad():
+                py = R2.v4_live(tgt, probe, R2.LAYERS, grad=False)
+            loss = loss + ACT * R2.d_v4(py, R2.v4_live(m, probe, R2.LAYERS))
         loss.backward()
         torch.nn.utils.clip_grad_norm_(m.parameters(), 1.0)
         opt.step()
@@ -165,7 +183,7 @@ def run(fh, mode):
         if step % EVAL_EVERY == 0:
             A.log(fh, {**rec, "step": step, "train_kl": loss_kl, "train_c_X_max": float(cx.max()), "train_c_X_mean": float(cx.mean()),
                        "train_c_Y_mean": None if cy is None else float(cy.mean()), "sec": round(time.time() - t0),
-                       **verdict(), **R3.evaluate(m, p4, p3), "kl": R4.held_out_kl(m, ref), "kl_to_Y": R4.held_out_kl(m, tgt)})
+                       **verdict(), **R3.evaluate(m, p4, p3), **behaviour()})
     m.save_pretrained(os.path.join(R2.SAVE, f"r7-{name}"), safe_serialization=True)
     del m, ref, tgt
 
