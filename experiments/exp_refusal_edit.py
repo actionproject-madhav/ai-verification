@@ -12,9 +12,9 @@ Models above MAX_PARAMS are left out: reading six layers of a 70B model twice ta
 
 The saved results come from two passes. The first read every model and recorded what the first two conditions of
 the test need (rank, agreement between the matrices of a layer). The third condition (`own`: what left a matrix
-is its own content) was added later and measured in a second pass over every model with a layer that the first
-two conditions count as cut; no other model can be flagged. `merge` puts the two together. A fresh run records
-`own` for every model.
+is its own content) was added later and measured in further passes over every model with two layers whose
+matrices agree to 0.75 or more, or with a rank-one change; no other model can be flagged. `merge` puts the passes
+together. A fresh run records `own` for every model.
 
 Usage: python exp_refusal_edit.py <scan dir> <out.jsonl> [workers] [controls] [file of repository names to read]
        python exp_refusal_edit.py merge <first pass.jsonl> <second pass.jsonl> <out.jsonl>
@@ -98,7 +98,7 @@ def cut(r, third=True):
     layers = {p for p, s, o in zip(pos, share, own) if o and s >= U.CUT_SHARE}
     layers |= {pos[i] for i in range(len(pos)) for j in range(i + 1, len(pos))
                if pos[i] == pos[j] and own[i] and own[j] and cos[i][j] >= U.CUT_COSINE}
-    assert "own" in r or not layers, r["repo"]
+    assert "own" in r or len(layers) < 2, r["repo"]
     return len(layers)
 
 
@@ -122,15 +122,16 @@ def summary(out):
     for name in ("abliterat", "heretic", "hint", "control"):
         group = [r for r in rows if r["label"] == name]
         read = [r for r in group if r.get("positions")]
-        flagged = [r for r in read if cut(r) >= LT.CUT_MIN]
-        unchecked = [r for r in read if cut(r) < LT.CUT_MIN and max(r["relative_size"]) > U.ALIGNED]
+        aligned = lambda r: max(r["relative_size"]) <= U.ALIGNED                 # a cut is called on an aligned copy only
+        flagged = [r for r in read if aligned(r) and cut(r) >= LT.CUT_MIN]
+        unchecked = [r for r in read if not aligned(r)]
         agree = sorted(max([r["cosines"][i][j] for i in range(len(r["positions"])) for j in range(i + 1, len(r["positions"]))
                             if r["positions"][i] == r["positions"][j]] or [0.0]) for r in read)
         own = sorted(max(r["own"]) for r in read if "own" in r)
         result[name] = {"models": len(group), "not_comparable": sum(r.get("changed") is None for r in group),
                         "identical_to_base": sum(r.get("changed") == 0 for r in group), "compared": len(read),
                         "flagged": len(flagged), "unchecked": len(unchecked), "cleared": len(read) - len(flagged) - len(unchecked),
-                        "flagged_without_the_third_condition": sum(cut(r, third=False) >= LT.CUT_MIN for r in read),
+                        "flagged_without_the_third_condition": sum(aligned(r) and cut(r, third=False) >= LT.CUT_MIN for r in read),
                         "older_signature": sum(bool(r["blind_signature"]) for r in read),
                         "largest_agreement_in_a_layer": {"median": agree[len(agree) // 2], "p95": agree[int(0.95 * (len(agree) - 1))]} if agree else None,
                         "largest_own_content": {"lowest": own[0], "median": own[len(own) // 2], "highest": own[-1], "models": len(own)} if own else None,

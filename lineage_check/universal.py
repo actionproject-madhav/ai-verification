@@ -35,7 +35,7 @@ TOP = 8                                                       # leading directio
 MAX_VOCAB = 4_000_000                                         # more rows than this is a lookup table, not a vocabulary
 MAX_ELEMS = 1 << 28                                           # a larger tensor is a packed table, not one matrix
 GEO_AXES, GEO_SEED, GEO_POOL, GEO_SURE = 128, 32, 1024, 0.7   # matching tokens by geometry: see `token_geometry`
-CUT_SHARE, CUT_COSINE, CUT_OWN, ALIGNED = 0.9, 0.95, 0.5, 0.5 # when a layer counts as cut: see `cut_layers`
+CUT_SHARE, CUT_COSINE, CUT_OWN, ALIGNED = 0.9, 0.8, 0.5, 0.5  # when a layer counts as cut: see `cut_layers`
 
 
 def shape_of(src, name):
@@ -268,9 +268,9 @@ def cut_layers(src, anchor, layers_src, layers_anchor, dev="cpu"):
     or when two such matrices changed along the same leading direction (|cosine| of CUT_COSINE or more).
 
     Returns {"cut": layers cut, "changed": layers that changed at all, "aligned": whether every difference is small
-    next to its matrix (at most ALIGNED)}. A copy that was shuffled or rotated is not aligned: its matrices differ
-    from the base entry by entry and this test says nothing about it. None when the two models are not laid out
-    alike."""
+    next to its matrix (at most ALIGNED)}. A copy that was shuffled, rotated or resized is not aligned: its matrices
+    differ from the base entry by entry, this test says nothing about it, and the count of cut layers should not be
+    used. None when the two models are not laid out alike."""
     found = edit_directions(src, anchor, layers_src, layers_anchor, dev)
     if found is None:
         return None

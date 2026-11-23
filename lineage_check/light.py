@@ -93,17 +93,15 @@ def distances_by_geometry(src, anchor, nonce, tokens=TOKENS, cache=None):
 
 def direction_cut(src, anchor, nonce):
     """True when a copy of a known model had one direction cut out of two or more of the layers read (see
-    `universal.cut_layers`), False when it was compared and had none. None when the two cannot be compared matrix
+    `universal.cut_layers`), False when it was compared and had fewer. None when the two cannot be compared matrix
     by matrix: a different layout, or weights that were shuffled or rotated and so differ entry by entry."""
     try:
         r = U.cut_layers(src, anchor, layers_for(src, nonce, CUT_LAYERS), layers_for(anchor, nonce, CUT_LAYERS))
     except Exception:
         return None
-    if r is None:
+    if r is None or not r["aligned"]:
         return None
-    if r["cut"] >= CUT_MIN:
-        return True
-    return False if r["aligned"] else None
+    return r["cut"] >= CUT_MIN
 
 
 def ablation_signature(src, nonce, tokens=TOKENS, layers=2):
