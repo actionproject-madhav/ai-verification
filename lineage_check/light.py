@@ -56,10 +56,11 @@ def ablation_signature(src, nonce, tokens=TOKENS, layers=2):
         return None
 
 
-def light(src, watch, known, nonce, tokens=TOKENS, ablation=None):
+def light(src, watch, known, nonce, tokens=TOKENS, ablation=None, cache=None):
     """The light for `src`. `watch` and `known` are lists of (entry, source); `ablation` is the signature if computed.
-    The returned distances are for the caller; a signed statement carries the light and the matched entry only."""
-    cache, seen = {}, {}
+    The returned distances are for the caller; a signed statement carries the light and the matched entry only.
+    Pass the same `cache` dict across calls to fingerprint each list entry once."""
+    cache, seen = {} if cache is None else cache, {}
     for e, anchor in watch:
         seen[e["id"]] = distances(src, anchor, nonce, tokens, cache)
     hits = [(seen[e["id"]][0], e["id"]) for e, _ in watch if seen[e["id"]] and seen[e["id"]][0] < e.get("threshold", RED)]
