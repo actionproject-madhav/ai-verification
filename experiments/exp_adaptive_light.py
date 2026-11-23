@@ -19,6 +19,9 @@ ACT (R7_ACT, default 0) adds a pull on what the layers compute: ACT * (activatio
 probe text. With it the run asks whether a model can take on Y's activations as well as Y's tables and still give
 X's outputs. R7_INIT starts from a saved model instead of X, to continue an earlier run.
 
+Every evaluation also saves a checkpoint next to the final model. With R7_RESUME=1 a run that was cut short picks
+up from its last checkpoint (the optimiser's moments start afresh).
+
 c is the correlation the tool computes for each part: the best match within the same layer and kind. The verdict
 logged at every evaluation is the tool's own (`lineage_check.light`), on the secret nonce.
 
@@ -104,7 +107,11 @@ class Live:
 
 
 def run(fh, mode):
-    m, ref, tgt = A.load(INIT) if INIT else A.load(), A.load(), A.load(A.INDEP)
+    name = f"tool-{mode}" + ("" if KEEP == 1 else f"-keep{KEEP:g}") + (f"-act{ACT:g}" if ACT else "") + ("-continued" if INIT else "")
+    ckpt, start = os.path.join(R2.SAVE, f"r7-{name}-checkpoint"), 0
+    if os.environ.get("R7_RESUME") and os.path.exists(os.path.join(ckpt, "step.json")):
+        start = json.load(open(os.path.join(ckpt, "step.json")))["step"]
+    m, ref, tgt = A.load(ckpt if start else INIT) if (start or INIT) else A.load(), A.load(), A.load(A.INDEP)
     ref.requires_grad_(False)
     tgt.requires_grad_(False)
     m.config.use_cache = False
@@ -134,16 +141,18 @@ def run(fh, mode):
         return {"light": r["light"], "to_X": rd(d.get("X")), "to_Y": rd(d.get("Y"))}
 
     opt = torch.optim.AdamW(m.parameters(), lr=LR, weight_decay=0.0)
-    g = torch.Generator().manual_seed(41)
-    name = f"tool-{mode}" + ("" if KEEP == 1 else f"-keep{KEEP:g}") + (f"-act{ACT:g}" if ACT else "") + ("-continued" if INIT else "")
+    g = torch.Generator().manual_seed(41 + start)
     rec = {"run": name, "mode": mode, "push": PUSH, "pull": PULL if mode == "forge" else 0, "margin": MARGIN, "lr": LR, "keep": KEEP,
            "act": ACT, "init": os.path.basename(os.path.dirname(INIT.rstrip("/"))) + "/" + os.path.basename(INIT.rstrip("/")) if INIT else None,
            "target": A.INDEP, "objective": ("KL to X + " if KEEP > 0 else "") + "push every table from X" + (" + pull every table to Y" if mode == "forge" else "")
            + (" + push the design-aware and activation fingerprints from X" if mode == "erase-all" else "")
            + (" + pull the activation fingerprint to Y" if ACT else "")}
-    A.log(fh, {**rec, "step": 0, **verdict(), **R3.evaluate(m, p4, p3), **behaviour()})
+    if start:
+        rec["resumed_at"] = start
+    else:
+        A.log(fh, {**rec, "step": 0, **verdict(), **R3.evaluate(m, p4, p3), **behaviour()})
     t0 = time.time()
-    for step in range(1, STEPS + 1):
+    for step in range(start + 1, STEPS + 1):
         b = R3.FW_TRAIN[torch.randint(0, R3.FW_TRAIN.shape[0], (A.BS,), generator=g)].to(DEV)[:, :-1]
         opt.zero_grad()
         loss_kl = 0.0
@@ -184,6 +193,8 @@ def run(fh, mode):
             A.log(fh, {**rec, "step": step, "train_kl": loss_kl, "train_c_X_max": float(cx.max()), "train_c_X_mean": float(cx.mean()),
                        "train_c_Y_mean": None if cy is None else float(cy.mean()), "sec": round(time.time() - t0),
                        **verdict(), **R3.evaluate(m, p4, p3), **behaviour()})
+            m.save_pretrained(ckpt, safe_serialization=True)
+            json.dump({"step": step}, open(os.path.join(ckpt, "step.json"), "w"))
     m.save_pretrained(os.path.join(R2.SAVE, f"r7-{name}"), safe_serialization=True)
     del m, ref, tgt
 
