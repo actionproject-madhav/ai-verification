@@ -80,10 +80,33 @@ products instead and is exact for these edits too, for the architectures it know
 
 ## What changes a table a little
 
-Measured, not proved. On real models of 7 to 8 billion parameters, an instruct version or a fine-tune moves all
-parts by 0.0004 to 0.004, and removing refusals moves them by 0.069. Public 4-bit, 8-bit and 16-bit releases of the
-0.75 to 2.8 trillion parameter models sit at 0.017 or less on the closest part. Separately trained models sit at
-0.79 or more. See `docs/RESULTS.md`.
+Measured, not proved. On models of 7 to 8 billion parameters, an instruct version or a fine-tune moves all parts
+by 0.0005 to 0.004, and removing refusals moves them by 0.070. Public 4-bit, 8-bit and 16-bit releases of the
+0.75 to 2.8 trillion parameter models sit at 0.017 or less on the closest part. Over 27 modified copies, from 135
+million to 2.8 trillion parameters, the largest closest-part distance is 0.066. Over 151 pairs of separately
+trained models the smallest is 0.839. See `docs/RESULTS.md`.
+
+## What a table does not fix
+
+Two facts bound what this check can prove. Both show up in the stress tests.
+
+**Equal tables do not mean equal models.** Over all tokens, a reader's table fixes $\hat W^{\top}\hat W$, the
+second moment of its neurons' directions. That is $d(d+1)/2$ numbers. A matrix with unit rows has $m(d-1)$. For
+an MLP projection with $m = 4d$, seven eighths of the matrix is left free. For a square attention projection, half
+is. So a match on every table is evidence that two models are the same, and it is not a proof.
+
+**Equal functions do not mean equal tables.** The proofs above cover the exact symmetries. A network has many
+more nearly equivalent forms than those, and nothing makes the table blind to them. A table also probes a matrix
+with raw token embeddings, while in use the matrix reads the residual stream at its own depth. Weights that matter
+little to the function can matter to the table, and retraining can move them.
+
+The rule is built around these two gaps. A copy that uses the second gap leaves Red and lands on Amber, which
+still means an identity check. Passing as a known model needs the first gap, on every part at once, for tokens
+and layers the operator cannot predict. In the stress tests no run got there (`docs/RESULTS.md`).
+
+Closing the first gap needs a check on what layers compute, not on their second moments: compare activations on
+text drawn from the nonce, inside the enclave, where the model is loaded anyway. `experiments/exp_v4.py` has a
+first version. It is not in the tool yet.
 
 ## What the nonce is for
 
@@ -99,7 +122,8 @@ nothing. A single threshold would clear it. With the rule above it is Amber.
 
 ## What is not claimed
 
-- No proof that separately trained models are far apart. It is an observation on 282 pairs.
-- No protection against retraining aimed at the check. An attacker who trains against these tables on every layer
+- No proof that separately trained models are far apart. It is an observation on 151 pairs.
+- No protection against retraining aimed at the check. An operator who trains against these tables on every layer
   moves a copy from Red to Amber. `docs/RESULTS.md` has the numbers.
+- No proof that a model cleared as Green is the known model. It is what every run so far shows.
 - Nothing about behaviour. Two models can be far apart here and act alike.
