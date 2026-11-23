@@ -55,8 +55,9 @@ python enclave/verify_statement.py demo/azure-light/response.json --nonce $(cat 
     --watchlist watchlists/government-named.json --known watchlists/known-demo.json --policy demo/azure-light/policy.b64
 ```
 
-`pip install -e ".[dev]" && pytest` runs the tests in a few seconds. Every number below comes from one script in
-`experiments/` and one file in `results/`; [`docs/RESULTS.md`](docs/RESULTS.md) pairs them up.
+`pip install -e ".[dev]" && pytest` runs the tests in a few seconds, and `python experiments/headline.py` recomputes
+the headline numbers from `results/`. Every number below comes from one script in `experiments/` and one file in
+`results/`; [`docs/RESULTS.md`](docs/RESULTS.md) pairs them up.
 
 ## The problem
 
