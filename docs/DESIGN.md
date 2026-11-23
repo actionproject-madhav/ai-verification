@@ -85,9 +85,9 @@ GLM-5.3 the top open-weight model. The rule can take other sources: a list is a 
 enclave pins its digest.
 
 `K` can be built from public releases. The Hub scan in `experiments/exp_hub_scan.py` derives a first draft from
-model cards: every repository that at least ten other cards name as their base. That rule is not enough. Three of
-the bases it picked are themselves uncensored or merged models, and a copy of one of those would be cleared. A
-registry needs a curator, or a rule about who published the base.
+model cards: every repository that at least ten other cards name as their base. That rule is not enough. At least
+three of the bases it picked are themselves edited models (one uncensored, two fine-tunes), and a copy of one of
+those would be cleared. A registry needs a curator, or a rule about who published the base.
 
 ## Who sees what
 
