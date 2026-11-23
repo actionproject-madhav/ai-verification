@@ -1,4 +1,4 @@
-"""Command line: lineage-check keygen | scan | scan-batch | verify."""
+"""Command line: lineage-check light | keygen | scan | scan-batch | verify."""
 from .protocol import main
 
 if __name__ == "__main__":

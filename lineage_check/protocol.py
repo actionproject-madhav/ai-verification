@@ -11,8 +11,9 @@ The Ed25519 key stands in for an enclave's attested key (Tinfoil attested keys w
   lineage-check keygen --dir keys
   lineage-check scan   --query REPO --commit SHA --list watchlist.json --nonce HEX --key keys/sk.pem --out st.json
   lineage-check verify --statement st.json --pub keys/pk.pem --nonce HEX
+  lineage-check light  --query REPO --watchlist watchlists/government-named.json [--known known.json]
 """
-import argparse, base64, hashlib, json, os, sys, time
+import argparse, base64, hashlib, json, os, secrets, sys, time
 import numpy as np
 import torch
 from cryptography.hazmat.primitives import serialization
@@ -201,6 +202,22 @@ def verify(a):
           f"{'; refusal-ablation signature' if p.get('ablation_signature') else ''}")
 
 
+def light(a):
+    """Red, Green or Amber for one model: any architecture, no key needed."""
+    from . import light as LT
+    torch.set_grad_enabled(False)
+    src = R.Remote(a.query, a.commit)
+    nonce = a.nonce or secrets.token_hex(16)
+    out = LT.light(src, LT.sources(a.watchlist), LT.sources(a.known) if a.known else [], nonce, a.n,
+                   ablation=None if a.no_ablation else LT.ablation_signature(src, nonce, a.n))
+    if a.json:
+        print(json.dumps({"query": a.query, "commit": src.sha, "nonce": nonce, **out}))
+        return
+    print(f"{out['light'].upper()}{'  ' + out['matched'] if out['matched'] else ''}  ({out['reason']})")
+    for name, d in out["distances"].items():
+        print(f"  {name:24s} " + ("not comparable" if d is None else f"closest part {d[0]:.3f}   all parts {d[1]:.3f}"))
+
+
 def keygen(a):
     os.makedirs(a.dir, exist_ok=True)
     sk = Ed25519PrivateKey.generate()
@@ -227,11 +244,16 @@ def main(argv=None):
     b.add_argument("--n", type=int, default=256); b.add_argument("--k", type=int, default=2)
     b.add_argument("--debug", action="store_true")
     b.add_argument("--layer-rule", choices=["nonce", "even"], default="nonce")
+    t = sp.add_parser("light")
+    t.add_argument("--query", required=True); t.add_argument("--watchlist", required=True)
+    t.add_argument("--known"); t.add_argument("--commit"); t.add_argument("--nonce")
+    t.add_argument("--n", type=int, default=256); t.add_argument("--json", action="store_true")
+    t.add_argument("--no-ablation", action="store_true")
     v = sp.add_parser("verify")
     v.add_argument("--statement", required=True); v.add_argument("--pub", required=True); v.add_argument("--nonce")
     a = ap.parse_args(argv)
     LAYER_RULE = getattr(a, "layer_rule", "nonce")
-    {"keygen": keygen, "scan": scan, "scan-batch": scan_batch, "verify": verify}[a.cmd](a)
+    {"keygen": keygen, "scan": scan, "scan-batch": scan_batch, "verify": verify, "light": light}[a.cmd](a)
 
 
 if __name__ == "__main__":
