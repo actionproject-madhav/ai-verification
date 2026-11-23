@@ -70,42 +70,48 @@ def test_packed_giant_tensors_are_skipped(model, monkeypatch):
     assert names and all("mlp" not in n for n in names)
 
 
-def edit_layers(changed, base):
-    return universal.shared_edit(TinySource(changed), TinySource(base), [0, 1, 2], [0, 1, 2])
+def cuts(changed, base):
+    return universal.cut_layers(TinySource(changed), TinySource(base), [0, 1, 2], [0, 1, 2])
 
 
-def test_a_direction_removed_from_every_writer_shows_in_every_layer(model):
-    assert edit_layers(edits.rank1_edit(model), model) == {"paired": 3, "common": 3, "changed": 3}
+def test_a_direction_removed_from_every_writer_shows_as_a_cut_in_every_layer(model):
+    assert cuts(edits.rank1_edit(model), model) == {"cut": 3, "changed": 3}
 
 
-def test_the_removed_direction_still_shows_under_fine_tuning_noise(model):
-    r = edit_layers(edits.noise(edits.rank1_edit(model), rel=0.01), model)
-    assert r["paired"] == 3 and r["common"] == 3
+def test_the_cut_still_shows_under_fine_tuning_noise(model):
+    assert cuts(edits.noise(edits.rank1_edit(model), rel=0.01), model)["cut"] == 3
 
 
-def test_a_different_direction_in_every_layer_still_pairs_up_inside_each_layer(model):
+def test_a_different_direction_in_every_layer_is_still_a_cut_in_every_layer(model):
     m = edits.clone(model)
     g = torch.Generator().manual_seed(5)
     for layer in m["layers"]:                                     # newer tools remove a direction of its own per layer
         r = torch.randn(m["d"], generator=g)
         P = torch.eye(m["d"]) - torch.outer(r, r) / (r @ r)
         layer["o"], layer["down"] = P @ layer["o"], P @ layer["down"]
-    r = edit_layers(m, model)
-    assert r["paired"] == 3 and r["common"] < 2                   # no direction is shared across layers, each layer agrees with itself
+    assert cuts(m, model) == {"cut": 3, "changed": 3}
+
+
+def test_a_cut_in_only_one_matrix_per_layer_shows_as_a_rank_one_change(model):
+    m = edits.clone(model)
+    r = torch.randn(m["d"], generator=torch.Generator().manual_seed(6))
+    P = torch.eye(m["d"]) - 0.6 * torch.outer(r, r) / (r @ r)    # partial strength, attention output only
+    for layer in m["layers"]:
+        layer["o"] = P @ layer["o"]
+    assert cuts(m, model) == {"cut": 3, "changed": 3}
 
 
 @pytest.mark.parametrize("edit", [lambda m: edits.noise(m, rel=0.02), edits.quantize, lambda m: edits.prune(m, frac=0.3)])
-def test_noise_quantisation_and_pruning_share_no_direction(model, edit):
-    r = edit_layers(edit(model), model)
-    assert r["paired"] == 0 and r["changed"] == 3
+def test_noise_quantisation_and_pruning_cut_nothing(model, edit):
+    assert cuts(edit(model), model) == {"cut": 0, "changed": 3}
 
 
 def test_an_unchanged_copy_has_no_difference_to_read(model):
-    assert edit_layers(model, model) == {"paired": 0, "common": 0, "changed": 0}
+    assert cuts(model, model) == {"cut": 0, "changed": 0}
 
 
 def test_models_of_different_width_are_not_compared_for_an_edit(model):
     other = TinySource(model)
     other.tensors = {n: (v[:, :40] if v.ndim == 2 and v.shape[1] == 48 else v[:40] if v.shape[0] == 48 else v) for n, v in other.tensors.items()}
     other.index = dict.fromkeys(other.tensors)
-    assert universal.shared_edit(other, TinySource(model), [0, 1], [0, 1]) is None
+    assert universal.cut_layers(other, TinySource(model), [0, 1], [0, 1]) is None

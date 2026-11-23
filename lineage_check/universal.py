@@ -237,27 +237,27 @@ def common_direction(found, top=1):
     return v, [float((U_[:, :top].T @ v).norm()) for _, U_, _ in found]
 
 
-def shared_edit(src, anchor, layers_src, layers_anchor, dev="cpu"):
-    """Was one direction cut out of a copy, layer by layer?
+def cut_layers(src, anchor, layers_src, layers_anchor, dev="cpu"):
+    """In how many layers was one direction cut out of a copy?
 
-    Removing refusals subtracts a residual-stream direction from the matrices that write to the stream. So in the
-    difference between such a copy and its base, the matrices of one layer change along the same direction, and
-    often the same direction shows in layer after layer. Fine-tuning and quantisation move each matrix its own way.
+    Removing refusals subtracts a residual-stream direction from the matrices that write to the stream. Against the
+    base, such a matrix changes by a rank-one amount, and the matrices of one layer change along the same direction.
+    Fine-tuning and quantisation spread a change over many directions, a different set in every matrix.
 
-    Returns {"paired": layers whose changed matrices agree on their leading direction (|cosine| of 0.9 or more),
-    "common": layers holding a changed matrix whose leading direction is the one most matrices share,
-    "changed": layers that changed at all}. None when the two models are not laid out alike."""
+    A layer counts as cut when the change in one of its writing matrices is rank one (its leading direction holds
+    0.9 of it or more), or when two of them change along the same leading direction (|cosine| of 0.9 or more).
+    Returns {"cut": layers cut, "changed": layers that changed at all}. None when the two models are not laid out
+    alike."""
     found = edit_directions(src, anchor, layers_src, layers_anchor, dev)
     if found is None:
         return None
-    if not found:
-        return {"paired": 0, "common": 0, "changed": 0}
-    lead = torch.stack([u[:, 0] for _, u, _ in found])
-    cos = (lead @ lead.T).abs()
     pos = [p for p, _, _ in found]
-    paired = {pos[i] for i in range(len(pos)) for j in range(i + 1, len(pos)) if pos[i] == pos[j] and cos[i, j] >= 0.9}
-    _, fit = common_direction(found)
-    return {"paired": len(paired), "common": len({p for p, c in zip(pos, fit) if c >= 0.9}), "changed": len(set(pos))}
+    cut = {p for p, _, share in found if share >= 0.9}
+    if found:
+        lead = torch.stack([u[:, 0] for _, u, _ in found])
+        cos = (lead @ lead.T).abs()
+        cut |= {pos[i] for i in range(len(pos)) for j in range(i + 1, len(pos)) if pos[i] == pos[j] and cos[i, j] >= 0.9}
+    return {"cut": len(cut), "changed": len(set(pos))}
 
 
 def token_geometry(src, k=GEO_AXES, chunk=16384, dev="cpu", keep_table=True):
