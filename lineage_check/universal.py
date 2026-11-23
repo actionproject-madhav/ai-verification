@@ -34,6 +34,7 @@ MIN_SIDE = 8
 TOP = 8                                                       # leading directions of token geometry removed from every table
 MAX_VOCAB = 4_000_000                                         # more rows than this is a lookup table, not a vocabulary
 MAX_ELEMS = 1 << 28                                           # a larger tensor is a packed table, not one matrix
+GEO_AXES, GEO_SEED, GEO_POOL, GEO_SURE = 128, 32, 1024, 0.7   # matching tokens by geometry: see `token_geometry`
 
 
 def shape_of(src, name):
@@ -91,19 +92,24 @@ def matrix(src, n, dev="cpu"):
     return W
 
 
-def fingerprint(src, vocab, strings, layers=None, k=2, lo=300, hi=20000, dev="cpu"):
+def fingerprint(src, vocab, strings, layers=None, k=2, lo=300, hi=20000, dev="cpu", placed=None, table=None):
     """Tables for the chosen layers (default: k layers at even relative depths).
-    Returns {"keep": indices of strings found, "EE": table, "layers": [[(kind, table), ...] per chosen layer]}."""
+    Returns {"keep": indices of strings found, "EE": table, "layers": [[(kind, table), ...] per chosen layer]}.
+    With `placed` ({string: row}) and `table` (the whole token table), tokens sit where the caller says: for a model
+    whose tokenizer file is not trusted, the caller finds the rows by geometry (`rows_by_geometry`)."""
     emb, d, lay = layout(src)
     idx = sorted(lay)
     if layers is None:
         layers = sorted({idx[int(round((j + 0.5) * len(idx) / k - 0.5))] for j in range(k)}) if len(idx) > k else idx
-    hi = min(hi, shape_of(src, emb)[0])
-    rows = [vocab.get(s) for s in strings]
+    if placed is not None:
+        lo, hi, rows = 0, table.shape[0], [placed.get(s) for s in strings]
+    else:
+        hi = min(hi, shape_of(src, emb)[0])
+        rows = [vocab.get(s) for s in strings]
     keep = [t for t, r in enumerate(rows) if r is not None and lo <= r < hi]
     if len(keep) < 16:                                             # too few shared tokens to say anything
         return {"keep": keep, "EE": None, "layers": [], "layer_ids": list(layers), "d": d, "used": []}
-    block = torch.from_numpy(np.ascontiguousarray(src.rows(emb, lo, hi))).to(dev)
+    block = table if placed is not None else torch.from_numpy(np.ascontiguousarray(src.rows(emb, lo, hi))).to(dev)
     E = block[torch.as_tensor([rows[t] - lo for t in keep], device=dev)].double()
     out = {"keep": keep, "EE": (E @ E.T).float().cpu(), "layers": [], "layer_ids": list(layers), "d": d, "used": []}
     get = lambda n: matrix(src, n, dev)
@@ -247,3 +253,69 @@ def shared_edit(src, anchor, layers_src, layers_anchor, top=1, dev="cpu"):
         return {"layers": 0, "changed": 0}
     _, fit = common_direction(found, top)
     return {"layers": len({p for (p, _, _), c in zip(found, fit) if c >= 0.9}), "changed": len({p for p, _, _ in found})}
+
+
+
+def token_geometry(src, k=GEO_AXES, chunk=16384, dev="cpu", keep_table=True):
+    """Coordinates for every token that do not depend on the order of the rows or on a rotation of the residual
+    stream: the token table on its own leading principal axes, each axis scaled to unit spread and signed by its
+    skew. A copy with shuffled rows and a rotated stream has the same coordinates, row for row.
+    Returns {"C": coordinates (tokens x k), "table": the whole token table, or None if not kept}."""
+    emb, d, _ = layout(src)
+    V = shape_of(src, emb)[0]
+    table = torch.empty(V, d, dtype=torch.float32, device=dev)
+    mu, S = torch.zeros(d, dtype=torch.float64, device=dev), torch.zeros(d, d, dtype=torch.float64, device=dev)
+    for a in range(0, V, chunk):
+        x = torch.from_numpy(np.ascontiguousarray(src.rows(emb, a, min(a + chunk, V)))).to(dev)
+        table[a:a + len(x)] = x
+        x = x.double()
+        mu += x.sum(0)
+        S += x.T @ x
+    mu /= V
+    S -= V * torch.outer(mu, mu)
+    k = min(k, d - 1)
+    Q = torch.linalg.qr(torch.randn(d, min(d, k + 32), generator=torch.Generator().manual_seed(0), dtype=torch.float64).to(dev)).Q
+    for _ in range(8):                                             # leading axes by block power iteration, fixed start
+        Q = torch.linalg.qr(S @ Q).Q
+    axes = Q @ torch.linalg.eigh(Q.T @ S @ Q).eigenvectors[:, -k:]
+    C = torch.empty(V, k, dtype=torch.float32, device=dev)
+    for a in range(0, V, chunk):
+        C[a:a + chunk] = ((table[a:a + chunk].double() - mu) @ axes).float()
+    C *= torch.sign((C.double() ** 3).sum(0)).float()              # a sign rule that ignores the order of the rows
+    C /= C.std(0).clamp_min(1e-12)
+    return {"C": C, "table": table if keep_table else None}
+
+
+def _nearest(A, B, chunk=512):
+    """For each row of A: the nearest row of B, and nearest distance over second nearest (small = decisive)."""
+    best, ratio = [], []
+    for a in range(0, len(A), chunk):
+        two = torch.cdist(A[a:a + chunk], B).topk(2, largest=False)
+        best.append(two.indices[:, 0])
+        ratio.append(two.values[:, 0] / two.values[:, 1].clamp_min(1e-30))
+    return torch.cat(best), torch.cat(ratio)
+
+
+def rows_by_geometry(Ca, Cq, rows, rounds=3):
+    """For each row of the anchor's token table in `rows`: the row of the other table that holds the same token,
+    found from geometry alone, and how decisive the match is.
+
+    The leading axes of two copies agree, so a first match on those is right for some tokens. The most decisive
+    matches then fix a rotation between all the axes, and matching is repeated with it."""
+    if Ca.shape[1] != Cq.shape[1]:
+        return None
+    rows = torch.as_tensor(rows)
+    extra = torch.randperm(len(Ca), generator=torch.Generator().manual_seed(1))[:GEO_POOL]
+    pool = torch.unique(torch.cat([rows, extra]))
+    seed = min(GEO_SEED, Ca.shape[1])
+    A, B = Ca[pool][:, -seed:], Cq[:, -seed:]
+    for it in range(rounds + 1):
+        best, ratio = _nearest(A, B)
+        if it == rounds:
+            break
+        sure = ratio.argsort()[: max(2 * Ca.shape[1], len(pool) // 4)]
+        Uo, _, Vt = torch.linalg.svd(Ca[pool][sure].double().T @ Cq[best[sure]].double())
+        A, B = (Ca[pool].double() @ (Uo @ Vt)).float(), Cq
+    at = {int(p): i for i, p in enumerate(pool)}
+    ix = torch.as_tensor([at[int(r)] for r in rows])
+    return best[ix].tolist(), ratio[ix].tolist()

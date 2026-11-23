@@ -3,6 +3,7 @@ import copy
 import itertools
 
 import pytest
+import torch
 
 from conftest import TinySource, tiny_model
 from lineage_check import edits, light
@@ -77,3 +78,42 @@ def test_a_model_the_reader_cannot_decode_is_amber_not_an_error():
     assert light.layers_for(packed, NONCE) == []
     r = light.light(packed, WATCH, REGISTRY, NONCE)
     assert (r["light"], r["matched"]) == ("amber", None)
+
+
+def stretched(model):
+    """The model with a token table that has distinct principal axes, as real token tables do."""
+    m = copy.deepcopy(model)
+    m["embed"] = m["embed"] * torch.linspace(3.0, 0.3, m["d"])
+    return m
+
+
+def relabelled(model, seed=3):
+    """The model with its token rows shuffled, behind a tokenizer file that still names the old rows."""
+    m = copy.deepcopy(model)
+    m["embed"] = m["embed"][torch.randperm(m["embed"].shape[0], generator=torch.Generator().manual_seed(seed))]
+    return m
+
+
+LISTED2, KNOWN2, OTHER2 = stretched(LISTED), stretched(KNOWN), stretched(OTHER)
+WATCH2, REGISTRY2 = [({"id": "listed"}, Source(LISTED2))], [({"id": "known"}, Source(KNOWN2))]
+
+
+def answer2(model, **kw):
+    r = light.light(Source(model), WATCH2, REGISTRY2, NONCE, **kw)
+    return r["light"], r["matched"]
+
+
+@pytest.mark.parametrize("edit", [lambda m: m, lambda m: edits.noise(m, rel=0.02), edits.quantize, edits.rotate_residual])
+def test_relabelling_the_tokenizer_hides_a_copy_from_names_and_not_from_geometry(edit):
+    hidden = relabelled(edit(LISTED2))
+    assert answer2(hidden) == ("amber", None)
+    assert answer2(hidden, geometry=True) == ("red", "listed")
+
+
+def test_geometry_matching_does_not_flag_an_unrelated_model():
+    assert answer2(OTHER2, geometry=True) == ("amber", None)
+    assert answer2(relabelled(OTHER2), geometry=True) == ("amber", None)
+
+
+def test_geometry_matching_leaves_an_honest_known_copy_green():
+    assert answer2(edits.noise(KNOWN2, rel=0.02), geometry=True) == ("green", "known")
