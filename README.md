@@ -1,21 +1,19 @@
-# Finding model lineage from weights
+# Metal Detector for Open Source Misuse
 
 *Madhav Khanal · November 2026*
 
 ## TL;DR
 
-Once model weights are public, they rarely remain one canonical file. They reappear as quantised releases,
-fine-tunes, merges and versions with their refusal behaviour removed. Some changes are routine packaging;
-others obscure provenance or remove safeguards. Recent
+As open weight models become capable and accessible, there's a higher risk of misuse. Crude methods of hash checking fail as models can be quantised,
+fine-tuned, merged or stripped away from safety trainnig. Recent
 [weight-space programming experiments](https://rikiyat.github.io/blog/weight-space-programming/) show frontier
-LLMs inspecting and editing raw weights directly, adding another way for deployed weights to diverge from a
-published checkpoint.
+LLMs inspecting and editing raw weights directly, making deployed weights to diverge from a
+published checkpoint convenient for anyone.
 
-At deployment, a provider may see only a private model and a self-reported name. A hash can identify its current
-bytes, but the first modification breaks the link to its source.
+For privacy at deployment, a provider may see only a private model and a self-reported name. 
 
-I built a lineage check for that gap. Inside a secure enclave, it compares the model's internal geometry with a
-signed watchlist and a registry of known models, then returns Red, Amber or Green. Weights and comparison scores
+This built a lineage check robust to weight modifications. Inside a secure enclave, it compares the model's internal geometry with a
+signed dangerous model watchlist and a registry of known models, then returns Red, Amber or Green. Weights and comparison scores
 stay private.
 
 In the current evaluation, 27 modified copies scored below 0.07 from their source and 151 unrelated pairs scored
