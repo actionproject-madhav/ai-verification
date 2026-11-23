@@ -37,6 +37,8 @@ def one(job):
         out["changed"] = None if found is None else len({p for p, _, _ in found})
         if found:
             out["positions"], out["share"] = [p for p, _, _ in found], [round(s, 4) for _, _, s in found]
+            lead = torch.stack([u[:, 0] for _, u, _ in found])
+            out["cosines"] = [[round(abs(float(c)), 3) for c in row] for row in lead @ lead.T]   # leading directions, pairwise
             for top in TOPS:                                      # how well each difference holds the common direction
                 out[f"fit{top}"] = [round(c, 4) for c in U.common_direction(found, top)[1]]
     except Exception as e:
