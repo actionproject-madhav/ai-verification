@@ -29,6 +29,8 @@ NORM1 = re.compile(r"input|attn|attention|norm1|ln_1|pre")
 NORM2 = re.compile(r"post|ffn|mlp|norm2|ln_2")
 FLOATS = ("BF16", "F16", "F32", "F64", "F8_E4M3")             # tensor types read as plain numbers
 MIN_SIDE = 8
+MAX_VOCAB = 4_000_000                                         # more rows than this is a lookup table, not a vocabulary
+MAX_ELEMS = 1 << 28                                           # a larger tensor is a packed table, not one matrix
 
 
 def shape_of(src, name):
@@ -41,7 +43,8 @@ def layout(src):
     """The embedding table, the residual width, and per layer: the matrices that touch the residual stream
     (name, kind) and the norm gains found (first, second)."""
     names = list(src.index)
-    cands = [n for n in names if EMBED.search(n) and len(shape_of(src, n)) == 2 and not SKIP.search(n)]
+    cands = [n for n in names if EMBED.search(n) and not SKIP.search(n) and not LAYER.search(n)    # never one inside a layer
+             and len(shape_of(src, n)) == 2 and shape_of(src, n)[0] <= MAX_VOCAB]
     if not cands:
         raise ValueError("no token embedding table found")
     emb = max(cands, key=lambda n: shape_of(src, n)[0])
@@ -63,7 +66,7 @@ def layout(src):
                 L["g2"] = n
             elif NORM1.search(short) and L["g1"] is None:
                 L["g1"] = n
-        elif len(sh) == 2 and min(sh) >= MIN_SIDE and d in sh:
+        elif len(sh) == 2 and min(sh) >= MIN_SIDE and d in sh and sh[0] * sh[1] <= MAX_ELEMS:
             if sh[0] == d and sh[1] == d:
                 kind = "w" if WRITER.search(short) else "r"
             else:

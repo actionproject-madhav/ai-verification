@@ -50,3 +50,20 @@ def test_models_with_no_shared_tokens_are_not_comparable(model):
     f = universal.fingerprint(TinySource(model), vocab, [f"t{i}" for i in range(256)], lo=0, hi=400)
     g = universal.fingerprint(TinySource(model), vocab, [f"other{i}" for i in range(256)], lo=0, hi=400)
     assert universal.compare(f, g) is None
+
+
+def test_a_lookup_table_inside_a_layer_is_not_taken_for_the_vocabulary(model):
+    src = TinySource(model)
+    src.tensors["model.layers.1.engram.embed.weight"] = np.zeros((5000, 8), dtype=np.float32)
+    src.index = dict.fromkeys(src.tensors)
+    emb, d, lay = universal.layout(src)
+    assert emb == "model.embed_tokens.weight" and d == model["embed"].shape[1]
+    assert all("engram" not in n for L in lay.values() for n, _ in L["mats"])
+
+
+def test_packed_giant_tensors_are_skipped(model, monkeypatch):
+    src = TinySource(model)
+    monkeypatch.setattr(universal, "MAX_ELEMS", 48 * 48)          # the attention matrices fit, the MLP matrices do not
+    _, d, lay = universal.layout(src)
+    names = [n for L in lay.values() for n, _ in L["mats"]]
+    assert names and all("mlp" not in n for n in names)
