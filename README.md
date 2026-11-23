@@ -180,7 +180,8 @@ versions of Qwen2.5, ends up as far from its parent as a stranger.
 | `tiny-random/glm-5.2` | random weights under a listed name | Amber |
 | `deepseek-ai/DeepSeek-V4-Flash` | a model on neither list | Amber |
 
-All twelve come out as they should. Beyond these, all 14 public
+All twelve come out as they should. The lights do not change over five nonces. For the first of the three refusal-removed
+models the rule that fires does: the cut test on some nonces, an older signature test on the others. Beyond these, all 14 public
 copies of the listed models that I could read match at 0.017 or less, and 15 other models, some with look-alike
 names, sit at 0.95 or more.
 

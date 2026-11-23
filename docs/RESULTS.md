@@ -13,12 +13,14 @@ reader built earlier in the project (attention-circuit distance, mean of QK and 
 | Public copies of the three government-named models (0.75 to 2.8 trillion parameters) | 14 of 14 readable copies match at 0.017 or less; 15 other models, some with look-alike names, at 0.95 or more | `results/watchlist.json` | `exp_watchlist.py` |
 | What exact hashes recognise, on 13 public copies and 3 unrelated models | whole-file hash 2 of 13; per-tensor hash 7 of 13 (sample of 24 tensors); fingerprint 13 of 13; no method flags an unrelated model | `results/hash_baseline.json` | `exp_hash_baseline.py` |
 | The same question on the Hub scan | of 1,718 popular models the fingerprint traces to a base, 74 share a weight file with it | `results/hub_scan/scan_hashes.json` | `exp_scan_hashes.py` |
-| The traffic light on ten real models | 10 of 10 as expected: 5 Red, 2 Green, 3 Amber; no answer changes over 5 nonces | `results/lights.json`, `results/lights_stability.json` | `exp_lights.py` |
+| The traffic light on twelve real models | 12 of 12 as expected: 4 Red as copies of listed models, 3 Red as known models with a direction cut out, 2 Green, 3 Amber; no light changes over 5 nonces; for 1 model the rule that decides changes with the nonce (the cut test on some, the older signature on others) | `results/lights.json`, `results/lights_stability.json` | `exp_lights.py` |
 | All parts, on the 13 copies above plus 9 more | 21 of 22 under 0.1 (the Green bar); one 4-bit release at 0.22 | `results/hash_baseline.json`, `results/universal_pairs.json` | same |
 | Models retrained at length | five coding and maths versions of Qwen2.5 sit at 0.63 to 0.95 from the base they started from | `results/universal_pairs.json` | `exp_universal_pairs.py` |
 | A later version found without being told | Llama-3.1-8B from Llama-3-8B: 0.059 | `results/universal_pairs.json` | same |
 | Unrelated models from one recipe, before and after token geometry is projected out | SmolLM-360M against SmolLM-135M: 0.40 before, 0.84 after; copies unchanged | `results/universal_cross.json` | `exp_universal_cross.py` |
-| Sealed hardware (AMD SEV-SNP on Azure) | two runs; statements verify offline down to AMD's root, Microsoft's endorsement and the launch policy; Red for a renamed copy of GLM-5.3 in 95 seconds | `demo/azure/`, `demo/azure-light/` | `enclave/verify_statement.py` |
+| A tokenizer relabelled to hide a copy | four copies of listed models with their token rows shuffled behind the old names: Amber by name, Red once tokens are matched by geometry (0.011 or less); five other models unchanged by the same pass | `results/relabelled.json` | `exp_relabelled.py` |
+| A known model with its refusals removed | the cut test flags 45 of 49 close copies named "abliterated" and 47 of 53 named "heretic" (the older signature: 27 and 0); of 314 other close copies it flags 11: seven whose own cards say refusals were removed, two with the same cut and no such statement, and two false alarms (a rank-one fine-tune, a model edited to resist refusal removal); three refusal-removed models and four honest versions come out right under four nonces each | `results/refusal_edit.jsonl`, `results/cut_pairs.json` | `exp_refusal_edit.py`, `exp_cut_pairs.py` |
+| Sealed hardware (AMD SEV-SNP on Azure) | two runs; statements verify offline down to AMD's root, Microsoft's endorsement and the launch policy; Red for a renamed copy of GLM-5.3 in 105 seconds | `demo/azure/`, `demo/azure-light/` | `enclave/verify_statement.py` |
 
 ![Distance against model size](figures/fig_separation.png)
 
@@ -39,6 +41,35 @@ that other model cards name as their base.
 | Cost | a median of 60 seconds a model; 59 hours of worker time in total |
 
 ![Declared bases against the weights](figures/fig_census.png)
+
+## Stress tests against the shipped tool
+
+An operator who knows the code, the lists and the thresholds. Only the nonce is hidden, so each run trains on
+random tokens and every layer. X is the listed model (SmolLM2), Y the known model (SmolLM, same shape and
+tokenizer, trained separately). "Tables" are the tool's distances, closest part and all parts. "Activations" is a
+reader that is not in the tool: it compares what layers compute on secret probe text (X to Y: 0.41 at 135M, 0.53
+at 1.7B). Quality is LAMBADA accuracy. Scripts: `exp_adaptive_light.py` (rounds marked 7), `exp_transplant.py`,
+run on rented GPUs with `modal_redteam.py`; files in `results/gpu/`.
+
+| Test | Size, steps | Light | Tables | Activations | Quality (start to end) |
+|---|---|---|---|---|---|
+| 7: keep X's outputs, push every table away from X | 135M, 3,000 | Amber from step 500 | to X 0.74, 0.80 | to X 0.02 | 0.43 to 0.37 |
+| same | 1.7B, 2,000 | Amber from step 1,250 | to X 0.64, 0.70 | to X 0.08 | 0.69 to 0.62 |
+| 7: the same, against all three readers at once | 135M, 3,000 | Amber from step 750 | to X 0.73, 0.79 | to X 1.51 | 0.43 to 0.39 (lowest 0.33); KL 0.12 against 0.045 |
+| 7: keep X's outputs, pull every table toward Y | 1.7B, 2,000 | Amber, never Green | to Y 0.40, 0.56 | to X 0.09, to Y 0.58 | 0.69 to 0.63 |
+| same, long run | 135M, 4,500 | Amber, never Green | to Y 0.29, 0.41 | to X 0.03 | 0.43 to 0.38 |
+| start from Y, train every weight to imitate X | 135M, 3,000 | Green as Y | to Y 0.001, 0.002 | to Y 0.02, to X 0.41 | 0.36 to 0.29; KL to X 0.38 to 0.29 |
+| same | 1.7B, 2,500 | Green as Y | to Y 0.002, 0.004 | to Y 0.03 | 0.57 to 0.47; KL to X 0.29 to 0.29 |
+| Y's attention kept, MLPs trained to imitate X | 135M, 3,000; 1.7B, 2,500 | Green as Y | to Y 0.000 | to Y 0.01 | 0.36 to 0.31; 0.57 to 0.53 |
+| X's MLPs under Y's attention and embeddings | 135M | Amber | closest part matches, the rest does not | | never recovers (accuracy 0.0) |
+| the models of rounds 1 to 5, built against the earlier readers | 135M, 1.7B | Red, all 13 | to X 0.001 to 0.23 | to X 0.01 to 1.56 | `results/lights_redteam_135m.json`, `gpu/1.7b-lights_redteam.json`, `gpu/135m-lights_redteam.json` |
+
+What the rows say. Leaving Red by retraining works and costs little. Each reader that the operator trains
+against can be left; a reader they did not train against still names X. Pulling the tables toward a known model
+stops far from Green in these runs, and the activations of that model stay those of X. A known model trained to
+imitate X stays Green and stays itself.
+
+![Retraining aimed at the check](figures/fig_stress.png)
 
 ## Does it separate copies from strangers?
 
@@ -86,9 +117,9 @@ that other model cards name as their base.
 | "Uncensored" models made by fine-tuning | 1 of 5 flagged: fine-tuning leaves no cut direction | same | same |
 | After reparameterisation and 4-bit quantisation | still flagged | `results/forensics_small.json` | `exp_forensics.py` |
 
-## Red team
+## Red team, earlier rounds
 
-All on SmolLM2-135M. v3 reads weights; v4 reads activations on secret probe text. LAMBADA accuracy of the
+These rounds attacked the design-aware reader (v3) and the activation reader (v4). All on SmolLM2-135M. v3 reads weights; v4 reads activations on secret probe text. LAMBADA accuracy of the
 untouched parent: 0.428.
 
 | Round | Attack | Result | File | Script |
