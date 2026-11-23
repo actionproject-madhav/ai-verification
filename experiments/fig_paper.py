@@ -81,6 +81,40 @@ def separation(res, out):
     return {k: (len(v), round(min(y for _, y in v), 3), round(max(y for _, y in v), 3)) for k, v in pts.items()}
 
 
+LADDER = [("bartowski/Meta-Llama-3.1-8B-Instruct-GGUF", INK, "o", "Llama-3.1-8B-Instruct"),
+          ("bartowski/Qwen2.5-7B-Instruct-GGUF", FOREST, "s", "Qwen2.5-7B-Instruct"),
+          ("mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated-GGUF", VERM, "^", "Llama-3.1-8B, refusals removed")]
+
+
+def gguf(res, out):
+    """Every GGUF file of three public models: x = bits per weight, y = distance of all parts to the safetensors
+    original the file was converted from."""
+    rows = [r for r in json.load(open(os.path.join(res, "gguf_ladder.json"))) if "to_original" in r]
+    fig, ax = plt.subplots(figsize=(6.6, 2.9))
+    for y in (0.1, 0.5):
+        ax.axhline(y, color=HAIR, lw=0.8, zorder=0)
+    found = {}
+    for repo, color, marker, label in LADDER:
+        pts = sorted((r["bits_per_weight"], max(r["to_original"][1], 1e-4)) for r in rows if r["repo"] == repo)
+        if pts:
+            ax.scatter(*zip(*pts), s=14, marker=marker, color=color, linewidths=0, label=label, zorder=3)
+            found[label] = (len(pts), min(p[1] for p in pts), max(p[1] for p in pts))
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xticks([2, 3, 4, 5, 6, 8, 12, 16])
+    ax.set_xticklabels(["2", "3", "4", "5", "6", "8", "12", "16"])
+    ax.minorticks_off()
+    ax.set_xlim(2.4, 19)
+    ax.set_ylim(3e-4, 1.3)
+    ax.set_yticks([0.001, 0.01, 0.1, 0.5])
+    ax.set_yticklabels(["0.001", "0.01", "0.1", "0.5"])
+    ax.set_xlabel("bits per weight")
+    ax.set_ylabel("distance")
+    ax.legend(loc="center left", bbox_to_anchor=(1.0, 0.5), handletextpad=0.2)
+    save(fig, out, "fig_gguf")
+    return found
+
+
 GROUPS = [("repackaged", ("4-bit release", "8-bit release", "8-bit release, renamed", "16-bit release")),
           ("new version", ("later version",)), ("fine-tuned", ("instruct version", "fine-tune")),
           ("refusals\nremoved", ("refusals removed",)), ("unrelated", ("unrelated", "unrelated, similar name"))]
