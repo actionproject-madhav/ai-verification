@@ -1,0 +1,82 @@
+[
+ {
+  "model": "Qwen2.5-0.5B base",
+  "truth": "control",
+  "write_gap": 0.2731867507588636,
+  "second_gap": 0.30755091915681526,
+  "read_ratio": 0.39778319425444975,
+  "n_layers": 24
+ },
+ {
+  "model": "Qwen2.5-0.5B-Instruct",
+  "truth": "control",
+  "write_gap": 0.2722050562081332,
+  "second_gap": 0.30523126276379026,
+  "read_ratio": 0.39890486605943637,
+  "n_layers": 24
+ },
+ {
+  "model": "Qwen2.5-0.5B-Instruct AWQ 4-bit",
+  "truth": "control",
+  "write_gap": 0.32557874700480444,
+  "second_gap": 0.3498169559011141,
+  "read_ratio": 0.39587752749708294,
+  "n_layers": 24
+ },
+ {
+  "model": "Qwen2.5-Coder-0.5B",
+  "truth": "control",
+  "write_gap": 0.25308676693932264,
+  "second_gap": 0.28289662328145004,
+  "read_ratio": 0.4061125756741212,
+  "n_layers": 24
+ },
+ {
+  "model": "Qwen2-0.5B",
+  "truth": "control",
+  "write_gap": 0.296755119225843,
+  "second_gap": 0.3285073173262106,
+  "read_ratio": 0.4222842053944861,
+  "n_layers": 24
+ },
+ {
+  "model": "base + synthetic rank-1 ablation",
+  "truth": "ablated",
+  "write_gap": 2.887479593069362e-13,
+  "second_gap": 0.273182645186078,
+  "read_ratio": 0.9837467131097332,
+  "n_layers": 24
+ },
+ {
+  "model": "Josiefied abliterated-v1 (real)",
+  "truth": "ablated",
+  "write_gap": 1.6962211679886494e-05,
+  "second_gap": 0.2726081559992526,
+  "read_ratio": 1.2230594573125642,
+  "n_layers": 24
+ },
+ {
+  "model": "  ... MLX 4-bit re-release (real)",
+  "truth": "ablated",
+  "write_gap": 0.009828948911479398,
+  "second_gap": 0.2750581103915735,
+  "read_ratio": 1.2172557607498935,
+  "n_layers": 24
+ },
+ {
+  "model": "  ... 4-bit + all six reparameterisations",
+  "truth": "ablated",
+  "write_gap": 0.009900387047387077,
+  "second_gap": 0.27555835778671645,
+  "read_ratio": 1.2229822815147542,
+  "n_layers": 24
+ },
+ {
+  "model": "base + residual padding 896->960 (no ablation)",
+  "truth": "padded",
+  "write_gap": 2.603211672986864e-13,
+  "second_gap": 2.6063762385582754e-13,
+  "read_ratio": 2.866517994660477e-13,
+  "n_layers": 24
+ }
+]
