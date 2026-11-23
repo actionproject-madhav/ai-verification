@@ -11,7 +11,7 @@ dependencies = [
     "safetensors>=0.4",
     "huggingface_hub>=0.23",
     "requests>=2.31",
-    "cryptography>=42",
+    "cryptography>=42,<51",    # 51 may refuse AMD's chip certificates (serial number 0); tested with 44 and 50
 ]
 
 [project.optional-dependencies]

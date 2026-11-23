@@ -12,7 +12,8 @@ fields carry what a verifier of a lineage statement needs:
 returns the fields. The launch measurement is the base system the containers run on. On Azure that is Microsoft's
 utility VM, and `verify_uvm_endorsement` checks Microsoft's signed statement that it built that measurement.
 """
-from __future__ import annotations
+from __future__ import warnings
+import annotations
 
 import base64
 import binascii
@@ -77,7 +78,9 @@ def certificates(blob: bytes) -> list[x509.Certificate]:
         blob = (doc["vcekCert"] + doc["certificateChain"]).encode()
     except (ValueError, KeyError, TypeError):
         pass
-    return x509.load_pem_x509_certificates(blob)
+    with warnings.catch_warnings():                 # AMD issues chip certificates with serial number 0; cryptography
+        warnings.simplefilter("ignore")             # warns about that and says a later release will refuse them
+        return x509.load_pem_x509_certificates(blob)
 
 
 def verify(raw: bytes, chain: bytes, roots: dict | None = None) -> dict:
