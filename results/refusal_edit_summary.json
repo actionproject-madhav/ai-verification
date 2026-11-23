@@ -1,0 +1,42 @@
+{
+ "abliterat": {
+  "models": 60,
+  "differ_from_base": 49,
+  "flagged": 45,
+  "older_signature": 27,
+  "flagged_repos": null
+ },
+ "heretic": {
+  "models": 55,
+  "differ_from_base": 53,
+  "flagged": 47,
+  "older_signature": 0,
+  "flagged_repos": null
+ },
+ "hint": {
+  "models": 35,
+  "differ_from_base": 30,
+  "flagged": 15,
+  "older_signature": 8,
+  "flagged_repos": null
+ },
+ "control": {
+  "models": 400,
+  "differ_from_base": 314,
+  "flagged": 11,
+  "older_signature": 3,
+  "flagged_repos": [
+   "Eu-sou/Mythos-nano",
+   "unsloth/Llama-3.2-3B-Instruct",
+   "smshahbaj/RIFA-Edge-0.6B",
+   "TeskesLab/Liberation-Qwen3-8B",
+   "Sakalti/Saka-14B",
+   "XOTaiChi/grpo_qwen_0202",
+   "squ11z1/Mythos-nano",
+   "IlyaGusev/saiga_llama3_8b",
+   "Naphula/L3-8B-Stheno-v3.2-MPOA",
+   "ApolloRaines/Llama-3.1-8B-Instruct.immunized.v2",
+   "p-e-w/Oc-e-Non-v1"
+  ]
+ }
+}
