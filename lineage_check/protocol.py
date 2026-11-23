@@ -206,13 +206,15 @@ def light(a):
     """Red, Green or Amber for one model: any architecture, no key needed."""
     from . import light as LT
     torch.set_grad_enabled(False)
-    src = R.Remote(a.query, a.commit)
+    src = R.Remote(a.query, a.commit, file=a.file)
     nonce = a.nonce or secrets.token_hex(16)
     out = LT.light(src, LT.sources(a.watchlist), LT.sources(a.known) if a.known else [], nonce, a.n,
                    ablation=None if a.no_ablation else LT.ablation_signature(src, nonce, a.n), geometry=a.geometry)
     if a.json:
-        print(json.dumps({"query": a.query, "commit": src.sha, "nonce": nonce, **out}))
+        print(json.dumps({"query": a.query, "commit": src.sha, "file": src.gguf[0] if src.gguf else None, "nonce": nonce, **out}))
         return
+    if src.gguf:
+        print(f"read from {src.gguf[0]}" + (f" and {len(src.gguf) - 1} more shards" if len(src.gguf) > 1 else ""))
     print(f"{out['light'].upper()}{'  ' + out['matched'] if out['matched'] else ''}  ({out['reason']})")
     for name, d in out["distances"].items():
         print(f"  {name:24s} " + ("not comparable" if d is None else f"closest part {max(d[0], 0):.3f}   all parts {max(d[1], 0):.3f}"))
@@ -249,6 +251,7 @@ def main(argv=None):
     t.add_argument("--known"); t.add_argument("--commit"); t.add_argument("--nonce")
     t.add_argument("--n", type=int, default=256); t.add_argument("--json", action="store_true")
     t.add_argument("--no-ablation", action="store_true")
+    t.add_argument("--file", help='in a repository of GGUF files, the one to read, by part of its name ("Q8_0")')
     t.add_argument("--geometry", action="store_true",
                    help="if no listed model matches by token name, match tokens by geometry too (reads whole token tables)")
     v = sp.add_parser("verify")

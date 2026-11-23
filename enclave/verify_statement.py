@@ -117,7 +117,9 @@ def main():
                "known": "matches a known model", "none": "matches nothing listed or known",
                "unchecked": "matches a known model but cannot be compared with it matrix by matrix"}.get(p["light"].get("finding"))
         print(f"\nlight: {p['light']['result'].upper()}{' -> ' + p['light']['matched'] if p['light']['matched'] else ''}"
-              f"{' [' + why + ']' if why else ''}  ({model['ref']}, {p['method']['tokens']} tokens, {p['execution']['platform']})")
+              f"{' [' + why + ']' if why else ''}  ({model['ref']}, "
+              f"{'file ' + p['method']['fileRead'] + ', ' if p['method'].get('fileRead') else ''}"
+              f"{p['method']['tokens']} tokens, {p['execution']['platform']})")
         sys.exit(0 if ok else 1)
     lin = p["lineage"]
     print(f"\nlineage: {lin['verdict']}{' -> ' + lin['matched'] if lin['matched'] else ''}"

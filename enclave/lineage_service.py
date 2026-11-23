@@ -142,7 +142,7 @@ class LightService:
             if not all(e.get("revision") for e in doc["models"]):
                 raise ValueError(f"every {name} entry needs a pinned revision")
             self.lists[name] = {"doc": doc, "digest": digest, "sources": [(e, R.Remote(e["repo"], e["revision"])) for e in doc["models"]]}
-        self.q = R.Remote(repo, revision)
+        self.q = R.Remote(repo, revision, file=env.get("MODEL_FILE") or None)   # MODEL_FILE: which GGUF file of the repo
         self.started_at = now()
         self.used, self.lock = set(), threading.Lock()
 
@@ -154,7 +154,8 @@ class LightService:
         return {"model": self.component(), **{k: {"digest": v["digest"]} for k, v in self.lists.items()}}
 
     def ready(self):
-        return (f"{self.q.repo}@{self.q.sha[:10]}, {len(self.lists['watchlist']['sources'])} listed and "
+        return (f"{self.q.repo}@{self.q.sha[:10]}{' [' + self.q.gguf[0] + ']' if self.q.gguf else ''}, "
+                f"{len(self.lists['watchlist']['sources'])} listed and "
                 f"{len(self.lists['registry']['sources'])} known models")
 
     def challenge(self, nonce):
@@ -184,7 +185,8 @@ class LightService:
                 "challenge": {"nonce": nonce},
                 "light": {"result": r["light"], "matched": r["matched"], "finding": r["finding"]},
                 "method": {"name": "design-free token tables", "tokens": self.tokens, "layersSampled": LT.LAYERS,
-                           "tokensByGeometry": GEOMETRY, "cutLayersRead": LT.CUT_LAYERS},
+                           "tokensByGeometry": GEOMETRY, "cutLayersRead": LT.CUT_LAYERS,
+                           **({"fileRead": self.q.gguf[0], "shards": len(self.q.gguf)} if self.q.gguf else {})},
                 "execution": {"platform": PLATFORM_NAMES[PLATFORM] if binding else "local", "startedAt": self.started_at,
                               "issuedAt": now(), "scanSeconds": seconds, "statementKey": pub.hex(),
                               "attestation": {"keyBinding": binding}},
