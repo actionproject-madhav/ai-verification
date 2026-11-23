@@ -51,6 +51,8 @@ def rung(job):
         row["tensors_decoded"], row["tensors"] = len(src.index), len(h["tensors"])
         cache = {}
         d = LT.distances(src, first, LADDER_NONCE, cache=cache)
+        if d is None:
+            raise ValueError("no matrix in a format the reader decodes")
         used = cache[next(k for k in cache if k[0] == id(src))]["used"]
         row["formats"] = formats(src, used + [U.layout(src)[0]])
         b = LT.distances(src, known, LADDER_NONCE, cache=cache)
