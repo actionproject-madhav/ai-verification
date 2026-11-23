@@ -36,3 +36,36 @@ def attn_distance(a, b, align=False):
 @pytest.fixture
 def model():
     return tiny_model(0)
+
+
+class TinySource:
+    """The tiny model behind the reader interface, with the tensor names a Llama-style checkpoint uses."""
+
+    def __init__(self, model):
+        t = {"model.embed_tokens.weight": model["embed"]}
+        for i, l in enumerate(model["layers"]):
+            p = f"model.layers.{i}."
+            for n in ("q", "k", "v", "o"):
+                t[p + f"self_attn.{n}_proj.weight"] = l[n]
+            for n in ("gate", "up", "down"):
+                t[p + f"mlp.{n}_proj.weight"] = l[n]
+            t[p + "input_layernorm.weight"], t[p + "post_attention_layernorm.weight"] = l["g1"], l["g2"]
+        self.tensors = {k: v.numpy() for k, v in t.items()}
+        self.index = dict.fromkeys(self.tensors)
+
+    def shape(self, name):
+        return self.tensors[name].shape
+
+    def get(self, name):
+        return self.tensors[name]
+
+    def rows(self, name, lo, hi):
+        return self.tensors[name][lo:hi]
+
+
+def universal_distance(a, b):
+    from lineage_check import universal
+    vocab = {f"t{i}": i for i in range(VOCAB)}
+    strings = [f"t{i}" for i in range(256)]
+    f = lambda m: universal.fingerprint(TinySource(m), vocab, strings, k=2, lo=0, hi=VOCAB)
+    return universal.compare(f(a), f(b))["d"]
