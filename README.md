@@ -4,18 +4,24 @@
 
 ## TL;DR
 
-A model hash identifies one exact set of bytes. Fine-tuning, quantisation or removing refusals produces a new
-hash, even when the resulting model is still recognisably descended from the original.
+Once model weights are public, they rarely remain one canonical file. They reappear as quantised releases,
+fine-tunes, merges and versions with their refusal behaviour removed. Some changes are routine packaging;
+others obscure provenance or remove safeguards. Recent
+[weight-space programming experiments](https://rikiyat.github.io/blog/weight-space-programming/) show frontier
+LLMs inspecting and editing raw weights directly, adding another way for deployed weights to diverge from a
+published checkpoint.
 
-This project measures that family resemblance inside a secure enclave. A private model is compared with a signed
-watchlist and a registry of known models. The enclave releases a signed Red, Amber or Green result while keeping
-the weights and comparison scores private.
+At deployment, a provider may see only a private model and a self-reported name. A hash can identify its current
+bytes, but the first modification breaks the link to its source.
 
-The 27 modified copies in the current evaluation scored below 0.07 from their source. The 151 unrelated pairs
-scored above 0.83. Whole-file hashes found 2 of 13 public copies in a smaller audit; the fingerprint found 13.
+I built a lineage check for that gap. Inside a secure enclave, it compares the model's internal geometry with a
+signed watchlist and a registry of known models, then returns Red, Amber or Green. Weights and comparison scores
+stay private.
 
-There is a clear limit. Retraining against the check moved a listed model from Red to Amber in 500 to 1,250
-steps. This is a triage mechanism, not proof of ancestry against an adaptive attacker.
+In the current evaluation, 27 modified copies scored below 0.07 from their source and 151 unrelated pairs scored
+above 0.83. Whole-file hashes found 2 of 13 public copies in a smaller audit; the fingerprint found 13.
+Retraining against the check can still move a listed model from Red to Amber, so the result is useful for triage
+rather than proof against an adaptive attacker.
 
 ![A private model is compared with public lists inside an enclave.](docs/figures/fig_architecture.png)
 
@@ -29,13 +35,15 @@ models changed by long continued pretraining.*
 
 ## Why check ancestry?
 
-[SASH's verified inference demo](https://github.com/sg-ai-safety-hub/inference-demo) shows how an enclave can
-attest that a deployment runs the same file an evaluation tested. That is enough when the audited file is the
-thing being served.
+Open model ecosystems are built from descendants. Developers convert weights to smaller formats, tune them for
+new tasks, merge checkpoints and publish later versions. Most of this is ordinary engineering. Some edits are
+safety-relevant, such as removing refusal behaviour from a cyber-capable model.
 
-Open weights are often changed before deployment. A provider may see a new hash after a harmless conversion, a
-fine-tune, or an edit that removes safety training. Exact attestation still identifies the file, but it cannot
-recover its origin.
+A provider running private customer weights cannot rely on a model card or repository name. Exact attestation
+helps with a different part of the problem. [SASH's verified inference
+demo](https://github.com/sg-ai-safety-hub/inference-demo) shows that an enclave can prove a deployment runs the
+same file an evaluation tested. Once that file is modified, its hash identifies the new bytes without recovering
+their ancestry.
 
 This checker asks whether a private deployment derives from a model on a public watchlist. The demo watchlist
 contains [GLM-5.2](https://www.nist.gov/document/caisi-assessment-zais-glm-52),
@@ -49,8 +57,9 @@ These labels route deployments to different checks. They are not safety ratings.
 
 ## What is being compared?
 
-The checker samples a few weight matrices and asks how each matrix treats the same set of words. For token
-embeddings \(E_S\) and a matrix \(W\), one fingerprint table is
+A useful lineage signal should survive routine conversions without pulling independently trained models into
+the same family. The checker samples a few weight matrices and asks how each matrix treats the same set of
+words. For token embeddings \(E_S\) and a matrix \(W\), one fingerprint table is
 
 $$T = E_S \hat W^{\top} \hat W E_S^{\top}.$$
 
@@ -74,6 +83,10 @@ that change.
 
 ## What else did the audit find?
 
+The separation plot tests the central measurement. Deployment raises a few more practical questions: whether
+the fingerprint improves on hashes, whether it agrees with public provenance, and whether simple obfuscations
+change the result.
+
 ![Whole-file hashes find 2 of 13 copies, tensor hashes find 7, and the fingerprint finds 13.](docs/figures/fig_hashes.png)
 
 The hash comparison used 13 public derivatives and three unrelated controls. A whole-file hash recognised 2
@@ -95,9 +108,10 @@ watchlisted models and did not change the results for five unrelated controls.
 
 ## What did the enclave prove?
 
-The service ran in an AMD SEV-SNP enclave on Azure against the most-downloaded GGUF copy of GLM-5.3. The model
-has 753 billion parameters and is split across eleven 4-bit files. Reading headers and selected matrices from
-two layers took 99 seconds and returned Red.
+An offline comparison is easy to rerun or alter. A deployment claim also needs evidence that the expected code,
+lists and model were used. I ran the service in an AMD SEV-SNP enclave on Azure against the most-downloaded GGUF
+copy of GLM-5.3. The model has 753 billion parameters and is split across eleven 4-bit files. Reading headers and
+selected matrices from two layers took 99 seconds and returned Red.
 
 The saved statement verifies offline. Its evidence ties the result to an AMD certificate chain, Microsoft's
 platform endorsement, a fresh nonce, the statement key, the launch policy, and the digests of both model lists.
@@ -106,9 +120,10 @@ in [`enclave/`](enclave/).
 
 ## Can an operator evade it?
 
-Reordering, scaling and rotating weights leave the fingerprint unchanged. Geometry matching handles a relabelled
-tokenizer. Combining known attention layers with unrelated MLPs produces Amber because only part of the model
-matches.
+Routine model conversions are one test; deliberate evasion is another. I gave the operator the code, model
+lists and thresholds, while keeping the audit nonce secret. Reordering, scaling and rotating weights left the
+fingerprint unchanged. Geometry matching handled a relabelled tokenizer. Combining known attention layers with
+unrelated MLPs produced Amber because only part of the model matched.
 
 Retraining works better.
 
@@ -149,7 +164,9 @@ inference. Registry ownership and watchlist governance also remain policy decisi
 [Nasery et al.](https://arxiv.org/abs/2509.26598) showed that training against a fingerprint can defeat it.
 [O'Gara et al.](https://arxiv.org/abs/2505.03742) surveyed hardware verification for AI workloads, and
 [Casper et al.](https://arxiv.org/abs/2608.07514) identified model heritage inference as an open problem in
-open-weight risk management.
+open-weight risk management. [Takehi et al.'s weight-space programming
+experiments](https://rikiyat.github.io/blog/weight-space-programming/) are adjacent motivation: frontier LLMs
+read and edit raw weights directly, though they do not perform lineage verification.
 
 This implementation combines an invariant matcher with a private load-time protocol, a signed watchlist and an
 asymmetric policy: one matching part is enough to flag, while clearance requires a match across the sampled
