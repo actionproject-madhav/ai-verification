@@ -10,7 +10,10 @@ and the layers after the weights are fixed, so the attacker works on random toke
   forge      the same, and pull every table towards Y's                          aim: reach Green
   erase-all  erase, and push the two older readers away as round 4 did           aim: leave Red on every reader
 
-  loss = KL(X || student) + PUSH * mean relu(c_X - (1 - MARGIN)) [+ PULL * mean (1 - c_Y)]
+  loss = KEEP * KL(X || student) + PUSH * mean relu(c_X - (1 - MARGIN)) [+ PULL * mean (1 - c_Y)]
+
+KEEP (R7_KEEP, default 1) weighs keeping X's outputs. Lower values trade X's behaviour for closeness to Y's tables;
+0 drops the term. A sweep over it traces how much of X is left at each distance from Green.
 
 c is the correlation the tool computes for each part: the best match within the same layer and kind. The verdict
 logged at every evaluation is the tool's own (`lineage_check.light`), on the secret nonce.
@@ -32,6 +35,7 @@ DEV = A.DEV
 STEPS, EVAL_EVERY = int(os.environ.get("R7_STEPS", 3000)), int(os.environ.get("R7_EVAL", 250))
 PUSH, PULL, MARGIN = float(os.environ.get("R7_PUSH", 10)), float(os.environ.get("R7_PULL", 10)), float(os.environ.get("R7_MARGIN", 0.6))
 LR, N_TOK, LAM = float(os.environ.get("R7_LR", 1e-4)), 128, float(os.environ.get("R7_LAM", 1))
+KEEP = float(os.environ.get("R7_KEEP", 1))
 AUDIT_NONCE = "round7-secret-audit-nonce"
 READERS = (("self_attn", "q_proj", "g1"), ("self_attn", "k_proj", "g1"), ("self_attn", "v_proj", "g1"),
            ("mlp", "gate_proj", "g2"), ("mlp", "up_proj", "g2"))
@@ -120,19 +124,20 @@ def run(fh, mode):
 
     opt = torch.optim.AdamW(m.parameters(), lr=LR, weight_decay=0.0)
     g = torch.Generator().manual_seed(41)
-    rec = {"run": f"tool-{mode}", "mode": mode, "push": PUSH, "pull": PULL if mode == "forge" else 0, "margin": MARGIN, "lr": LR,
-           "target": A.INDEP, "objective": "KL to X + push every table from X" + (" + pull every table to Y" if mode == "forge" else "")
+    name = f"tool-{mode}" + ("" if KEEP == 1 else f"-keep{KEEP:g}")
+    rec = {"run": name, "mode": mode, "push": PUSH, "pull": PULL if mode == "forge" else 0, "margin": MARGIN, "lr": LR, "keep": KEEP,
+           "target": A.INDEP, "objective": ("KL to X + " if KEEP > 0 else "") + "push every table from X" + (" + pull every table to Y" if mode == "forge" else "")
            + (" + push the design-aware and activation fingerprints from X" if mode == "erase-all" else "")}
-    A.log(fh, {**rec, "step": 0, **verdict(), **R3.evaluate(m, p4, p3), "kl": R4.held_out_kl(m, ref)})
+    A.log(fh, {**rec, "step": 0, **verdict(), **R3.evaluate(m, p4, p3), "kl": R4.held_out_kl(m, ref), "kl_to_Y": R4.held_out_kl(m, tgt)})
     t0 = time.time()
     for step in range(1, STEPS + 1):
         b = R3.FW_TRAIN[torch.randint(0, R3.FW_TRAIN.shape[0], (A.BS,), generator=g)].to(DEV)[:, :-1]
         opt.zero_grad()
         loss_kl = 0.0
-        for chunk in b.split(R4.MB):
+        for chunk in b.split(R4.MB) if KEEP > 0 else ():
             with torch.no_grad():
                 pl = ref(chunk).logits
-            part = R4.kl(pl, m(chunk).logits) * (chunk.shape[0] / b.shape[0])
+            part = KEEP * R4.kl(pl, m(chunk).logits) * (chunk.shape[0] / b.shape[0])
             part.backward()
             loss_kl += float(part)
             del pl, part
@@ -160,8 +165,8 @@ def run(fh, mode):
         if step % EVAL_EVERY == 0:
             A.log(fh, {**rec, "step": step, "train_kl": loss_kl, "train_c_X_max": float(cx.max()), "train_c_X_mean": float(cx.mean()),
                        "train_c_Y_mean": None if cy is None else float(cy.mean()), "sec": round(time.time() - t0),
-                       **verdict(), **R3.evaluate(m, p4, p3), "kl": R4.held_out_kl(m, ref)})
-    m.save_pretrained(os.path.join(R2.SAVE, f"r7-tool-{mode}"), safe_serialization=True)
+                       **verdict(), **R3.evaluate(m, p4, p3), "kl": R4.held_out_kl(m, ref), "kl_to_Y": R4.held_out_kl(m, tgt)})
+    m.save_pretrained(os.path.join(R2.SAVE, f"r7-{name}"), safe_serialization=True)
     del m, ref, tgt
 
 
