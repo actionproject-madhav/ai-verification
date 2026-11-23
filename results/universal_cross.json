@@ -1,0 +1,1077 @@
+{
+ "nonce": "universal-cross-2026-11",
+ "rows": [
+  {
+   "a": "unsloth/Llama-3.1-8B",
+   "b": "marin-community/marin-8b-base",
+   "same_family": false,
+   "closest_part": 0.9167,
+   "all_parts": 0.9408,
+   "seconds": 66
+  },
+  {
+   "a": "unsloth/Llama-3.1-8B",
+   "b": "Qwen/Qwen2.5-7B",
+   "same_family": false,
+   "closest_part": 0.986,
+   "all_parts": 0.9913,
+   "seconds": 23
+  },
+  {
+   "a": "unsloth/Llama-3.1-8B",
+   "b": "Qwen/Qwen2.5-1.5B",
+   "same_family": false,
+   "closest_part": 0.9809,
+   "all_parts": 0.9878,
+   "seconds": 5
+  },
+  {
+   "a": "unsloth/Llama-3.1-8B",
+   "b": "Qwen/Qwen3-8B-Base",
+   "same_family": false,
+   "closest_part": 0.9847,
+   "all_parts": 0.9903,
+   "seconds": 20
+  },
+  {
+   "a": "unsloth/Llama-3.1-8B",
+   "b": "mistralai/Mistral-7B-v0.3",
+   "same_family": false,
+   "closest_part": 0.9113,
+   "all_parts": 0.9469,
+   "seconds": 38
+  },
+  {
+   "a": "unsloth/Llama-3.1-8B",
+   "b": "allenai/OLMo-2-1124-7B",
+   "same_family": false,
+   "closest_part": 0.9756,
+   "all_parts": 0.9863,
+   "seconds": 39
+  },
+  {
+   "a": "unsloth/Llama-3.1-8B",
+   "b": "HuggingFaceTB/SmolLM2-1.7B",
+   "same_family": false,
+   "closest_part": 0.9739,
+   "all_parts": 0.9921,
+   "seconds": 7
+  },
+  {
+   "a": "unsloth/Llama-3.1-8B",
+   "b": "HuggingFaceTB/SmolLM-1.7B",
+   "same_family": false,
+   "closest_part": 0.9693,
+   "all_parts": 0.9883,
+   "seconds": 10
+  },
+  {
+   "a": "unsloth/Llama-3.1-8B",
+   "b": "HuggingFaceTB/SmolLM2-360M",
+   "same_family": false,
+   "closest_part": 0.9694,
+   "all_parts": 0.9911,
+   "seconds": 2
+  },
+  {
+   "a": "unsloth/Llama-3.1-8B",
+   "b": "HuggingFaceTB/SmolLM-360M",
+   "same_family": false,
+   "closest_part": 0.9667,
+   "all_parts": 0.9853,
+   "seconds": 5
+  },
+  {
+   "a": "unsloth/Llama-3.1-8B",
+   "b": "HuggingFaceTB/SmolLM2-135M",
+   "same_family": false,
+   "closest_part": 0.9619,
+   "all_parts": 0.9791,
+   "seconds": 1
+  },
+  {
+   "a": "unsloth/Llama-3.1-8B",
+   "b": "HuggingFaceTB/SmolLM-135M",
+   "same_family": false,
+   "closest_part": 0.9621,
+   "all_parts": 0.9792,
+   "seconds": 2
+  },
+  {
+   "a": "unsloth/Llama-3.1-8B",
+   "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "same_family": false,
+   "closest_part": 0.948,
+   "all_parts": 0.9723,
+   "seconds": 5
+  },
+  {
+   "a": "unsloth/Llama-3.1-8B",
+   "b": "EleutherAI/pythia-1.4b",
+   "same_family": false,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 0
+  },
+  {
+   "a": "unsloth/Llama-3.1-8B",
+   "b": "deepseek-ai/DeepSeek-V4-Flash",
+   "same_family": false,
+   "closest_part": 0.96,
+   "all_parts": 0.9823,
+   "seconds": 12
+  },
+  {
+   "a": "unsloth/Llama-3.1-8B",
+   "b": "zai-org/GLM-5.3-Flash",
+   "same_family": false,
+   "closest_part": 0.9828,
+   "all_parts": 0.9907,
+   "seconds": 14
+  },
+  {
+   "a": "marin-community/marin-8b-base",
+   "b": "Qwen/Qwen2.5-7B",
+   "same_family": false,
+   "closest_part": 0.9479,
+   "all_parts": 0.9716,
+   "seconds": 7
+  },
+  {
+   "a": "marin-community/marin-8b-base",
+   "b": "Qwen/Qwen2.5-1.5B",
+   "same_family": false,
+   "closest_part": 0.9489,
+   "all_parts": 0.9751,
+   "seconds": 0
+  },
+  {
+   "a": "marin-community/marin-8b-base",
+   "b": "Qwen/Qwen3-8B-Base",
+   "same_family": false,
+   "closest_part": 0.9587,
+   "all_parts": 0.9738,
+   "seconds": 0
+  },
+  {
+   "a": "marin-community/marin-8b-base",
+   "b": "mistralai/Mistral-7B-v0.3",
+   "same_family": false,
+   "closest_part": 0.8682,
+   "all_parts": 0.9135,
+   "seconds": 0
+  },
+  {
+   "a": "marin-community/marin-8b-base",
+   "b": "allenai/OLMo-2-1124-7B",
+   "same_family": false,
+   "closest_part": 0.9448,
+   "all_parts": 0.9701,
+   "seconds": 0
+  },
+  {
+   "a": "marin-community/marin-8b-base",
+   "b": "HuggingFaceTB/SmolLM2-1.7B",
+   "same_family": false,
+   "closest_part": 0.9096,
+   "all_parts": 0.9874,
+   "seconds": 0
+  },
+  {
+   "a": "marin-community/marin-8b-base",
+   "b": "HuggingFaceTB/SmolLM-1.7B",
+   "same_family": false,
+   "closest_part": 0.9654,
+   "all_parts": 1.0269,
+   "seconds": 0
+  },
+  {
+   "a": "marin-community/marin-8b-base",
+   "b": "HuggingFaceTB/SmolLM2-360M",
+   "same_family": false,
+   "closest_part": 0.8939,
+   "all_parts": 0.9828,
+   "seconds": 0
+  },
+  {
+   "a": "marin-community/marin-8b-base",
+   "b": "HuggingFaceTB/SmolLM-360M",
+   "same_family": false,
+   "closest_part": 0.9064,
+   "all_parts": 0.9951,
+   "seconds": 0
+  },
+  {
+   "a": "marin-community/marin-8b-base",
+   "b": "HuggingFaceTB/SmolLM2-135M",
+   "same_family": false,
+   "closest_part": 0.9249,
+   "all_parts": 0.9541,
+   "seconds": 0
+  },
+  {
+   "a": "marin-community/marin-8b-base",
+   "b": "HuggingFaceTB/SmolLM-135M",
+   "same_family": false,
+   "closest_part": 0.8995,
+   "all_parts": 0.9758,
+   "seconds": 0
+  },
+  {
+   "a": "marin-community/marin-8b-base",
+   "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "same_family": false,
+   "closest_part": 0.8937,
+   "all_parts": 0.9357,
+   "seconds": 0
+  },
+  {
+   "a": "marin-community/marin-8b-base",
+   "b": "EleutherAI/pythia-1.4b",
+   "same_family": false,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 0
+  },
+  {
+   "a": "marin-community/marin-8b-base",
+   "b": "deepseek-ai/DeepSeek-V4-Flash",
+   "same_family": false,
+   "closest_part": 0.938,
+   "all_parts": 0.971,
+   "seconds": 0
+  },
+  {
+   "a": "marin-community/marin-8b-base",
+   "b": "zai-org/GLM-5.3-Flash",
+   "same_family": false,
+   "closest_part": 0.976,
+   "all_parts": 0.9906,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen2.5-7B",
+   "b": "Qwen/Qwen2.5-1.5B",
+   "same_family": true,
+   "closest_part": 0.9848,
+   "all_parts": 0.993,
+   "seconds": 7
+  },
+  {
+   "a": "Qwen/Qwen2.5-7B",
+   "b": "Qwen/Qwen3-8B-Base",
+   "same_family": false,
+   "closest_part": 0.9759,
+   "all_parts": 0.9888,
+   "seconds": 6
+  },
+  {
+   "a": "Qwen/Qwen2.5-7B",
+   "b": "mistralai/Mistral-7B-v0.3",
+   "same_family": false,
+   "closest_part": 0.964,
+   "all_parts": 0.9767,
+   "seconds": 12
+  },
+  {
+   "a": "Qwen/Qwen2.5-7B",
+   "b": "allenai/OLMo-2-1124-7B",
+   "same_family": false,
+   "closest_part": 0.9844,
+   "all_parts": 0.9924,
+   "seconds": 9
+  },
+  {
+   "a": "Qwen/Qwen2.5-7B",
+   "b": "HuggingFaceTB/SmolLM2-1.7B",
+   "same_family": false,
+   "closest_part": 0.9718,
+   "all_parts": 0.9886,
+   "seconds": 3
+  },
+  {
+   "a": "Qwen/Qwen2.5-7B",
+   "b": "HuggingFaceTB/SmolLM-1.7B",
+   "same_family": false,
+   "closest_part": 0.9648,
+   "all_parts": 0.9826,
+   "seconds": 3
+  },
+  {
+   "a": "Qwen/Qwen2.5-7B",
+   "b": "HuggingFaceTB/SmolLM2-360M",
+   "same_family": false,
+   "closest_part": 0.9785,
+   "all_parts": 0.9906,
+   "seconds": 1
+  },
+  {
+   "a": "Qwen/Qwen2.5-7B",
+   "b": "HuggingFaceTB/SmolLM-360M",
+   "same_family": false,
+   "closest_part": 0.9803,
+   "all_parts": 0.9927,
+   "seconds": 1
+  },
+  {
+   "a": "Qwen/Qwen2.5-7B",
+   "b": "HuggingFaceTB/SmolLM2-135M",
+   "same_family": false,
+   "closest_part": 0.9745,
+   "all_parts": 0.9854,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen2.5-7B",
+   "b": "HuggingFaceTB/SmolLM-135M",
+   "same_family": false,
+   "closest_part": 0.9837,
+   "all_parts": 0.9917,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen2.5-7B",
+   "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "same_family": false,
+   "closest_part": 0.965,
+   "all_parts": 0.9842,
+   "seconds": 3
+  },
+  {
+   "a": "Qwen/Qwen2.5-7B",
+   "b": "EleutherAI/pythia-1.4b",
+   "same_family": false,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen2.5-7B",
+   "b": "deepseek-ai/DeepSeek-V4-Flash",
+   "same_family": false,
+   "closest_part": 0.9707,
+   "all_parts": 0.9837,
+   "seconds": 8
+  },
+  {
+   "a": "Qwen/Qwen2.5-7B",
+   "b": "zai-org/GLM-5.3-Flash",
+   "same_family": false,
+   "closest_part": 0.9907,
+   "all_parts": 0.9952,
+   "seconds": 9
+  },
+  {
+   "a": "Qwen/Qwen2.5-1.5B",
+   "b": "Qwen/Qwen3-8B-Base",
+   "same_family": false,
+   "closest_part": 0.9848,
+   "all_parts": 0.9918,
+   "seconds": 3
+  },
+  {
+   "a": "Qwen/Qwen2.5-1.5B",
+   "b": "mistralai/Mistral-7B-v0.3",
+   "same_family": false,
+   "closest_part": 0.9562,
+   "all_parts": 0.9784,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen2.5-1.5B",
+   "b": "allenai/OLMo-2-1124-7B",
+   "same_family": false,
+   "closest_part": 0.9817,
+   "all_parts": 0.9898,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen2.5-1.5B",
+   "b": "HuggingFaceTB/SmolLM2-1.7B",
+   "same_family": false,
+   "closest_part": 0.9404,
+   "all_parts": 0.978,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen2.5-1.5B",
+   "b": "HuggingFaceTB/SmolLM-1.7B",
+   "same_family": false,
+   "closest_part": 0.9511,
+   "all_parts": 0.9798,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen2.5-1.5B",
+   "b": "HuggingFaceTB/SmolLM2-360M",
+   "same_family": false,
+   "closest_part": 0.9397,
+   "all_parts": 0.9787,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen2.5-1.5B",
+   "b": "HuggingFaceTB/SmolLM-360M",
+   "same_family": false,
+   "closest_part": 0.9212,
+   "all_parts": 0.9721,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen2.5-1.5B",
+   "b": "HuggingFaceTB/SmolLM2-135M",
+   "same_family": false,
+   "closest_part": 0.9475,
+   "all_parts": 0.9681,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen2.5-1.5B",
+   "b": "HuggingFaceTB/SmolLM-135M",
+   "same_family": false,
+   "closest_part": 0.9553,
+   "all_parts": 0.9769,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen2.5-1.5B",
+   "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "same_family": false,
+   "closest_part": 0.9259,
+   "all_parts": 0.9609,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen2.5-1.5B",
+   "b": "EleutherAI/pythia-1.4b",
+   "same_family": false,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen2.5-1.5B",
+   "b": "deepseek-ai/DeepSeek-V4-Flash",
+   "same_family": false,
+   "closest_part": 0.9737,
+   "all_parts": 0.9852,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen2.5-1.5B",
+   "b": "zai-org/GLM-5.3-Flash",
+   "same_family": false,
+   "closest_part": 0.9909,
+   "all_parts": 0.9956,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen3-8B-Base",
+   "b": "mistralai/Mistral-7B-v0.3",
+   "same_family": false,
+   "closest_part": 0.9629,
+   "all_parts": 0.9796,
+   "seconds": 11
+  },
+  {
+   "a": "Qwen/Qwen3-8B-Base",
+   "b": "allenai/OLMo-2-1124-7B",
+   "same_family": false,
+   "closest_part": 0.988,
+   "all_parts": 0.9926,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen3-8B-Base",
+   "b": "HuggingFaceTB/SmolLM2-1.7B",
+   "same_family": false,
+   "closest_part": 0.9695,
+   "all_parts": 0.9823,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen3-8B-Base",
+   "b": "HuggingFaceTB/SmolLM-1.7B",
+   "same_family": false,
+   "closest_part": 0.9663,
+   "all_parts": 0.9827,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen3-8B-Base",
+   "b": "HuggingFaceTB/SmolLM2-360M",
+   "same_family": false,
+   "closest_part": 0.9769,
+   "all_parts": 0.9911,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen3-8B-Base",
+   "b": "HuggingFaceTB/SmolLM-360M",
+   "same_family": false,
+   "closest_part": 0.9745,
+   "all_parts": 0.9914,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen3-8B-Base",
+   "b": "HuggingFaceTB/SmolLM2-135M",
+   "same_family": false,
+   "closest_part": 0.9711,
+   "all_parts": 0.9869,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen3-8B-Base",
+   "b": "HuggingFaceTB/SmolLM-135M",
+   "same_family": false,
+   "closest_part": 0.9795,
+   "all_parts": 0.9912,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen3-8B-Base",
+   "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "same_family": false,
+   "closest_part": 0.9596,
+   "all_parts": 0.9768,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen3-8B-Base",
+   "b": "EleutherAI/pythia-1.4b",
+   "same_family": false,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen3-8B-Base",
+   "b": "deepseek-ai/DeepSeek-V4-Flash",
+   "same_family": false,
+   "closest_part": 0.9743,
+   "all_parts": 0.9855,
+   "seconds": 0
+  },
+  {
+   "a": "Qwen/Qwen3-8B-Base",
+   "b": "zai-org/GLM-5.3-Flash",
+   "same_family": false,
+   "closest_part": 0.9868,
+   "all_parts": 0.993,
+   "seconds": 0
+  },
+  {
+   "a": "mistralai/Mistral-7B-v0.3",
+   "b": "allenai/OLMo-2-1124-7B",
+   "same_family": false,
+   "closest_part": 0.9314,
+   "all_parts": 0.9609,
+   "seconds": 21
+  },
+  {
+   "a": "mistralai/Mistral-7B-v0.3",
+   "b": "HuggingFaceTB/SmolLM2-1.7B",
+   "same_family": false,
+   "closest_part": 0.9317,
+   "all_parts": 0.9771,
+   "seconds": 2
+  },
+  {
+   "a": "mistralai/Mistral-7B-v0.3",
+   "b": "HuggingFaceTB/SmolLM-1.7B",
+   "same_family": false,
+   "closest_part": 0.9334,
+   "all_parts": 0.9742,
+   "seconds": 2
+  },
+  {
+   "a": "mistralai/Mistral-7B-v0.3",
+   "b": "HuggingFaceTB/SmolLM2-360M",
+   "same_family": false,
+   "closest_part": 0.9403,
+   "all_parts": 0.9822,
+   "seconds": 0
+  },
+  {
+   "a": "mistralai/Mistral-7B-v0.3",
+   "b": "HuggingFaceTB/SmolLM-360M",
+   "same_family": false,
+   "closest_part": 0.9393,
+   "all_parts": 0.9866,
+   "seconds": 0
+  },
+  {
+   "a": "mistralai/Mistral-7B-v0.3",
+   "b": "HuggingFaceTB/SmolLM2-135M",
+   "same_family": false,
+   "closest_part": 0.93,
+   "all_parts": 0.9725,
+   "seconds": 0
+  },
+  {
+   "a": "mistralai/Mistral-7B-v0.3",
+   "b": "HuggingFaceTB/SmolLM-135M",
+   "same_family": false,
+   "closest_part": 0.9165,
+   "all_parts": 0.9738,
+   "seconds": 0
+  },
+  {
+   "a": "mistralai/Mistral-7B-v0.3",
+   "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "same_family": false,
+   "closest_part": 0.9548,
+   "all_parts": 0.9743,
+   "seconds": 1
+  },
+  {
+   "a": "mistralai/Mistral-7B-v0.3",
+   "b": "EleutherAI/pythia-1.4b",
+   "same_family": false,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 0
+  },
+  {
+   "a": "mistralai/Mistral-7B-v0.3",
+   "b": "deepseek-ai/DeepSeek-V4-Flash",
+   "same_family": false,
+   "closest_part": 0.9177,
+   "all_parts": 0.9464,
+   "seconds": 4
+  },
+  {
+   "a": "mistralai/Mistral-7B-v0.3",
+   "b": "zai-org/GLM-5.3-Flash",
+   "same_family": false,
+   "closest_part": 0.9488,
+   "all_parts": 0.9712,
+   "seconds": 5
+  },
+  {
+   "a": "allenai/OLMo-2-1124-7B",
+   "b": "HuggingFaceTB/SmolLM2-1.7B",
+   "same_family": false,
+   "closest_part": 0.9732,
+   "all_parts": 0.9903,
+   "seconds": 6
+  },
+  {
+   "a": "allenai/OLMo-2-1124-7B",
+   "b": "HuggingFaceTB/SmolLM-1.7B",
+   "same_family": false,
+   "closest_part": 0.9392,
+   "all_parts": 0.9767,
+   "seconds": 0
+  },
+  {
+   "a": "allenai/OLMo-2-1124-7B",
+   "b": "HuggingFaceTB/SmolLM2-360M",
+   "same_family": false,
+   "closest_part": 0.9685,
+   "all_parts": 0.9875,
+   "seconds": 0
+  },
+  {
+   "a": "allenai/OLMo-2-1124-7B",
+   "b": "HuggingFaceTB/SmolLM-360M",
+   "same_family": false,
+   "closest_part": 0.9752,
+   "all_parts": 0.9887,
+   "seconds": 0
+  },
+  {
+   "a": "allenai/OLMo-2-1124-7B",
+   "b": "HuggingFaceTB/SmolLM2-135M",
+   "same_family": false,
+   "closest_part": 0.9786,
+   "all_parts": 0.9861,
+   "seconds": 0
+  },
+  {
+   "a": "allenai/OLMo-2-1124-7B",
+   "b": "HuggingFaceTB/SmolLM-135M",
+   "same_family": false,
+   "closest_part": 0.9812,
+   "all_parts": 0.9909,
+   "seconds": 0
+  },
+  {
+   "a": "allenai/OLMo-2-1124-7B",
+   "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "same_family": false,
+   "closest_part": 0.9543,
+   "all_parts": 0.9687,
+   "seconds": 0
+  },
+  {
+   "a": "allenai/OLMo-2-1124-7B",
+   "b": "EleutherAI/pythia-1.4b",
+   "same_family": false,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 0
+  },
+  {
+   "a": "allenai/OLMo-2-1124-7B",
+   "b": "deepseek-ai/DeepSeek-V4-Flash",
+   "same_family": false,
+   "closest_part": 0.9673,
+   "all_parts": 0.9835,
+   "seconds": 0
+  },
+  {
+   "a": "allenai/OLMo-2-1124-7B",
+   "b": "zai-org/GLM-5.3-Flash",
+   "same_family": false,
+   "closest_part": 0.9833,
+   "all_parts": 0.9909,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-1.7B",
+   "b": "HuggingFaceTB/SmolLM-1.7B",
+   "same_family": false,
+   "closest_part": 0.6091,
+   "all_parts": 0.7848,
+   "seconds": 4
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-1.7B",
+   "b": "HuggingFaceTB/SmolLM2-360M",
+   "same_family": true,
+   "closest_part": 0.5114,
+   "all_parts": 0.7668,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-1.7B",
+   "b": "HuggingFaceTB/SmolLM-360M",
+   "same_family": false,
+   "closest_part": 0.5117,
+   "all_parts": 0.7587,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-1.7B",
+   "b": "HuggingFaceTB/SmolLM2-135M",
+   "same_family": true,
+   "closest_part": 0.9117,
+   "all_parts": 0.9572,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-1.7B",
+   "b": "HuggingFaceTB/SmolLM-135M",
+   "same_family": false,
+   "closest_part": 0.6768,
+   "all_parts": 0.8393,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-1.7B",
+   "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "same_family": false,
+   "closest_part": 0.9439,
+   "all_parts": 1.038,
+   "seconds": 1
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-1.7B",
+   "b": "EleutherAI/pythia-1.4b",
+   "same_family": false,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-1.7B",
+   "b": "deepseek-ai/DeepSeek-V4-Flash",
+   "same_family": false,
+   "closest_part": 0.9349,
+   "all_parts": 0.9691,
+   "seconds": 4
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-1.7B",
+   "b": "zai-org/GLM-5.3-Flash",
+   "same_family": false,
+   "closest_part": 0.9742,
+   "all_parts": 0.9852,
+   "seconds": 5
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM-1.7B",
+   "b": "HuggingFaceTB/SmolLM2-360M",
+   "same_family": false,
+   "closest_part": 0.7315,
+   "all_parts": 0.9506,
+   "seconds": 2
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM-1.7B",
+   "b": "HuggingFaceTB/SmolLM-360M",
+   "same_family": true,
+   "closest_part": 0.6595,
+   "all_parts": 0.849,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM-1.7B",
+   "b": "HuggingFaceTB/SmolLM2-135M",
+   "same_family": false,
+   "closest_part": 0.9457,
+   "all_parts": 0.9827,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM-1.7B",
+   "b": "HuggingFaceTB/SmolLM-135M",
+   "same_family": true,
+   "closest_part": 0.7725,
+   "all_parts": 0.9158,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM-1.7B",
+   "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "same_family": false,
+   "closest_part": 0.9239,
+   "all_parts": 0.9965,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM-1.7B",
+   "b": "EleutherAI/pythia-1.4b",
+   "same_family": false,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM-1.7B",
+   "b": "deepseek-ai/DeepSeek-V4-Flash",
+   "same_family": false,
+   "closest_part": 0.9554,
+   "all_parts": 0.982,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM-1.7B",
+   "b": "zai-org/GLM-5.3-Flash",
+   "same_family": false,
+   "closest_part": 0.9575,
+   "all_parts": 0.9823,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-360M",
+   "b": "HuggingFaceTB/SmolLM-360M",
+   "same_family": false,
+   "closest_part": 0.4173,
+   "all_parts": 0.6688,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-360M",
+   "b": "HuggingFaceTB/SmolLM2-135M",
+   "same_family": true,
+   "closest_part": 0.8882,
+   "all_parts": 0.9393,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-360M",
+   "b": "HuggingFaceTB/SmolLM-135M",
+   "same_family": false,
+   "closest_part": 0.5839,
+   "all_parts": 0.7447,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-360M",
+   "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "same_family": false,
+   "closest_part": 0.9644,
+   "all_parts": 1.04,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-360M",
+   "b": "EleutherAI/pythia-1.4b",
+   "same_family": false,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-360M",
+   "b": "deepseek-ai/DeepSeek-V4-Flash",
+   "same_family": false,
+   "closest_part": 0.9085,
+   "all_parts": 0.9548,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-360M",
+   "b": "zai-org/GLM-5.3-Flash",
+   "same_family": false,
+   "closest_part": 0.9583,
+   "all_parts": 0.9801,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM-360M",
+   "b": "HuggingFaceTB/SmolLM2-135M",
+   "same_family": false,
+   "closest_part": 0.8918,
+   "all_parts": 0.9464,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM-360M",
+   "b": "HuggingFaceTB/SmolLM-135M",
+   "same_family": true,
+   "closest_part": 0.3987,
+   "all_parts": 0.6702,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM-360M",
+   "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "same_family": false,
+   "closest_part": 0.9605,
+   "all_parts": 1.0347,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM-360M",
+   "b": "EleutherAI/pythia-1.4b",
+   "same_family": false,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM-360M",
+   "b": "deepseek-ai/DeepSeek-V4-Flash",
+   "same_family": false,
+   "closest_part": 0.9299,
+   "all_parts": 0.9719,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM-360M",
+   "b": "zai-org/GLM-5.3-Flash",
+   "same_family": false,
+   "closest_part": 0.9578,
+   "all_parts": 0.9822,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-135M",
+   "b": "HuggingFaceTB/SmolLM-135M",
+   "same_family": false,
+   "closest_part": 0.8864,
+   "all_parts": 0.9274,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-135M",
+   "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "same_family": false,
+   "closest_part": 0.9703,
+   "all_parts": 1.0006,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-135M",
+   "b": "EleutherAI/pythia-1.4b",
+   "same_family": false,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-135M",
+   "b": "deepseek-ai/DeepSeek-V4-Flash",
+   "same_family": false,
+   "closest_part": 0.9483,
+   "all_parts": 0.9747,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM2-135M",
+   "b": "zai-org/GLM-5.3-Flash",
+   "same_family": false,
+   "closest_part": 0.9595,
+   "all_parts": 0.9747,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM-135M",
+   "b": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "same_family": false,
+   "closest_part": 0.9671,
+   "all_parts": 1.0316,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM-135M",
+   "b": "EleutherAI/pythia-1.4b",
+   "same_family": false,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM-135M",
+   "b": "deepseek-ai/DeepSeek-V4-Flash",
+   "same_family": false,
+   "closest_part": 0.9323,
+   "all_parts": 0.9679,
+   "seconds": 0
+  },
+  {
+   "a": "HuggingFaceTB/SmolLM-135M",
+   "b": "zai-org/GLM-5.3-Flash",
+   "same_family": false,
+   "closest_part": 0.9603,
+   "all_parts": 0.9837,
+   "seconds": 0
+  },
+  {
+   "a": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "b": "EleutherAI/pythia-1.4b",
+   "same_family": false,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 2
+  },
+  {
+   "a": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "b": "deepseek-ai/DeepSeek-V4-Flash",
+   "same_family": false,
+   "closest_part": 0.9277,
+   "all_parts": 0.9555,
+   "seconds": 4
+  },
+  {
+   "a": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "b": "zai-org/GLM-5.3-Flash",
+   "same_family": false,
+   "closest_part": 0.954,
+   "all_parts": 0.9743,
+   "seconds": 6
+  },
+  {
+   "a": "EleutherAI/pythia-1.4b",
+   "b": "deepseek-ai/DeepSeek-V4-Flash",
+   "same_family": false,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 0
+  },
+  {
+   "a": "EleutherAI/pythia-1.4b",
+   "b": "zai-org/GLM-5.3-Flash",
+   "same_family": false,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 0
+  },
+  {
+   "a": "deepseek-ai/DeepSeek-V4-Flash",
+   "b": "zai-org/GLM-5.3-Flash",
+   "same_family": false,
+   "closest_part": 0.9771,
+   "all_parts": 0.9861,
+   "seconds": 13
+  }
+ ]
+}

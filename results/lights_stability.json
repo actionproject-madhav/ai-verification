@@ -1,0 +1,181 @@
+{
+ "nonces": [
+  "lights-2026-11",
+  "stability-nonce-1",
+  "stability-nonce-2",
+  "stability-nonce-3",
+  "stability-nonce-4"
+ ],
+ "rows": [
+  {
+   "repo": "nvidia/GLM-5.2-NVFP4",
+   "lights": [
+    "red",
+    "red",
+    "red",
+    "red",
+    "red"
+   ],
+   "matched": [
+    "glm-5.2",
+    "glm-5.2",
+    "glm-5.2",
+    "glm-5.2",
+    "glm-5.2"
+   ]
+  },
+  {
+   "repo": "dealignai/GLM-5.3-CYBERSECURITY-FP8",
+   "lights": [
+    "red",
+    "red",
+    "red",
+    "red",
+    "red"
+   ],
+   "matched": [
+    "glm-5.3",
+    "glm-5.3",
+    "glm-5.3",
+    "glm-5.3",
+    "glm-5.3"
+   ]
+  },
+  {
+   "repo": "nvidia/Kimi-K3-NVFP4",
+   "lights": [
+    "red",
+    "red",
+    "red",
+    "red",
+    "red"
+   ],
+   "matched": [
+    "kimi-k3",
+    "kimi-k3",
+    "kimi-k3",
+    "kimi-k3",
+    "kimi-k3"
+   ]
+  },
+  {
+   "repo": "moonshotai/Kimi-K3.1-Pro",
+   "lights": [
+    "red",
+    "red",
+    "red",
+    "red",
+    "red"
+   ],
+   "matched": [
+    "kimi-k3",
+    "kimi-k3",
+    "kimi-k3",
+    "kimi-k3",
+    "kimi-k3"
+   ]
+  },
+  {
+   "repo": "zai-org/GLM-5.3-Flash",
+   "lights": [
+    "amber",
+    "amber",
+    "amber",
+    "amber",
+    "amber"
+   ],
+   "matched": [
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "repo": "tiny-random/glm-5.2",
+   "lights": [
+    "amber",
+    "amber",
+    "amber",
+    "amber",
+    "amber"
+   ],
+   "matched": [
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "repo": "Qwen/Qwen2.5-7B-Instruct",
+   "lights": [
+    "green",
+    "green",
+    "green",
+    "green",
+    "green"
+   ],
+   "matched": [
+    "qwen2.5-7b",
+    "qwen2.5-7b",
+    "qwen2.5-7b",
+    "qwen2.5-7b",
+    "qwen2.5-7b"
+   ]
+  },
+  {
+   "repo": "NousResearch/Hermes-3-Llama-3.1-8B",
+   "lights": [
+    "green",
+    "green",
+    "green",
+    "green",
+    "green"
+   ],
+   "matched": [
+    "llama-3.1-8b",
+    "llama-3.1-8b",
+    "llama-3.1-8b",
+    "llama-3.1-8b",
+    "llama-3.1-8b"
+   ]
+  },
+  {
+   "repo": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated",
+   "lights": [
+    "red",
+    "red",
+    "red",
+    "red",
+    "red"
+   ],
+   "matched": [
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "repo": "deepseek-ai/DeepSeek-V4-Flash",
+   "lights": [
+    "amber",
+    "amber",
+    "amber",
+    "amber",
+    "amber"
+   ],
+   "matched": [
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  }
+ ]
+}
