@@ -294,6 +294,126 @@
     "none",
     "none"
    ]
+  },
+  {
+   "repo": "unsloth/GLM-5.3-GGUF",
+   "lights": [
+    "red",
+    "red",
+    "red",
+    "red",
+    "red"
+   ],
+   "matched": [
+    "glm-5.3",
+    "glm-5.3",
+    "glm-5.3",
+    "glm-5.3",
+    "glm-5.3"
+   ],
+   "findings": [
+    "listed",
+    "listed",
+    "listed",
+    "listed",
+    "listed"
+   ]
+  },
+  {
+   "repo": "unsloth/Kimi-K3-GGUF",
+   "lights": [
+    "red",
+    "red",
+    "red",
+    "red",
+    "red"
+   ],
+   "matched": [
+    "kimi-k3",
+    "kimi-k3",
+    "kimi-k3",
+    "kimi-k3",
+    "kimi-k3"
+   ],
+   "findings": [
+    "listed",
+    "listed",
+    "listed",
+    "listed",
+    "listed"
+   ]
+  },
+  {
+   "repo": "huihui-ai/Huihui-GLM-5.3-abliterated-GGUF",
+   "lights": [
+    "red",
+    "red",
+    "red",
+    "red",
+    "red"
+   ],
+   "matched": [
+    "glm-5.3",
+    "glm-5.3",
+    "glm-5.3",
+    "glm-5.3",
+    "glm-5.3"
+   ],
+   "findings": [
+    "listed",
+    "listed",
+    "listed",
+    "listed",
+    "listed"
+   ]
+  },
+  {
+   "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+   "lights": [
+    "green",
+    "green",
+    "green",
+    "green",
+    "green"
+   ],
+   "matched": [
+    "llama-3.1-8b",
+    "llama-3.1-8b",
+    "llama-3.1-8b",
+    "llama-3.1-8b",
+    "llama-3.1-8b"
+   ],
+   "findings": [
+    "known",
+    "known",
+    "known",
+    "known",
+    "known"
+   ]
+  },
+  {
+   "repo": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated-GGUF",
+   "lights": [
+    "red",
+    "green",
+    "red",
+    "red",
+    "red"
+   ],
+   "matched": [
+    "llama-3.1-8b",
+    "llama-3.1-8b",
+    "llama-3.1-8b",
+    "llama-3.1-8b",
+    "llama-3.1-8b"
+   ],
+   "findings": [
+    "cut",
+    "known",
+    "cut",
+    "cut",
+    "cut"
+   ]
   }
  ]
 }
