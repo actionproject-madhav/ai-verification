@@ -1,0 +1,85 @@
+{
+ "X": "HuggingFaceTB/SmolLM2-1.7B",
+ "Y": "HuggingFaceTB/SmolLM-1.7B",
+ "nonce": "redteam-lights-2026-11",
+ "rows": [
+  {
+   "model": "X itself",
+   "light": "red",
+   "matched": "X",
+   "to_X": [
+    -0.0,
+    0.0
+   ],
+   "to_Y": [
+    0.8922,
+    0.9273
+   ]
+  },
+  {
+   "model": "Y itself",
+   "light": "green",
+   "matched": "Y",
+   "to_X": [
+    0.8922,
+    0.9273
+   ],
+   "to_Y": [
+    -0.0,
+    -0.0
+   ]
+  },
+  {
+   "model": "r3-honest",
+   "light": "red",
+   "matched": "X",
+   "to_X": [
+    0.0028,
+    0.0036
+   ],
+   "to_Y": [
+    0.8919,
+    0.9281
+   ]
+  },
+  {
+   "model": "r4-distill-lam1",
+   "light": "red",
+   "matched": "X",
+   "to_X": [
+    0.0037,
+    0.0165
+   ],
+   "to_Y": [
+    0.8973,
+    0.9294
+   ]
+  },
+  {
+   "model": "r5-forge-lam10-push3",
+   "light": "red",
+   "matched": "X",
+   "to_X": [
+    0.2199,
+    0.3843
+   ],
+   "to_Y": [
+    0.7695,
+    0.7972
+   ]
+  },
+  {
+   "model": "r6-transplant-target-lr0.0001",
+   "light": "green",
+   "matched": "Y",
+   "to_X": [
+    0.8927,
+    0.9276
+   ],
+   "to_Y": [
+    -0.0,
+    0.0003
+   ]
+  }
+ ]
+}
