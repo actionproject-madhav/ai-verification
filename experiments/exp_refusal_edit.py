@@ -8,11 +8,13 @@ Labels come from repository names only: "abliterated" and "heretic" name two fam
 Names with other hints (uncensored, dolphin, ...) are kept apart: many of those are fine-tunes. Everything else is
 a control.
 
+Models above MAX_PARAMS are left out: reading six layers of a 70B model twice takes minutes.
+
 Usage: python exp_refusal_edit.py <scan dir> <out.jsonl> [workers] [controls]
 """
 import json, multiprocessing as mp, os, random, re, shutil, sys, time
 
-LAYERS, TOPS = 6, (1, 2, 4, 8)
+LAYERS, TOPS, MAX_PARAMS = 6, (1, 2, 4, 8), 16e9
 EDIT = re.compile(r"abliterat|heretic", re.I)
 HINT = re.compile(r"uncensor|josiefied|dolphin|lexi|unfilter|decensor|derestrict|obliter|jailb|refusal|lorablated|\bdan\b", re.I)
 
@@ -55,7 +57,8 @@ def main(scan, out, workers=16, controls=400):
                     r = json.loads(l)
                     if "error" not in r:
                         sha[r["repo"]] = r["sha"]
-    close = [r for r in rows if r.get("light") == "close copy" and r.get("nearest") in sha]
+    params = {p["repo"]: p["params"] or 0 for p in json.load(open(os.path.join(scan, "population.json")))["population"]}
+    close = [r for r in rows if r.get("light") == "close copy" and r.get("nearest") in sha and params.get(r["repo"], 0) <= MAX_PARAMS]
     pick = [r for r in close if label(r["repo"]) != "control"]
     rest = [r for r in close if label(r["repo"]) == "control"]
     random.Random(7).shuffle(rest)
