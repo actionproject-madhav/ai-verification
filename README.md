@@ -299,7 +299,7 @@ check. The one light that waives checks needs a match on every part, for tokens 
 
 1. Check what layers compute, inside the enclave. Comparing activations on nonce-chosen text closes the gap that
    second moments leave open, and the model is loaded there anyway. `experiments/exp_v4.py` has a first version.
-2. Repeat the stress tests at 8 to 70 billion parameters, with longer runs. Mine cost $23 of GPU time.
+2. Repeat the stress tests at 8 to 70 billion parameters, with longer runs. Mine cost $22 of GPU time.
 3. Put the check and the serving in one enclave, so one attested service signs both SASH's inference statement and
    this one. The formats already link through shared digests.
 4. Build the registry from the Hub scan and settle who signs the lists.
