@@ -35,7 +35,7 @@ TOP = 8                                                       # leading directio
 MAX_VOCAB = 4_000_000                                         # more rows than this is a lookup table, not a vocabulary
 MAX_ELEMS = 1 << 28                                           # a larger tensor is a packed table, not one matrix
 GEO_AXES, GEO_SEED, GEO_POOL, GEO_SURE = 128, 32, 1024, 0.7   # matching tokens by geometry: see `token_geometry`
-CUT_SHARE, CUT_COSINE, ALIGNED = 0.9, 0.95, 0.5               # when a layer counts as cut: see `cut_layers`
+CUT_SHARE, CUT_COSINE, CUT_OWN, ALIGNED = 0.9, 0.95, 0.8, 0.5 # when a layer counts as cut: see `cut_layers`
 
 
 def shape_of(src, name):
@@ -61,7 +61,7 @@ def layout(src):
             continue
         where = src.index[n]
         if isinstance(where, tuple):                              # the same bytes under an alias: read once
-            if where in seen or where[1] not in FLOATS:
+            if where in seen or not (where[1] in FLOATS or where[1].startswith("GGUF_")):
                 continue
             seen.add(where)
         i, short, sh = int(m.group(1)), m.group(2), shape_of(src, n)
@@ -209,7 +209,15 @@ def _leading(D, k=8, sweeps=6):
 def edit_directions(src, anchor, layers_src, layers_anchor, dev="cpu"):
     """For every matrix that writes to the residual stream in the paired layers: (position of the layer, leading
     directions of its difference from the other model's matrix, share of the difference held by the first, size of
-    the difference relative to the matrix). An unchanged matrix has no entry.
+    the difference relative to the matrix, how far the first is the matrix's own content). An unchanged matrix has
+    no entry.
+
+    The last number is for telling a cut from other rank-one changes. Cutting direction r out of W leaves
+    W - r r'W: what went missing is what W itself held along r. So with u the leading direction of the difference
+    D, the rows u'D and u'W point the same way (|cosine| near 1). Some tools make the cut on the matrix with its
+    rows scaled to unit length and scale them back; then u'D points the same way as (u/n^2)'W, n being the row
+    norms. The number is the larger of the two cosines. For a low-rank fine-tune or for quantisation error, what
+    left along u has nothing to do with what the matrix held.
 
     Matrices are paired by name and shape. None when a layer of the two models does not hold the same writing
     matrices: then they cannot be compared matrix by matrix."""
@@ -228,7 +236,11 @@ def edit_directions(src, anchor, layers_src, layers_anchor, dev="cpu"):
             D = matrix(src, b[short], dev) - Wa
             rel = float(D.norm()) / max(float(Wa.norm()), 1e-30)
             if rel > 1e-9:                                         # skip a matrix that is unchanged
-                found.append((pos, *_leading(D), rel))
+                U, share = _leading(D)
+                gone, rows = U[:, 0] @ D, (Wa ** 2).sum(1).clamp_min(1e-30)
+                own = max(abs(float(gone @ held)) / max(float(gone.norm() * held.norm()), 1e-30)
+                          for held in (U[:, 0] @ Wa, (U[:, 0] / rows) @ Wa))
+                found.append((pos, U, share, rel, own))
             del Wa, D
     return found
 
@@ -244,14 +256,16 @@ def common_direction(found, top=1):
 def cut_layers(src, anchor, layers_src, layers_anchor, dev="cpu"):
     """In how many layers was one direction cut out of a copy?
 
-    Removing refusals subtracts a residual-stream direction from the matrices that write to the stream. Against the
-    base, such a matrix changes by a rank-one amount, and the matrices of one layer change along the same direction.
-    Fine-tuning and quantisation spread a change over many directions.
+    Removing refusals subtracts a residual-stream direction r from the matrices that write to the stream: W becomes
+    W - r r'W. Against the base, such a matrix changes by a rank-one amount, the matrices of one layer change along
+    the same direction, and what went missing along that direction is what the matrix itself held there.
+    Fine-tuning and quantisation spread a change over many directions. A low-rank fine-tune changes a matrix by a
+    rank-one amount too, but by something unrelated to what the matrix held.
 
-    A layer counts as cut when the change in one of its writing matrices is rank one (its leading direction holds
-    CUT_SHARE of it or more), or when two of them change along the same leading direction (|cosine| of CUT_COSINE
-    or more). The second bar is high because in ordinary fine-tunes the two leading directions of a layer often
-    agree loosely, so one layer is never enough.
+    A matrix shows a cut when the leading direction of its change removes the matrix's own content (|cosine| of
+    CUT_OWN or more between what left along that direction and what the base held along it). A layer counts as cut
+    when one such matrix changed by a rank-one amount (its leading direction holds CUT_SHARE of the change or more),
+    or when two such matrices changed along the same leading direction (|cosine| of CUT_COSINE or more).
 
     Returns {"cut": layers cut, "changed": layers that changed at all, "aligned": whether every difference is small
     next to its matrix (at most ALIGNED)}. A copy that was shuffled or rotated is not aligned: its matrices differ
@@ -260,12 +274,13 @@ def cut_layers(src, anchor, layers_src, layers_anchor, dev="cpu"):
     found = edit_directions(src, anchor, layers_src, layers_anchor, dev)
     if found is None:
         return None
-    pos = [f[0] for f in found]
-    cut = {f[0] for f in found if f[2] >= CUT_SHARE}
+    pos, own = [f[0] for f in found], [f[4] >= CUT_OWN for f in found]
+    cut = {f[0] for f, o in zip(found, own) if o and f[2] >= CUT_SHARE}
     if found:
         lead = torch.stack([f[1][:, 0] for f in found])
         cos = (lead @ lead.T).abs()
-        cut |= {pos[i] for i in range(len(pos)) for j in range(i + 1, len(pos)) if pos[i] == pos[j] and cos[i, j] >= CUT_COSINE}
+        cut |= {pos[i] for i in range(len(pos)) for j in range(i + 1, len(pos))
+                if pos[i] == pos[j] and own[i] and own[j] and cos[i, j] >= CUT_COSINE}
     return {"cut": len(cut), "changed": len(set(pos)), "aligned": all(f[3] <= ALIGNED for f in found)}
 
 

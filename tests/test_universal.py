@@ -106,6 +106,24 @@ def test_noise_quantisation_and_pruning_cut_nothing(model, edit):
     assert cuts(edit(model), model) == {"cut": 0, "changed": 3, "aligned": True}
 
 
+def test_a_rank_one_fine_tune_is_not_taken_for_a_cut(model):
+    m, g = edits.clone(model), torch.Generator().manual_seed(5)
+    unit = lambda n: torch.nn.functional.normalize(torch.randn(n, generator=g), dim=0)
+    for layer in m["layers"]:                                     # what a merged rank-one adapter does to a matrix
+        for k in ("o", "down"):
+            layer[k] = layer[k] + 0.05 * layer[k].norm() * torch.outer(unit(layer[k].shape[0]), unit(layer[k].shape[1]))
+    assert cuts(m, model) == {"cut": 0, "changed": 3, "aligned": True}
+
+
+def test_error_piled_on_one_residual_direction_is_not_taken_for_a_cut(model):
+    m, g = edits.clone(model), torch.Generator().manual_seed(7)
+    for layer in m["layers"]:                                     # coarse quantisation: the error sits where the weights are large
+        for k in ("o", "down"):
+            layer[k] = layer[k].clone()
+            layer[k][3] += 0.2 * layer[k].norm() * torch.nn.functional.normalize(torch.randn(layer[k].shape[1], generator=g), dim=0)
+    assert cuts(m, model) == {"cut": 0, "changed": 3, "aligned": True}
+
+
 def test_an_unchanged_copy_has_no_difference_to_read(model):
     assert cuts(model, model) == {"cut": 0, "changed": 0, "aligned": True}
 

@@ -38,7 +38,7 @@ def one(job):
         out["changed"] = None if found is None else len({f[0] for f in found})
         if found:
             out["positions"], out["share"] = [f[0] for f in found], [round(f[2], 4) for f in found]
-            out["relative_size"] = [round(f[3], 4) for f in found]
+            out["relative_size"], out["own"] = [round(f[3], 4) for f in found], [round(f[4], 4) for f in found]
             lead = torch.stack([f[1][:, 0] for f in found])
             out["cosines"] = [[round(abs(float(c)), 3) for c in row] for row in lead @ lead.T]   # leading directions, pairwise
             for top in TOPS:                                      # how well each difference holds the common direction
@@ -50,7 +50,7 @@ def one(job):
     return out
 
 
-def main(scan, out, workers=16, controls=400):
+def main(scan, out, workers=16, controls=400, only=None):
     rows = json.load(open(os.path.join(scan, "compare.json")))["rows"]
     nonce = open(os.path.join(scan, "nonce.txt")).read().strip()
     sha = {}
@@ -67,6 +67,8 @@ def main(scan, out, workers=16, controls=400):
     rest = [r for r in close if label(r["repo"]) == "control"]
     random.Random(7).shuffle(rest)
     pick += rest[: int(controls)]
+    if only:                                                      # a file of repository names: read these again and no others
+        pick = [r for r in pick if r["repo"] in set(open(only).read().split())]
     done = {json.loads(l)["repo"] for l in open(out)} if os.path.exists(out) else set()
     jobs = [(r["repo"], sha[r["repo"]], r["nearest"], sha[r["nearest"]], nonce,
              {"repo": r["repo"], "base": r["nearest"], "label": label(r["repo"]), "distance": r["distance"],
@@ -83,9 +85,10 @@ def main(scan, out, workers=16, controls=400):
 def cut(r):
     """Layers cut, from a saved row, by the rule in `lineage_check.universal.cut_layers`."""
     from lineage_check import universal as U
-    pos, cos, share = r["positions"], r["cosines"], r["share"]
-    layers = {p for p, s in zip(pos, share) if s >= U.CUT_SHARE}
-    layers |= {pos[i] for i in range(len(pos)) for j in range(i + 1, len(pos)) if pos[i] == pos[j] and cos[i][j] >= U.CUT_COSINE}
+    pos, cos, share, own = r["positions"], r["cosines"], r["share"], [o >= U.CUT_OWN for o in r["own"]]
+    layers = {p for p, s, o in zip(pos, share, own) if o and s >= U.CUT_SHARE}
+    layers |= {pos[i] for i in range(len(pos)) for j in range(i + 1, len(pos))
+               if pos[i] == pos[j] and own[i] and own[j] and cos[i][j] >= U.CUT_COSINE}
     return len(layers)
 
 
@@ -118,4 +121,4 @@ if __name__ == "__main__":
     if sys.argv[1] == "summary":
         json.dump(summary(sys.argv[2]), open(os.path.splitext(sys.argv[2])[0] + "_summary.json", "w"), indent=1)
     else:
-        main(*sys.argv[1:5])
+        main(*sys.argv[1:6])
