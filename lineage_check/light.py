@@ -9,13 +9,17 @@ fingerprint (`universal`), so the answer does not depend on the reader knowing t
 """
 from __future__ import annotations
 
+import hashlib
 import json
+
+import numpy as np
 
 from . import fingerprint as fp4
 from . import remote as R
 from . import universal as U
 
 RED, GREEN, TOKENS = 0.5, 0.1, 256      # some part closer than RED to a listed model; every part closer than GREEN to a known one
+LAYERS = 2
 
 
 def sources(path):
@@ -30,8 +34,16 @@ def _vocab(src):
         return None
 
 
+def layers_for(src, nonce, k=LAYERS):
+    """The layers an audit reads: k depths drawn from the nonce, the same relative depths in every model.
+    Nobody who prepared a model before the nonce existed knows which layers will be read."""
+    idx = sorted(U.layout(src)[2])
+    rng = np.random.default_rng(int.from_bytes(hashlib.sha256(("layers" + nonce).encode()).digest()[:8], "little"))
+    return sorted(idx[min(len(idx) - 1, int(u * len(idx)))] for u in rng.random(k))
+
+
 def distances(src, anchor, nonce, tokens=TOKENS, cache=None):
-    """(closest part, all parts) between a model and one list entry on tokens drawn from the nonce, or None."""
+    """(closest part, all parts) between a model and one list entry, on tokens and layers drawn from the nonce."""
     va, vq = _vocab(anchor), _vocab(src)
     if va is None or vq is None:
         return None
@@ -39,7 +51,7 @@ def distances(src, anchor, nonce, tokens=TOKENS, cache=None):
     cache = {} if cache is None else cache
     for key, s, v in (((id(anchor), nonce, tokens), anchor, va), ((id(src), tuple(strings)), src, vq)):
         if key not in cache:
-            cache[key] = U.fingerprint(s, v, strings)
+            cache[key] = U.fingerprint(s, v, strings, layers=layers_for(s, nonce))
     r = U.compare(cache[(id(anchor), nonce, tokens)], cache[(id(src), tuple(strings))])
     return None if r is None else (r["d"], r["d_all"])
 

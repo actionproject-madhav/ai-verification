@@ -62,3 +62,10 @@ def test_one_matching_part_is_not_enough_to_be_cleared():
 def test_the_refusal_ablation_signature_is_red_whatever_the_origin():
     assert answer(OTHER, ablation=True) == ("red", None)
     assert answer(KNOWN, ablation=True) == ("red", None)
+
+
+def test_the_layers_read_depend_on_the_nonce_and_line_up_across_models():
+    deep = Source(tiny_model(3))
+    picks = {tuple(light.layers_for(deep, f"{i:032x}")) for i in range(40)}
+    assert len(picks) > 1                                                   # not a fixed, public pair of layers
+    assert all(light.layers_for(deep, n) == light.layers_for(Source(tiny_model(4)), n) for n in ("aa" * 16, "bb" * 16))
