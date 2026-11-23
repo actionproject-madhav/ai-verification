@@ -17,6 +17,8 @@ Usage: python exp_hub_scan.py build   <dir> [top_n]
        python exp_hub_scan.py compare <dir>
 """
 import collections, hashlib, json, os, shutil, sys, time
+for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):     # one worker must not take every core
+    os.environ.setdefault(_v, os.environ.get("SCAN_THREADS", "2"))
 import numpy as np
 import torch
 from lineage_check import fingerprint as fp4
@@ -134,10 +136,10 @@ def scan(d, nonce, shard, n_shards):
     repos = list(dict.fromkeys(repos))
     fdir, out = os.path.join(d, "fps"), os.path.join(d, f"scan_{shard}.jsonl")
     os.makedirs(fdir, exist_ok=True)
-    done = set()
+    done = set()                                                  # failed models are retried on the next run
     for f in os.listdir(d):
         if f.startswith("scan_") and f.endswith(".jsonl"):
-            done |= {json.loads(l)["repo"] for l in open(os.path.join(d, f)) if l.strip()}
+            done |= {r["repo"] for r in map(json.loads, filter(str.strip, open(os.path.join(d, f)))) if "error" not in r}
     for i, repo in enumerate(repos):
         if i % n_shards != shard or repo in done:
             continue

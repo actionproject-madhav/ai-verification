@@ -93,7 +93,8 @@ def fingerprint(src, strings, layers, forensic=False):
         fp["layers"][i] = fp4.layer_comps(l, E, mi)
         if forensic:
             from . import forensic as F
-            writers.append(np.concatenate([l["o"], l["down"]], 1))
+            down = l["down"] if l.get("down") is not None else np.concatenate([e[2] for e in l["experts"]], 1)
+            writers.append(np.concatenate([l["o"], down], 1))          # mixture of experts: every expert writes
             readers.append(F.layer_readers(l))
         del mi
     if forensic:                                   # refusal-ablation signature: a small subspace no writer writes to
