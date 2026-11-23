@@ -66,7 +66,7 @@ def rung(job):
         cut = LT.direction_cut(src, known, LADDER_NONCE)
         row.update(to_original=[round(max(x, 0), 4) for x in d], to_base=[round(max(x, 0), 4) for x in b],
                    cut_test={True: "cut", False: "compared, no cut", None: "cannot be compared"}[cut],
-                   light="red" if cut else "green" if b[1] < LT.GREEN and cut is False else "amber")
+                   light="amber" if b[1] >= LT.GREEN or cut is None else "red" if cut else "green")   # as `light.light` decides
         shutil.rmtree(src.dir, ignore_errors=True)
     except Exception as e:
         row["error"] = f"{type(e).__name__}: {str(e)[:160]}"
