@@ -1,0 +1,131 @@
+{
+ "nonce": "universal-pairs-2026-11",
+ "rows": [
+  {
+   "base": "HuggingFaceTB/SmolLM2-135M",
+   "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+   "kind": "copy",
+   "params": 135000000.0,
+   "closest_part": 0.0222,
+   "all_parts": 0.0249,
+   "seconds": 2
+  },
+  {
+   "base": "HuggingFaceTB/SmolLM2-360M",
+   "model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+   "kind": "copy",
+   "params": 362000000.0,
+   "closest_part": 0.017,
+   "all_parts": 0.02,
+   "seconds": 3
+  },
+  {
+   "base": "HuggingFaceTB/SmolLM2-1.7B",
+   "model": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+   "kind": "copy",
+   "params": 1710000000.0,
+   "closest_part": 0.0072,
+   "all_parts": 0.0094,
+   "seconds": 10
+  },
+  {
+   "base": "Qwen/Qwen2.5-0.5B",
+   "model": "Qwen/Qwen2.5-0.5B-Instruct",
+   "kind": "copy",
+   "params": 490000000.0,
+   "closest_part": 0.0073,
+   "all_parts": 0.0084,
+   "seconds": 3
+  },
+  {
+   "base": "Qwen/Qwen2.5-1.5B",
+   "model": "Qwen/Qwen2.5-1.5B-Instruct",
+   "kind": "copy",
+   "params": 1540000000.0,
+   "closest_part": 0.0003,
+   "all_parts": 0.0005,
+   "seconds": 5
+  },
+  {
+   "base": "TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T",
+   "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "kind": "copy",
+   "params": 1100000000.0,
+   "closest_part": 0.0005,
+   "all_parts": 0.0005,
+   "seconds": 12
+  },
+  {
+   "base": "Qwen/Qwen2.5-7B-Instruct",
+   "model": "huihui-ai/Qwen2.5-7B-Instruct-abliterated-v2",
+   "kind": "copy",
+   "params": 7600000000.0,
+   "closest_part": 0.0002,
+   "all_parts": 0.0007,
+   "seconds": 29
+  },
+  {
+   "base": "Qwen/Qwen2.5-72B",
+   "model": "Qwen/Qwen2.5-72B-Instruct",
+   "kind": "copy",
+   "params": 72700000000.0,
+   "closest_part": 0.0005,
+   "all_parts": 0.0006,
+   "seconds": 131
+  },
+  {
+   "base": "Qwen/Qwen2.5-1.5B",
+   "model": "Qwen/Qwen2.5-Coder-1.5B",
+   "kind": "retrained at length",
+   "params": 1540000000.0,
+   "closest_part": 0.6446,
+   "all_parts": 0.7482,
+   "seconds": 5
+  },
+  {
+   "base": "Qwen/Qwen2.5-1.5B",
+   "model": "Qwen/Qwen2.5-Math-1.5B",
+   "kind": "retrained at length",
+   "params": 1540000000.0,
+   "closest_part": 0.8129,
+   "all_parts": 0.8889,
+   "seconds": 6
+  },
+  {
+   "base": "Qwen/Qwen2.5-7B",
+   "model": "Qwen/Qwen2.5-Coder-7B",
+   "kind": "retrained at length",
+   "params": 7600000000.0,
+   "closest_part": 0.9454,
+   "all_parts": 0.9653,
+   "seconds": 29
+  },
+  {
+   "base": "Qwen/Qwen2.5-7B",
+   "model": "Qwen/Qwen2.5-Math-7B",
+   "kind": "retrained at length",
+   "params": 7600000000.0,
+   "closest_part": 0.8719,
+   "all_parts": 0.9005,
+   "seconds": 18
+  },
+  {
+   "base": "Qwen/Qwen2.5-72B",
+   "model": "Qwen/Qwen2.5-Math-72B",
+   "kind": "retrained at length",
+   "params": 72700000000.0,
+   "closest_part": 0.634,
+   "all_parts": 0.7177,
+   "seconds": 97
+  },
+  {
+   "base": "unsloth/llama-3-8b",
+   "model": "unsloth/Llama-3.1-8B",
+   "kind": "next version",
+   "params": 8000000000.0,
+   "closest_part": 0.0586,
+   "all_parts": 0.0643,
+   "seconds": 26
+  }
+ ]
+}
