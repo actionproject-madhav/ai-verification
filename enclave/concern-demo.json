@@ -1,0 +1,4 @@
+{"name": "lineage-check enclave demo list", "models": [
+  {"id": "llama-160m", "repo": "JackFram/llama-160m", "revision": "aca9b687d1425f863dcf5de9a4c96e3fe36266dd", "threshold": 0.5},
+  {"id": "tinyllama-1.1b-3t", "repo": "TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T", "revision": "59f6f375b26bde864a6ca194a9a3044570490064", "threshold": 0.5}
+]}
