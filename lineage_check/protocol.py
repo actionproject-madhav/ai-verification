@@ -215,7 +215,7 @@ def light(a):
         return
     print(f"{out['light'].upper()}{'  ' + out['matched'] if out['matched'] else ''}  ({out['reason']})")
     for name, d in out["distances"].items():
-        print(f"  {name:24s} " + ("not comparable" if d is None else f"closest part {d[0]:.3f}   all parts {d[1]:.3f}"))
+        print(f"  {name:24s} " + ("not comparable" if d is None else f"closest part {max(d[0], 0):.3f}   all parts {max(d[1], 0):.3f}"))
 
 
 def keygen(a):
