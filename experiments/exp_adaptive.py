@@ -1,6 +1,8 @@
 """Adaptive attacks on the lineage fingerprint (white-box: the attacker knows the method).
 
 Model: SmolLM2-135M (the 'model of concern'). Capability = held-out cross-entropy on WikiText-2 test.
+Every red-team script reads its models from here. RT_MODEL and RT_INDEP swap in a larger pair of the same family
+(SmolLM2-1.7B and SmolLM-1.7B need one 80 GB GPU); RT_TAG names the folder the attacked weights are saved to.
 Identity = fingerprint distance to the parent on a SECRET token set S_eval (512 tokens from an audit nonce).
 
 A  token scrambling: permute embedding rows (tied, so unembedding too) inside a random fraction of the token pool,
@@ -21,10 +23,11 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from lineage_check import fingerprint as fp4
 from lineage_check import paths
 
-DEV = "mps" if torch.backends.mps.is_available() else "cpu"
-REPO, INDEP = "HuggingFaceTB/SmolLM2-135M", "HuggingFaceTB/SmolLM-135M"
+DEV = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
+REPO = os.environ.get("RT_MODEL", "HuggingFaceTB/SmolLM2-135M")    # X, the model of concern
+INDEP = os.environ.get("RT_INDEP", "HuggingFaceTB/SmolLM-135M")    # Y: same shape and tokenizer, trained separately
 SEQ, BS, STEPS, EVAL_EVERY, N_EVAL_BATCH = 128, 8, 400, 40, 24
-SAVE = paths.ADAPTIVE
+SAVE = os.path.join(paths.ADAPTIVE, os.environ["RT_TAG"]) if os.environ.get("RT_TAG") else paths.ADAPTIVE
 torch.manual_seed(0)
 tok = AutoTokenizer.from_pretrained(REPO)
 vocab = tok.get_vocab()
@@ -100,6 +103,8 @@ def evaluate(m, parent_fp_eval):
 
 
 def log(fh, rec):
+    if "RT_MODEL" in os.environ:
+        rec = {"model": REPO, **rec}
     fh.write(json.dumps(rec) + "\n")
     fh.flush()
     print(json.dumps(rec), flush=True)

@@ -23,7 +23,7 @@ torch.set_grad_enabled(True)                                   # exp_v4 turns gr
 
 DEV = A.DEV
 STEPS, EVAL_EVERY, PB, PT = 400, 40, 4, 64
-SAVE = paths.ADAPTIVE
+SAVE = A.SAVE
 tok = A.tok
 SECRET_IDS = V.ids_for(tok)                                   # (8, 72) secret probe text
 LAYERS = None

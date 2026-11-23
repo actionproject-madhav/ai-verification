@@ -15,9 +15,9 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from lineage_check import paths
 
 torch.set_grad_enabled(False)
-DEV = "mps" if torch.backends.mps.is_available() else "cpu"
+DEV = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 ZOO = paths.ADAPTIVE
-tok = AutoTokenizer.from_pretrained("HuggingFaceTB/SmolLM2-135M")
+tok = AutoTokenizer.from_pretrained(os.environ.get("RT_MODEL", "HuggingFaceTB/SmolLM2-135M"))
 MODELS = [("parent (SmolLM2-135M)", "HuggingFaceTB/SmolLM2-135M"), ("honest fine-tune", f"{ZOO}/ft"),
           ("attack on v3", f"{ZOO}/sec10"), ("attack on v4", f"{ZOO}/v4"), ("attack on both", f"{ZOO}/both"),
           ("independent (SmolLM-135M v1)", "HuggingFaceTB/SmolLM-135M")]
