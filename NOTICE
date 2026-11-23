@@ -1,0 +1,5 @@
+lineage-check
+
+This product includes software adapted from the verified inference demo by the Singapore AI Safety Hub
+(https://github.com/sg-ai-safety-hub/inference-demo), licensed under the Apache License, Version 2.0:
+lineage_check/fourpillars.py (from service/src/inference_service/identity.py, statement.py and settings.py).
