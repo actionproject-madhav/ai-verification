@@ -20,12 +20,16 @@ When a model is loaded, an enclave compares it with two public lists and outputs
 | Result | Rule | What follows |
 |---|---|---|
 | Red | some part of `M` has `d < 0.5` to a model in `W`; or every part of `M` matches a model in `K` and one direction has been cut out of several layers | identity check, content checks |
-| Green | not Red, and every part of `M` has `d < 0.1` to one model in `K` | the model runs |
+| Green | not Red, every part of `M` has `d < 0.1` to one model in `K`, and `M` could be compared with that model matrix by matrix with no cut found | the model runs |
 | Amber | otherwise | identity check |
 
 The second way to be Red is for known models with their refusals removed. Tools that do this subtract one
 direction from the matrices that write to the model's internal state, and that shows when the copy is compared
-with the known model matrix by matrix (`docs/METHOD.md`).
+with the known model matrix by matrix (`docs/METHOD.md`). A copy that cannot be compared that way, because it was
+shuffled or laid out differently, is Amber: it is not cleared on its tables alone. The tool keeps an older test
+for removed refusals that needs no known model and can make any model Red. It is the weaker of the two.
+
+"Some part" is the best-matching third of the model's tables and "every part" is all of them on average.
 
 The enclave signs the result. The statement carries the result, the matched entry, the rule that decided and the
 nonce. It carries no weights, no distances and no user data.
@@ -55,8 +59,8 @@ Everything the enclave reads comes from the operator, so the check leans on as l
 | the tokenizer file, which says which row is which token | if no listed model matches by token name, matches tokens by the geometry of the token table |
 | which tokens and layers get read | draws them from the verifier's nonce, after the weights are fixed |
 
-The second row closes a cheap trick. A tokenizer file that names the wrong rows makes tables compare the wrong
-tokens, and a copy then looks unrelated. Principal coordinates of the token table do not depend on row order or on
+The second row matters because relabelling is free. A tokenizer file that names the wrong rows makes tables
+compare the wrong tokens, and a copy then looks unrelated. Principal coordinates of the token table do not depend on row order or on
 a rotation, so tokens can be paired from geometry alone. A 4-bit copy of GLM-5.2 with its rows shuffled is Amber
 by name and Red by geometry (`results/relabelled.json`).
 
@@ -80,8 +84,10 @@ weights and avoid any filter. [Epoch's Cyber ECI](https://epoch.ai/data-insights
 GLM-5.3 the top open-weight model. The rule can take other sources: a list is a file of model revisions, and the
 enclave pins its digest.
 
-`K` can be built from public releases. The Hub scan in `experiments/exp_hub_scan.py` derives one from model cards:
-every repository that at least ten listed models name as their base.
+`K` can be built from public releases. The Hub scan in `experiments/exp_hub_scan.py` derives a first draft from
+model cards: every repository that at least ten other cards name as their base. That rule is not enough. Three of
+the bases it picked are themselves uncensored or merged models, and a copy of one of those would be cleared. A
+registry needs a curator, or a rule about who published the base.
 
 ## Who sees what
 
@@ -107,24 +113,37 @@ The check ran in an AMD SEV-SNP guest on Azure Container Instances. A verifier c
 The statement format, digest schemes and envelope are those of SASH's verified inference demo, and that demo's own
 code opens the statement. See [`enclave/README.md`](../enclave/README.md).
 
+The hardware evidence is two runs. The first used the project's first reader on a small model. The second used
+the traffic light on a copy of a listed model and was decided by the first rule, a match by name. Matching by
+geometry, the cut test, Green and Amber have run with the same code outside the enclave only. In both runs the
+enclave read the model from the Hub by byte range at a pinned revision, so the statements also trust the Hub to
+serve the right bytes.
+
 ## Who can defeat it, and what they get
 
 | Effort | Example | Result |
 |---|---|---|
-| None | run a public fine-tune, quantised or abliterated copy of a listed model | Red |
+| None | run a public quantised or renamed copy of a listed model, or a later version | Red |
 | Free edits | shuffle, rescale or rotate the internals | Red: these cannot move the tables |
 | Free edits | relabel the tokenizer so names point at the wrong rows | Red: tokens are matched by geometry |
-| A public tool | remove the refusals of a known model | Red in about 9 of 10 public cases: one direction cut out (2 false alarms in 314 other copies) |
-| Building a mixed model | a known model's attention with other MLPs | Amber: not every part matches |
+| Free edits | convert the model to a format the reader does not parse (GGUF, packed 4-bit) | Amber: this is the largest open gap |
+| A public tool | remove the refusals of a known model | Red in about 9 of 10 public cases that can be compared; Green in the rest |
+| A public tool, then a free edit | remove the refusals, then shuffle the weights | Amber: the copy can no longer be compared matrix by matrix |
+| Building a mixed model | a known model's attention with a listed model's MLPs | Amber: not every part matches, and the model did not work |
 | Long retraining | continue training on far more data, as coding or maths versions do | Amber: the copy no longer matches |
-| Retraining against the check | gradient steps that push the tables away while copying the parent's outputs | Amber after 500 to 1,250 steps, at a small loss of quality |
+| Retraining against the check | gradient steps that push the tables away while copying the parent's outputs | Amber after 500 to 1,250 steps, at some loss of quality |
 | The same, pulling toward a known model | make every part of a listed model match a known one | Amber in every run so far; never Green |
 | Training a known model to imitate a listed one | distil the listed model into the known one | Green, and still the known model: its outputs and accuracy did not follow |
 
-Hiding an origin is possible, and the cheapest way found is a retraining run. It buys Amber, which still means an
-identity check. Green is the only result that waives checks, and no run reached it with a listed model's
-behaviour. The runs are small: 135M and 1.7B parameters, a few thousand steps. So this is a measurement and not a
-guarantee, and `docs/METHOD.md` says why matching tables cannot prove that two models compute the same thing.
+No fine-tuned or refusal-removed copy of a listed model was tested, because none could be read. All 22 public
+repositories that advertise a listed model with its refusals removed are in a format the reader does not parse,
+and so are 29 of the 32 that the Hub tags as fine-tunes of a listed model (the other three matched nothing). The
+evidence that fine-tunes and refusal removal stay within reach comes from smaller bases.
+
+Hiding an origin is possible, and the cheapest ways found are a file format and a retraining run. Both buy
+Amber, which still means an identity check. Green is the only result that waives checks, and no copy of a listed
+model reached it. The runs are small: 135M and 1.7B parameters, a few thousand steps. `docs/METHOD.md` says why
+matching tables cannot prove that two models compute the same thing, so a longer run may get there.
 [`docs/RESULTS.md`](RESULTS.md) has every run.
 
 ## What the check does not do
@@ -137,10 +156,12 @@ guarantee, and `docs/METHOD.md` says why matching tables cannot prove that two m
 
 ## Open questions
 
-1. A check on what layers compute. Tables are second moments of weights and can in principle be imitated.
+1. File formats. GGUF and packed 4-bit formats are not read, and most public derivatives of the listed models
+   use them. A model the reader cannot decode is Amber.
+2. A check on what layers compute. Tables are second moments of weights and can in principle be imitated.
    Comparing activations on nonce-chosen text, inside the enclave, would make Green a statement about function.
-2. Scale. The stress tests stop at 1.7B parameters and 10,000 steps.
-3. Refusal removal by fine-tuning leaves no cut direction. A behavioural probe inside the enclave may be needed.
-4. File formats: GGUF and packed 4-bit formats are not read yet. A model the reader cannot decode is Amber.
-5. Trust in the enclave vendor. The check is small and deterministic, so a second party can recompute it, and it is
+3. A cut test on tables instead of raw matrices, so that a shuffled copy can still be checked.
+4. Scale. The stress tests stop at 1.7B parameters and a few thousand steps.
+5. Refusal removal by fine-tuning leaves no cut direction. A behavioural probe inside the enclave may be needed.
+6. Trust in the enclave vendor. The check is small and deterministic, so a second party can recompute it, and it is
    a candidate for a zero-knowledge proof.

@@ -1,7 +1,8 @@
 # lineage-check enclave
 
-The lineage check as a Tinfoil enclave service, built in the shape of SASH's verified inference demo
-(`SG-AI-Safety-Hub/inference-demo`). It reuses that demo's statement format, digest schemes, attested key and
+The lineage check as an enclave service, built for Tinfoil in the shape of SASH's verified inference demo
+(`SG-AI-Safety-Hub/inference-demo`). So far it has run as a local twin and in Azure confidential containers, not
+on Tinfoil. It reuses that demo's statement format, digest schemes, attested key and
 key-binding code, so a lineage statement and an inference statement about the same model can be linked by SASH's
 own tools.
 
@@ -11,7 +12,7 @@ own tools.
 | `../lineage_check/fourpillars.py` | inference-demo's identity and statement code (Apache-2.0), vendored so the image is self-contained |
 | `verify_statement.py` | checks a statement with inference-demo's own `open_envelope`, `identifiers`, `dirhash_sha256`, `jcs_sha256` |
 | `tinfoil-config.yml` | the enclave: CPU only, attested Ed25519 key, the audited model and the listed models as Modelwrap packs |
-| `Dockerfile`, `requirements.txt` | the container, pinned to the versions every result in `results/` used |
+| `Dockerfile`, `requirements.txt` | the container, with pinned versions |
 | `concern-demo.json` | the demo list: an independent model with the same tokenizer, and TinyLlama's 3T base |
 | `azure/template.json` | the same service as an Azure confidential container group, with Microsoft's attestation sidecar |
 | `azure/template-light.json` | the traffic-light mode in the same kind of enclave, on a copy of a listed model |
@@ -121,9 +122,16 @@ PASS  the base system is one Microsoft signed: ContainerPlat-AMD-UVM, version 10
 light: RED -> glm-5.3 [matches a listed model]
 ```
 
-The statement carries the light, the matched entry and the rule that decided. It carries no distances. Because the model was read by byte
-range, the statement names it by Hub revision. An enclave that serves a model holds all of its bytes and names it
-by hash, as the first run does.
+The statement carries the light, the matched entry and the rule that decided. It carries no distances. Because
+the model was read by byte range, the statement names it by Hub revision, and so it trusts the Hub to serve the
+right bytes for that revision. An enclave that serves a model holds all of its bytes and names it by hash, as the
+first run does.
+
+Limits of this run. It is one challenge, decided by the first rule, a match by name. Matching tokens by geometry,
+the cut test, Green and Amber have run with the same code outside the enclave only. As in the first run, the
+policy leaves the containers' logs readable by the operator.
+
+
 
 ## What a Tinfoil deployment still needs
 

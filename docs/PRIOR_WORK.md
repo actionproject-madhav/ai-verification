@@ -45,7 +45,8 @@ The matching idea here is not new. This page says what exists and what this repo
 ## What this repository adds
 
 1. A mechanism around the matcher: a private check at load time with three results. One matching part flags a
-   model and only a match on every part clears it, so hiding an origin does not clear a model (`docs/DESIGN.md`).
+   model and only a match on every part clears it. In every run so far, hiding an origin did not clear a model
+   (`docs/DESIGN.md`).
 2. A challenge protocol: tokens and layers are drawn from a fresh nonce after the weights are committed, and the
    answer is a signed statement with no scores.
 3. Measurements of both directions of attack: hiding an origin, and imitating a chosen model.
