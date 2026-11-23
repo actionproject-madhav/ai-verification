@@ -67,3 +67,31 @@ def test_packed_giant_tensors_are_skipped(model, monkeypatch):
     _, d, lay = universal.layout(src)
     names = [n for L in lay.values() for n, _ in L["mats"]]
     assert names and all("mlp" not in n for n in names)
+
+
+def edit_layers(changed, base):
+    return universal.shared_edit(TinySource(changed), TinySource(base), [0, 1, 2], [0, 1, 2])
+
+
+def test_a_direction_removed_from_every_writer_shows_in_every_layer(model):
+    assert edit_layers(edits.rank1_edit(model), model) == {"layers": 3, "changed": 3}
+
+
+def test_the_removed_direction_still_shows_under_fine_tuning_noise(model):
+    assert edit_layers(edits.noise(edits.rank1_edit(model), rel=0.01), model)["layers"] == 3
+
+
+@pytest.mark.parametrize("edit", [lambda m: edits.noise(m, rel=0.02), edits.quantize, lambda m: edits.prune(m, frac=0.3)])
+def test_noise_quantisation_and_pruning_share_no_direction(model, edit):
+    assert edit_layers(edit(model), model) == {"layers": 0, "changed": 3}
+
+
+def test_an_unchanged_copy_has_no_difference_to_read(model):
+    assert edit_layers(model, model) == {"layers": 0, "changed": 0}
+
+
+def test_models_of_different_width_are_not_compared_for_an_edit(model):
+    other = TinySource(model)
+    other.tensors = {n: (v[:, :40] if v.ndim == 2 and v.shape[1] == 48 else v[:40] if v.shape[0] == 48 else v) for n, v in other.tensors.items()}
+    other.index = dict.fromkeys(other.tensors)
+    assert universal.shared_edit(other, TinySource(model), [0, 1], [0, 1]) is None
