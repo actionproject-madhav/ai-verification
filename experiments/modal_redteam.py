@@ -2,6 +2,7 @@
 a container, sets the model pair, and keeps the result file and the attacked weights on a volume.
 
   modal run --detach experiments/modal_redteam.py --script exp_transplant.py --args "1e-4" --env "R6_INIT=target R6_STEPS=2500"
+  modal run --detach experiments/modal_redteam.py --toy --script exp_forge.py --args "10" --env "R5_STEPS=6000 R5_PUSH=3"
   modal volume get lineage-redteam 1.7b-exp_transplant.jsonl results/gpu/
 
 The default pair is SmolLM2-1.7B against SmolLM-1.7B: the pair the 135M experiments use, twelve times larger.
@@ -24,28 +25,33 @@ image = (modal.Image.debian_slim(python_version="3.12")
 
 def _run(script, args, env, model, indep, tag):
     settings = dict(os.environ, RT_MODEL=model, RT_INDEP=indep, RT_TAG=tag, PYTHONPATH="/repo",
-                    LINEAGE_ZOO="/out/zoo", HF_HOME="/out/hf")
+                    LINEAGE_ZOO="/out/zoo", HF_HOME="/root/hf")
     settings.update(pair.split("=", 1) for pair in env.split() if "=" in pair)
     out = f"/out/{tag}-{script.removesuffix('.py')}.jsonl"
-    done = subprocess.run(["python", "-u", "-W", "ignore", script, out, *args.split()], cwd="/repo/experiments", env=settings)
+    job = subprocess.Popen(["python", "-u", "-W", "ignore", script, out, *args.split()], cwd="/repo/experiments", env=settings)
+    while job.poll() is None:                      # save what exists every few minutes: a timeout then loses little
+        try:
+            job.wait(timeout=180)
+        except subprocess.TimeoutExpired:
+            volume.commit()
     volume.commit()
-    return done.returncode
+    return job.returncode
 
 
-@app.function(image=image, gpu="A100-80GB", timeout=3 * 3600, volumes={"/out": volume})
+@app.function(image=image, gpu="A100-80GB", timeout=90 * 60, volumes={"/out": volume})
 def run(script: str, args: str = "", env: str = "", model: str = "HuggingFaceTB/SmolLM2-1.7B",
         indep: str = "HuggingFaceTB/SmolLM-1.7B", tag: str = "1.7b"):
     return _run(script, args, env, model, indep, tag)
 
 
-@app.function(image=image, gpu="T4", timeout=1800, volumes={"/out": volume})
-def smoke(script: str, args: str = "", env: str = ""):
-    """The 135M pair for a few steps on a small GPU: checks the container before paying for a large one."""
-    return _run(script, args, env, "HuggingFaceTB/SmolLM2-135M", "HuggingFaceTB/SmolLM-135M", "smoke")
+@app.function(image=image, gpu="T4", timeout=3 * 3600, volumes={"/out": volume})
+def small(script: str, args: str = "", env: str = "", tag: str = "135m"):
+    """The 135M pair on a small GPU: the toy-size experiments, and a cheap check of the container."""
+    return _run(script, args, env, "HuggingFaceTB/SmolLM2-135M", "HuggingFaceTB/SmolLM-135M", tag)
 
 
 @app.local_entrypoint()
 def main(script: str, args: str = "", env: str = "", model: str = "HuggingFaceTB/SmolLM2-1.7B",
-         indep: str = "HuggingFaceTB/SmolLM-1.7B", tag: str = "1.7b", test: bool = False):
-    code = smoke.remote(script, args, env) if test else run.remote(script, args, env, model, indep, tag)
+         indep: str = "HuggingFaceTB/SmolLM-1.7B", tag: str = "1.7b", toy: bool = False):
+    code = small.remote(script, args, env, "135m" if tag == "1.7b" else tag) if toy else run.remote(script, args, env, model, indep, tag)
     print("exit code", code)
