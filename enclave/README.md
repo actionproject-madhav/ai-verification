@@ -102,7 +102,7 @@ To repeat it: build the image, put its digest in `azure/template.json`, generate
 `azure/template-light.json` runs the service with `MODE=light` on `dealignai/GLM-5.3-CYBERSECURITY-FP8`: an 8-bit
 copy of a government-named model, published under another name. The model has 753 billion parameters. The enclave
 read a few matrices of two layers by byte range, compared them with three listed and six known models, and
-answered in 105 seconds.
+answered in 122 seconds.
 
 ```
 python enclave/verify_statement.py demo/azure-light/response.json --nonce $(cat demo/azure-light/nonce.txt) \
@@ -116,7 +116,7 @@ PASS  watchlist digest matches
 PASS  registry digest matches
 PASS  AMD SEV-SNP report verifies down to AMD's root (ARK-Genoa), debugging off
 PASS  the report names this statement key and this nonce (report_data)
-PASS  launched under the expected policy: host_data fb5d043d1d3c22ef...
+PASS  launched under the expected policy: host_data eda659112613531f...
 PASS  the base system is one Microsoft signed: ContainerPlat-AMD-UVM, version 104, measurement dc3f5a934489232a...
 light: RED -> glm-5.3 [matches a listed model]
 ```
