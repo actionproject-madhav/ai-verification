@@ -50,7 +50,8 @@ from lineage_check import remote as R
 from lineage_check import snp as SNP
 
 PREDICATE_TYPE = "urn:lineage-check:LineageStatement:v0.2"
-LIGHT_TYPE = "urn:lineage-check:LightStatement:v0.3"
+LIGHT_TYPE = "urn:lineage-check:LightStatement:v0.4"
+GEOMETRY = os.environ.get("GEOMETRY", "1") == "1"  # also match tokens by geometry when no listed model matches by name
 MODE = os.environ.get("MODE", "match")
 NONCE = re.compile(r"[0-9a-f]{32,128}")
 DEBUG = os.environ.get("DEBUG") == "1"  # local twin only: per-entry distances to stderr (pinned off in the enclave)
@@ -165,7 +166,7 @@ class LightService:
             self.used.add(nonce)
             t0 = time.time()
             r = LT.light(self.q, self.lists["watchlist"]["sources"], self.lists["registry"]["sources"], nonce, self.tokens,
-                         ablation=LT.ablation_signature(self.q, nonce, self.tokens))
+                         ablation=LT.ablation_signature(self.q, nonce, self.tokens), geometry=GEOMETRY)
             seconds = round(time.time() - t0, 1)
         if DEBUG:
             print(f"  {r['light']} {r['matched']} {r['distances']}", file=sys.stderr, flush=True)
@@ -181,8 +182,9 @@ class LightService:
                 "scannedModel": self.component(),
                 "watchlist": described("watchlist"), "registry": described("registry"),
                 "challenge": {"nonce": nonce},
-                "light": {"result": r["light"], "matched": r["matched"]},
-                "method": {"name": "design-free token tables", "tokens": self.tokens, "layersSampled": 2},
+                "light": {"result": r["light"], "matched": r["matched"], "finding": r["finding"]},
+                "method": {"name": "design-free token tables", "tokens": self.tokens, "layersSampled": LT.LAYERS,
+                           "tokensByGeometry": GEOMETRY, "cutLayersRead": LT.CUT_LAYERS},
                 "execution": {"platform": PLATFORM_NAMES[PLATFORM] if binding else "local", "startedAt": self.started_at,
                               "issuedAt": now(), "scanSeconds": seconds, "statementKey": pub.hex(),
                               "attestation": {"keyBinding": binding}},

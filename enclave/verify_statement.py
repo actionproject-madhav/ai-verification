@@ -16,7 +16,7 @@ from lineage_check import fourpillars as FP
 from lineage_check import snp as SNP
 
 PREDICATE_TYPE = "urn:lineage-check:LineageStatement:v0.2"
-LIGHT_TYPE = "urn:lineage-check:LightStatement:v0.3"
+LIGHT_TYPES = ("urn:lineage-check:LightStatement:v0.3", "urn:lineage-check:LightStatement:v0.4")   # v0.4 adds the finding
 
 
 def main():
@@ -65,8 +65,8 @@ def main():
         check(False, f"signature: {e}")
         sys.exit(1)
     p = st["predicate"]
-    is_light = st["predicateType"] == LIGHT_TYPE
-    check(st["predicateType"] in (PREDICATE_TYPE, LIGHT_TYPE), f"predicate type {st['predicateType']}")
+    is_light = st["predicateType"] in LIGHT_TYPES
+    check(st["predicateType"] in (PREDICATE_TYPE, *LIGHT_TYPES), f"predicate type {st['predicateType']}")
     check(p["execution"]["statementKey"] == response["publicKey"], "the signing key is the statement key it names")
     check(p["challenge"]["nonce"] == a.nonce, "issued for this verifier's nonce (no replay)")
     for field, path in (("watchlist", a.watchlist), ("registry", a.known)) if is_light else (("concernList", a.concern),):
@@ -112,8 +112,11 @@ def main():
         shared = sorted(s for s, _ in identifiers(model) & identifiers(base))
         check(shared, f"same model as the inference statement's served base {base['name']}: shared {', '.join(shared) or 'nothing'}")
     if is_light:
+        why = {"listed": "matches a listed model", "listed-by-geometry": "matches a listed model, tokens matched by geometry",
+               "cut": "a known model with one direction cut out", "signature": "refusal-ablation signature",
+               "known": "matches a known model", "none": "matches nothing listed or known"}.get(p["light"].get("finding"))
         print(f"\nlight: {p['light']['result'].upper()}{' -> ' + p['light']['matched'] if p['light']['matched'] else ''}"
-              f"  ({model['ref']}, {p['method']['tokens']} tokens, {p['execution']['platform']})")
+              f"{' [' + why + ']' if why else ''}  ({model['ref']}, {p['method']['tokens']} tokens, {p['execution']['platform']})")
         sys.exit(0 if ok else 1)
     lin = p["lineage"]
     print(f"\nlineage: {lin['verdict']}{' -> ' + lin['matched'] if lin['matched'] else ''}"

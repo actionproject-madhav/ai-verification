@@ -209,7 +209,7 @@ def light(a):
     src = R.Remote(a.query, a.commit)
     nonce = a.nonce or secrets.token_hex(16)
     out = LT.light(src, LT.sources(a.watchlist), LT.sources(a.known) if a.known else [], nonce, a.n,
-                   ablation=None if a.no_ablation else LT.ablation_signature(src, nonce, a.n))
+                   ablation=None if a.no_ablation else LT.ablation_signature(src, nonce, a.n), geometry=a.geometry)
     if a.json:
         print(json.dumps({"query": a.query, "commit": src.sha, "nonce": nonce, **out}))
         return
@@ -249,6 +249,8 @@ def main(argv=None):
     t.add_argument("--known"); t.add_argument("--commit"); t.add_argument("--nonce")
     t.add_argument("--n", type=int, default=256); t.add_argument("--json", action="store_true")
     t.add_argument("--no-ablation", action="store_true")
+    t.add_argument("--geometry", action="store_true",
+                   help="if no listed model matches by token name, match tokens by geometry too (reads whole token tables)")
     v = sp.add_parser("verify")
     v.add_argument("--statement", required=True); v.add_argument("--pub", required=True); v.add_argument("--nonce")
     a = ap.parse_args(argv)

@@ -72,6 +72,10 @@
                   "value": "256"
                 },
                 {
+                  "name": "GEOMETRY",
+                  "value": "1"
+                },
+                {
                   "name": "DEBUG",
                   "value": "0"
                 },
