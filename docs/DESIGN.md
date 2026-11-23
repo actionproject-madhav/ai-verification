@@ -27,8 +27,8 @@ The second way to be Red is for known models with their refusals removed. Tools 
 direction from the matrices that write to the model's internal state, and that shows when the copy is compared
 with the known model matrix by matrix (`docs/METHOD.md`).
 
-The enclave signs the result. The statement carries the result, the matched entry and the nonce. It carries no
-weights, no distances and no user data.
+The enclave signs the result. The statement carries the result, the matched entry, the rule that decided and the
+nonce. It carries no weights, no distances and no user data.
 
 ![The mechanism](figures/fig_architecture.png)
 
