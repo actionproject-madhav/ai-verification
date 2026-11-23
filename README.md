@@ -75,53 +75,37 @@ that change.
 
 ## What else did the audit find?
 
-The separation plot tests the central measurement. Deployment raises a few more practical questions: whether
-the fingerprint improves on hashes, whether it agrees with public provenance, and whether simple obfuscations
-change the result.
+The starting point is the 3,000 most-downloaded open models. Many of them are copies of another model. Can the
+check trace each copy back to its parent?
 
-![Whole-file hashes find 2 of 13 copies, tensor hashes find 7, and the fingerprint finds 13.](docs/figures/fig_hashes.png)
+| How the copy was made | Copies | Result |
+|---|---|---|
+| Fine-tuned | 766 | 96% traced to the right parent |
+| Compressed | 302 | 99% traced to the right parent |
+| Merged with other models | 42 | 93% traced to the right parent |
+| Refusals removed | 99 | 90% flagged as edited |
+| For comparison: a plain hash | 1,718 | recognises 4% of the copies the check found |
 
-The hash comparison used 13 public derivatives and three unrelated controls. A whole-file hash recognised 2
-derivatives. Sampling tensor hashes recognised 7. The fingerprint recognised 13 and left the controls
-unmatched. In a scan of 3,000 popular text models, only 74 of the 1,718 copies linked to a base by the
-fingerprint shared a weight file with that base.
+A hash only recognises an exact file, so it misses almost every modified copy. The first three lines come from
+an earlier version of the reader.
 
-The scanner could read 2,577 models in that larger scan. Where both a model and its declared base were readable,
-the weights agreed with 1,070 of 1,110 declarations. It also linked 465 of 1,049 models with no declared base to
-a registry model. Long training, merges and resized architectures account for many disagreements, so this is a
-metadata audit rather than a verdict on model cards.
-
-Refusal-removal tools often subtract one direction from matrices that write to the residual stream. Compared
-with the original, this appears as a low-rank edit, and what went missing is the matrix's own content along that
-direction. The second property keeps quantised copies and merged adapters from being flagged. The current test
-finds roughly nine in ten public cases it can compare. Fine-tuning can remove refusals without leaving that
-signature.
-
-Relabelling token rows also failed in the measured cases. Geometry matching recovered four shuffled copies of
-watchlisted models and did not change the results for five other cases.
+Refusal-removal tools often subtract one direction from the model. Compared with the original, that shows up as
+a small, clean edit, and the test looks for it. Fine-tuning can remove refusals without leaving that signature.
 
 ## Does it read the files people run?
 
-Most public copies of the watchlisted models are GGUF files, quantised to a few bits per weight. The reader
-parses GGUF headers by byte range and decodes sixteen storage formats. Its block decoders are checked against
-llama.cpp's reference library.
+Most public copies of the watchlisted models are compressed GGUF files, so the reader decodes them directly.
 
 ![Fingerprint distance stays small as GGUF files drop from 32 bits per weight to 3.](docs/figures/fig_gguf.png)
 
 *43 GGUF files of three public models, each compared with the original it was converted from. The lines mark the
 Green (0.1) and Red (0.5) thresholds.*
 
-Across 36 GGUF files of two unmodified models, the tables moved by 0.03 or less down to 3.6 bits per weight, and
-35 files still cleared as their known base. The plain 2-bit files sat at 0.10: far inside Red for a watchlisted
-model, and at the edge of Green for a known one.
+Compression barely moves the fingerprint. 35 of 36 honest files stayed Green. The one exception was a 2-bit
+file.
 
-A scan covered 178 of the most-downloaded repositories that declare or name a watchlisted model. 62 held a copy
-the reader could decode, 48 of them GGUF files labelled 1 to 4 bits per weight, and all 62 matched. Eight of those
-advertise removed refusals. 38 other models with look-alike names did not match. The remaining 78 could not be
-read: MLX and most EXL3 files, draft models and gated repositories.
-
-Run end to end, the traffic light gave the expected answer on seventeen public models, five of them GGUF files.
-Every answer held under five different nonces. The table is in [`docs/RESULTS.md`](docs/RESULTS.md).
+For the three watchlisted models, the reader could open 100 public repositories. All 62 real copies were flagged
+Red. None of the 38 look-alike models was.
 
 ## What did the enclave prove?
 
@@ -138,37 +122,35 @@ in [`enclave/`](enclave/).
 ## Can an operator evade it?
 
 Routine model conversions are one test; deliberate evasion is another. I gave the operator the code, model
-lists and thresholds, while keeping the audit nonce secret. Reordering, scaling and rotating weights left the
-fingerprint unchanged. Geometry matching handled a relabelled tokenizer. Combining known attention layers with
-a listed model's MLPs produced Amber because only part of the model matched.
+lists and thresholds, while keeping the audit nonce secret. The attacks ran on small stand-in models.
 
-Retraining works better.
+| Attack | Result |
+|---|---|
+| Reorder, rescale or rename the internals | no effect |
+| Retrain the copy to hide it | works after 500 to 1,250 steps, and only reaches Amber |
+| Disguise a watchlisted model as a known one | failed in every run |
+| Copy a known model's outputs too | impossible without giving up its own outputs |
 
 ![Retraining can erase a Red match, while attempts to reach Green remain above its threshold.](docs/figures/fig_stress.png)
 
-A 135 million parameter model left Red after 500 steps. A 1.7 billion parameter model took 1,250 steps. Both
-became Amber. In the longer forgery test, the closest run reached 0.34 from a known model after 10,000 steps;
-Green requires the average over all parts to be below 0.1. The curve was still falling, so the experiment does not establish a
-lower bound on the cost of forgery.
+Retraining can hide a copy, but it lands on Amber, which still means an identity check. No run made a
+watchlisted model pass as a known one, though the experiments do not prove that none can.
 
-Starting from a known model and training it to imitate a listed one left it Green. Its activations and behaviour
-still resembled the known starting model. This is the expected outcome: ordinary fine-tuning should not change
-lineage.
+The last line points to the fix. Before giving Green, also check the model's outputs: a disguised model cannot
+answer like the known model and like itself at once.
 
 A fingerprint table records a second-order summary of a matrix rather than its full function. Different
-matrices can share that summary, and gradient descent can search for them. Successful erasure leads to Amber
-and another identity check, but the fingerprint alone cannot stop an adaptive operator.
+matrices can share that summary, and gradient descent can search for them. The fingerprint alone cannot stop an
+adaptive operator.
 
 ## Where does it stop?
 
 Stress tests have reached 1.7 billion parameters. Larger adaptive runs remain untested. Long continued
-pretraining also removes the signal: five coding and mathematics variants of Qwen2.5 scored between 0.63 and
-0.95 from their starting base.
+pretraining also removes the signal, as in the coding and mathematics variants of Qwen2.5.
 
-The reader supports safetensors and GGUF. MLX, most EXL3 files and other unsupported formats receive Amber, and
-so do GGUF files that keep the sampled matrices in 1 to 3 bit codebook formats. The refusal-removal test can miss
-edits made through fine-tuning and produced two false alarms among 310 other close copies. Green is strict enough
-that one honest 2-bit file scored 0.105 and received Amber.
+The reader supports safetensors and GGUF. Other formats receive Amber. The refusal-removal test can miss edits
+made through fine-tuning, and it raised two false alarms among 310 other copies. The output check is measured,
+not built.
 
 Hardware attestation shifts trust to AMD's and Microsoft's signing keys. A production version should load and
 serve the model in the same enclave, allowing one receipt to name the bytes used for both checking and
