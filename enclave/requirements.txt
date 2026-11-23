@@ -1,0 +1,8 @@
+# The scanner's whole dependency set, pinned to the versions every result in results/ was produced with.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.9.0
+numpy==2.2.6
+safetensors==0.5.3
+cryptography==44.0.0
+requests==2.32.3
+huggingface_hub==0.36.0

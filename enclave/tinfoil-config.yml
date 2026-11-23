@@ -1,0 +1,65 @@
+# The lineage-check enclave, modelled on SASH's inference demo (github.com/sg-ai-safety-hub/inference-demo, tinfoil-config.yml).
+# Everything in this file is measured: a verifier checks an enclave against this repo's release.
+# Field reference: https://docs.tinfoil.sh/containers/configuration
+#
+# What it attests: "the deployment whose weights are this Modelwrap pack derives (or not) from a model on this
+# pinned concern list, and does (or not) carry the refusal-ablation signature", as one signed statement per
+# verifier challenge. The listed models are mounted packs too, so every byte the scan reads is dm-verity checked
+# and the enclave makes no network requests.
+cvm-version: 0.14.13  # 0.14.12 or later: attested keys and the attestation socket
+cpus: 8
+memory: 32768  # MiB: the scan streams one layer at a time; 8B models peak near 6 GB
+gpus: 0        # weights-only fingerprint: no GPU
+
+attested-keys:
+  - id: enclave-signing-key  # the same key id the inference demo uses, so its key-binding code applies unchanged
+    key: ed25519
+
+models:
+  # The deployment under audit. Its pack's files are hashed at boot under dirhash-sha256/1, the scheme the
+  # inference statement names its base by, so a lineage statement and an inference statement can be linked.
+  - name: "audited"
+    repo: "TinyLlama/TinyLlama-1.1B-Chat-v1.0@fe8a4ea1ffedaf415f4da2f062534de366a451e6"
+    mpk: "bb6889fc21660fe9bfa2399ac9a09c31a4e99f6b1cd0087300fe97d42dcba5e5_2202476544_b7a5ce57-f1f8-50f3-a209-e230182f951f"  # from inference-demo/fixtures/crosswalk.json
+  # The concern list's models, packed with `tinfoil model wrap` at the revisions concern-demo.json pins.
+  # Their mpk references are filled in when packed (one command each; needs a Tinfoil account).
+  - name: "listed-llama-160m"
+    repo: "JackFram/llama-160m@aca9b687d1425f863dcf5de9a4c96e3fe36266dd"
+    mpk: "TO_BE_PACKED"
+  - name: "listed-tinyllama-3t"
+    repo: "TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T@59f6f375b26bde864a6ca194a9a3044570490064"
+    mpk: "TO_BE_PACKED"
+
+containers:
+  - name: "lineage-check"
+    image: "ghcr.io/OWNER/lineage-check@sha256:TO_BE_BUILT"  # the digest `docker build -f enclave/Dockerfile .` prints
+    restart: always
+    keys: [enclave-signing-key]  # mounted at /run/tinfoil/keys/enclave-signing-key/private_key.pem
+    attestation: true            # /tinfoil/attestation.sock: a v3 report that lists the key, bound to each challenge
+    env:
+      - MODEL_DIR: "/tinfoil/mpk/mpk-bb6889fc21660fe9bfa2399ac9a09c31a4e99f6b1cd0087300fe97d42dcba5e5"
+      - MODEL_NAME: "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+      - MODEL_REF: "TinyLlama/TinyLlama-1.1B-Chat-v1.0@fe8a4ea1ffedaf415f4da2f062534de366a451e6"
+      - MODEL_SCHEMA: "2"
+      - CONCERN_LIST: "/opt/lineage-check/concern.json"
+      # jcs-sha256/1 of the list; the service refuses to start if the file differs. Listed models in the enclave
+      # name their mounted pack (`path`) instead of a Hub revision.
+      - CONCERN_LIST_DIGEST: "TO_BE_PINNED"
+      - TOKENS: "512"
+      - LAYERS: "4"
+      - DEBUG: "0"
+      - HF_HUB_OFFLINE: "1"
+    tmpfs:
+      /tmp: "size=2g,mode=1777"
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10m  # hashing the audited pack at boot
+
+shim:
+  upstream-port: 8080
+  paths:
+    - /health
+    - /v1/model
+    - /v1/challenge
