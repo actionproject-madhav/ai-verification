@@ -75,14 +75,18 @@ def main(wl_path, out, per=10):
             rows.append({"repo": b, "against": a, "relation": "listed pair", **(r or {"d": None})})
         except Exception as e:
             print(f"listed pair {a} vs {b}: {type(e).__name__}: {str(e)[:120]}", flush=True)
+    old = {r["repo"]: r for r in json.load(open(out))["rows"]} if os.path.exists(out) else {}
     for c in candidates(api, wl["models"], per):
         if c.get("skip"):
             rows.append(c)
             continue
+        if "distances" in old.get(c["repo"], {}) and old[c["repo"]]["relation"] != "listed pair":   # resumed run
+            rows.append(old[c["repo"]])
+            continue
         t0 = time.time()
         try:
             src = R.Remote(c["repo"])
-            dist = {}
+            dist, compared = {}, {}
             qvocab, qhow = vocab_of(src)
             for mid, (fa, strings, how) in anchors.items():
                 if how == "tokenizer" and qhow != "tokenizer":
@@ -92,16 +96,19 @@ def main(wl_path, out, per=10):
                 fq = U.fingerprint(src, vocab, strings)
                 r = U.compare(fa, fq)
                 dist[mid] = None if r is None else round(r["d"], 4)
+                compared[mid] = None if r is None else r["matches"]
                 c.setdefault("tables", sum(len(x) for x in fq["layers"]))
             ok = {k: v for k, v in dist.items() if v is not None}
             best = min(ok, key=ok.get) if ok else None
-            c.update(distances=dist, matched=best if best and ok[best] < 0.5 else None, seconds=round(time.time() - t0))
+            c.update(distances=dist, compared=compared, matched=best if best and ok[best] < 0.5 else None,
+                     seconds=round(time.time() - t0))
         except Exception as e:
             c.update(error=f"{type(e).__name__}: {str(e)[:160]}", seconds=round(time.time() - t0))
         rows.append(c)
         print(f"{c['repo'][:58]:58s} {str(c['listed']):9s} {c['relation']:9s} -> {str(c.get('matched')):9s} {c.get('distances', c.get('error', ''))}", flush=True)
         json.dump({"watchlist": wl, "rows": rows}, open(out, "w"), indent=1)
         shutil.rmtree(os.path.join(R.CACHE, c["repo"].replace("/", "--")), ignore_errors=True)
+    json.dump({"watchlist": wl, "rows": rows}, open(out, "w"), indent=1)
     n = collections.Counter((r.get("listed") is not None, bool(r.get("matched"))) for r in rows if "distances" in r)
     print("declared or named copies matched:", n[(True, True)], "of", n[(True, True)] + n[(True, False)],
           "| controls matched:", n[(False, True)], "of", n[(False, True)] + n[(False, False)])
