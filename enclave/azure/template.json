@@ -1,0 +1,64 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "registryServer": {"type": "string"},
+    "registryUsername": {"type": "string"},
+    "registryPassword": {"type": "securestring"}
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ContainerInstance/containerGroups",
+      "apiVersion": "2023-05-01",
+      "name": "lineage-check",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "sku": "Confidential",
+        "confidentialComputeProperties": {"ccePolicy": ""},
+        "containers": [
+          {
+            "name": "lineage-check",
+            "properties": {
+              "image": "REGISTRY/lineage-check@sha256:TO_BE_BUILT",
+              "ports": [{"port": 8080, "protocol": "TCP"}],
+              "environmentVariables": [
+                {"name": "PLATFORM", "value": "azure-aci"},
+                {"name": "ATTEST_URL", "value": "http://localhost:8284"},
+                {"name": "MODEL_DIR", "value": "/model"},
+                {"name": "MODEL_NAME", "value": "TinyLlama/TinyLlama-1.1B-Chat-v1.0"},
+                {"name": "MODEL_REF", "value": "TinyLlama/TinyLlama-1.1B-Chat-v1.0@fe8a4ea1ffedaf415f4da2f062534de366a451e6"},
+                {"name": "CONCERN_LIST", "value": "/opt/lineage-check/enclave/concern-demo.json"},
+                {"name": "CONCERN_LIST_DIGEST", "value": "172b33800f6e6542f9baa39efa3b42589d35bdbe003d5ee34d2608292ee9f0ce"},
+                {"name": "TOKENS", "value": "512"},
+                {"name": "LAYERS", "value": "4"},
+                {"name": "DEBUG", "value": "0"},
+                {"name": "HF_HUB_OFFLINE", "value": "0"},
+                {"name": "LINEAGE_ZOO", "value": "/tmp/lineage"},
+                {"name": "HF_HOME", "value": "/tmp/hf"}
+              ],
+              "resources": {"requests": {"cpu": 3, "memoryInGB": 12}}
+            }
+          },
+          {
+            "name": "attestation",
+            "properties": {
+              "image": "mcr.microsoft.com/aci/skr:2.16",
+              "command": ["/skr.sh"],
+              "environmentVariables": [{"name": "Port", "value": "8284"}],
+              "resources": {"requests": {"cpu": 1, "memoryInGB": 2}}
+            }
+          }
+        ],
+        "imageRegistryCredentials": [
+          {"server": "[parameters('registryServer')]", "username": "[parameters('registryUsername')]", "password": "[parameters('registryPassword')]"}
+        ],
+        "osType": "Linux",
+        "restartPolicy": "Never",
+        "ipAddress": {"type": "Public", "ports": [{"port": 8080, "protocol": "TCP"}]}
+      }
+    }
+  ],
+  "outputs": {
+    "ip": {"type": "string", "value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups', 'lineage-check')).ipAddress.ip]"}
+  }
+}

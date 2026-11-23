@@ -1,0 +1,8 @@
+# the image is built from a handful of files; send nothing else to the builder
+*
+!pyproject.toml
+!README.md
+!lineage_check/
+!enclave/requirements.txt
+!enclave/lineage_service.py
+!enclave/concern-demo.json

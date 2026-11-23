@@ -7,7 +7,7 @@ COPY enclave/requirements.txt /opt/lineage-check/enclave/requirements.txt
 RUN pip install --no-cache-dir -r /opt/lineage-check/enclave/requirements.txt
 COPY pyproject.toml README.md /opt/lineage-check/
 COPY lineage_check /opt/lineage-check/lineage_check
-COPY enclave/lineage_service.py /opt/lineage-check/enclave/lineage_service.py
+COPY enclave/lineage_service.py enclave/concern-demo.json /opt/lineage-check/enclave/
 RUN pip install --no-cache-dir --no-deps /opt/lineage-check
 ENV PYTHONUNBUFFERED=1 HF_HUB_OFFLINE=1 HF_HUB_DISABLE_TELEMETRY=1 DO_NOT_TRACK=1
 ENTRYPOINT ["python3", "/opt/lineage-check/enclave/lineage_service.py"]

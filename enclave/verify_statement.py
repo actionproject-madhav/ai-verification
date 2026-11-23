@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 from lineage_check import fourpillars as FP
+from lineage_check import snp as SNP
 
 PREDICATE_TYPE = "urn:lineage-check:LineageStatement:v0.2"
 
@@ -25,6 +26,7 @@ def main():
     ap.add_argument("--model-dir")
     ap.add_argument("--inference-statement")
     ap.add_argument("--upstream")
+    ap.add_argument("--policy", help="Azure: the expected launch policy, as the base64 string in the deployment template")
     a = ap.parse_args()
     ok = True
 
@@ -69,6 +71,20 @@ def main():
     binding = p["execution"]["attestation"]["keyBinding"]
     if binding is None:
         print("NOTE  keyBinding null: a local twin, signed with a dev key no hardware report binds")
+    elif binding.get("platform") == SNP.PLATFORM_ACI:
+        import base64
+        policy = base64.b64decode(open(a.policy).read().strip()) if a.policy else None
+        try:
+            f = SNP.verify_binding(binding, bytes.fromhex(response["publicKey"]), a.nonce, policy)
+            check(True, f"AMD SEV-SNP report verifies down to AMD's root ({f['root']}), debugging off")
+            check(True, "the report names this statement key and this nonce (report_data)")
+            if policy is None:
+                print(f"NOTE  no --policy given: host_data {f['host_data'].hex()} not compared with an expected policy")
+            else:
+                check(True, f"launched under the expected policy: host_data {f['host_data'].hex()[:16]}...")
+            print(f"NOTE  launch measurement {f['measurement'].hex()[:16]}...: Microsoft's utility VM, endorsed separately; not judged here")
+        except SNP.AttestationError as e:
+            check(False, f"hardware report: {e}")
     else:
         check(FP.bound_key(binding).hex() == response["publicKey"],
               "the attestation document lists the statement key (hardware checks: registry checks_tinfoil)")

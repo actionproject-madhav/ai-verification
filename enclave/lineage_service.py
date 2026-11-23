@@ -1,5 +1,10 @@
 """lineage-check as an enclave service, in the shape of SASH's verified inference demo.
 
+Two platforms. In Tinfoil (the default) the model is a mounted pack and the platform supplies the attested key.
+In an Azure confidential container group (PLATFORM=azure-aci) the service fetches the pinned revision itself,
+makes its signing key inside the enclave, and binds it to every statement with a fresh AMD SEV-SNP report from
+the attestation sidecar (ATTEST_URL).
+
 The model under audit is mounted read-only (in Tinfoil: a Modelwrap pack at /tinfoil/mpk/mpk-<root hash>) and
 hashed at boot under dirhash-sha256/1, as the inference demo hashes its base. A verifier POSTs a fresh nonce; the
 service derives the secret tokens and layers from it, fingerprints the model against every listed model, and
@@ -9,16 +14,19 @@ entry, and whether the refusal-ablation signature is present. No scores, tokens 
 
   GET  /health
   GET  /v1/model       the scanned model's identity, computed at boot
+  GET  /v1/policy      Azure only: the launch policy (base64) whose hash the hardware report carries
   POST /v1/challenge   {"nonce": "<32-128 hex>"}  ->  {"envelope": <DSSE>, "publicKey": "<hex>"}
 
 Settings (pinned in tinfoil-config.yml, so measured):
   MODEL_DIR, MODEL_NAME, MODEL_REF (repo@revision), MODEL_SCHEMA (modelwrap pack schema)
   CONCERN_LIST (path), CONCERN_LIST_DIGEST (jcs-sha256/1 of it; the service refuses to start on a mismatch)
   TOKENS (512), LAYERS (4), PORT (8080), ALLOW_DEV_KEY (1 outside an enclave: statements say keyBinding null)
+  PLATFORM (tinfoil or azure-aci), ATTEST_URL (the sidecar, azure-aci only)
 """
 import json
 import os
 import re
+import shutil
 import sys
 import threading
 import time
@@ -27,20 +35,32 @@ from pathlib import Path
 
 import numpy as np
 import torch
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from lineage_check import fingerprint as fp4
 from lineage_check import fourpillars as FP
 from lineage_check import protocol as LC
 from lineage_check import remote as R
+from lineage_check import snp as SNP
 
 PREDICATE_TYPE = "urn:lineage-check:LineageStatement:v0.2"
 NONCE = re.compile(r"[0-9a-f]{32,128}")
 DEBUG = os.environ.get("DEBUG") == "1"  # local twin only: per-entry distances to stderr (pinned off in the enclave)
+PLATFORM = os.environ.get("PLATFORM", "tinfoil")
+PLATFORM_NAMES = {"tinfoil": "tinfoil-containers", "azure-aci": "azure-confidential-containers"}
 torch.set_grad_enabled(False)
 
 
 def now():
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+
+
+def fetch_model(ref, dest):
+    """No mounted pack on Azure: download the pinned revision inside the enclave. The files are hashed after."""
+    from huggingface_hub import snapshot_download
+    repo, _, revision = ref.partition("@")
+    snapshot_download(repo, revision=revision, local_dir=str(dest))
+    shutil.rmtree(Path(dest) / ".cache", ignore_errors=True)       # download bookkeeping, not part of the model
 
 
 def source(entry_or_dir, label=None):
@@ -87,8 +107,14 @@ class Service:
         self.model_ref = env.get("MODEL_REF") or None
         self.schema = env.get("MODEL_SCHEMA", "2")
         self.n, self.k = int(env.get("TOKENS", 512)), int(env.get("LAYERS", 4))
-        self.key, self.attested = FP.load_signing_key(Path(env.get("SIGNING_KEY_PATH", FP.ATTESTED_KEY_PATH)),
-                                                      env.get("ALLOW_DEV_KEY") == "1")
+        if PLATFORM == "azure-aci":
+            # made here and never written out; each statement carries a fresh hardware report that names it
+            self.key, self.attested = Ed25519PrivateKey.generate(), True
+            if not self.model_dir.exists():
+                fetch_model(env["MODEL_REF"], self.model_dir)
+        else:
+            self.key, self.attested = FP.load_signing_key(Path(env.get("SIGNING_KEY_PATH", FP.ATTESTED_KEY_PATH)),
+                                                          env.get("ALLOW_DEV_KEY") == "1")
         self.concern = json.load(open(env["CONCERN_LIST"]))
         self.concern_digest = FP.jcs_sha256(self.concern)
         pinned = env.get("CONCERN_LIST_DIGEST")
@@ -123,7 +149,12 @@ class Service:
             verdict, matched, ablated, layers = scan(self.q, self.listed, nonce, self.n, self.k)
             seconds = round(time.time() - t0, 1)
         pub = FP.raw_public_key(self.key)
-        binding = FP.fetch_key_binding(pub, FP.jcs_sha256({"lineageChallenge": nonce})) if self.attested else None
+        if not self.attested:
+            binding = None
+        elif PLATFORM == "azure-aci":
+            binding = SNP.aci_attest(SNP.binding_payload(pub, nonce))
+        else:
+            binding = FP.fetch_key_binding(pub, FP.jcs_sha256({"lineageChallenge": nonce}))
         model = self.component()
         statement = {
             "_type": FP.STATEMENT_TYPE,
@@ -137,7 +168,7 @@ class Service:
                 "lineage": {"verdict": verdict, "matched": matched, "refusalAblationSignature": ablated},
                 "method": {"name": "token-anchored circuits", "version": fp4.VERSION, "tokens": self.n,
                            "layersSampled": len(layers), "layerRule": LC.LAYER_RULE},
-                "execution": {"platform": "tinfoil-containers" if binding else "local", "startedAt": self.started_at,
+                "execution": {"platform": PLATFORM_NAMES[PLATFORM] if binding else "local", "startedAt": self.started_at,
                               "issuedAt": now(), "scanSeconds": seconds, "statementKey": pub.hex(),
                               "attestation": {"keyBinding": binding}},
             },
@@ -161,6 +192,9 @@ def serve(svc, port):
             if self.path == "/v1/model":
                 return self._send(200, {"model": svc.component(), "hashSeconds": svc.hash_seconds,
                                         "concernList": {"digest": svc.concern_digest}})
+            if self.path == "/v1/policy":                  # Azure: the launch policy the hardware report commits to
+                f = Path(os.environ.get("UVM_SECURITY_CONTEXT_DIR", "/nonexistent")) / "security-policy-base64"
+                return self._send(200, {"policy": f.read_text().strip() if f.exists() else None})
             self._send(404, {"error": "not found"})
 
         def do_POST(self):
