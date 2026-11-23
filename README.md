@@ -1,110 +1,133 @@
 # lineage-check
 
-A metal detector for model weights. Given a model and a list of open-weight models, it says whether the model is
-a modified copy of one on the list, from the weights alone, and signs the answer.
+**A metal detector for model weights.** It tells a cloud provider or a regulator whether a deployed model is a
+modified copy of a high-risk open model. It runs inside sealed hardware and lets out one signed answer: Red, Green
+or Amber.
 
-## Why
+![The mechanism](docs/figures/fig_architecture.png)
 
-A hash proves a server runs exactly one file. Fine-tune the model, quantise it, or strip its refusals, and the
-hash changes. For a private model the hash then only shows the model is the same as last time. It cannot say what
-the model is. That is how open-weight models get misused: someone edits a public model and runs the copy.
+## The problem
 
-lineage-check compares wiring instead of bytes. An edit changes the bytes everywhere and the wiring very little.
+A secure enclave can prove which exact file a server runs. The proof is a hash, and any edit changes the hash.
+Open models are misused by editing them: a fine-tune, a 4-bit re-release, a removed refusal.
 
-## What you get
+Government evaluators now name specific open models as the most cyber-capable ones released
+([US CAISI on GLM-5.3](https://www.nist.gov/news-events/news/2026/09/caisis-assessment-zais-glm-53-cyber-capabilities),
+[UK AISI and US CAISI on Kimi K3](https://www.aisi.gov.uk/blog/preliminary-assessment-of-kimi-k3s-cyber-capabilities)).
+Nobody can yet check, privately, whether a deployment is a modified copy of one of them.
+
+## The idea
+
+Compare wiring instead of bytes. For a few hundred secret words, every weight matrix gives a table: how strongly
+the model links word `a` to word `b`. An edit changes every byte and barely moves the tables. Two separately
+trained models have unrelated tables.
+
+| Light | Rule | What follows |
+|---|---|---|
+| **Red** | some part of the model matches a listed model, or its refusals were cut out | identity and content checks |
+| **Green** | every part of the model matches one known model | the model runs |
+| **Amber** | anything else | identity check |
+
+Being flagged takes one matching part. Being cleared takes all of them.
+
+## Results
+
+### 1. It recognises public copies that exact hashes miss
+
+![What exact hashes recognise, against the fingerprint](docs/figures/fig_hashes.png)
+
+Each column is one public model: thirteen made from GLM-5.2, GLM-5.3, Kimi K3, Llama-3.1-8B or Qwen2.5-7B, and
+three unrelated ones. A whole-file hash recognises 2 of the 13. Hashing tensors one by one (a sample of 24 per
+model) recognises 7: releases that repackage a model and leave some tensors untouched. Neither recognises a
+fine-tune, a model with its refusals removed, or a copy that was re-quantised throughout. The fingerprint
+recognises all 13 and none of the unrelated models ([`results/hash_baseline.json`](results/hash_baseline.json)).
+
+### 2. Copies and unrelated models do not overlap, from 14 million to 2.8 trillion parameters
+
+![Distance against model size](docs/figures/fig_separation.png)
+
+46 modified copies sit at 0.11 or less. 282 unrelated pairs sit at 0.79 or more. The grey crosses are the limit of
+the method: a model retrained on far more data, such as a coding version, stops matching its parent.
+
+### 3. The three lights on real models
+
+| Model on the Hub | What it is | Light |
+|---|---|---|
+| `nvidia/GLM-5.2-NVFP4` | 4-bit release of a listed model | Red: GLM-5.2 |
+| `dealignai/GLM-5.3-CYBERSECURITY-FP8` | 8-bit release of a listed model, renamed | Red: GLM-5.3 |
+| `nvidia/Kimi-K3-NVFP4` | 4-bit release of a listed model | Red: Kimi K3 |
+| `moonshotai/Kimi-K3.1-Pro` | a later version of a listed model | Red: Kimi K3 |
+| `mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated` | a known model with its refusals removed | Red: refusals cut out |
+| `Qwen/Qwen2.5-7B-Instruct` | the instruct version of a known model | Green: Qwen2.5-7B |
+| `NousResearch/Hermes-3-Llama-3.1-8B` | a fine-tune of a known model | Green: Llama-3.1-8B |
+| `zai-org/GLM-5.3-Flash` | a different model that shares a listed name | Amber |
+| `tiny-random/glm-5.2` | random weights under a listed name | Amber |
+| `deepseek-ai/DeepSeek-V4-Flash` | a model on neither list | Amber |
+
+The watchlist is the three models government evaluators have named
+([`watchlists/government-named.json`](watchlists/government-named.json), each entry with its source). All 14
+readable public copies of them match at 0.02 or less. 15 other models, some with look-alike names, sit at 0.79 or
+more ([`results/watchlist.json`](results/watchlist.json)).
+
+### 4. It runs in sealed hardware, and anyone can check the proof offline
+
+The check ran in an AMD SEV-SNP enclave on Azure. It answered Red for the renamed copy of GLM-5.3 in 84 seconds.
+The model has 753 billion parameters; the enclave read a few matrices of two layers.
 
 ```
-$ lineage-check verify --statement demo/operator/audit/huihui-ai__Qwen2.5-7B-Instruct-abliterated-v2.dsse.json \
-      --pub demo/keys/pk.pem --nonce $(cat demo/operator/nonce.txt)
-valid signature; subject huihui-ai/Qwen2.5-7B-Instruct-abliterated-v2@447ff10df7; verdict match -> qwen2.5-7b-instruct; refusal-ablation signature
+$ python enclave/verify_statement.py demo/azure-light/response.json --nonce $(cat demo/azure-light/nonce.txt) \
+      --watchlist watchlists/government-named.json --known watchlists/known-demo.json --policy demo/azure-light/policy.b64
+PASS  signature verifies under the statement key
+PASS  AMD SEV-SNP report verifies down to AMD's root (ARK-Genoa), debugging off
+PASS  the report names this statement key and this nonce (report_data)
+PASS  launched under the expected policy: host_data 590e0098e148df4d...
+PASS  the base system is one Microsoft signed: ContainerPlat-AMD-UVM, version 104
+light: RED -> glm-5.3
 ```
 
-That statement came from one scan (48 seconds, layers already cached):
+The statement is an in-toto Statement in a DSSE envelope, in the format of SASH's
+[verified inference demo](https://github.com/sg-ai-safety-hub/inference-demo). That demo's own code opens it, and a
+lineage statement and an inference statement about the same model link through their shared digests. Details:
+[`enclave/`](enclave/).
+
+## Try it
 
 ```
-$ lineage-check scan --query huihui-ai/Qwen2.5-7B-Instruct-abliterated-v2 --list demo/operator/concern.json \
-      --nonce $NONCE --key keys/sk.pem --out st.json
+git clone https://github.com/actionproject-madhav/ai-verification && cd ai-verification
+pip install -e .
+lineage-check light --query nvidia/GLM-5.2-NVFP4 \
+    --watchlist watchlists/government-named.json --known watchlists/known-demo.json
 ```
 
-- It reads a few layers, not the whole model. A 72B model was fingerprinted from 2 of its 80 layers, fetched with
-  HTTP range requests.
-- The statement holds the verdict, the matched entry, and one more bit: whether a refusal direction was cut out of
-  the weights. No scores and no weights.
-- Statements are in-toto in DSSE envelopes, in the format of SASH's
-  [verified inference demo](https://github.com/sg-ai-safety-hub/inference-demo), so the check can run in a secure
-  enclave beside it. See [`enclave/`](enclave/).
+```
+RED  glm-5.2  (part of the model matches a listed model)
+```
 
-## How it works
-
-1. The verifier sends a fresh random nonce after the weights are committed.
-2. The nonce picks 512 tokens and a few layers. Nobody can prepare for a draw they have not seen.
-3. For each layer the scanner computes token-by-token tables from the weights: how strongly attention links token
-   `a` to token `b`, and what it writes when it does.
-4. Distance is 1 minus the correlation between two models' tables. Under 0.5 against a listed model is a match.
-5. The scanner signs the verdict.
-
-Shuffling, rescaling or rotating a model's internals changes every byte and leaves these tables unchanged.
-[`tests/`](tests/) checks that on a model built in milliseconds.
-
-## Results so far
-
-| Test | Result |
-|---|---|
-| 22 fine-tuned, quantised or abliterated copies | distance at most 0.082 from their parent |
-| 231 pairs of separately trained models, 14M to 72B parameters | at least 0.86 |
-| 36 pairs of unrelated 7-9B families | at least 0.96; true copies at that size 0.001 to 0.008 |
-| 10 audit nonces, 2 or all layers, 64 or 512 tokens | no verdict changes |
-| 150 popular Hub models | declared base confirmed for 81 of 91 readable; 19 undeclared bases found |
-| Refusal ablation, from weights | flagged in 11 of 13 abliterated releases; 0 of 26 ordinary models |
-| Retraining a copy to hide its origin | works, at no loss of quality |
-| Retraining a copy to imitate a chosen harmless model | 0.45 after 1,000 steps; a close copy sits under 0.1 |
-
-Every number traces to a file in [`results/`](results/). Full table: [`docs/RESULTS.md`](docs/RESULTS.md).
-
-![Derivatives sit near zero, separately trained models near one](docs/figures/fig_scale.png)
-
-## The design it serves
-
-The check is one layer of a larger mechanism, described in [`docs/DESIGN.md`](docs/DESIGN.md). When a model loads
-in a cloud, an enclave sorts it into one of three results:
-
-- **Green**: a close copy of a known model that is not on the list. It runs.
-- **Red**: a copy or modified copy of a listed model, or its refusals were removed. Identity and content checks.
-- **Amber**: no known origin. Identity check.
-
-Hiding a model's origin moves it to Amber, not to Green.
+No GPU and no full download: the tool reads a few matrices over HTTP range requests, about two minutes for this
+model. `pip install -e ".[dev]" && pytest` runs the 64 tests in two seconds.
 
 ## Limits
 
-- Someone who retrains a copy against the check can hide its origin. The design treats "no known origin" as its
-  own result for that reason.
-- Heavy continued pretraining, a trillion tokens or more, moves a model out of reach of the weight fingerprint.
-- The reader parses safetensors with Llama, Qwen, Mistral, OLMo, Granite and GPT-NeoX layouts, and AWQ, GPTQ and
-  MLX quantisation. Not yet: GGUF, bitsandbytes, custom architectures. That left 20% of the 150-model sample unread.
-- The red-team results are on 135M-parameter models. Larger runs are next.
-- The matching idea is not new. See [`docs/PRIOR_WORK.md`](docs/PRIOR_WORK.md) for what is.
+- **Long retraining.** A copy trained on far more data stops matching. It becomes Amber.
+- **Retraining against the check.** A copy can be retrained to hide its origin, at no loss of quality in our tests.
+  It becomes Amber. Whether a copy can be made to pass as a known model is under test:
+  [`docs/RESULTS.md`](docs/RESULTS.md).
+- **File formats.** GGUF and several quantised formats are not read yet. A model the tool cannot fully read is
+  Amber.
+- **Weights only.** The check does not judge behaviour or intent.
+- **The matching idea is not new.** [`docs/PRIOR_WORK.md`](docs/PRIOR_WORK.md) says what is.
 
-## Install
-
-```
-pip install -e .            # Python 3.11 or newer
-pip install -e ".[dev]" && pytest
-lineage-check keygen --dir keys
-```
-
-Downloaded weight slices go to `~/.cache/lineage-check`. Set `LINEAGE_ZOO` to move them.
-
-## Repository
+## Where to look
 
 | Path | What |
 |---|---|
-| `lineage_check/` | reader, fingerprint, refusal-ablation signature, protocol and command line |
-| `enclave/` | the check as an enclave service, with a Tinfoil config |
-| `experiments/` | every experiment behind the results |
-| `results/` | result files and signed statements |
-| `demo/` | a toy audit of 15 Hub models, verifiable offline |
-| `docs/` | design, results, prior work |
-| `tests/` | invariance, robustness, protocol |
+| [`docs/DESIGN.md`](docs/DESIGN.md) | the mechanism, the lists, what the enclave proves, who can defeat it |
+| [`docs/RESULTS.md`](docs/RESULTS.md) | every result, with the file and script behind it |
+| `lineage_check/` | reader, fingerprints, traffic light, attestation check, command line |
+| `enclave/` | the check as an enclave service, for Tinfoil and for Azure confidential containers |
+| `experiments/` | one script per result |
+| `watchlists/` | the government-named list and a small demo registry |
+| `demo/` | signed statements from the sealed runs, verifiable offline |
 
 ## License
 

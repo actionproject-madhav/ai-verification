@@ -1,7 +1,22 @@
 # Results
 
-Small scale, run on one laptop. Distances are attention-circuit distances (mean of QK and OV) unless stated.
-Each row names the file it comes from and the script that wrote it.
+Each row names the file it comes from and the script that wrote it. Distances in the first table come from the
+design-free fingerprint (closest part unless stated). Elsewhere they are attention-circuit distances (mean of QK
+and OV) from the design-aware reader.
+
+## Headline results (November 2026)
+
+| Question | Result | File | Script |
+|---|---|---|---|
+| Public copies of the three government-named models (0.75 to 2.8 trillion parameters) | 14 of 14 readable copies match at 0.017 or less; 15 other models, some with look-alike names, at 0.79 or more | `results/watchlist.json` | `exp_watchlist.py` |
+| What exact hashes recognise, on 13 public copies and 3 unrelated models | whole-file hash 2 of 13; per-tensor hash 7 of 13 (sample of 24 tensors); fingerprint 13 of 13; no method flags an unrelated model | `results/hash_baseline.json` | `exp_hash_baseline.py` |
+| The traffic light on ten real models | 10 of 10 as expected: 5 Red (4 copies of listed models, 1 with refusals removed), 2 Green, 3 Amber | `results/lights.json` | `exp_lights.py` |
+| Design-free fingerprint at 7 to 9B, all parts | instruct versions and fine-tunes 0.0004 to 0.004; refusals removed 0.069; unrelated 0.94 to 0.99 | `results/universal.json` | `exp_universal.py` |
+| Sealed hardware (AMD SEV-SNP on Azure) | two runs; statements verify offline down to AMD's root, Microsoft's endorsement and the launch policy; Red for a renamed copy of GLM-5.3 in 84 seconds | `demo/azure/`, `demo/azure-light/` | `enclave/verify_statement.py` |
+
+![What exact hashes recognise, against the fingerprint](figures/fig_hashes.png)
+
+![Distance against model size](figures/fig_separation.png)
 
 ## Does it separate copies from strangers?
 
