@@ -16,6 +16,7 @@ Each script answers one question and writes one result file. Run them from this 
 | `exp_v4.py`, `fp_act.py` | Fingerprint on real activations (v4) | `v4.json` |
 | `exp_forensics.py`, `exp_census.py`, `rescore_census.py`, `census_big.py` | Refusal-ablation signature on public models | `forensics_small.json`, `census_v3.json`, `census_big.json` |
 | `exp_hub_census.py`, `analyze_census.py` | Does the Hub's declared base model hold up? | `hub_census.jsonl`, `hub_census_summary.json` |
+| `exp_hub_scan.py` | Where do the most-downloaded Hub models come from? Thousands of models against a registry of base models | `hub_scan/` |
 | `exp_adaptive.py` | Red team 1: attack the weight fingerprint; scramble tokens | `adaptive_v3*.jsonl` |
 | `exp_round2.py` | Red team 2: attack the activation fingerprint, then both | `round2.jsonl` |
 | `exp_round3.py` | Red team 3: both, on broad data, with an honest baseline | `round3.jsonl` |
