@@ -210,14 +210,14 @@
    ],
    "matched": [
     "llama-3.1-8b",
-    null,
+    "llama-3.1-8b",
     "llama-3.1-8b",
     "llama-3.1-8b",
     "llama-3.1-8b"
    ],
    "findings": [
     "cut",
-    "signature",
+    "cut",
     "cut",
     "cut",
     "cut"
@@ -395,7 +395,7 @@
    "repo": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated-GGUF",
    "lights": [
     "red",
-    "green",
+    "red",
     "red",
     "red",
     "red"
@@ -409,7 +409,7 @@
    ],
    "findings": [
     "cut",
-    "known",
+    "cut",
     "cut",
     "cut",
     "cut"

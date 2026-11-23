@@ -75,10 +75,9 @@ claim("62 copies matched, 38 other models compared and not matched, 78 of the 17
 lights = collections.Counter(r["light"] for r in load("lights.json")["rows"])
 stab = load("lights_stability.json")
 claim("seventeen real models: 11 Red, 3 Green, 3 Amber", lights == {"red": 11, "green": 3, "amber": 3}, dict(lights))
-moved = [r for r in stab["rows"] if len(set(r["lights"])) != 1]
-claim("over five nonces 16 of 17 keep their light; the 4-bit GGUF of an abliterated model is Red on four and Green on one",
-      len(stab["nonces"]) == 5 and len(stab["rows"]) == 17 and [r["repo"] for r in moved] == ["mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated-GGUF"]
-      and sorted(moved[0]["lights"]) == ["green", "red", "red", "red", "red"], [r["repo"] for r in moved])
+steady = [r for r in stab["rows"] if len(set(r["lights"])) == 1 and len(set(map(str, r["findings"]))) == 1 and len(set(map(str, r["matched"]))) == 1]
+claim("over five nonces all 17 keep their light, the entry they match and the rule that decides",
+      len(stab["nonces"]) == 5 and len(stab["rows"]) == 17 and len(steady) == 17, f"{len(steady)} of {len(stab['rows'])}")
 
 # the Hub scan
 rows = [r for r in load("hub_scan/compare.json")["rows"]]

@@ -25,7 +25,7 @@
      0.0
     ]
    },
-   "seconds": 279
+   "seconds": 85
   },
   {
    "repo": "dealignai/GLM-5.3-CYBERSECURITY-FP8",
@@ -51,7 +51,7 @@
      0.1312
     ]
    },
-   "seconds": 183
+   "seconds": 150
   },
   {
    "repo": "nvidia/Kimi-K3-NVFP4",
@@ -77,7 +77,7 @@
      0.9808
     ]
    },
-   "seconds": 152
+   "seconds": 121
   },
   {
    "repo": "moonshotai/Kimi-K3.1-Pro",
@@ -103,7 +103,7 @@
      0.9813
     ]
    },
-   "seconds": 137
+   "seconds": 100
   },
   {
    "repo": "zai-org/GLM-5.3-Flash",
@@ -153,7 +153,7 @@
      0.9774
     ]
    },
-   "seconds": 211
+   "seconds": 108
   },
   {
    "repo": "tiny-random/glm-5.2",
@@ -203,7 +203,7 @@
      0.9877
     ]
    },
-   "seconds": 6
+   "seconds": 4
   },
   {
    "repo": "Qwen/Qwen2.5-7B-Instruct",
@@ -253,7 +253,7 @@
      0.9857
     ]
    },
-   "seconds": 219
+   "seconds": 168
   },
   {
    "repo": "NousResearch/Hermes-3-Llama-3.1-8B",
@@ -303,7 +303,7 @@
      0.9898
     ]
    },
-   "seconds": 341
+   "seconds": 233
   },
   {
    "repo": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated",
@@ -353,7 +353,7 @@
      0.9896
     ]
    },
-   "seconds": 323
+   "seconds": 224
   },
   {
    "repo": "huihui-ai/Qwen2.5-7B-Instruct-abliterated-v2",
@@ -403,7 +403,7 @@
      0.9856
     ]
    },
-   "seconds": 222
+   "seconds": 167
   },
   {
    "repo": "DreamFast/qwen3-8b-heretic",
@@ -453,7 +453,7 @@
      0.9844
     ]
    },
-   "seconds": 412
+   "seconds": 274
   },
   {
    "repo": "deepseek-ai/DeepSeek-V4-Flash",
@@ -503,7 +503,7 @@
      0.9694
     ]
    },
-   "seconds": 52
+   "seconds": 42
   },
   {
    "repo": "unsloth/GLM-5.3-GGUF",
@@ -529,7 +529,7 @@
      0.0793
     ]
    },
-   "seconds": 24
+   "seconds": 20
   },
   {
    "repo": "unsloth/Kimi-K3-GGUF",
@@ -555,7 +555,7 @@
      0.981
     ]
    },
-   "seconds": 57
+   "seconds": 44
   },
   {
    "repo": "huihui-ai/Huihui-GLM-5.3-abliterated-GGUF",
@@ -581,7 +581,7 @@
      0.0844
     ]
    },
-   "seconds": 26
+   "seconds": 20
   },
   {
    "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
@@ -631,7 +631,7 @@
      0.9905
     ]
    },
-   "seconds": 265
+   "seconds": 174
   },
   {
    "repo": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated-GGUF",
@@ -681,7 +681,7 @@
      0.9897
     ]
    },
-   "seconds": 278
+   "seconds": 178
   }
  ]
 }
