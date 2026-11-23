@@ -200,6 +200,33 @@ def robustness(res, out):
     return {"erase": {n: last(r) for n, r, _, _ in erase}, "forge": {n: last(r) for n, r, _, _ in forge}}
 
 
+def tradeoff(res, out):
+    """What keeping the listed model's behaviour costs on the way to Green. Each line is one retraining run that
+    pulls every table of a listed model X toward a known model Y, with a different weight on keeping X's outputs.
+    x = all parts to Y on the audit nonce (Green below 0.1), y = accuracy on a held-out task (LAMBADA)."""
+    rows = [json.loads(l) for l in open(os.path.join(res, "round7_tradeoff_135m.jsonl")) if l.strip()]
+    series = [("outputs kept, weight 1", _runs(os.path.join(res, "round7_forge_long_135m.jsonl"), "forge"), INK)]
+    for keep, colour, label in ((0.1, FOREST, "weight 0.1"), (0.0, VERM, "outputs not kept")):
+        series.append((label, [r for r in rows if r.get("keep") == keep], colour))
+    fig, ax = plt.subplots(figsize=(6.6, 2.9))
+    ax.axvspan(0, 0.1, color=FOREST, alpha=0.10, lw=0, zorder=0)                  # inside the band the light is Green
+    found = {}
+    for label, run, colour in series:
+        x, y = [r["to_Y"][1] for r in run], [r["lambada"] for r in run]
+        ax.plot(x, y, color=colour, lw=1.2, marker="o", ms=2.2, label=label)
+        at = min(run, key=lambda r: abs(r["step"] - 2000))
+        found[label] = {"steps": run[-1]["step"], "all_parts_to_Y": run[-1]["to_Y"][1], "kl_to_X": round(run[-1]["kl"], 3),
+                        "accuracy": run[-1]["lambada"], "light": run[-1]["light"], "all_parts_to_Y_at_2000_steps": at["to_Y"][1]}
+    ax.set_xlim(0, 1.0)
+    ax.set_xticks([0, 0.1, 0.5, 1.0])
+    ax.set_ylim(-0.02, 0.47)
+    ax.set_xlabel("all parts, to the known model")
+    ax.set_ylabel("accuracy")
+    ax.legend(loc="center left", bbox_to_anchor=(1.0, 0.5), handletextpad=0.4)
+    save(fig, out, "fig_tradeoff")
+    return found
+
+
 def census(res, out):
     """The 3,000 most-downloaded text models on the Hub, by what their card declares and what the weights say."""
     rows = [r for r in json.load(open(os.path.join(res, "hub_scan", "compare.json")))["rows"] if r.get("status") != "unreadable"]

@@ -129,6 +129,12 @@ audit = load("round7_forge_long_135m_lights.json")["rows"][-1]
 claim("the long run ends at 10,000 steps: 0.34 from the known model, 0.43 under the audit nonce, activations 0.03 from the listed model",
       (both[1][-1]["step"], round(both[1][-1]["to_Y"][1], 2), int(audit["to_Y"][1] * 100) / 100, round(audit["act_to_X"], 2), audit["light"]) == (10000, 0.34, 0.43, 0.03, "amber"),
       (both[1][-1]["to_Y"], audit["to_Y"], audit["act_to_X"]))
+trade = [json.loads(l) for l in open(os.path.join(RES, "round7_tradeoff_135m.jsonl"))]
+at = lambda rows, step: next(r for r in rows if r["step"] == step)
+kept, dropped = [r for r in trade if r["keep"] == 0.1], [r for r in trade if r["keep"] == 0.0]
+three = [round(at(both[1], 2000)["to_Y"][1], 2), round(at(kept, 2000)["to_Y"][1], 2), round(at(dropped, 2000)["to_Y"][1], 2)]
+claim("keeping the listed model's outputs does not slow the pull toward a known model: 0.50, 0.46, 0.47 at 2,000 steps for weights 1, 0.1, 0",
+      three == [0.50, 0.46, 0.47] and all(r["light"] != "green" for r in trade) and dropped[-1]["lambada"] == 0.0 and round(kept[-1]["lambada"], 2) == 0.38, three)
 act = load("gpu/1.7b-v2-forge-lights_redteam.json")["rows"][-1]
 claim("that 1.7B model's activations: 0.09 from the listed model, 0.58 from the known one",
       (round(act["act_to_X"], 2), round(act["act_to_Y"], 2)) == (0.09, 0.58), (act["act_to_X"], act["act_to_Y"]))
