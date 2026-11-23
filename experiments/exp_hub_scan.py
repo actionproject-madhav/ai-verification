@@ -112,9 +112,17 @@ def _std(M):
     return (M / s).to(torch.float16).numpy() if s > 0 else None
 
 
-def scan_one(repo, nonce):
+def scan_one(repo, nonce, declared=()):
     src = R.Remote(repo)
     src.index.pop("lm_head.weight", None)                         # the census does not use the unembedding
+    borrowed = None
+    if not any(f in src.files for f in ("tokenizer.json", "tiktoken.model", "vocab.json")):
+        for base in declared:                                     # weights with no tokenizer files: read them with the
+            try:                                                  # tokenizer of the base their card declares
+                src._vocab, borrowed = R.Remote(base).vocab, base
+                break
+            except Exception:
+                continue
     cfg = src.config
     L = cfg["num_hidden_layers"]
     LC.LAYER_RULE = "even"
@@ -134,7 +142,7 @@ def scan_one(repo, nonce):
                 if a is not None:
                     arrays[f"{j}_{c}"] = a
     meta = {"sha": src.sha, "model_type": cfg["model_type"], "L": L, "d": cfg["hidden_size"], "layers": layers,
-            "group": group, "tokens": len(keep), "params": params,
+            "group": group, "tokens": len(keep), "params": params, "tokenizer_from": borrowed,
             "ablation_signature": bool(f.get("ablation_signature")) if forensic else None}
     return arrays, meta
 
@@ -143,6 +151,7 @@ def scan(d, nonce, shard, n_shards):
     P = json.load(open(os.path.join(d, "population.json")))
     repos = [p["repo"] for p in P["population"]] + [r["repo"] for r in P["registry"]]
     repos = list(dict.fromkeys(repos))
+    declared = {p["repo"]: [b["repo"] for b in p["declared"]] for p in P["population"]}
     fdir, out = os.path.join(d, "fps"), os.path.join(d, f"scan_{shard}.jsonl")
     mark = os.path.join(d, f"inflight_{shard}.txt")
     os.makedirs(fdir, exist_ok=True)
@@ -169,7 +178,7 @@ def scan(d, nonce, shard, n_shards):
             fh.write(repo)
         for attempt in range(6):
             try:
-                arrays, meta = scan_one(repo, nonce)
+                arrays, meta = scan_one(repo, nonce, declared.get(repo, ()))
                 np.savez(os.path.join(fdir, repo.replace("/", "__") + ".npz"), **arrays)
                 rec.update(meta, seconds=round(time.time() - t0, 1))
             except Exception as e:
