@@ -1,0 +1,254 @@
+[
+ {
+  "a": "unsloth/Llama-3.1-8B",
+  "b": "marin-community/marin-8b-base",
+  "d": 0.7260518526856133,
+  "attn": 0.9947611412103765,
+  "common_words": 1500
+ },
+ {
+  "a": "unsloth/Llama-3.1-8B",
+  "b": "Qwen/Qwen2.5-7B",
+  "d": 0.7337012684969072,
+  "attn": 0.9945445941152149,
+  "common_words": 1500
+ },
+ {
+  "a": "unsloth/Llama-3.1-8B",
+  "b": "Qwen/Qwen3-8B-Base",
+  "d": 0.7555360993421483,
+  "attn": 0.995910953699309,
+  "common_words": 1500
+ },
+ {
+  "a": "unsloth/Llama-3.1-8B",
+  "b": "mistralai/Mistral-7B-v0.3",
+  "d": 0.6977499196290787,
+  "attn": 0.9926566418068503,
+  "common_words": 1477
+ },
+ {
+  "a": "unsloth/Llama-3.1-8B",
+  "b": "allenai/OLMo-7B-0724-hf",
+  "d": 0.8000216330114265,
+  "attn": 1.001403240603375,
+  "common_words": 1472
+ },
+ {
+  "a": "unsloth/Llama-3.1-8B",
+  "b": "01-ai/Yi-1.5-9B",
+  "d": 0.7038587497537561,
+  "attn": 0.9884230299947984,
+  "common_words": 1459
+ },
+ {
+  "a": "unsloth/Llama-3.1-8B",
+  "b": "LLM360/Amber",
+  "d": 0.7973461160965445,
+  "attn": 0.99748418933659,
+  "common_words": 1469
+ },
+ {
+  "a": "unsloth/Llama-3.1-8B",
+  "b": "ibm-granite/granite-3.0-8b-base",
+  "d": 0.7421890568226688,
+  "attn": 0.9919310944064599,
+  "common_words": 1357
+ },
+ {
+  "a": "marin-community/marin-8b-base",
+  "b": "Qwen/Qwen2.5-7B",
+  "d": 0.7715343432344102,
+  "attn": 1.0166253879296112,
+  "common_words": 1500
+ },
+ {
+  "a": "marin-community/marin-8b-base",
+  "b": "Qwen/Qwen3-8B-Base",
+  "d": 0.784517475664957,
+  "attn": 0.9991003206012629,
+  "common_words": 1500
+ },
+ {
+  "a": "marin-community/marin-8b-base",
+  "b": "mistralai/Mistral-7B-v0.3",
+  "d": 0.7383715531509083,
+  "attn": 0.9621870477367446,
+  "common_words": 1477
+ },
+ {
+  "a": "marin-community/marin-8b-base",
+  "b": "allenai/OLMo-7B-0724-hf",
+  "d": 0.8078043321728107,
+  "attn": 1.005091914357549,
+  "common_words": 1472
+ },
+ {
+  "a": "marin-community/marin-8b-base",
+  "b": "01-ai/Yi-1.5-9B",
+  "d": 0.7530012593247931,
+  "attn": 0.9856318217712317,
+  "common_words": 1459
+ },
+ {
+  "a": "marin-community/marin-8b-base",
+  "b": "LLM360/Amber",
+  "d": 0.8445788117851107,
+  "attn": 0.9949012755622818,
+  "common_words": 1469
+ },
+ {
+  "a": "marin-community/marin-8b-base",
+  "b": "ibm-granite/granite-3.0-8b-base",
+  "d": 0.7790359647004741,
+  "attn": 0.9962652441608117,
+  "common_words": 1357
+ },
+ {
+  "a": "Qwen/Qwen2.5-7B",
+  "b": "Qwen/Qwen3-8B-Base",
+  "d": 0.761516860921625,
+  "attn": 0.9881458927304795,
+  "common_words": 1500
+ },
+ {
+  "a": "Qwen/Qwen2.5-7B",
+  "b": "mistralai/Mistral-7B-v0.3",
+  "d": 0.7641626973104274,
+  "attn": 1.0007250230364768,
+  "common_words": 1477
+ },
+ {
+  "a": "Qwen/Qwen2.5-7B",
+  "b": "allenai/OLMo-7B-0724-hf",
+  "d": 0.7710850966683266,
+  "attn": 1.0015407867916346,
+  "common_words": 1472
+ },
+ {
+  "a": "Qwen/Qwen2.5-7B",
+  "b": "01-ai/Yi-1.5-9B",
+  "d": 0.7557134138987913,
+  "attn": 0.9940725819889099,
+  "common_words": 1459
+ },
+ {
+  "a": "Qwen/Qwen2.5-7B",
+  "b": "LLM360/Amber",
+  "d": 0.8470903721007207,
+  "attn": 0.9862820646244033,
+  "common_words": 1469
+ },
+ {
+  "a": "Qwen/Qwen2.5-7B",
+  "b": "ibm-granite/granite-3.0-8b-base",
+  "d": 0.7801522272856234,
+  "attn": 0.991247983177049,
+  "common_words": 1357
+ },
+ {
+  "a": "Qwen/Qwen3-8B-Base",
+  "b": "mistralai/Mistral-7B-v0.3",
+  "d": 0.7379096172407639,
+  "attn": 0.9983090689833171,
+  "common_words": 1477
+ },
+ {
+  "a": "Qwen/Qwen3-8B-Base",
+  "b": "allenai/OLMo-7B-0724-hf",
+  "d": 0.7833046344310349,
+  "attn": 0.9976472007648312,
+  "common_words": 1472
+ },
+ {
+  "a": "Qwen/Qwen3-8B-Base",
+  "b": "01-ai/Yi-1.5-9B",
+  "d": 0.7363832712808885,
+  "attn": 0.9908824477725466,
+  "common_words": 1459
+ },
+ {
+  "a": "Qwen/Qwen3-8B-Base",
+  "b": "LLM360/Amber",
+  "d": 0.7972272249920842,
+  "attn": 0.9832419438540587,
+  "common_words": 1469
+ },
+ {
+  "a": "Qwen/Qwen3-8B-Base",
+  "b": "ibm-granite/granite-3.0-8b-base",
+  "d": 0.7501761398494786,
+  "attn": 0.9889440049657934,
+  "common_words": 1357
+ },
+ {
+  "a": "mistralai/Mistral-7B-v0.3",
+  "b": "allenai/OLMo-7B-0724-hf",
+  "d": 0.8346060050975816,
+  "attn": 1.0054302585356378,
+  "common_words": 1465
+ },
+ {
+  "a": "mistralai/Mistral-7B-v0.3",
+  "b": "01-ai/Yi-1.5-9B",
+  "d": 0.7126298657146461,
+  "attn": 0.9899297800984308,
+  "common_words": 1453
+ },
+ {
+  "a": "mistralai/Mistral-7B-v0.3",
+  "b": "LLM360/Amber",
+  "d": 0.7958508037509395,
+  "attn": 0.9890870674745637,
+  "common_words": 1458
+ },
+ {
+  "a": "mistralai/Mistral-7B-v0.3",
+  "b": "ibm-granite/granite-3.0-8b-base",
+  "d": 0.7381575236168668,
+  "attn": 0.9934660193111269,
+  "common_words": 1347
+ },
+ {
+  "a": "allenai/OLMo-7B-0724-hf",
+  "b": "01-ai/Yi-1.5-9B",
+  "d": 0.8263277152349001,
+  "attn": 0.9992992142048323,
+  "common_words": 1454
+ },
+ {
+  "a": "allenai/OLMo-7B-0724-hf",
+  "b": "LLM360/Amber",
+  "d": 0.885746805529588,
+  "attn": 0.9835495819991711,
+  "common_words": 1455
+ },
+ {
+  "a": "allenai/OLMo-7B-0724-hf",
+  "b": "ibm-granite/granite-3.0-8b-base",
+  "d": 0.8221800184799962,
+  "attn": 0.9936492535205119,
+  "common_words": 1342
+ },
+ {
+  "a": "01-ai/Yi-1.5-9B",
+  "b": "LLM360/Amber",
+  "d": 0.7917305522521876,
+  "attn": 0.9784769220298681,
+  "common_words": 1442
+ },
+ {
+  "a": "01-ai/Yi-1.5-9B",
+  "b": "ibm-granite/granite-3.0-8b-base",
+  "d": 0.747033161011363,
+  "attn": 0.9824325911691079,
+  "common_words": 1332
+ },
+ {
+  "a": "LLM360/Amber",
+  "b": "ibm-granite/granite-3.0-8b-base",
+  "d": 0.7667075655914101,
+  "attn": 0.9682960267180223,
+  "common_words": 1346
+ }
+]

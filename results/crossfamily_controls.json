@@ -1,0 +1,16 @@
+[
+ {
+  "a": "unsloth/Llama-3.1-8B",
+  "b": "unsloth/Llama-3.1-8B-Instruct",
+  "d": 0.004881821965236942,
+  "attn": 0.00773510107854844,
+  "common_words": 1500
+ },
+ {
+  "a": "Qwen/Qwen2.5-7B",
+  "b": "Qwen/Qwen2.5-7B-Instruct",
+  "d": 0.000650460978972589,
+  "attn": 0.0010088531590813077,
+  "common_words": 1500
+ }
+]
