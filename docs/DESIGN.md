@@ -37,7 +37,7 @@ weights, no distances and no user data.
 ## Why two thresholds
 
 Red is easy to reach and Green is hard. A model is flagged if it is anywhere near a listed model. It is cleared only
-if it is a close copy of a known one. Measured on real models, ordinary copies sit under 0.08 from their parent and
+if it is a close copy of a known one. Measured on real models, ordinary copies sit at 0.082 or less from their parent and
 separately trained models sit above 0.86, so both thresholds have room.
 
 ## Who can defeat it, and what they get

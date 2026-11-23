@@ -50,7 +50,7 @@ Shuffling, rescaling or rotating a model's internals changes every byte and leav
 
 | Test | Result |
 |---|---|
-| 22 fine-tuned, quantised or abliterated copies | distance at most 0.08 from their parent |
+| 22 fine-tuned, quantised or abliterated copies | distance at most 0.082 from their parent |
 | 231 pairs of separately trained models, 14M to 72B parameters | at least 0.86 |
 | 36 pairs of unrelated 7-9B families | at least 0.96; true copies at that size 0.001 to 0.008 |
 | 10 audit nonces, 2 or all layers, 64 or 512 tokens | no verdict changes |
