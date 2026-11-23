@@ -200,27 +200,28 @@ def _leading(D, k=8, sweeps=6):
 
 
 def shared_edit(src, anchor, layers_src, layers_anchor, dev="cpu"):
-    """Does the difference between two copies point one way in every layer?
+    """Does the difference between two copies point one way in many layers?
 
-    Removing refusals subtracts one residual-stream direction from every matrix that writes to the stream. So for a
-    copy edited that way, the difference from its base has the same leading direction in every such matrix, in
-    every layer. Fine-tuning and quantisation move each matrix its own way.
+    Removing refusals subtracts one residual-stream direction from the matrices that write to the stream. So for a
+    copy edited that way, the difference from its base has the same leading direction in those matrices, layer
+    after layer. Fine-tuning and quantisation move each matrix its own way.
 
-    Matrices are paired by name within the paired layers. Returns {"shared": the smallest |cosine| between the
-    leading directions of changed matrices in different layers, "changed": how many matrices differ, "share": the
-    median share of each difference that its leading direction holds}. None when the two models are not laid out
-    alike, or when fewer than two layers changed."""
+    Matrices are paired by name within the paired layers. Returns {"layers": how many of the read layers hold a
+    changed matrix whose leading direction is the common one (|cosine| of 0.9 or more), "changed": how many layers
+    changed at all, "directions": per changed matrix its layer position, |cosine| with the common direction and the
+    share of its difference that the leading direction holds}. None when the two models are not laid out alike."""
     _, da, la = layout(anchor)
     _, ds, ls = layout(src)
     if da != ds or len(layers_src) != len(layers_anchor):
         return None
-    found = []                                                    # (position of the layer, direction, share)
+    found, paired = [], 0                                         # (position of the layer, direction, share)
     for pos, (i, j) in enumerate(zip(layers_src, layers_anchor)):
         a = {LAYER.search(n).group(2): n for n, kind in la.get(j, {"mats": []})["mats"] if kind == "w"}
         for n, kind in ls.get(i, {"mats": []})["mats"]:
             short = LAYER.search(n).group(2)
             if kind != "w" or short not in a or shape_of(src, n) != shape_of(anchor, a[short]):
                 continue
+            paired += 1
             Wa = matrix(anchor, a[short], dev)
             D = matrix(src, n, dev) - Wa
             if float(D.norm()) <= 1e-9 * float(Wa.norm()):       # this matrix is unchanged
@@ -228,8 +229,14 @@ def shared_edit(src, anchor, layers_src, layers_anchor, dev="cpu"):
             u, share = _leading(D)
             found.append((pos, u, share))
             del Wa, D
-    cos = [abs(float(u @ v)) for x, (p, u, _) in enumerate(found) for q, v, _ in found[x + 1:] if p != q]
-    if not cos:
+    if not paired:
         return None
-    return {"shared": min(cos), "cosines": sorted(round(c, 4) for c in cos), "changed": len(found),
-            "share": float(np.median([f[2] for f in found]))}
+    if not found:
+        return {"layers": 0, "changed": 0, "directions": []}
+    U_ = torch.stack([u for _, u, _ in found])
+    common = torch.linalg.eigh(U_.T @ U_ if U_.shape[1] <= U_.shape[0] else U_ @ U_.T)
+    v = common.eigenvectors[:, -1]
+    v = v if U_.shape[1] <= U_.shape[0] else (U_.T @ v) / (U_.T @ v).norm()   # the direction most of them share
+    cos = (U_ @ v).abs().tolist()
+    return {"layers": len({p for (p, _, _), c in zip(found, cos) if c >= 0.9}), "changed": len({p for p, _, _ in found}),
+            "directions": [(p, round(c, 4), round(sh, 4)) for (p, _, sh), c in zip(found, cos)]}

@@ -1,8 +1,8 @@
 """Does a refusal-removal edit show in the difference between a copy and its base?
 
 The scan (`exp_hub_scan.py`) traces popular models to a registry base. For a sample of those close copies this
-script reads the matrices that write to the residual stream in two layers of the copy and of the base, and asks
-whether their differences share one leading direction (`lineage_check.universal.shared_edit`).
+script reads the matrices that write to the residual stream in six layers of the copy and of the base, and asks
+in how many layers their differences share one leading direction (`lineage_check.universal.shared_edit`).
 
 Labels come from repository names only: "abliterated" and "heretic" name two families of refusal-removal tools.
 Names with other hints (uncensored, dolphin, ...) are kept apart: many of those are fine-tunes. Everything else is
@@ -12,6 +12,7 @@ Usage: python exp_refusal_edit.py <scan dir> <out.jsonl> [workers] [controls]
 """
 import json, multiprocessing as mp, os, random, re, shutil, sys, time
 
+LAYERS = 6
 EDIT = re.compile(r"abliterat|heretic", re.I)
 HINT = re.compile(r"uncensor|josiefied|dolphin|lexi|unfilter|decensor|derestrict|obliter|jailb|refusal|lorablated|\bdan\b", re.I)
 
@@ -30,8 +31,8 @@ def one(job):
     t0, out = time.time(), dict(row)
     try:
         src, anchor = R.Remote(repo, sha), R.Remote(base, base_sha)
-        r = U.shared_edit(src, anchor, LT.layers_for(src, nonce), LT.layers_for(anchor, nonce))
-        out.update(r if r else {"shared": None})
+        r = U.shared_edit(src, anchor, LT.layers_for(src, nonce, LAYERS), LT.layers_for(anchor, nonce, LAYERS))
+        out.update(r if r else {"layers": None})
     except Exception as e:
         out["error"] = f"{type(e).__name__}: {str(e)[:140]}"
     shutil.rmtree(os.path.join(R.CACHE, repo.replace("/", "--")), ignore_errors=True)
