@@ -49,11 +49,14 @@ The matching idea here is not new. This page says what exists and what this repo
 2. A challenge protocol: tokens and layers are drawn from a fresh nonce after the weights are committed, and the
    answer is a signed statement with no scores.
 3. Measurements of both directions of attack: hiding an origin, and imitating a chosen model.
-4. A weight signature of refusal ablation, checked on public abliterated releases. I have not yet found this in
-   the literature and have not finished looking.
+4. Two tests for refusal removal, checked on public releases: a comparison with the known base that looks for one
+   direction cut out of several layers, and an older signature that needs no base. I have not found either in the
+   literature and have not finished looking.
 5. A reader that fingerprints a model from a few layers over HTTP range requests, across quantised formats and
    mixture-of-experts layers, and a design-free mode that needs no knowledge of the architecture.
 6. A watchlist taken from published government findings, and the check run on those models: 0.75 to 2.8 trillion
    parameters.
 7. The check inside an attested enclave, with a statement that SASH's own code opens.
-8. A check of the Hub's self-declared base models on public models.
+8. A check of the Hub's self-declared base models on 3,000 public models.
+9. Token matching by the geometry of the token table, so the check does not depend on the tokenizer file an
+   operator supplies.
