@@ -90,6 +90,21 @@ claim("declared base confirmed for 1,070 of 1,110", (yes, yes + no) == (1070, 11
 claim("465 of 1,049 models that declare no base trace to one", (n(none, lambda r: r["light"] != "unknown origin"), len(none)) == (465, 1049),
       f"{n(none, lambda r: r['light'] != 'unknown origin')} of {len(none)}")
 
+# GGUF files of three models against their originals
+lad = load("gguf_ladder.json")
+dec = [r for r in lad if "to_original" in r]
+fair = [r for r in dec if "abliterated" not in r["repo"]]
+claim("GGUF ladder: 43 of 55 files decode; 35 of 36 honest files Green, one 2-bit file Amber, none flagged; all 7 abliterated files flagged",
+      (len(lad), len(dec), len(fair), n(fair, lambda r: r["light"] == "green"), n(fair, lambda r: r["cut_test"] == "cut"),
+       n(dec, lambda r: "abliterated" in r["repo"] and r["cut_test"] == "cut")) == (55, 43, 36, 35, 0, 7), f"{len(dec)} of {len(lad)}")
+claim("quantisation moves all parts by 0.033 or less down to 3.6 bits per weight, and by 0.10 for the plain 2-bit files",
+      max(r["to_original"][1] for r in fair if r["bits_per_weight"] >= 3.6) <= 0.033 and 0.095 < max(r["to_original"][1] for r in fair) < 0.105,
+      max(r["to_original"][1] for r in fair))
+pair = lambda w: [min(w["own"][2 * i], w["own"][2 * i + 1]) for i in range(len(w["agreement"]))]
+claim("in honest GGUF files the weaker matrix of a layer scores 0.21 at most on own content; five files have two layers agreeing at 0.95",
+      max(max(pair(r["writers"])) for r in fair) <= 0.215 and n(fair, lambda r: sum(a >= 0.95 for a in r["writers"]["agreement"]) >= 2) == 5,
+      max(max(pair(r["writers"])) for r in fair))
+
 # relabelled tokenizers and the cut test
 rel = load("relabelled.json")["rows"]
 claim("4 relabelled copies: Amber by name, Red by geometry; 5 other cases unchanged",

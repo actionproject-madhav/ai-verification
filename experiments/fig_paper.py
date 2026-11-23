@@ -88,7 +88,7 @@ LADDER = [("bartowski/Meta-Llama-3.1-8B-Instruct-GGUF", INK, "o", "Llama-3.1-8B-
 
 def gguf(res, out):
     """Every GGUF file of three public models: x = bits per weight, y = distance of all parts to the safetensors
-    original the file was converted from."""
+    original the file was converted from. Distances under 0.0001 are drawn at 0.0001."""
     rows = [r for r in json.load(open(os.path.join(res, "gguf_ladder.json"))) if "to_original" in r]
     fig, ax = plt.subplots(figsize=(6.6, 2.9))
     for y in (0.1, 0.5):
@@ -101,13 +101,13 @@ def gguf(res, out):
             found[label] = (len(pts), min(p[1] for p in pts), max(p[1] for p in pts))
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_xticks([2, 3, 4, 5, 6, 8, 12, 16])
-    ax.set_xticklabels(["2", "3", "4", "5", "6", "8", "12", "16"])
+    ax.set_xticks([3, 4, 5, 6, 8, 16, 32])
+    ax.set_xticklabels(["3", "4", "5", "6", "8", "16", "32"])
     ax.minorticks_off()
-    ax.set_xlim(2.4, 19)
-    ax.set_ylim(3e-4, 1.3)
-    ax.set_yticks([0.001, 0.01, 0.1, 0.5])
-    ax.set_yticklabels(["0.001", "0.01", "0.1", "0.5"])
+    ax.set_xlim(2.8, 38)
+    ax.set_ylim(6e-5, 1.3)
+    ax.set_yticks([0.0001, 0.001, 0.01, 0.1, 0.5])
+    ax.set_yticklabels(["\u2264 0.0001", "0.001", "0.01", "0.1", "0.5"])
     ax.set_xlabel("bits per weight")
     ax.set_ylabel("distance")
     ax.legend(loc="center left", bbox_to_anchor=(1.0, 0.5), handletextpad=0.2)

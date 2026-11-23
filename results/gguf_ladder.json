@@ -1,0 +1,4001 @@
+[
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-f32.gguf",
+  "bits_per_weight": 32.01,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "F32": 15
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.004,
+    0.012,
+    0.002,
+    0.007,
+    0.004,
+    0.007,
+    0.003,
+    0.007,
+    0.003,
+    0.012,
+    0.002,
+    0.007
+   ],
+   "size": [
+    0.043,
+    0.05,
+    0.049,
+    0.051,
+    0.049,
+    0.044,
+    0.054,
+    0.05,
+    0.056,
+    0.056,
+    0.056,
+    0.056
+   ],
+   "own": [
+    0.009,
+    0.139,
+    0.016,
+    0.076,
+    0.023,
+    0.111,
+    0.038,
+    0.028,
+    0.117,
+    0.066,
+    0.061,
+    0.066
+   ],
+   "agreement": [
+    0.097,
+    0.124,
+    0.416,
+    0.022,
+    0.102,
+    0.059
+   ]
+  },
+  "to_original": [
+   0,
+   0.0
+  ],
+  "to_base": [
+   0.0028,
+   0.0037
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 686
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-Q8_0.gguf",
+  "bits_per_weight": 8.51,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q8_0": 15
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.004,
+    0.012,
+    0.002,
+    0.007,
+    0.004,
+    0.007,
+    0.003,
+    0.007,
+    0.003,
+    0.012,
+    0.002,
+    0.007
+   ],
+   "size": [
+    0.043,
+    0.05,
+    0.049,
+    0.051,
+    0.05,
+    0.044,
+    0.055,
+    0.05,
+    0.057,
+    0.057,
+    0.056,
+    0.056
+   ],
+   "own": [
+    0.009,
+    0.139,
+    0.016,
+    0.076,
+    0.023,
+    0.11,
+    0.039,
+    0.028,
+    0.117,
+    0.067,
+    0.061,
+    0.066
+   ],
+   "agreement": [
+    0.096,
+    0.118,
+    0.416,
+    0.023,
+    0.102,
+    0.058
+   ]
+  },
+  "to_original": [
+   0.0,
+   0.0
+  ],
+  "to_base": [
+   0.0028,
+   0.0037
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 632
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-Q6_K_L.gguf",
+  "bits_per_weight": 6.82,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q6_K": 14,
+   "Q8_0": 1
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.003,
+    0.01,
+    0.002,
+    0.006,
+    0.003,
+    0.006,
+    0.003,
+    0.007,
+    0.003,
+    0.011,
+    0.002,
+    0.006
+   ],
+   "size": [
+    0.047,
+    0.053,
+    0.052,
+    0.054,
+    0.053,
+    0.048,
+    0.057,
+    0.053,
+    0.059,
+    0.059,
+    0.059,
+    0.059
+   ],
+   "own": [
+    0.015,
+    0.132,
+    0.043,
+    0.07,
+    0.016,
+    0.104,
+    0.043,
+    0.021,
+    0.12,
+    0.06,
+    0.065,
+    0.06
+   ],
+   "agreement": [
+    0.1,
+    0.086,
+    0.411,
+    0.022,
+    0.099,
+    0.056
+   ]
+  },
+  "to_original": [
+   0.0001,
+   0.0002
+  ],
+  "to_base": [
+   0.0029,
+   0.0038
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 630
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-Q6_K.gguf",
+  "bits_per_weight": 6.57,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q6_K": 15
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.003,
+    0.01,
+    0.002,
+    0.006,
+    0.003,
+    0.006,
+    0.003,
+    0.007,
+    0.003,
+    0.011,
+    0.002,
+    0.006
+   ],
+   "size": [
+    0.047,
+    0.053,
+    0.052,
+    0.054,
+    0.053,
+    0.048,
+    0.057,
+    0.053,
+    0.059,
+    0.059,
+    0.059,
+    0.059
+   ],
+   "own": [
+    0.015,
+    0.132,
+    0.043,
+    0.07,
+    0.016,
+    0.104,
+    0.043,
+    0.021,
+    0.12,
+    0.06,
+    0.065,
+    0.06
+   ],
+   "agreement": [
+    0.1,
+    0.086,
+    0.411,
+    0.022,
+    0.099,
+    0.056
+   ]
+  },
+  "to_original": [
+   0.0004,
+   0.0005
+  ],
+  "to_base": [
+   0.0032,
+   0.0041
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 621
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-Q5_K_L.gguf",
+  "bits_per_weight": 6.03,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q6_K": 2,
+   "Q5_K": 12,
+   "Q8_0": 1
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.003,
+    0.008,
+    0.002,
+    0.005,
+    0.003,
+    0.004,
+    0.003,
+    0.005,
+    0.003,
+    0.009,
+    0.002,
+    0.005
+   ],
+   "size": [
+    0.047,
+    0.062,
+    0.052,
+    0.062,
+    0.061,
+    0.057,
+    0.057,
+    0.062,
+    0.059,
+    0.067,
+    0.067,
+    0.066
+   ],
+   "own": [
+    0.015,
+    0.131,
+    0.043,
+    0.062,
+    0.12,
+    0.094,
+    0.043,
+    0.02,
+    0.12,
+    0.057,
+    0.069,
+    0.055
+   ],
+   "agreement": [
+    0.1,
+    0.093,
+    0.042,
+    0.028,
+    0.099,
+    0.062
+   ]
+  },
+  "to_original": [
+   0.0003,
+   0.0006
+  ],
+  "to_base": [
+   0.0031,
+   0.0042
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 678
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-Q5_K_M.gguf",
+  "bits_per_weight": 5.71,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q6_K": 2,
+   "Q5_K": 13
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.003,
+    0.008,
+    0.002,
+    0.005,
+    0.003,
+    0.004,
+    0.003,
+    0.005,
+    0.003,
+    0.009,
+    0.002,
+    0.005
+   ],
+   "size": [
+    0.047,
+    0.062,
+    0.052,
+    0.062,
+    0.061,
+    0.057,
+    0.057,
+    0.062,
+    0.059,
+    0.067,
+    0.067,
+    0.066
+   ],
+   "own": [
+    0.015,
+    0.131,
+    0.043,
+    0.062,
+    0.12,
+    0.094,
+    0.043,
+    0.02,
+    0.12,
+    0.057,
+    0.069,
+    0.055
+   ],
+   "agreement": [
+    0.1,
+    0.093,
+    0.042,
+    0.028,
+    0.099,
+    0.062
+   ]
+  },
+  "to_original": [
+   0.0015,
+   0.0019
+  ],
+  "to_base": [
+   0.0045,
+   0.0055
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 575
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-Q5_K_S.gguf",
+  "bits_per_weight": 5.58,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q5_K": 15
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.002,
+    0.008,
+    0.002,
+    0.005,
+    0.003,
+    0.004,
+    0.002,
+    0.005,
+    0.002,
+    0.009,
+    0.002,
+    0.005
+   ],
+   "size": [
+    0.056,
+    0.062,
+    0.06,
+    0.062,
+    0.061,
+    0.057,
+    0.065,
+    0.062,
+    0.067,
+    0.067,
+    0.067,
+    0.066
+   ],
+   "own": [
+    0.014,
+    0.131,
+    0.126,
+    0.062,
+    0.12,
+    0.094,
+    0.046,
+    0.02,
+    0.121,
+    0.057,
+    0.069,
+    0.055
+   ],
+   "agreement": [
+    0.103,
+    0.013,
+    0.042,
+    0.032,
+    0.101,
+    0.062
+   ]
+  },
+  "to_original": [
+   0.0017,
+   0.002
+  ],
+  "to_base": [
+   0.0045,
+   0.0056
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 636
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-Q4_K_L.gguf",
+  "bits_per_weight": 5.29,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q6_K": 2,
+   "Q4_K": 12,
+   "Q8_0": 1
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.003,
+    0.005,
+    0.002,
+    0.005,
+    0.005,
+    0.003,
+    0.003,
+    0.004,
+    0.003,
+    0.005,
+    0.001,
+    0.003
+   ],
+   "size": [
+    0.047,
+    0.09,
+    0.052,
+    0.088,
+    0.088,
+    0.085,
+    0.057,
+    0.088,
+    0.059,
+    0.091,
+    0.092,
+    0.091
+   ],
+   "own": [
+    0.015,
+    0.137,
+    0.043,
+    0.111,
+    0.106,
+    0.135,
+    0.043,
+    0.105,
+    0.12,
+    0.024,
+    0.049,
+    0.033
+   ],
+   "agreement": [
+    0.076,
+    0.445,
+    0.943,
+    0.04,
+    0.083,
+    0.224
+   ]
+  },
+  "to_original": [
+   0.0007,
+   0.0021
+  ],
+  "to_base": [
+   0.0039,
+   0.0058
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 593
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf",
+  "bits_per_weight": 4.9,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q6_K": 2,
+   "Q4_K": 13
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.003,
+    0.005,
+    0.002,
+    0.005,
+    0.005,
+    0.003,
+    0.003,
+    0.004,
+    0.003,
+    0.005,
+    0.001,
+    0.003
+   ],
+   "size": [
+    0.047,
+    0.09,
+    0.052,
+    0.088,
+    0.088,
+    0.085,
+    0.057,
+    0.088,
+    0.059,
+    0.091,
+    0.092,
+    0.091
+   ],
+   "own": [
+    0.015,
+    0.137,
+    0.043,
+    0.111,
+    0.106,
+    0.135,
+    0.043,
+    0.105,
+    0.12,
+    0.024,
+    0.049,
+    0.033
+   ],
+   "agreement": [
+    0.076,
+    0.445,
+    0.943,
+    0.04,
+    0.083,
+    0.224
+   ]
+  },
+  "to_original": [
+   0.0059,
+   0.0072
+  ],
+  "to_base": [
+   0.009,
+   0.0108
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 650
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-Q3_K_XL.gguf",
+  "bits_per_weight": 4.76,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q5_K": 6,
+   "Q3_K": 8,
+   "Q8_0": 1
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.002,
+    0.008,
+    0.002,
+    0.005,
+    0.003,
+    0.004,
+    0.002,
+    0.005,
+    0.002,
+    0.009,
+    0.002,
+    0.005
+   ],
+   "size": [
+    0.056,
+    0.062,
+    0.06,
+    0.062,
+    0.061,
+    0.057,
+    0.065,
+    0.062,
+    0.067,
+    0.067,
+    0.067,
+    0.066
+   ],
+   "own": [
+    0.014,
+    0.131,
+    0.126,
+    0.062,
+    0.12,
+    0.094,
+    0.046,
+    0.02,
+    0.121,
+    0.057,
+    0.069,
+    0.055
+   ],
+   "agreement": [
+    0.103,
+    0.013,
+    0.042,
+    0.032,
+    0.101,
+    0.062
+   ]
+  },
+  "to_original": [
+   0.0008,
+   0.005
+  ],
+  "to_base": [
+   0.0048,
+   0.0087
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 647
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-Q4_K_S.gguf",
+  "bits_per_weight": 4.67,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q4_K": 15
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.002,
+    0.005,
+    0.004,
+    0.005,
+    0.005,
+    0.003,
+    0.002,
+    0.004,
+    0.002,
+    0.005,
+    0.001,
+    0.003
+   ],
+   "size": [
+    0.056,
+    0.09,
+    0.087,
+    0.088,
+    0.088,
+    0.085,
+    0.091,
+    0.088,
+    0.092,
+    0.091,
+    0.092,
+    0.091
+   ],
+   "own": [
+    0.014,
+    0.137,
+    0.095,
+    0.111,
+    0.106,
+    0.135,
+    0.108,
+    0.105,
+    0.111,
+    0.024,
+    0.049,
+    0.033
+   ],
+   "agreement": [
+    0.082,
+    0.953,
+    0.943,
+    0.917,
+    0.188,
+    0.224
+   ]
+  },
+  "to_original": [
+   0.0067,
+   0.0077
+  ],
+  "to_base": [
+   0.0094,
+   0.0113
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 621
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-IQ4_NL.gguf",
+  "bits_per_weight": 4.66,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "IQ4_NL": 13,
+   "Q5_K": 2
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.002,
+    0.006,
+    0.004,
+    0.005,
+    0.005,
+    0.004,
+    0.002,
+    0.004,
+    0.002,
+    0.006,
+    0.001,
+    0.003
+   ],
+   "size": [
+    0.09,
+    0.092,
+    0.09,
+    0.091,
+    0.091,
+    0.088,
+    0.094,
+    0.091,
+    0.095,
+    0.094,
+    0.095,
+    0.094
+   ],
+   "own": [
+    0.136,
+    0.165,
+    0.116,
+    0.15,
+    0.102,
+    0.157,
+    0.122,
+    0.143,
+    0.116,
+    0.11,
+    0.058,
+    0.05
+   ],
+   "agreement": [
+    0.015,
+    0.957,
+    0.952,
+    0.94,
+    0.93,
+    0.361
+   ]
+  },
+  "to_original": [
+   0.0068,
+   0.0081
+  ],
+  "to_base": [
+   0.0099,
+   0.0117
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 564
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-Q4_0_4_4.gguf",
+  "bits_per_weight": 4.64,
+  "tensors_decoded": 68,
+  "tensors": 292,
+  "error": "ValueError: no matrix in a format the reader decodes",
+  "seconds": 16
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-Q4_0_4_8.gguf",
+  "bits_per_weight": 4.64,
+  "tensors_decoded": 68,
+  "tensors": 292,
+  "error": "ValueError: no matrix in a format the reader decodes",
+  "seconds": 18
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-Q4_0_8_8.gguf",
+  "bits_per_weight": 4.64,
+  "tensors_decoded": 68,
+  "tensors": 292,
+  "error": "ValueError: no matrix in a format the reader decodes",
+  "seconds": 18
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-IQ4_XS.gguf",
+  "bits_per_weight": 4.43,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "IQ4_XS": 13,
+   "Q5_K": 2
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.002,
+    0.006,
+    0.004,
+    0.005,
+    0.005,
+    0.004,
+    0.002,
+    0.004,
+    0.002,
+    0.006,
+    0.001,
+    0.003
+   ],
+   "size": [
+    0.09,
+    0.093,
+    0.091,
+    0.092,
+    0.092,
+    0.089,
+    0.094,
+    0.091,
+    0.095,
+    0.095,
+    0.095,
+    0.094
+   ],
+   "own": [
+    0.135,
+    0.168,
+    0.123,
+    0.158,
+    0.103,
+    0.178,
+    0.134,
+    0.14,
+    0.131,
+    0.124,
+    0.064,
+    0.072
+   ],
+   "agreement": [
+    0.055,
+    0.958,
+    0.953,
+    0.94,
+    0.931,
+    0.428
+   ]
+  },
+  "to_original": [
+   0.0068,
+   0.0082
+  ],
+  "to_base": [
+   0.01,
+   0.0118
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 633
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-Q3_K_L.gguf",
+  "bits_per_weight": 4.31,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q5_K": 6,
+   "Q3_K": 9
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.002,
+    0.008,
+    0.002,
+    0.005,
+    0.003,
+    0.004,
+    0.002,
+    0.005,
+    0.002,
+    0.009,
+    0.002,
+    0.005
+   ],
+   "size": [
+    0.056,
+    0.062,
+    0.06,
+    0.062,
+    0.061,
+    0.057,
+    0.065,
+    0.062,
+    0.067,
+    0.067,
+    0.067,
+    0.066
+   ],
+   "own": [
+    0.014,
+    0.131,
+    0.126,
+    0.062,
+    0.12,
+    0.094,
+    0.046,
+    0.02,
+    0.121,
+    0.057,
+    0.069,
+    0.055
+   ],
+   "agreement": [
+    0.103,
+    0.013,
+    0.042,
+    0.032,
+    0.101,
+    0.062
+   ]
+  },
+  "to_original": [
+   0.0228,
+   0.0271
+  ],
+  "to_base": [
+   0.0266,
+   0.0306
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 629
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-Q3_K_M.gguf",
+  "bits_per_weight": 4.0,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q4_K": 6,
+   "Q3_K": 9
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.002,
+    0.005,
+    0.004,
+    0.005,
+    0.005,
+    0.003,
+    0.002,
+    0.004,
+    0.002,
+    0.005,
+    0.001,
+    0.003
+   ],
+   "size": [
+    0.056,
+    0.09,
+    0.087,
+    0.088,
+    0.088,
+    0.085,
+    0.091,
+    0.088,
+    0.092,
+    0.091,
+    0.092,
+    0.091
+   ],
+   "own": [
+    0.014,
+    0.137,
+    0.095,
+    0.111,
+    0.106,
+    0.135,
+    0.108,
+    0.105,
+    0.111,
+    0.024,
+    0.049,
+    0.033
+   ],
+   "agreement": [
+    0.082,
+    0.953,
+    0.943,
+    0.917,
+    0.188,
+    0.224
+   ]
+  },
+  "to_original": [
+   0.0245,
+   0.0281
+  ],
+  "to_base": [
+   0.0279,
+   0.0317
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 660
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-IQ3_M.gguf",
+  "bits_per_weight": 3.77,
+  "tensors_decoded": 135,
+  "tensors": 292,
+  "error": "ValueError: no token embedding table found",
+  "seconds": 22
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-Q2_K_L.gguf",
+  "bits_per_weight": 3.68,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q3_K": 4,
+   "Q2_K": 8,
+   "Q4_K": 2,
+   "Q8_0": 1
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.002,
+    0.007,
+    0.005,
+    0.006,
+    0.006,
+    0.004,
+    0.003,
+    0.005,
+    0.002,
+    0.007,
+    0.001,
+    0.003
+   ],
+   "size": [
+    0.154,
+    0.159,
+    0.155,
+    0.156,
+    0.157,
+    0.154,
+    0.158,
+    0.155,
+    0.158,
+    0.157,
+    0.157,
+    0.156
+   ],
+   "own": [
+    0.163,
+    0.177,
+    0.139,
+    0.172,
+    0.147,
+    0.219,
+    0.153,
+    0.188,
+    0.151,
+    0.159,
+    0.141,
+    0.179
+   ],
+   "agreement": [
+    0.257,
+    0.968,
+    0.964,
+    0.956,
+    0.955,
+    0.877
+   ]
+  },
+  "to_original": [
+   0.008,
+   0.0204
+  ],
+  "to_base": [
+   0.0117,
+   0.0239
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 615
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-Q3_K_S.gguf",
+  "bits_per_weight": 3.65,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q3_K": 15
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.002,
+    0.007,
+    0.005,
+    0.006,
+    0.006,
+    0.004,
+    0.003,
+    0.005,
+    0.002,
+    0.007,
+    0.001,
+    0.003
+   ],
+   "size": [
+    0.154,
+    0.159,
+    0.155,
+    0.156,
+    0.157,
+    0.154,
+    0.158,
+    0.155,
+    0.158,
+    0.157,
+    0.157,
+    0.156
+   ],
+   "own": [
+    0.163,
+    0.177,
+    0.139,
+    0.172,
+    0.147,
+    0.219,
+    0.153,
+    0.188,
+    0.151,
+    0.159,
+    0.141,
+    0.179
+   ],
+   "agreement": [
+    0.257,
+    0.968,
+    0.964,
+    0.956,
+    0.955,
+    0.877
+   ]
+  },
+  "to_original": [
+   0.0272,
+   0.0326
+  ],
+  "to_base": [
+   0.0299,
+   0.0362
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 413
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-IQ3_XS.gguf",
+  "bits_per_weight": 3.51,
+  "tensors_decoded": 99,
+  "tensors": 292,
+  "error": "ValueError: no token embedding table found",
+  "seconds": 22
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-Q2_K.gguf",
+  "bits_per_weight": 3.17,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q3_K": 4,
+   "Q2_K": 9,
+   "Q4_K": 2
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.002,
+    0.007,
+    0.005,
+    0.006,
+    0.006,
+    0.004,
+    0.003,
+    0.005,
+    0.002,
+    0.007,
+    0.001,
+    0.003
+   ],
+   "size": [
+    0.154,
+    0.159,
+    0.155,
+    0.156,
+    0.157,
+    0.154,
+    0.158,
+    0.155,
+    0.158,
+    0.157,
+    0.157,
+    0.156
+   ],
+   "own": [
+    0.163,
+    0.177,
+    0.139,
+    0.172,
+    0.147,
+    0.219,
+    0.153,
+    0.188,
+    0.151,
+    0.159,
+    0.141,
+    0.179
+   ],
+   "agreement": [
+    0.257,
+    0.968,
+    0.964,
+    0.956,
+    0.955,
+    0.877
+   ]
+  },
+  "to_original": [
+   0.0901,
+   0.1025
+  ],
+  "to_base": [
+   0.0934,
+   0.1054
+  ],
+  "cut_test": "compared, no cut",
+  "light": "amber",
+  "seconds": 643
+ },
+ {
+  "original": "unsloth/Llama-3.1-8B-Instruct",
+  "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "Meta-Llama-3.1-8B-Instruct-IQ2_M.gguf",
+  "bits_per_weight": 2.94,
+  "tensors_decoded": 99,
+  "tensors": 292,
+  "error": "ValueError: no token embedding table found",
+  "seconds": 21
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-f16.gguf",
+  "bits_per_weight": 16.01,
+  "tensors_decoded": 339,
+  "tensors": 339,
+  "formats": {
+   "F16": 15
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.026,
+    0.036,
+    0.006,
+    0.018,
+    0.005,
+    0.012,
+    0.005,
+    0.011,
+    0.005,
+    0.015,
+    0.005,
+    0.017
+   ],
+   "size": [
+    0.017,
+    0.018,
+    0.017,
+    0.018,
+    0.018,
+    0.017,
+    0.018,
+    0.017,
+    0.018,
+    0.018,
+    0.018,
+    0.016
+   ],
+   "own": [
+    0.07,
+    0.028,
+    0.013,
+    0.01,
+    0.024,
+    0.053,
+    0.021,
+    0.016,
+    0.017,
+    0.064,
+    0.071,
+    0.094
+   ],
+   "agreement": [
+    0.25,
+    0.512,
+    0.19,
+    0.379,
+    0.021,
+    0.123
+   ]
+  },
+  "to_original": [
+   0.0,
+   0.0
+  ],
+  "to_base": [
+   0.0004,
+   0.0005
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 345
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-Q8_0.gguf",
+  "bits_per_weight": 8.51,
+  "tensors_decoded": 339,
+  "tensors": 339,
+  "formats": {
+   "Q8_0": 15
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.023,
+    0.033,
+    0.005,
+    0.016,
+    0.004,
+    0.011,
+    0.004,
+    0.01,
+    0.004,
+    0.013,
+    0.005,
+    0.015
+   ],
+   "size": [
+    0.019,
+    0.018,
+    0.018,
+    0.019,
+    0.018,
+    0.018,
+    0.019,
+    0.018,
+    0.019,
+    0.018,
+    0.019,
+    0.017
+   ],
+   "own": [
+    0.072,
+    0.028,
+    0.011,
+    0.011,
+    0.023,
+    0.052,
+    0.021,
+    0.015,
+    0.018,
+    0.064,
+    0.07,
+    0.095
+   ],
+   "agreement": [
+    0.249,
+    0.512,
+    0.191,
+    0.381,
+    0.019,
+    0.121
+   ]
+  },
+  "to_original": [
+   0.0,
+   0.0
+  ],
+  "to_base": [
+   0.0004,
+   0.0005
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 350
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-Q6_K_L.gguf",
+  "bits_per_weight": 6.85,
+  "tensors_decoded": 339,
+  "tensors": 339,
+  "formats": {
+   "Q6_K": 14,
+   "Q8_0": 1
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.01,
+    0.018,
+    0.003,
+    0.009,
+    0.003,
+    0.006,
+    0.003,
+    0.005,
+    0.003,
+    0.007,
+    0.003,
+    0.008
+   ],
+   "size": [
+    0.029,
+    0.025,
+    0.026,
+    0.026,
+    0.025,
+    0.025,
+    0.026,
+    0.025,
+    0.026,
+    0.025,
+    0.026,
+    0.024
+   ],
+   "own": [
+    0.385,
+    0.018,
+    0.03,
+    0.019,
+    0.066,
+    0.065,
+    0.073,
+    0.044,
+    0.038,
+    0.034,
+    0.085,
+    0.079
+   ],
+   "agreement": [
+    0.231,
+    0.48,
+    0.011,
+    0.082,
+    0.018,
+    0.132
+   ]
+  },
+  "to_original": [
+   0.0001,
+   0.0002
+  ],
+  "to_base": [
+   0.0005,
+   0.0007
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 354
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-Q6_K.gguf",
+  "bits_per_weight": 6.57,
+  "tensors_decoded": 339,
+  "tensors": 339,
+  "formats": {
+   "Q6_K": 15
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.01,
+    0.018,
+    0.003,
+    0.009,
+    0.003,
+    0.006,
+    0.003,
+    0.005,
+    0.003,
+    0.007,
+    0.003,
+    0.008
+   ],
+   "size": [
+    0.029,
+    0.025,
+    0.026,
+    0.026,
+    0.025,
+    0.025,
+    0.026,
+    0.025,
+    0.026,
+    0.025,
+    0.026,
+    0.024
+   ],
+   "own": [
+    0.385,
+    0.018,
+    0.03,
+    0.019,
+    0.066,
+    0.065,
+    0.073,
+    0.044,
+    0.038,
+    0.034,
+    0.085,
+    0.079
+   ],
+   "agreement": [
+    0.231,
+    0.48,
+    0.011,
+    0.082,
+    0.018,
+    0.132
+   ]
+  },
+  "to_original": [
+   0.0004,
+   0.0005
+  ],
+  "to_base": [
+   0.0008,
+   0.001
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 347
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-Q5_K_L.gguf",
+  "bits_per_weight": 6.07,
+  "tensors_decoded": 339,
+  "tensors": 339,
+  "formats": {
+   "Q6_K": 2,
+   "Q5_K": 12,
+   "Q8_0": 1
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.01,
+    0.007,
+    0.003,
+    0.004,
+    0.004,
+    0.004,
+    0.003,
+    0.004,
+    0.003,
+    0.004,
+    0.002,
+    0.003
+   ],
+   "size": [
+    0.029,
+    0.041,
+    0.026,
+    0.041,
+    0.041,
+    0.04,
+    0.026,
+    0.041,
+    0.026,
+    0.04,
+    0.041,
+    0.04
+   ],
+   "own": [
+    0.385,
+    0.012,
+    0.03,
+    0.025,
+    0.049,
+    0.096,
+    0.073,
+    0.041,
+    0.038,
+    0.087,
+    0.063,
+    0.086
+   ],
+   "agreement": [
+    0.229,
+    0.46,
+    0.937,
+    0.896,
+    0.259,
+    0.131
+   ]
+  },
+  "to_original": [
+   0.0002,
+   0.0005
+  ],
+  "to_base": [
+   0.0006,
+   0.001
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 335
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-Q5_K_M.gguf",
+  "bits_per_weight": 5.72,
+  "tensors_decoded": 339,
+  "tensors": 339,
+  "formats": {
+   "Q6_K": 2,
+   "Q5_K": 13
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.01,
+    0.007,
+    0.003,
+    0.004,
+    0.004,
+    0.004,
+    0.003,
+    0.004,
+    0.003,
+    0.004,
+    0.002,
+    0.003
+   ],
+   "size": [
+    0.029,
+    0.041,
+    0.026,
+    0.041,
+    0.041,
+    0.04,
+    0.026,
+    0.041,
+    0.026,
+    0.04,
+    0.041,
+    0.04
+   ],
+   "own": [
+    0.385,
+    0.012,
+    0.03,
+    0.025,
+    0.049,
+    0.096,
+    0.073,
+    0.041,
+    0.038,
+    0.087,
+    0.063,
+    0.086
+   ],
+   "agreement": [
+    0.229,
+    0.46,
+    0.937,
+    0.896,
+    0.259,
+    0.131
+   ]
+  },
+  "to_original": [
+   0.0016,
+   0.0019
+  ],
+  "to_base": [
+   0.002,
+   0.0024
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 286
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-Q5_K_S.gguf",
+  "bits_per_weight": 5.58,
+  "tensors_decoded": 339,
+  "tensors": 339,
+  "formats": {
+   "Q5_K": 15
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.004,
+    0.007,
+    0.003,
+    0.004,
+    0.004,
+    0.004,
+    0.003,
+    0.004,
+    0.002,
+    0.004,
+    0.002,
+    0.003
+   ],
+   "size": [
+    0.048,
+    0.041,
+    0.042,
+    0.041,
+    0.041,
+    0.04,
+    0.041,
+    0.041,
+    0.041,
+    0.04,
+    0.041,
+    0.04
+   ],
+   "own": [
+    0.278,
+    0.012,
+    0.052,
+    0.025,
+    0.049,
+    0.096,
+    0.048,
+    0.041,
+    0.054,
+    0.087,
+    0.063,
+    0.086
+   ],
+   "agreement": [
+    0.271,
+    0.007,
+    0.937,
+    0.948,
+    0.931,
+    0.131
+   ]
+  },
+  "to_original": [
+   0.0016,
+   0.002
+  ],
+  "to_base": [
+   0.002,
+   0.0025
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 350
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-Q4_K_L.gguf",
+  "bits_per_weight": 5.34,
+  "tensors_decoded": 339,
+  "tensors": 339,
+  "formats": {
+   "Q6_K": 2,
+   "Q4_K": 12,
+   "Q8_0": 1
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.01,
+    0.003,
+    0.003,
+    0.004,
+    0.004,
+    0.004,
+    0.003,
+    0.005,
+    0.003,
+    0.005,
+    0.002,
+    0.003
+   ],
+   "size": [
+    0.029,
+    0.076,
+    0.026,
+    0.075,
+    0.075,
+    0.075,
+    0.026,
+    0.077,
+    0.026,
+    0.075,
+    0.076,
+    0.075
+   ],
+   "own": [
+    0.385,
+    0.054,
+    0.03,
+    0.115,
+    0.038,
+    0.079,
+    0.073,
+    0.089,
+    0.038,
+    0.061,
+    0.054,
+    0.032
+   ],
+   "agreement": [
+    0.177,
+    0.213,
+    0.944,
+    0.893,
+    0.215,
+    0.889
+   ]
+  },
+  "to_original": [
+   0.0005,
+   0.002
+  ],
+  "to_base": [
+   0.0009,
+   0.0025
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 324
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-Q4_K_M.gguf",
+  "bits_per_weight": 4.92,
+  "tensors_decoded": 339,
+  "tensors": 339,
+  "formats": {
+   "Q6_K": 2,
+   "Q4_K": 13
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.01,
+    0.003,
+    0.003,
+    0.004,
+    0.004,
+    0.004,
+    0.003,
+    0.005,
+    0.003,
+    0.005,
+    0.002,
+    0.003
+   ],
+   "size": [
+    0.029,
+    0.076,
+    0.026,
+    0.075,
+    0.075,
+    0.075,
+    0.026,
+    0.077,
+    0.026,
+    0.075,
+    0.076,
+    0.075
+   ],
+   "own": [
+    0.385,
+    0.054,
+    0.03,
+    0.115,
+    0.038,
+    0.079,
+    0.073,
+    0.089,
+    0.038,
+    0.061,
+    0.054,
+    0.032
+   ],
+   "agreement": [
+    0.177,
+    0.213,
+    0.944,
+    0.893,
+    0.215,
+    0.889
+   ]
+  },
+  "to_original": [
+   0.0054,
+   0.007
+  ],
+  "to_base": [
+   0.0059,
+   0.0075
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 299
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-Q3_K_XL.gguf",
+  "bits_per_weight": 4.8,
+  "tensors_decoded": 339,
+  "tensors": 339,
+  "formats": {
+   "Q5_K": 6,
+   "Q3_K": 8,
+   "Q8_0": 1
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.004,
+    0.007,
+    0.003,
+    0.004,
+    0.004,
+    0.004,
+    0.003,
+    0.004,
+    0.002,
+    0.004,
+    0.002,
+    0.003
+   ],
+   "size": [
+    0.048,
+    0.041,
+    0.042,
+    0.041,
+    0.041,
+    0.04,
+    0.041,
+    0.041,
+    0.041,
+    0.04,
+    0.041,
+    0.04
+   ],
+   "own": [
+    0.278,
+    0.012,
+    0.052,
+    0.025,
+    0.049,
+    0.096,
+    0.048,
+    0.041,
+    0.054,
+    0.087,
+    0.063,
+    0.086
+   ],
+   "agreement": [
+    0.271,
+    0.007,
+    0.937,
+    0.948,
+    0.931,
+    0.131
+   ]
+  },
+  "to_original": [
+   0.0006,
+   0.0042
+  ],
+  "to_base": [
+   0.001,
+   0.0047
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 324
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-Q4_K_S.gguf",
+  "bits_per_weight": 4.68,
+  "tensors_decoded": 339,
+  "tensors": 339,
+  "formats": {
+   "Q4_K": 15
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.004,
+    0.003,
+    0.003,
+    0.004,
+    0.004,
+    0.004,
+    0.004,
+    0.005,
+    0.003,
+    0.005,
+    0.002,
+    0.003
+   ],
+   "size": [
+    0.048,
+    0.076,
+    0.079,
+    0.075,
+    0.075,
+    0.075,
+    0.076,
+    0.077,
+    0.076,
+    0.075,
+    0.076,
+    0.075
+   ],
+   "own": [
+    0.278,
+    0.054,
+    0.051,
+    0.115,
+    0.038,
+    0.079,
+    0.057,
+    0.089,
+    0.046,
+    0.061,
+    0.054,
+    0.032
+   ],
+   "agreement": [
+    0.259,
+    0.925,
+    0.944,
+    0.888,
+    0.483,
+    0.889
+   ]
+  },
+  "to_original": [
+   0.0058,
+   0.0075
+  ],
+  "to_base": [
+   0.0063,
+   0.008
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 322
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-Q4_0.gguf",
+  "bits_per_weight": 4.67,
+  "tensors_decoded": 339,
+  "tensors": 339,
+  "formats": {
+   "Q4_0": 15
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.004,
+    0.003,
+    0.005,
+    0.004,
+    0.006,
+    0.005,
+    0.005,
+    0.008,
+    0.004,
+    0.006,
+    0.002,
+    0.004
+   ],
+   "size": [
+    0.094,
+    0.087,
+    0.091,
+    0.086,
+    0.087,
+    0.086,
+    0.089,
+    0.089,
+    0.089,
+    0.085,
+    0.088,
+    0.085
+   ],
+   "own": [
+    0.033,
+    0.085,
+    0.063,
+    0.042,
+    0.035,
+    0.059,
+    0.052,
+    0.025,
+    0.048,
+    0.06,
+    0.055,
+    0.056
+   ],
+   "agreement": [
+    0.046,
+    0.908,
+    0.93,
+    0.902,
+    0.075,
+    0.929
+   ]
+  },
+  "to_original": [
+   0.0086,
+   0.0108
+  ],
+  "to_base": [
+   0.009,
+   0.0113
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 326
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-Q4_0_4_4.gguf",
+  "bits_per_weight": 4.66,
+  "tensors_decoded": 143,
+  "tensors": 339,
+  "error": "ValueError: no matrix in a format the reader decodes",
+  "seconds": 18
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-Q4_0_4_8.gguf",
+  "bits_per_weight": 4.66,
+  "tensors_decoded": 143,
+  "tensors": 339,
+  "error": "ValueError: no matrix in a format the reader decodes",
+  "seconds": 18
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-Q4_0_8_8.gguf",
+  "bits_per_weight": 4.66,
+  "tensors_decoded": 143,
+  "tensors": 339,
+  "error": "ValueError: no matrix in a format the reader decodes",
+  "seconds": 18
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-IQ4_XS.gguf",
+  "bits_per_weight": 4.43,
+  "tensors_decoded": 339,
+  "tensors": 339,
+  "formats": {
+   "IQ4_XS": 13,
+   "Q5_K": 2
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.01,
+    0.003,
+    0.004,
+    0.003,
+    0.005,
+    0.005,
+    0.004,
+    0.006,
+    0.003,
+    0.005,
+    0.002,
+    0.004
+   ],
+   "size": [
+    0.091,
+    0.08,
+    0.083,
+    0.08,
+    0.08,
+    0.079,
+    0.081,
+    0.081,
+    0.081,
+    0.079,
+    0.081,
+    0.079
+   ],
+   "own": [
+    0.476,
+    0.21,
+    0.064,
+    0.071,
+    0.065,
+    0.083,
+    0.065,
+    0.085,
+    0.061,
+    0.135,
+    0.076,
+    0.158
+   ],
+   "agreement": [
+    0.011,
+    0.917,
+    0.959,
+    0.852,
+    0.763,
+    0.902
+   ]
+  },
+  "to_original": [
+   0.0069,
+   0.008
+  ],
+  "to_base": [
+   0.0073,
+   0.0085
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 325
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-Q3_K_L.gguf",
+  "bits_per_weight": 4.29,
+  "tensors_decoded": 339,
+  "tensors": 339,
+  "formats": {
+   "Q5_K": 6,
+   "Q3_K": 9
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.004,
+    0.007,
+    0.003,
+    0.004,
+    0.004,
+    0.004,
+    0.003,
+    0.004,
+    0.002,
+    0.004,
+    0.002,
+    0.003
+   ],
+   "size": [
+    0.048,
+    0.041,
+    0.042,
+    0.041,
+    0.041,
+    0.04,
+    0.041,
+    0.041,
+    0.041,
+    0.04,
+    0.041,
+    0.04
+   ],
+   "own": [
+    0.278,
+    0.012,
+    0.052,
+    0.025,
+    0.049,
+    0.096,
+    0.048,
+    0.041,
+    0.054,
+    0.087,
+    0.063,
+    0.086
+   ],
+   "agreement": [
+    0.271,
+    0.007,
+    0.937,
+    0.948,
+    0.931,
+    0.131
+   ]
+  },
+  "to_original": [
+   0.0235,
+   0.0271
+  ],
+  "to_base": [
+   0.024,
+   0.0276
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 360
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-Q3_K_M.gguf",
+  "bits_per_weight": 4.0,
+  "tensors_decoded": 339,
+  "tensors": 339,
+  "formats": {
+   "Q4_K": 6,
+   "Q3_K": 9
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.004,
+    0.003,
+    0.003,
+    0.004,
+    0.004,
+    0.004,
+    0.004,
+    0.005,
+    0.003,
+    0.005,
+    0.002,
+    0.003
+   ],
+   "size": [
+    0.093,
+    0.076,
+    0.079,
+    0.075,
+    0.075,
+    0.075,
+    0.076,
+    0.077,
+    0.076,
+    0.075,
+    0.076,
+    0.075
+   ],
+   "own": [
+    0.051,
+    0.054,
+    0.051,
+    0.115,
+    0.038,
+    0.079,
+    0.057,
+    0.089,
+    0.046,
+    0.061,
+    0.054,
+    0.032
+   ],
+   "agreement": [
+    0.13,
+    0.925,
+    0.944,
+    0.888,
+    0.483,
+    0.889
+   ]
+  },
+  "to_original": [
+   0.0249,
+   0.0282
+  ],
+  "to_base": [
+   0.0253,
+   0.0287
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 351
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-IQ3_M.gguf",
+  "bits_per_weight": 3.75,
+  "tensors_decoded": 201,
+  "tensors": 339,
+  "error": "ValueError: no token embedding table found",
+  "seconds": 13
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-Q2_K_L.gguf",
+  "bits_per_weight": 3.73,
+  "tensors_decoded": 339,
+  "tensors": 339,
+  "formats": {
+   "Q3_K": 4,
+   "Q2_K": 8,
+   "Q4_K": 2,
+   "Q8_0": 1
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.04,
+    0.003,
+    0.003,
+    0.004,
+    0.005,
+    0.005,
+    0.004,
+    0.007,
+    0.003,
+    0.006,
+    0.002,
+    0.004
+   ],
+   "size": [
+    0.17,
+    0.151,
+    0.158,
+    0.15,
+    0.15,
+    0.15,
+    0.152,
+    0.153,
+    0.152,
+    0.149,
+    0.152,
+    0.149
+   ],
+   "own": [
+    0.842,
+    0.214,
+    0.151,
+    0.145,
+    0.123,
+    0.181,
+    0.122,
+    0.101,
+    0.135,
+    0.117,
+    0.115,
+    0.155
+   ],
+   "agreement": [
+    0.007,
+    0.784,
+    0.95,
+    0.946,
+    0.946,
+    0.81
+   ]
+  },
+  "to_original": [
+   0.0063,
+   0.0163
+  ],
+  "to_base": [
+   0.0068,
+   0.0168
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 352
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-Q3_K_S.gguf",
+  "bits_per_weight": 3.67,
+  "tensors_decoded": 339,
+  "tensors": 339,
+  "formats": {
+   "Q3_K": 15
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.04,
+    0.003,
+    0.003,
+    0.004,
+    0.005,
+    0.005,
+    0.004,
+    0.007,
+    0.003,
+    0.006,
+    0.002,
+    0.004
+   ],
+   "size": [
+    0.17,
+    0.151,
+    0.158,
+    0.15,
+    0.15,
+    0.15,
+    0.152,
+    0.153,
+    0.152,
+    0.149,
+    0.152,
+    0.149
+   ],
+   "own": [
+    0.842,
+    0.214,
+    0.151,
+    0.145,
+    0.123,
+    0.181,
+    0.122,
+    0.101,
+    0.135,
+    0.117,
+    0.115,
+    0.155
+   ],
+   "agreement": [
+    0.007,
+    0.784,
+    0.95,
+    0.946,
+    0.946,
+    0.81
+   ]
+  },
+  "to_original": [
+   0.0268,
+   0.0329
+  ],
+  "to_base": [
+   0.0272,
+   0.0334
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 362
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-IQ3_XS.gguf",
+  "bits_per_weight": 3.52,
+  "tensors_decoded": 170,
+  "tensors": 339,
+  "error": "ValueError: no token embedding table found",
+  "seconds": 15
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-Q2_K.gguf",
+  "bits_per_weight": 3.17,
+  "tensors_decoded": 339,
+  "tensors": 339,
+  "formats": {
+   "Q3_K": 4,
+   "Q2_K": 9,
+   "Q4_K": 2
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.04,
+    0.003,
+    0.003,
+    0.004,
+    0.005,
+    0.005,
+    0.004,
+    0.007,
+    0.003,
+    0.006,
+    0.002,
+    0.004
+   ],
+   "size": [
+    0.17,
+    0.151,
+    0.158,
+    0.15,
+    0.15,
+    0.15,
+    0.152,
+    0.153,
+    0.152,
+    0.149,
+    0.152,
+    0.149
+   ],
+   "own": [
+    0.842,
+    0.214,
+    0.151,
+    0.145,
+    0.123,
+    0.181,
+    0.122,
+    0.101,
+    0.135,
+    0.117,
+    0.115,
+    0.155
+   ],
+   "agreement": [
+    0.007,
+    0.784,
+    0.95,
+    0.946,
+    0.946,
+    0.81
+   ]
+  },
+  "to_original": [
+   0.0901,
+   0.0992
+  ],
+  "to_base": [
+   0.0905,
+   0.0997
+  ],
+  "cut_test": "compared, no cut",
+  "light": "green",
+  "seconds": 350
+ },
+ {
+  "original": "Qwen/Qwen2.5-7B-Instruct",
+  "repo": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+  "base": "Qwen/Qwen2.5-7B",
+  "file": "Qwen2.5-7B-Instruct-IQ2_M.gguf",
+  "bits_per_weight": 2.92,
+  "tensors_decoded": 170,
+  "tensors": 339,
+  "error": "ValueError: no token embedding table found",
+  "seconds": 19
+ },
+ {
+  "original": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated",
+  "repo": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "meta-llama-3.1-8b-instruct-abliterated.bf16.gguf",
+  "bits_per_weight": 16.01,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "BF16": 15
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.009,
+    0.015,
+    0.01,
+    0.013,
+    0.013,
+    0.019,
+    0.01,
+    0.017,
+    0.009,
+    0.013,
+    0.008,
+    0.011
+   ],
+   "size": [
+    0.197,
+    0.217,
+    0.203,
+    0.195,
+    0.204,
+    0.172,
+    0.199,
+    0.189,
+    0.197,
+    0.22,
+    0.197,
+    0.218
+   ],
+   "own": [
+    0.955,
+    0.912,
+    0.937,
+    0.924,
+    0.94,
+    0.946,
+    0.963,
+    0.953,
+    0.963,
+    0.959,
+    0.972,
+    0.948
+   ],
+   "agreement": [
+    0.909,
+    0.972,
+    0.979,
+    0.976,
+    0.948,
+    0.895
+   ]
+  },
+  "to_original": [
+   0,
+   0
+  ],
+  "to_base": [
+   0.0661,
+   0.0722
+  ],
+  "cut_test": "cut",
+  "light": "red",
+  "seconds": 517
+ },
+ {
+  "original": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated",
+  "repo": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "meta-llama-3.1-8b-instruct-abliterated.Q8_0.gguf",
+  "bits_per_weight": 8.51,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q8_0": 15
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.009,
+    0.015,
+    0.01,
+    0.013,
+    0.013,
+    0.019,
+    0.01,
+    0.017,
+    0.009,
+    0.013,
+    0.008,
+    0.011
+   ],
+   "size": [
+    0.197,
+    0.217,
+    0.203,
+    0.195,
+    0.204,
+    0.172,
+    0.199,
+    0.19,
+    0.197,
+    0.22,
+    0.197,
+    0.218
+   ],
+   "own": [
+    0.955,
+    0.912,
+    0.937,
+    0.924,
+    0.94,
+    0.946,
+    0.963,
+    0.953,
+    0.963,
+    0.959,
+    0.972,
+    0.948
+   ],
+   "agreement": [
+    0.909,
+    0.972,
+    0.979,
+    0.976,
+    0.948,
+    0.895
+   ]
+  },
+  "to_original": [
+   0.0,
+   0.0
+  ],
+  "to_base": [
+   0.0662,
+   0.0722
+  ],
+  "cut_test": "cut",
+  "light": "red",
+  "seconds": 645
+ },
+ {
+  "original": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated",
+  "repo": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "meta-llama-3.1-8b-instruct-abliterated.Q6_K.gguf",
+  "bits_per_weight": 6.57,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q6_K": 15
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.008,
+    0.015,
+    0.01,
+    0.013,
+    0.013,
+    0.019,
+    0.01,
+    0.017,
+    0.009,
+    0.013,
+    0.008,
+    0.011
+   ],
+   "size": [
+    0.197,
+    0.217,
+    0.204,
+    0.196,
+    0.205,
+    0.172,
+    0.2,
+    0.19,
+    0.197,
+    0.221,
+    0.198,
+    0.219
+   ],
+   "own": [
+    0.955,
+    0.911,
+    0.936,
+    0.924,
+    0.94,
+    0.946,
+    0.962,
+    0.953,
+    0.963,
+    0.958,
+    0.972,
+    0.948
+   ],
+   "agreement": [
+    0.909,
+    0.972,
+    0.979,
+    0.975,
+    0.948,
+    0.895
+   ]
+  },
+  "to_original": [
+   0.0004,
+   0.0005
+  ],
+  "to_base": [
+   0.0664,
+   0.0725
+  ],
+  "cut_test": "cut",
+  "light": "red",
+  "seconds": 461
+ },
+ {
+  "original": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated",
+  "repo": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "meta-llama-3.1-8b-instruct-abliterated.Q5_K_M.gguf",
+  "bits_per_weight": 5.71,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q6_K": 2,
+   "Q5_K": 13
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.008,
+    0.015,
+    0.01,
+    0.013,
+    0.013,
+    0.018,
+    0.01,
+    0.017,
+    0.009,
+    0.013,
+    0.008,
+    0.011
+   ],
+   "size": [
+    0.197,
+    0.219,
+    0.204,
+    0.198,
+    0.207,
+    0.175,
+    0.2,
+    0.193,
+    0.197,
+    0.223,
+    0.2,
+    0.221
+   ],
+   "own": [
+    0.955,
+    0.911,
+    0.936,
+    0.923,
+    0.938,
+    0.945,
+    0.962,
+    0.951,
+    0.963,
+    0.958,
+    0.971,
+    0.947
+   ],
+   "agreement": [
+    0.906,
+    0.971,
+    0.978,
+    0.974,
+    0.947,
+    0.894
+   ]
+  },
+  "to_original": [
+   0.0014,
+   0.0018
+  ],
+  "to_base": [
+   0.0675,
+   0.0738
+  ],
+  "cut_test": "cut",
+  "light": "red",
+  "seconds": 597
+ },
+ {
+  "original": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated",
+  "repo": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "meta-llama-3.1-8b-instruct-abliterated.Q4_K_M.gguf",
+  "bits_per_weight": 4.9,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q6_K": 2,
+   "Q4_K": 13
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.008,
+    0.014,
+    0.01,
+    0.012,
+    0.012,
+    0.017,
+    0.01,
+    0.016,
+    0.009,
+    0.012,
+    0.007,
+    0.011
+   ],
+   "size": [
+    0.197,
+    0.227,
+    0.204,
+    0.207,
+    0.215,
+    0.184,
+    0.2,
+    0.201,
+    0.197,
+    0.23,
+    0.208,
+    0.228
+   ],
+   "own": [
+    0.955,
+    0.909,
+    0.936,
+    0.915,
+    0.931,
+    0.94,
+    0.962,
+    0.949,
+    0.963,
+    0.952,
+    0.969,
+    0.944
+   ],
+   "agreement": [
+    0.9,
+    0.968,
+    0.977,
+    0.973,
+    0.944,
+    0.894
+   ]
+  },
+  "to_original": [
+   0.0056,
+   0.0071
+  ],
+  "to_base": [
+   0.0719,
+   0.0787
+  ],
+  "cut_test": "cut",
+  "light": "red",
+  "seconds": 608
+ },
+ {
+  "original": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated",
+  "repo": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "meta-llama-3.1-8b-instruct-abliterated.Q3_K_M.gguf",
+  "bits_per_weight": 4.0,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q4_K": 6,
+   "Q3_K": 9
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.008,
+    0.014,
+    0.009,
+    0.012,
+    0.012,
+    0.017,
+    0.009,
+    0.016,
+    0.008,
+    0.012,
+    0.007,
+    0.011
+   ],
+   "size": [
+    0.2,
+    0.227,
+    0.214,
+    0.207,
+    0.215,
+    0.184,
+    0.21,
+    0.201,
+    0.208,
+    0.23,
+    0.208,
+    0.228
+   ],
+   "own": [
+    0.955,
+    0.909,
+    0.927,
+    0.915,
+    0.931,
+    0.94,
+    0.958,
+    0.949,
+    0.959,
+    0.952,
+    0.969,
+    0.944
+   ],
+   "agreement": [
+    0.901,
+    0.97,
+    0.977,
+    0.975,
+    0.945,
+    0.894
+   ]
+  },
+  "to_original": [
+   0.0249,
+   0.0285
+  ],
+  "to_base": [
+   0.0903,
+   0.0984
+  ],
+  "cut_test": "cut",
+  "light": "red",
+  "seconds": 629
+ },
+ {
+  "original": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated",
+  "repo": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated-GGUF",
+  "base": "unsloth/Llama-3.1-8B",
+  "file": "meta-llama-3.1-8b-instruct-abliterated.Q2_K.gguf",
+  "bits_per_weight": 3.17,
+  "tensors_decoded": 292,
+  "tensors": 292,
+  "formats": {
+   "Q3_K": 4,
+   "Q2_K": 9,
+   "Q4_K": 2
+  },
+  "writers": {
+   "layer": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5
+   ],
+   "share": [
+    0.006,
+    0.011,
+    0.007,
+    0.009,
+    0.009,
+    0.012,
+    0.007,
+    0.012,
+    0.006,
+    0.01,
+    0.005,
+    0.008
+   ],
+   "size": [
+    0.241,
+    0.257,
+    0.246,
+    0.239,
+    0.247,
+    0.22,
+    0.242,
+    0.234,
+    0.239,
+    0.259,
+    0.24,
+    0.257
+   ],
+   "own": [
+    0.944,
+    0.885,
+    0.893,
+    0.872,
+    0.897,
+    0.921,
+    0.938,
+    0.927,
+    0.944,
+    0.916,
+    0.958,
+    0.929
+   ],
+   "agreement": [
+    0.882,
+    0.961,
+    0.974,
+    0.967,
+    0.936,
+    0.89
+   ]
+  },
+  "to_original": [
+   0.0869,
+   0.1015
+  ],
+  "to_base": [
+   0.153,
+   0.1671
+  ],
+  "cut_test": "cut",
+  "light": "red",
+  "seconds": 677
+ }
+]
