@@ -1,5 +1,5 @@
 """The traffic light on real models: copies of the government-named models, close copies of known models, models
-with their refusals removed, and models on neither list.
+with their refusals removed, models on neither list, and GGUF files of each kind.
 
 Usage: python exp_lights.py <watchlist.json> <known.json> <out.json>          (LIGHT_NONCE sets the nonce)
        python exp_lights.py stability <out.json> <run.json> ...              (several nonces, side by side)
@@ -23,6 +23,11 @@ CASES = [
     ("huihui-ai/Qwen2.5-7B-Instruct-abliterated-v2", "a known model with its refusals removed"),
     ("DreamFast/qwen3-8b-heretic", "a known model with its refusals removed, by a newer tool"),
     ("deepseek-ai/DeepSeek-V4-Flash", "a model on neither list"),
+    ("unsloth/GLM-5.3-GGUF", "GGUF release of a listed model, 4 bits"),
+    ("unsloth/Kimi-K3-GGUF", "GGUF release of a listed model, 4 bits"),
+    ("huihui-ai/Huihui-GLM-5.3-abliterated-GGUF", "GGUF of a listed model with its refusals removed, 1 bit"),
+    ("bartowski/Meta-Llama-3.1-8B-Instruct-GGUF", "GGUF release of a known model, 4 bits"),
+    ("mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated-GGUF", "GGUF of a known model with its refusals removed, 4 bits"),
 ]
 
 
@@ -35,7 +40,7 @@ def main(watch_path, known_path, out):
             src = R.Remote(repo)
             signature = LT.ablation_signature(src, NONCE)
             r = LT.light(src, watch, known, NONCE, ablation=signature, cache=cache)
-            row.update(revision=src.sha, light=r["light"], matched=r["matched"], finding=r["finding"], reason=r["reason"], signature=signature,
+            row.update(revision=src.sha, file=src.gguf[0] if src.gguf else None, light=r["light"], matched=r["matched"], finding=r["finding"], reason=r["reason"], signature=signature,
                        distances={k: None if v is None else [round(v[0], 4), round(v[1], 4)] for k, v in r["distances"].items()})
             for k in [k for k in cache if k[0] == id(src)]:      # keep the list entries' fingerprints, drop this model's
                 del cache[k]

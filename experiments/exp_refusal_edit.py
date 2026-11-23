@@ -2,7 +2,7 @@
 
 The scan (`exp_hub_scan.py`) traces popular models to a registry base. For a sample of those close copies this
 script reads the matrices that write to the residual stream in six layers of the copy and of the base, and asks
-in how many layers their differences share one leading direction (`lineage_check.universal.shared_edit`).
+in how many layers one direction was cut out (`lineage_check.universal.cut_layers`).
 
 Labels come from repository names only: "abliterated" and "heretic" name two families of refusal-removal tools.
 Names with other hints (uncensored, dolphin, ...) are kept apart: many of those are fine-tunes. Everything else is
@@ -10,7 +10,14 @@ a control.
 
 Models above MAX_PARAMS are left out: reading six layers of a 70B model twice takes minutes.
 
-Usage: python exp_refusal_edit.py <scan dir> <out.jsonl> [workers] [controls]
+The saved results come from two passes. The first read every model and recorded what the first two conditions of
+the test need (rank, agreement between the matrices of a layer). The third condition (`own`: what left a matrix
+is its own content) was added later and measured in a second pass over every model with a layer that the first
+two conditions count as cut; no other model can be flagged. `merge` puts the two together. A fresh run records
+`own` for every model.
+
+Usage: python exp_refusal_edit.py <scan dir> <out.jsonl> [workers] [controls] [file of repository names to read]
+       python exp_refusal_edit.py merge <first pass.jsonl> <second pass.jsonl> <out.jsonl>
        python exp_refusal_edit.py summary <out.jsonl>          counts under the tool's own thresholds
 """
 import json, multiprocessing as mp, os, random, re, shutil, sys, time
@@ -82,14 +89,27 @@ def main(scan, out, workers=16, controls=400, only=None):
                 print(n, "of", len(jobs), flush=True)
 
 
-def cut(r):
-    """Layers cut, from a saved row, by the rule in `lineage_check.universal.cut_layers`."""
+def cut(r, third=True):
+    """Layers cut, from a saved row, by the rule in `lineage_check.universal.cut_layers`. With third=False, by its
+    first two conditions alone. A row without `own` has no layer that those two count as cut."""
     from lineage_check import universal as U
-    pos, cos, share, own = r["positions"], r["cosines"], r["share"], [o >= U.CUT_OWN for o in r["own"]]
+    pos, cos, share = r["positions"], r["cosines"], r["share"]
+    own = [o >= U.CUT_OWN for o in r["own"]] if third and "own" in r else [True] * len(pos)
     layers = {p for p, s, o in zip(pos, share, own) if o and s >= U.CUT_SHARE}
     layers |= {pos[i] for i in range(len(pos)) for j in range(i + 1, len(pos))
                if pos[i] == pos[j] and own[i] and own[j] and cos[i][j] >= U.CUT_COSINE}
+    assert "own" in r or not layers, r["repo"]
     return len(layers)
+
+
+def merge(first, second, out):
+    """The first pass with every row that the second pass read again replaced by its second reading."""
+    again = {json.loads(l)["repo"]: l for l in open(second) if l.strip()}
+    with open(out, "w") as fh:
+        for l in open(first):
+            if l.strip():
+                fh.write(again.get(json.loads(l)["repo"], l).rstrip("\n") + "\n")
+    print(len(again), "rows taken from the second pass")
 
 
 def summary(out):
@@ -106,11 +126,14 @@ def summary(out):
         unchecked = [r for r in read if cut(r) < LT.CUT_MIN and max(r["relative_size"]) > U.ALIGNED]
         agree = sorted(max([r["cosines"][i][j] for i in range(len(r["positions"])) for j in range(i + 1, len(r["positions"]))
                             if r["positions"][i] == r["positions"][j]] or [0.0]) for r in read)
+        own = sorted(max(r["own"]) for r in read if "own" in r)
         result[name] = {"models": len(group), "not_comparable": sum(r.get("changed") is None for r in group),
                         "identical_to_base": sum(r.get("changed") == 0 for r in group), "compared": len(read),
                         "flagged": len(flagged), "unchecked": len(unchecked), "cleared": len(read) - len(flagged) - len(unchecked),
+                        "flagged_without_the_third_condition": sum(cut(r, third=False) >= LT.CUT_MIN for r in read),
                         "older_signature": sum(bool(r["blind_signature"]) for r in read),
                         "largest_agreement_in_a_layer": {"median": agree[len(agree) // 2], "p95": agree[int(0.95 * (len(agree) - 1))]} if agree else None,
+                        "largest_own_content": {"lowest": own[0], "median": own[len(own) // 2], "highest": own[-1], "models": len(own)} if own else None,
                         "flagged_repos": [r["repo"] for r in flagged] if name == "control" else None}
         print(f"{name:10s} {len(group):3d} models: {result[name]['not_comparable']} not comparable, {result[name]['identical_to_base']} identical, "
               f"{len(read)} compared -> {len(flagged)} flagged, {len(unchecked)} unchecked, {result[name]['cleared']} cleared   (older signature: {result[name]['older_signature']})")
@@ -120,5 +143,7 @@ def summary(out):
 if __name__ == "__main__":
     if sys.argv[1] == "summary":
         json.dump(summary(sys.argv[2]), open(os.path.splitext(sys.argv[2])[0] + "_summary.json", "w"), indent=1)
+    elif sys.argv[1] == "merge":
+        merge(*sys.argv[2:5])
     else:
         main(*sys.argv[1:6])
