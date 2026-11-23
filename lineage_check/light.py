@@ -2,7 +2,8 @@
 
   Red     some part of the model matches a listed model; or it is a copy of a known model with one direction cut
           out of several layers, which is how refusal-removal tools work
-  Green   not Red, and every part of the model matches one known model
+  Green   not Red, every part of the model matches one known model, and the two could be compared matrix by
+          matrix with no cut found
   Amber   anything else: the origin is unknown
 
 Being flagged takes one matching part. Being cleared takes all of them. Distances come from the design-free
@@ -41,10 +42,13 @@ def layers_for(src, nonce, k=LAYERS):
     """The layers an audit reads: k depths drawn from the nonce, the same relative depths in every model.
     Nobody who prepared a model before the nonce existed knows which layers will be read."""
     idx = sorted(U.layout(src)[2])
-    if not idx:                                      # no matrix the reader can decode (a packed 4-bit format, say)
-        return []
     rng = np.random.default_rng(int.from_bytes(hashlib.sha256(("layers" + nonce).encode()).digest()[:8], "little"))
-    return sorted(idx[min(len(idx) - 1, int(u * len(idx)))] for u in rng.random(k))
+    picked = []                                      # k different layers; none if the reader can decode no matrix
+    while len(picked) < min(k, len(idx)):
+        layer = idx[min(len(idx) - 1, int(rng.random() * len(idx)))]
+        if layer not in picked:
+            picked.append(layer)
+    return sorted(picked)
 
 
 def distances(src, anchor, nonce, tokens=TOKENS, cache=None):
@@ -89,12 +93,17 @@ def distances_by_geometry(src, anchor, nonce, tokens=TOKENS, cache=None):
 
 def direction_cut(src, anchor, nonce):
     """True when a copy of a known model had one direction cut out of two or more of the layers read (see
-    `universal.cut_layers`). None when the two cannot be compared matrix by matrix."""
+    `universal.cut_layers`), False when it was compared and had none. None when the two cannot be compared matrix
+    by matrix: a different layout, or weights that were shuffled or rotated and so differ entry by entry."""
     try:
         r = U.cut_layers(src, anchor, layers_for(src, nonce, CUT_LAYERS), layers_for(anchor, nonce, CUT_LAYERS))
     except Exception:
         return None
-    return None if r is None else r["cut"] >= CUT_MIN
+    if r is None:
+        return None
+    if r["cut"] >= CUT_MIN:
+        return True
+    return False if r["aligned"] else None
 
 
 def ablation_signature(src, nonce, tokens=TOKENS, layers=2):
@@ -116,7 +125,7 @@ def light(src, watch, known, nonce, tokens=TOKENS, ablation=None, cache=None, ge
     With `geometry`, a model that no listed model matches by token name is compared again with tokens matched by
     geometry. That reads whole token tables, so it is slower. With `cuts`, a model that would be Green is compared
     with the known model matrix by matrix, and is Red if one direction was cut out of several layers.
-    `finding` names the rule that decided: listed, listed-by-geometry, signature, cut, known or none."""
+    `finding` names the rule that decided: listed, listed-by-geometry, cut, signature, unchecked, known or none."""
     cache, seen = {} if cache is None else cache, {}
     for e, anchor in watch:
         seen[e["id"]] = distances(src, anchor, nonce, tokens, cache)
@@ -135,11 +144,15 @@ def light(src, watch, known, nonce, tokens=TOKENS, ablation=None, cache=None, ge
         seen[e["id"]] = distances(src, anchor, nonce, tokens, cache)
     hits = [(seen[e["id"]][1], e["id"]) for e, _ in known if seen[e["id"]] and seen[e["id"]][1] < e.get("clear", GREEN)]
     name = min(hits)[1] if hits else None
-    if name and cuts and direction_cut(src, next(a for e, a in known if e["id"] == name), nonce):
+    cut = direction_cut(src, next(a for e, a in known if e["id"] == name), nonce) if name and cuts else False
+    if cut:
         return {"light": "red", "matched": name, "finding": "cut", "distances": seen,
                 "reason": "a copy of a known model with one direction cut out of several layers"}
     if ablation:
         return {"light": "red", "matched": None, "finding": "signature", "reason": "refusal-ablation signature", "distances": seen}
+    if name and cut is None:                           # Green needs the cut test to have run and found nothing
+        return {"light": "amber", "matched": None, "finding": "unchecked", "distances": seen,
+                "reason": f"every part matches {name}, but the two cannot be compared matrix by matrix"}
     if name:
         return {"light": "green", "matched": name, "finding": "known", "reason": "every part matches a known model", "distances": seen}
     return {"light": "amber", "matched": None, "finding": "none", "reason": "no listed or known model matches", "distances": seen}

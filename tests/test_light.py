@@ -77,6 +77,25 @@ def test_the_refusal_ablation_signature_is_red_whatever_the_origin():
     assert answer(KNOWN, ablation=True) == ("red", None)
 
 
+@pytest.mark.parametrize("hide", [edits.perm_mlp, edits.rotate_residual, edits.obfuscate])
+def test_a_known_model_that_was_cut_and_then_shuffled_is_not_cleared(hide):
+    r = light.light(Source(hide(edits.rank1_edit(KNOWN))), WATCH, REGISTRY, NONCE)
+    assert r["light"] in ("amber", "red") and r["finding"] != "known"
+
+
+def test_a_shuffled_copy_of_a_known_model_is_amber_because_it_cannot_be_checked_for_a_cut():
+    r = light.light(Source(edits.perm_mlp(KNOWN)), WATCH, REGISTRY, NONCE)
+    assert (r["light"], r["matched"], r["finding"]) == ("amber", None, "unchecked")
+
+
+def test_the_layers_read_are_all_different():
+    deep = Source(tiny_model(3))
+    for i in range(200):
+        for k in (2, 3):
+            picked = light.layers_for(deep, f"{i:032x}", k)
+            assert len(set(picked)) == k == len(picked)
+
+
 def test_the_layers_read_depend_on_the_nonce_and_line_up_across_models():
     deep = Source(tiny_model(3))
     picks = {tuple(light.layers_for(deep, f"{i:032x}")) for i in range(40)}
