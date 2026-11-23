@@ -183,8 +183,10 @@ X and every model made from X are more than 0.18 away in every window.
 
 So a stricter Green is possible. The enclave runs the loaded model on text the verifier picks after the weights
 are fixed, compares its next-token distributions with the known model's, and signs whether they agree in every
-window. The known model is public, so the verifier can compute its side. This is a proposal with one measurement
-behind it, on one small pair. It is not in the tool. It has four costs.
+window. The known model is public, so the verifier can compute its side. The tool has this check as an option
+(`lineage-check light --outputs`, `lineage_check/outputs.py`): it runs both models itself and asks for a mean
+distance of 0.10 or less, under half the distance between the two stand-in models at every size measured. The
+sealed service does not run it yet. It has four costs.
 
 1. Only faithful copies pass. At this size a 4-bit file moves the known model's outputs by 0.14 to 0.21 and its
    published instruct version by 0.26, as much as swapping it for X. Such a copy would be Amber unless the

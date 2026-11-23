@@ -140,8 +140,8 @@ Stress tests have reached 1.7 billion parameters. Larger adaptive runs remain un
 pretraining also removes the signal, as in the coding and mathematics variants of Qwen2.5.
 
 The reader supports safetensors and GGUF. Other formats receive Amber. The refusal-removal test can miss edits
-made through fine-tuning, and it raised two false alarms among 310 other copies. The output check is measured,
-not built.
+made through fine-tuning, and it raised two false alarms among 310 other copies. The output check is an option
+in the tool, and the sealed run does not use it yet.
 
 Hardware attestation shifts trust to AMD's and Microsoft's signing keys. A production version should load and
 serve the model in the same enclave, allowing one receipt to name the bytes used for both checking and

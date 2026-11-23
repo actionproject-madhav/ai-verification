@@ -220,7 +220,8 @@ pulled toward a known model, to 0.40 on the closest part. On activations it is s
 and 0.58 from the known one, as far as an unrelated model. But activations can be trained against as well. With
 that term in the loss, a 135M copy moves from 0.41 to 0.12 from the known model in 2,000 steps and keeps the
 listed model's outputs. Outputs are the one thing a copy cannot take from a known model and keep from a listed
-one, and `docs/DESIGN.md` says what a check on outputs would cost. Neither check is in the tool.
+one, and `docs/DESIGN.md` says what a check on outputs costs. The tool has the output check as an option
+(`--outputs`). The activation check is not in it.
 
 ## What the nonce is for
 
