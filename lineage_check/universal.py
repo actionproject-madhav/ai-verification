@@ -35,7 +35,7 @@ TOP = 8                                                       # leading directio
 MAX_VOCAB = 4_000_000                                         # more rows than this is a lookup table, not a vocabulary
 MAX_ELEMS = 1 << 28                                           # a larger tensor is a packed table, not one matrix
 GEO_AXES, GEO_SEED, GEO_POOL, GEO_SURE = 128, 32, 1024, 0.7   # matching tokens by geometry: see `token_geometry`
-CUT_SHARE, CUT_COSINE, CUT_OWN, ALIGNED = 0.9, 0.95, 0.8, 0.5 # when a layer counts as cut: see `cut_layers`
+CUT_SHARE, CUT_COSINE, CUT_OWN, ALIGNED = 0.9, 0.95, 0.5, 0.5 # when a layer counts as cut: see `cut_layers`
 
 
 def shape_of(src, name):
