@@ -1,0 +1,126 @@
+{
+ "nonce": "f10c18cec66bd01726e45902397d2527",
+ "list": "toy operator audit: illustrative list of open-weight families of concern",
+ "results": [
+  {
+   "query": "failspy/Meta-Llama-3-8B-Instruct-abliterated-v3",
+   "commit": "85a25be002",
+   "verdict": "match",
+   "matched": "llama-3-8b-instruct",
+   "ablation_signature": true,
+   "seconds": 49
+  },
+  {
+   "query": "QuixiAI/Llama-3-8B-Instruct-abliterated-v2",
+   "commit": "c99bd5b5e7",
+   "verdict": "match",
+   "matched": "llama-3-8b-instruct",
+   "ablation_signature": true,
+   "seconds": 39
+  },
+  {
+   "query": "mlabonne/Daredevil-8B-abliterated",
+   "commit": "6f3527c9ad",
+   "verdict": "match",
+   "matched": "llama-3-8b-instruct",
+   "ablation_signature": true,
+   "seconds": 38
+  },
+  {
+   "query": "mlabonne/NeuralDaredevil-8B-abliterated",
+   "commit": "6567010926",
+   "verdict": "match",
+   "matched": "llama-3-8b-instruct",
+   "ablation_signature": true,
+   "seconds": 41
+  },
+  {
+   "query": "byroneverson/Yi-1.5-9B-Chat-abliterated",
+   "commit": "4e26c200cd",
+   "verdict": "match",
+   "matched": "yi-1.5-9b-chat",
+   "ablation_signature": true,
+   "seconds": 83
+  },
+  {
+   "query": "huihui-ai/Qwen2.5-7B-Instruct-abliterated-v2",
+   "commit": "447ff10df7",
+   "verdict": "match",
+   "matched": "qwen2.5-7b-instruct",
+   "ablation_signature": true,
+   "seconds": 48
+  },
+  {
+   "query": "criscar22/Qwen2.5-Coder-7B-Instruct-abliterated",
+   "commit": "0936e32925",
+   "verdict": "match",
+   "matched": "qwen2.5-coder-7b-instruct",
+   "ablation_signature": false,
+   "seconds": 30
+  },
+  {
+   "query": "huihui-ai/Huihui-Qwen3-8B-abliterated-v2",
+   "commit": "7d89db7602",
+   "verdict": "match",
+   "matched": "qwen3-8b",
+   "ablation_signature": true,
+   "seconds": 54
+  },
+  {
+   "query": "huihui-ai/Huihui-Qwen3-1.7B-abliterated-v2",
+   "commit": "4462327af0",
+   "verdict": "match",
+   "matched": "qwen3-1.7b",
+   "ablation_signature": true,
+   "seconds": 10
+  },
+  {
+   "query": "NousResearch/Hermes-2-Pro-Llama-3-8B",
+   "commit": "f798274b30",
+   "verdict": "match",
+   "matched": "llama-3-8b-instruct",
+   "ablation_signature": false,
+   "seconds": 43
+  },
+  {
+   "query": "Qwen/Qwen2.5-7B-Instruct-AWQ",
+   "commit": "b25037543e",
+   "verdict": "match",
+   "matched": "qwen2.5-7b-instruct",
+   "ablation_signature": false,
+   "seconds": 41
+  },
+  {
+   "query": "Qwen/Qwen2.5-Math-7B",
+   "commit": "b101308fe8",
+   "verdict": "no_match",
+   "matched": null,
+   "ablation_signature": false,
+   "seconds": 38
+  },
+  {
+   "query": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+   "commit": "916b56a440",
+   "verdict": "no_match",
+   "matched": null,
+   "ablation_signature": false,
+   "seconds": 22
+  },
+  {
+   "query": "allenai/OLMo-7B-Instruct-hf",
+   "commit": "d1c8d0403b",
+   "verdict": "no_match",
+   "matched": null,
+   "ablation_signature": false,
+   "seconds": 59
+  },
+  {
+   "query": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+   "commit": "31b70e2e86",
+   "verdict": "no_match",
+   "matched": null,
+   "ablation_signature": false,
+   "seconds": 10
+  }
+ ]
+}

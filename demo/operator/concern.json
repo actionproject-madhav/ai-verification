@@ -1,0 +1,9 @@
+{"name": "toy operator audit: illustrative list of open-weight families of concern",
+ "models": [
+  {"id": "llama-3-8b-instruct", "repo": "NousResearch/Meta-Llama-3-8B-Instruct", "threshold": 0.5},
+  {"id": "qwen2.5-7b-instruct", "repo": "Qwen/Qwen2.5-7B-Instruct", "threshold": 0.5},
+  {"id": "qwen2.5-coder-7b-instruct", "repo": "Qwen/Qwen2.5-Coder-7B-Instruct", "threshold": 0.5},
+  {"id": "qwen3-8b", "repo": "Qwen/Qwen3-8B", "threshold": 0.5},
+  {"id": "qwen3-1.7b", "repo": "Qwen/Qwen3-1.7B", "threshold": 0.5},
+  {"id": "yi-1.5-9b-chat", "repo": "01-ai/Yi-1.5-9B-Chat", "threshold": 0.5}
+ ]}

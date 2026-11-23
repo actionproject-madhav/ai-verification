@@ -1,0 +1,4 @@
+{"name": "demo list of models of concern", "models": [
+  {"id": "qwen2.5-0.5b", "repo": "Qwen/Qwen2.5-0.5B", "threshold": 0.5},
+  {"id": "smollm2-135m", "repo": "HuggingFaceTB/SmolLM2-135M", "threshold": 0.5}
+]}
