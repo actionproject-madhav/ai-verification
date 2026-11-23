@@ -1,0 +1,375 @@
+{
+ "nonce": "output-check-2026-11",
+ "windows": 128,
+ "tokens_per_window": 128,
+ "X": "HuggingFaceTB/SmolLM2-360M",
+ "Y": "HuggingFaceTB/SmolLM-360M",
+ "tv_X_Y": 0.2401,
+ "tv_X_Y_se": 0.0026,
+ "tv_X_Y_windows": [
+  0.1735,
+  0.326
+ ],
+ "rows": [
+  {
+   "model": "X, the listed model",
+   "light": "red",
+   "matched": "X",
+   "tables_to_Y": [
+    0.8142,
+    0.9037
+   ],
+   "tv_to_Y": 0.2401,
+   "tv_to_Y_se": 0.0026,
+   "tv_to_Y_windows": [
+    0.1735,
+    0.326
+   ],
+   "tv_to_X": 0.0,
+   "tv_to_X_se": 0.0,
+   "tv_to_X_windows": [
+    0.0,
+    0.0
+   ],
+   "kl_from_Y": 0.3299,
+   "kl_from_X": 0.0,
+   "bound_holds_in_every_window": true
+  },
+  {
+   "model": "Y, the known model",
+   "light": "green",
+   "matched": "Y",
+   "tables_to_Y": [
+    -0.0,
+    0.0
+   ],
+   "tv_to_Y": 0.0,
+   "tv_to_Y_se": 0.0,
+   "tv_to_Y_windows": [
+    0.0,
+    0.0
+   ],
+   "tv_to_X": 0.2401,
+   "tv_to_X_se": 0.0026,
+   "tv_to_X_windows": [
+    0.1735,
+    0.326
+   ],
+   "kl_from_Y": 0.0,
+   "kl_from_X": 0.3764,
+   "bound_holds_in_every_window": true
+  },
+  {
+   "model": "Y, stored in blocks at 8 bits",
+   "light": "green",
+   "matched": "Y",
+   "tables_to_Y": [
+    0.0,
+    0.0
+   ],
+   "tv_to_Y": 0.0137,
+   "tv_to_Y_se": 0.0001,
+   "tv_to_Y_windows": [
+    0.0102,
+    0.0178
+   ],
+   "tv_to_X": 0.2403,
+   "tv_to_X_se": 0.0026,
+   "tv_to_X_windows": [
+    0.1733,
+    0.3254
+   ],
+   "kl_from_Y": 0.0014,
+   "kl_from_X": 0.3761,
+   "bound_holds_in_every_window": true
+  },
+  {
+   "model": "Y, stored in blocks at 4 bits",
+   "light": "green",
+   "matched": "Y",
+   "tables_to_Y": [
+    0.008,
+    0.0099
+   ],
+   "tv_to_Y": 0.2226,
+   "tv_to_Y_se": 0.0017,
+   "tv_to_Y_windows": [
+    0.1582,
+    0.277
+   ],
+   "tv_to_X": 0.3191,
+   "tv_to_X_se": 0.0026,
+   "tv_to_X_windows": [
+    0.2335,
+    0.4153
+   ],
+   "kl_from_Y": 0.2905,
+   "kl_from_X": 0.6094,
+   "bound_holds_in_every_window": true
+  },
+  {
+   "model": "Y, fine-tuned for 200 steps",
+   "light": "green",
+   "matched": "Y",
+   "tables_to_Y": [
+    0.0,
+    0.0
+   ],
+   "tv_to_Y": 0.0402,
+   "tv_to_Y_se": 0.0007,
+   "tv_to_Y_windows": [
+    0.0262,
+    0.0789
+   ],
+   "tv_to_X": 0.2409,
+   "tv_to_X_se": 0.0026,
+   "tv_to_X_windows": [
+    0.1719,
+    0.3282
+   ],
+   "kl_from_Y": 0.009,
+   "kl_from_X": 0.3576,
+   "bound_holds_in_every_window": true
+  },
+  {
+   "model": "X pulled to Y's tables and activations, 200 steps",
+   "light": "red",
+   "matched": "X",
+   "tables_to_Y": [
+    0.6862,
+    0.831
+   ],
+   "tv_to_Y": 0.2499,
+   "tv_to_Y_se": 0.0024,
+   "tv_to_Y_windows": [
+    0.192,
+    0.3471
+   ],
+   "tv_to_X": 0.1386,
+   "tv_to_X_se": 0.0016,
+   "tv_to_X_windows": [
+    0.1059,
+    0.1957
+   ],
+   "kl_from_Y": 0.3373,
+   "kl_from_X": 0.096,
+   "bound_holds_in_every_window": true
+  },
+  {
+   "model": "Y's published instruct version",
+   "light": "green",
+   "matched": "Y",
+   "tables_to_Y": [
+    0.0086,
+    0.0105
+   ],
+   "tv_to_Y": 0.2439,
+   "tv_to_Y_se": 0.0023,
+   "tv_to_Y_windows": [
+    0.1674,
+    0.3029
+   ],
+   "tv_to_X": 0.3238,
+   "tv_to_X_se": 0.0026,
+   "tv_to_X_windows": [
+    0.2411,
+    0.3979
+   ],
+   "kl_from_Y": 0.322,
+   "kl_from_X": 0.6014,
+   "bound_holds_in_every_window": true
+  },
+  {
+   "model": "X's published instruct version",
+   "light": "red",
+   "matched": "X",
+   "tables_to_Y": [
+    0.8246,
+    0.9095
+   ],
+   "tv_to_Y": 0.2901,
+   "tv_to_Y_se": 0.0027,
+   "tv_to_Y_windows": [
+    0.2152,
+    0.372
+   ],
+   "tv_to_X": 0.1929,
+   "tv_to_X_se": 0.0021,
+   "tv_to_X_windows": [
+    0.1286,
+    0.278
+   ],
+   "kl_from_Y": 0.4693,
+   "kl_from_X": 0.1993,
+   "bound_holds_in_every_window": true
+  },
+  {
+   "model": "Y, published GGUF file Q8_0",
+   "light": "green",
+   "matched": "Y",
+   "tables_to_Y": [
+    0.0,
+    0.0001
+   ],
+   "tv_to_Y": 0.0171,
+   "tv_to_Y_se": 0.0001,
+   "tv_to_Y_windows": [
+    0.012,
+    0.0221
+   ],
+   "tv_to_X": 0.2411,
+   "tv_to_X_se": 0.0026,
+   "tv_to_X_windows": [
+    0.174,
+    0.3268
+   ],
+   "kl_from_Y": 0.0021,
+   "kl_from_X": 0.3783,
+   "bound_holds_in_every_window": true
+  },
+  {
+   "model": "Y, published GGUF file Q6_K",
+   "light": "green",
+   "matched": "Y",
+   "tables_to_Y": [
+    0.0,
+    0.0001
+   ],
+   "tv_to_Y": 0.0289,
+   "tv_to_Y_se": 0.0003,
+   "tv_to_Y_windows": [
+    0.0218,
+    0.0414
+   ],
+   "tv_to_X": 0.2433,
+   "tv_to_X_se": 0.0026,
+   "tv_to_X_windows": [
+    0.1766,
+    0.3301
+   ],
+   "kl_from_Y": 0.0093,
+   "kl_from_X": 0.3851,
+   "bound_holds_in_every_window": true
+  },
+  {
+   "model": "Y, published GGUF file Q5_K_M",
+   "light": "green",
+   "matched": "Y",
+   "tables_to_Y": [
+    0.0002,
+    0.0005
+   ],
+   "tv_to_Y": 0.0634,
+   "tv_to_Y_se": 0.0006,
+   "tv_to_Y_windows": [
+    0.047,
+    0.0957
+   ],
+   "tv_to_X": 0.2486,
+   "tv_to_X_se": 0.0026,
+   "tv_to_X_windows": [
+    0.1801,
+    0.3316
+   ],
+   "kl_from_Y": 0.0264,
+   "kl_from_X": 0.3938,
+   "bound_holds_in_every_window": true
+  },
+  {
+   "model": "Y, published GGUF file Q4_K_M",
+   "light": "green",
+   "matched": "Y",
+   "tables_to_Y": [
+    0.0003,
+    0.0006
+   ],
+   "tv_to_Y": 0.0845,
+   "tv_to_Y_se": 0.0007,
+   "tv_to_Y_windows": [
+    0.0592,
+    0.1218
+   ],
+   "tv_to_X": 0.2527,
+   "tv_to_X_se": 0.0025,
+   "tv_to_X_windows": [
+    0.1799,
+    0.3466
+   ],
+   "kl_from_Y": 0.0437,
+   "kl_from_X": 0.4085,
+   "bound_holds_in_every_window": true
+  },
+  {
+   "model": "Y, published GGUF file Q4_0",
+   "light": "green",
+   "matched": "Y",
+   "tables_to_Y": [
+    0.0015,
+    0.003
+   ],
+   "tv_to_Y": 0.1468,
+   "tv_to_Y_se": 0.0013,
+   "tv_to_Y_windows": [
+    0.1131,
+    0.2055
+   ],
+   "tv_to_X": 0.2742,
+   "tv_to_X_se": 0.0026,
+   "tv_to_X_windows": [
+    0.2036,
+    0.3635
+   ],
+   "kl_from_Y": 0.1268,
+   "kl_from_X": 0.4788,
+   "bound_holds_in_every_window": true
+  },
+  {
+   "model": "Y, published GGUF file Q3_K_M",
+   "light": "green",
+   "matched": "Y",
+   "tables_to_Y": [
+    0.0009,
+    0.0015
+   ],
+   "tv_to_Y": 0.1244,
+   "tv_to_Y_se": 0.0012,
+   "tv_to_Y_windows": [
+    0.091,
+    0.1864
+   ],
+   "tv_to_X": 0.2638,
+   "tv_to_X_se": 0.0024,
+   "tv_to_X_windows": [
+    0.1901,
+    0.3501
+   ],
+   "kl_from_Y": 0.1282,
+   "kl_from_X": 0.4717,
+   "bound_holds_in_every_window": true
+  },
+  {
+   "model": "Y, published GGUF file Q2_K",
+   "light": "green",
+   "matched": "Y",
+   "tables_to_Y": [
+    0.0012,
+    0.003
+   ],
+   "tv_to_Y": 0.1702,
+   "tv_to_Y_se": 0.0014,
+   "tv_to_Y_windows": [
+    0.122,
+    0.232
+   ],
+   "tv_to_X": 0.2859,
+   "tv_to_X_se": 0.0026,
+   "tv_to_X_windows": [
+    0.2094,
+    0.3921
+   ],
+   "kl_from_Y": 0.143,
+   "kl_from_X": 0.4777,
+   "bound_holds_in_every_window": true
+  }
+ ]
+}
