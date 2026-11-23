@@ -78,6 +78,19 @@ def layout(src):
     return emb, d, {i: L for i, L in layers.items() if L["mats"]}
 
 
+def matrix(src, n, dev="cpu"):
+    """One weight matrix as numbers, with block floating point scales applied."""
+    W = torch.from_numpy(np.ascontiguousarray(src.get(n))).to(dev).double()
+    for sc, inverse in ((n[: -len("weight")] + "scale", False), (n + "_scale", False), (n + "_scale_inv", True)):
+        if n.endswith("weight") and sc in src.index and W.dim() == 2:          # block floating point: one scale per block
+            S = torch.from_numpy(np.ascontiguousarray(src.get(sc))).to(dev).double()
+            if S.dim() == 2 and W.shape[0] % S.shape[0] == 0 and W.shape[1] % S.shape[1] == 0:
+                S = S.repeat_interleave(W.shape[0] // S.shape[0], 0).repeat_interleave(W.shape[1] // S.shape[1], 1)
+                W = W / S if inverse else W * S
+            break
+    return W
+
+
 def fingerprint(src, vocab, strings, layers=None, k=2, lo=300, hi=20000, dev="cpu"):
     """Tables for the chosen layers (default: k layers at even relative depths).
     Returns {"keep": indices of strings found, "EE": table, "layers": [[(kind, table), ...] per chosen layer]}."""
@@ -93,16 +106,7 @@ def fingerprint(src, vocab, strings, layers=None, k=2, lo=300, hi=20000, dev="cp
     block = torch.from_numpy(np.ascontiguousarray(src.rows(emb, lo, hi))).to(dev)
     E = block[torch.as_tensor([rows[t] - lo for t in keep], device=dev)].double()
     out = {"keep": keep, "EE": (E @ E.T).float().cpu(), "layers": [], "layer_ids": list(layers), "d": d, "used": []}
-    def get(n):
-        W = torch.from_numpy(np.ascontiguousarray(src.get(n))).to(dev).double()
-        for sc, inverse in ((n[: -len("weight")] + "scale", False), (n + "_scale", False), (n + "_scale_inv", True)):
-            if n.endswith("weight") and sc in src.index and W.dim() == 2:      # block floating point: one scale per block
-                S = torch.from_numpy(np.ascontiguousarray(src.get(sc))).to(dev).double()
-                if S.dim() == 2 and W.shape[0] % S.shape[0] == 0 and W.shape[1] % S.shape[1] == 0:
-                    S = S.repeat_interleave(W.shape[0] // S.shape[0], 0).repeat_interleave(W.shape[1] // S.shape[1], 1)
-                    W = W / S if inverse else W * S
-                break
-        return W
+    get = lambda n: matrix(src, n, dev)
     for i in layers:
         L, tabs = lay[i], []
         g1 = get(L["g1"]) if L["g1"] else None
@@ -182,3 +186,50 @@ def compare(fa, fb):
     top = best[: max(2, -(-len(best) // 3))]                        # the best-matching third
     return {"d": 1 - float(np.mean(top)), "d_all": 1 - float(np.mean(best)), "tokens": len(common), "matches": len(best),
             "embedding_only": 1 - float(_std(EEa) @ _std(EEb))}
+
+
+def _leading(D, k=8, sweeps=6):
+    """The leading left singular vector of D and its share of D's squared norm, by block power iteration from a
+    fixed start (the same answer on every run)."""
+    Q = torch.linalg.qr(torch.randn(D.shape[1], min(k, *D.shape), generator=torch.Generator().manual_seed(0), dtype=D.dtype)).Q
+    for _ in range(sweeps):
+        Q = torch.linalg.qr(D @ Q).Q
+        Q = torch.linalg.qr(D.T @ Q).Q
+    Uq, S, _ = torch.linalg.svd(D @ Q, full_matrices=False)
+    return Uq[:, 0], float(S[0] ** 2 / (D ** 2).sum())
+
+
+def shared_edit(src, anchor, layers_src, layers_anchor, dev="cpu"):
+    """Does the difference between two copies point one way in every layer?
+
+    Removing refusals subtracts one residual-stream direction from every matrix that writes to the stream. So for a
+    copy edited that way, the difference from its base has the same leading direction in every such matrix, in
+    every layer. Fine-tuning and quantisation move each matrix its own way.
+
+    Matrices are paired by name within the paired layers. Returns {"shared": the smallest |cosine| between the
+    leading directions of changed matrices in different layers, "changed": how many matrices differ, "share": the
+    median share of each difference that its leading direction holds}. None when the two models are not laid out
+    alike, or when fewer than two layers changed."""
+    _, da, la = layout(anchor)
+    _, ds, ls = layout(src)
+    if da != ds or len(layers_src) != len(layers_anchor):
+        return None
+    found = []                                                    # (position of the layer, direction, share)
+    for pos, (i, j) in enumerate(zip(layers_src, layers_anchor)):
+        a = {LAYER.search(n).group(2): n for n, kind in la.get(j, {"mats": []})["mats"] if kind == "w"}
+        for n, kind in ls.get(i, {"mats": []})["mats"]:
+            short = LAYER.search(n).group(2)
+            if kind != "w" or short not in a or shape_of(src, n) != shape_of(anchor, a[short]):
+                continue
+            Wa = matrix(anchor, a[short], dev)
+            D = matrix(src, n, dev) - Wa
+            if float(D.norm()) <= 1e-9 * float(Wa.norm()):       # this matrix is unchanged
+                continue
+            u, share = _leading(D)
+            found.append((pos, u, share))
+            del Wa, D
+    cos = [abs(float(u @ v)) for x, (p, u, _) in enumerate(found) for q, v, _ in found[x + 1:] if p != q]
+    if not cos:
+        return None
+    return {"shared": min(cos), "cosines": sorted(round(c, 4) for c in cos), "changed": len(found),
+            "share": float(np.median([f[2] for f in found]))}
