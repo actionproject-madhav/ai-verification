@@ -538,6 +538,30 @@
    "kl_from_Y": 0.028,
    "kl_from_X": 0.3726,
    "bound_holds_in_every_window": true
+  },
+  {
+   "model": "that model, then pulled to Y's activations, 500 steps",
+   "light": "amber",
+   "matched": null,
+   "tables_to_Y": [
+    0.3624,
+    0.4783
+   ],
+   "tv_to_Y": 0.321,
+   "tv_to_Y_se": 0.0025,
+   "tv_to_Y_windows": [
+    0.2381,
+    0.4114
+   ],
+   "tv_to_X": 0.2638,
+   "tv_to_X_se": 0.0024,
+   "tv_to_X_windows": [
+    0.2068,
+    0.3487
+   ],
+   "kl_from_Y": 0.5216,
+   "kl_from_X": 0.3396,
+   "bound_holds_in_every_window": true
   }
  ]
 }
