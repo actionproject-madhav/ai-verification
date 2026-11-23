@@ -6,8 +6,9 @@ Run through the tool, every model from rounds 1 to 5 is still Red (results/light
 round attacks the tool itself, with full knowledge of it. Only the audit's nonce is unknown: it picks the tokens
 and the layers after the weights are fixed, so the attacker works on random tokens and on every layer.
 
-  erase   keep X's outputs, push every table away from X's                       aim: leave Red
-  forge   the same, and pull every table towards Y's                             aim: reach Green
+  erase      keep X's outputs, push every table away from X's                    aim: leave Red
+  forge      the same, and pull every table towards Y's                          aim: reach Green
+  erase-all  erase, and push the two older readers away as round 4 did           aim: leave Red on every reader
 
   loss = KL(X || student) + PUSH * mean relu(c_X - (1 - MARGIN)) [+ PULL * mean (1 - c_Y)]
 
@@ -30,7 +31,7 @@ torch.set_grad_enabled(True)
 DEV = A.DEV
 STEPS, EVAL_EVERY = int(os.environ.get("R7_STEPS", 3000)), int(os.environ.get("R7_EVAL", 250))
 PUSH, PULL, MARGIN = float(os.environ.get("R7_PUSH", 10)), float(os.environ.get("R7_PULL", 10)), float(os.environ.get("R7_MARGIN", 0.6))
-LR, N_TOK = float(os.environ.get("R7_LR", 1e-4)), 128
+LR, N_TOK, LAM = float(os.environ.get("R7_LR", 1e-4)), 128, float(os.environ.get("R7_LAM", 1))
 AUDIT_NONCE = "round7-secret-audit-nonce"
 READERS = (("self_attn", "q_proj", "g1"), ("self_attn", "k_proj", "g1"), ("self_attn", "v_proj", "g1"),
            ("mlp", "gate_proj", "g2"), ("mlp", "up_proj", "g2"))
@@ -120,7 +121,8 @@ def run(fh, mode):
     opt = torch.optim.AdamW(m.parameters(), lr=LR, weight_decay=0.0)
     g = torch.Generator().manual_seed(41)
     rec = {"run": f"tool-{mode}", "mode": mode, "push": PUSH, "pull": PULL if mode == "forge" else 0, "margin": MARGIN, "lr": LR,
-           "target": A.INDEP, "objective": "KL to X + push every table from X" + (" + pull every table to Y" if mode == "forge" else "")}
+           "target": A.INDEP, "objective": "KL to X + push every table from X" + (" + pull every table to Y" if mode == "forge" else "")
+           + (" + push the design-aware and activation fingerprints from X" if mode == "erase-all" else "")}
     A.log(fh, {**rec, "step": 0, **verdict(), **R3.evaluate(m, p4, p3), "kl": R4.held_out_kl(m, ref)})
     t0 = time.time()
     for step in range(1, STEPS + 1):
@@ -145,6 +147,11 @@ def run(fh, mode):
         if mode == "forge":
             cy = correlations(ts, ty)
             loss = loss + PULL * (1 - cy).mean()
+        if mode == "erase-all":
+            probe = R3.FW_TRAIN[torch.randint(0, R3.FW_TRAIN.shape[0], (R2.PB,), generator=g)][:, :R2.PT].to(DEV)
+            with torch.no_grad():
+                pr, r3 = R2.v4_live(ref, probe, R2.LAYERS, grad=False), A.fp_live(ref, S)
+            loss = loss - LAM * R2.d_v4(pr, R2.v4_live(m, probe, R2.LAYERS)) - LAM * A.dist(r3, A.fp_live(m, S))
         loss.backward()
         torch.nn.utils.clip_grad_norm_(m.parameters(), 1.0)
         opt.step()
