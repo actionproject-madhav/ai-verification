@@ -150,45 +150,52 @@ def _layers(ax, x, y, w, n=5, gap=0.13, h=0.075, color=INK):
 
 
 def architecture(res, out):
-    fig, ax = plt.subplots(figsize=(9.6, 3.5))
-    ax.set_xlim(0, 9.6); ax.set_ylim(0, 3.5); ax.axis("off")
+    fig, ax = plt.subplots(figsize=(10.6, 4.3))
+    ax.set_xlim(0, 10.6); ax.set_ylim(0, 4.3); ax.axis("off")
     small = dict(fontsize=7.5, color=MUTED, ha="center", va="center")
-    label = dict(fontsize=8.5, color=INK, ha="center", va="center", fontweight="medium")
-    # the model being loaded
-    _layers(ax, 0.35, 1.38, 0.78)
-    ax.text(0.74, 1.12, "weights", **small)
-    _arrow(ax, 1.28, 1.68, 1.86, 1.68)
+    lane = dict(fontsize=6.6, color=MUTED, va="center", fontweight="semibold")
+    # operator: the model being loaded
+    ax.text(0.76, 3.86, "OPERATOR", ha="center", **lane)
+    _layers(ax, 0.36, 1.72, 0.8)
+    ax.text(0.76, 1.46, r"weights $M$", **small)
+    _arrow(ax, 1.32, 2.02, 1.96, 2.02)
     # the enclave
-    _box(ax, 1.95, 0.42, 4.55, 2.62, lw=1.5, r=0.12)
-    ax.add_patch(Rectangle((2.13, 2.66), 0.2, 0.2, fc="white", ec=INK, lw=1.0, zorder=4))
+    _box(ax, 2.05, 0.55, 4.8, 3.0, lw=1.5, r=0.12)
+    ax.add_patch(Rectangle((2.23, 3.17), 0.2, 0.2, fc="white", ec=INK, lw=1.0, zorder=4))
     for k in range(3):
-        ax.plot([2.165 + k * 0.065] * 2, [2.86, 2.92], color=INK, lw=0.9, zorder=4)
-        ax.plot([2.165 + k * 0.065] * 2, [2.60, 2.66], color=INK, lw=0.9, zorder=4)
-    ax.text(2.44, 2.76, "SEALED ENCLAVE", fontsize=6.4, color=MUTED, ha="left", va="center", fontweight="semibold")
-    # fingerprint of the loaded model
-    _table(ax, 2.3, 1.28, 0.8, seed=1, color=INK)
-    ax.text(2.7, 1.06, r"$T[a,b]=e_a^{\top}W_Q^{\top}W_K\,e_b$", fontsize=6.6, color=INK, ha="center", va="center")
-    ax.text(2.7, 2.42, "secret seed", **small)
-    _arrow(ax, 2.7, 2.33, 2.7, 2.14, color=MUTED, lw=0.8)
+        ax.plot([2.265 + k * 0.065] * 2, [3.37, 3.43], color=INK, lw=0.9, zorder=4)
+        ax.plot([2.265 + k * 0.065] * 2, [3.11, 3.17], color=INK, lw=0.9, zorder=4)
+    ax.text(2.54, 3.27, "SEALED ENCLAVE", ha="left", **lane)
+    # the challenge: a nonce from the verifier picks the tokens and the layers
+    ax.plot([7.5, 3.72, 3.72], [3.86, 3.86, 2.92], color=MUTED, lw=0.9, zorder=3, solid_joinstyle="round")
+    _arrow(ax, 3.72, 2.94, 3.72, 2.86, color=MUTED, lw=0.9)
+    ax.text(5.86, 3.99, r"fresh nonce $n$", fontsize=7.5, color=MUTED, ha="center", va="center")
+    ax.text(3.72, 2.72, r"tokens $S$, layers", fontsize=7, color=MUTED, ha="center", va="center")
+    # the table of one matrix of the loaded model
+    _table(ax, 2.38, 1.5, 0.8, seed=1, color=INK)
+    ax.text(2.78, 1.24, r"$T = E_S\,\hat W^{\top}\hat W\,E_S^{\top}$", fontsize=7, color=INK, ha="center", va="center")
+    ax.text(2.78, 0.98, "one per weight matrix", fontsize=6.4, color=MUTED, ha="center", va="center")
+    _arrow(ax, 3.5, 2.6, 3.24, 2.4, color=MUTED, lw=0.8)
     # the two lists
-    for yy, name, col, seed, rule in ((1.98, "W", VERM, 4, "some part  d < 0.5"), (0.78, "K", FOREST, 9, "every part  d < 0.1")):
-        _stack(ax, 4.08, yy, 0.5, col, seed)
-        ax.text(3.9, yy + 0.34, name, fontsize=11, color=col, ha="center", va="center", fontweight="semibold")
-        ax.text(3.9, yy + 0.12, "listed" if name == "W" else "known", fontsize=6.6, color=MUTED, ha="center", va="center")
-        ax.text(5.56, yy + 0.3, rule, fontsize=7.2, color=col, ha="center", va="center", **MONO)
-    _arrow(ax, 3.2, 1.86, 3.6, 2.12, color=MUTED, lw=0.8)
-    _arrow(ax, 3.2, 1.5, 3.6, 1.24, color=MUTED, lw=0.8)
-    ax.text(3.52, 1.68, r"$d = 1-\mathrm{corr}$", fontsize=6.6, color=MUTED, ha="left", va="center")
-    # the light
-    _arrow(ax, 6.5, 1.72, 7.02, 1.72)
-    ax.text(6.76, 1.9, "signed", fontsize=7, color=MUTED, ha="center", va="center")
-    _box(ax, 7.1, 0.86, 0.5, 1.72, lw=1.2, r=0.25)
-    for yy, col in ((2.26, VERM), (1.72, SUN), (1.18, FOREST)):
-        ax.add_patch(Circle((7.35, yy), 0.17, fc=col, ec="none", zorder=4))
-    # what follows each light
-    for yy, col, text in ((2.26, VERM, "identity + content checks"), (1.72, "#b8741c", "identity check"), (1.18, FOREST, "runs")):
-        ax.plot([7.6, 7.82], [yy, yy], color=col, lw=1.0, zorder=3)
-        ax.text(7.9, yy, text, fontsize=8, color=col, ha="left", va="center", fontweight="medium")
+    for yy, name, word, col, seed, rule in ((2.02, "W", "listed", VERM, 4, r"closest part  $d < 0.5$"),
+                                            (0.9, "K", "known", FOREST, 9, r"every part  $d < 0.1$")):
+        _stack(ax, 4.5, yy, 0.5, col, seed)
+        ax.text(4.2, yy + 0.34, name, fontsize=11, color=col, ha="center", va="center", fontweight="semibold")
+        ax.text(4.2, yy + 0.12, word, fontsize=6.6, color=MUTED, ha="center", va="center")
+        ax.text(5.98, yy + 0.3, rule, fontsize=7.6, color=col, ha="center", va="center")
+    _arrow(ax, 3.3, 2.0, 3.86, 2.24, color=MUTED, lw=0.8)
+    _arrow(ax, 3.3, 1.72, 3.86, 1.34, color=MUTED, lw=0.8)
+    # one signed, attested answer leaves
+    _arrow(ax, 6.85, 2.02, 7.62, 2.02)
+    ax.text(7.24, 2.2, "signed", fontsize=7, color=MUTED, ha="center", va="center")
+    ax.text(7.24, 1.85, "attested", fontsize=7, color=MUTED, ha="center", va="center")
+    ax.text(8.0, 3.86, "VERIFIER", ha="center", **lane)
+    _box(ax, 7.75, 1.14, 0.5, 1.76, lw=1.2, r=0.25)
+    for yy, col in ((2.58, VERM), (2.02, SUN), (1.46, FOREST)):
+        ax.add_patch(Circle((8.0, yy), 0.17, fc=col, ec="none", zorder=4))
+    for yy, col, text in ((2.58, VERM, "identity + content checks"), (2.02, "#b8741c", "identity check"), (1.46, FOREST, "runs")):
+        ax.plot([8.25, 8.45], [yy, yy], color=col, lw=1.0, zorder=3)
+        ax.text(8.53, yy, text, fontsize=8, color=col, ha="left", va="center", fontweight="medium")
     save(fig, out, "fig_architecture")
 
 
