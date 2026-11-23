@@ -173,6 +173,18 @@ honest = [r for k, r in O.items() if k.startswith("Y") and "imitate" not in k an
 claim("no honest copy of Y is closer to X's outputs than Y is; the model trained to imitate X is (0.24)",
       len(honest) >= 12 and min(r["tv_to_X"] for r in honest) >= round(oc["tv_X_Y"], 3) and round(O["Y trained to imitate X, 3,000 steps"]["tv_to_X"], 2) == 0.24,
       (len(honest), min(r["tv_to_X"] for r in honest)))
+sizes = {k: load(f"output_check_{k}.json") for k in ("135m", "360m", "1.7b")}
+at = lambda k, name: round({r["model"]: r for r in sizes[k]["rows"]}[name]["tv_to_Y"], 2)
+claim("X and Y are 0.255, 0.240 and 0.226 apart in outputs at 135M, 360M and 1.7B; the inequality holds in every window at every size",
+      [round(sizes[k]["tv_X_Y"], 3) for k in sizes] == [0.255, 0.240, 0.226]
+      and all(r["bound_holds_in_every_window"] is not False for k in sizes for r in sizes[k]["rows"]), [sizes[k]["tv_X_Y"] for k in sizes])
+claim("at 360M the model with tables and activations pulled toward Y is 0.25 from Y's outputs, where X is 0.24",
+      (at("360m", "X pulled to Y's tables and activations, 200 steps"), round(sizes["360m"]["tv_X_Y"], 2)) == (0.25, 0.24),
+      at("360m", "X pulled to Y's tables and activations, 200 steps"))
+claim("the same 4-bit rounding moves Y's outputs by 0.27, 0.22 and 0.16 at the three sizes; the instruct version by 0.26, 0.24 and 0.30",
+      [at(k, "Y, stored in blocks at 4 bits") for k in sizes] == [0.27, 0.22, 0.16]
+      and [at(k, "Y's published instruct version") for k in sizes] == [0.26, 0.24, 0.30]
+      and all(at(k, "Y's published instruct version") >= round(sizes[k]["tv_X_Y"], 2) for k in sizes), [at(k, "Y, stored in blocks at 4 bits") for k in sizes])
 act = load("gpu/1.7b-v2-forge-lights_redteam.json")["rows"][-1]
 claim("that 1.7B model's activations: 0.09 from the listed model, 0.58 from the known one",
       (round(act["act_to_X"], 2), round(act["act_to_Y"], 2)) == (0.09, 0.58), (act["act_to_X"], act["act_to_Y"]))
