@@ -1,5 +1,26 @@
 # Results
 
+## The short version
+
+| Tested on | Result |
+|---|---|
+| 3,000 most-downloaded open models | the parent each one declares was confirmed for 1,070 of 1,110 |
+| 27 modified copies (compressed, fine-tuned, refusals removed) | all 27 traced back to their source |
+| 151 pairs of unrelated models | none mistaken for a copy |
+| 13 public copies, against a plain hash | the hash recognises 2; this check recognises all 13 |
+| Public copies of the three watchlisted models | all 62 flagged; none of the 38 look-alike models flagged |
+| 36 compressed files, down to 3 bits per weight | 35 still recognised |
+| 99 public models with refusals removed | 89 flagged |
+| Sealed hardware | a watchlisted copy flagged in 99 seconds; the proof verifies offline |
+| Attack: reorder, rescale or rename the internals | no effect |
+| Attack: retrain a copy to hide it | works after 500 to 1,250 steps, and only reaches Amber |
+| Attack: disguise a watchlisted model as a known one | failed in every run |
+| Can a disguise also copy a known model's outputs? | no: its outputs never moved toward the known model, at two model sizes |
+
+The rest of this page is the detail behind these lines.
+
+## How to read the detail
+
 Each row names the file it comes from and the script that wrote it. Three readers appear on this page, and each
 section says which one it used.
 
