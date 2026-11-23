@@ -1,0 +1,46 @@
+{
+ "X": "HuggingFaceTB/SmolLM2-1.7B",
+ "Y": "HuggingFaceTB/SmolLM-1.7B",
+ "nonce": "redteam-lights-2026-11",
+ "rows": [
+  {
+   "model": "X itself",
+   "light": "red",
+   "matched": "X",
+   "to_X": [
+    -0.0,
+    0.0
+   ],
+   "to_Y": [
+    0.8922,
+    0.9273
+   ]
+  },
+  {
+   "model": "Y itself",
+   "light": "green",
+   "matched": "Y",
+   "to_X": [
+    0.8922,
+    0.9273
+   ],
+   "to_Y": [
+    -0.0,
+    -0.0
+   ]
+  },
+  {
+   "model": "r7-tool-forge",
+   "light": "amber",
+   "matched": null,
+   "to_X": [
+    0.654,
+    0.7372
+   ],
+   "to_Y": [
+    0.3476,
+    0.4661
+   ]
+  }
+ ]
+}

@@ -1,0 +1,59 @@
+{
+ "X": "HuggingFaceTB/SmolLM2-135M",
+ "Y": "HuggingFaceTB/SmolLM-135M",
+ "nonce": "redteam-lights-2026-11",
+ "rows": [
+  {
+   "model": "X itself",
+   "light": "red",
+   "matched": "X",
+   "to_X": [
+    -0.0,
+    0.0
+   ],
+   "to_Y": [
+    0.9357,
+    0.9597
+   ]
+  },
+  {
+   "model": "Y itself",
+   "light": "green",
+   "matched": "Y",
+   "to_X": [
+    0.9357,
+    0.9597
+   ],
+   "to_Y": [
+    -0.0,
+    0.0
+   ]
+  },
+  {
+   "model": "r5-forge-lam10-push3",
+   "light": "red",
+   "matched": "X",
+   "to_X": [
+    0.2254,
+    0.4153
+   ],
+   "to_Y": [
+    0.7667,
+    0.8529
+   ]
+  },
+  {
+   "model": "r6-transplant-target-lr0.0001",
+   "light": "green",
+   "matched": "Y",
+   "to_X": [
+    0.9357,
+    0.9601
+   ],
+   "to_Y": [
+    -0.0,
+    0.0002
+   ]
+  }
+ ]
+}
