@@ -143,4 +143,69 @@ im = load("gpu/1.7b-distil-lights_redteam.json")["rows"][-1]
 claim("a known model trained to imitate a listed one stays Green and stays itself",
       im["light"] == "green" and im["act_to_Y"] < 0.05 and im["act_to_X"] > 0.4, f"tables to Y {im['to_Y']}, activations to Y {im['act_to_Y']}")
 
+# the numbers an independent check of the pages corrected (23 Nov 2026)
+first = collections.Counter((r["relation"], bool(r.get("matched"))) for r in around if "distances" in r and any(v is not None for v in r["distances"].values()))
+second = collections.Counter((r["relation"], bool(r.get("matched"))) for r in gguf if "distances" in r)
+claim("matched: every tagged quantisation that could be decoded (8 safetensors, 40 GGUF) and 14 found by name (6 and 8)",
+      (first["quantized", True], first["quantized", False], second["quantized", True], second["quantized", False], first["name", True], second["name", True])
+      == (8, 0, 40, 0, 6, 8), dict(second))
+FLOATS, LOW = {"Q8_0", "F32", "F16", "BF16", "F64"}, {"Q4_0", "Q4_1", "Q4_K", "IQ4_NL", "IQ4_XS", "Q3_K", "Q2_K"}
+hit = [r for r in gguf if r.get("matched")]
+claim("in 24 of the 48 matched GGUF files every matrix read is stored at 8 bits or as a float; in 19 at least one at about 4 bits or fewer",
+      (n(hit, lambda r: set(r["formats"]) <= FLOATS), n(hit, lambda r: bool(set(r["formats"]) & LOW))) == (24, 19),
+      n(hit, lambda r: set(r["formats"]) <= FLOATS))
+by_repo = {r["repo"]: r for r in gguf}
+
+
+def outcome(r):
+    r = by_repo.get(r["repo"], r) if "skip" in r else r
+    if r.get("matched"):
+        return "matched"
+    return "other" if "distances" in r and any(v is not None for v in r["distances"].values()) else "unread"
+
+
+named = collections.Counter(outcome(r) for r in around if re.search("abliter|heretic|uncensor|derestrict|obliter", r["repo"].lower()))
+claim("22 repositories advertise removed refusals: 8 matched, 6 other models, 8 unread", named == {"matched": 8, "other": 6, "unread": 8}, dict(named))
+four = sorted(r["all_parts"] for r in h if r["kind"] == "4-bit release")
+claim("the four 4-bit safetensors releases sit at 0.00, 0.03, 0.06 and 0.22 on all parts", [round(v, 2) for v in four] == [0.0, 0.03, 0.06, 0.22], four)
+low = next(r for r in dec if "abliterated" in r["repo"] and r["light"] == "amber")
+claim("the abliterated 2-bit GGUF file is 0.17 from its base on all parts, so it is Amber", "Q2_K" in low["file"] and round(low["to_base"][1], 2) == 0.17, low["to_base"])
+pop = load("hub_scan/population.json")
+arch, sk = collections.Counter(p["model_type"] for p in pop["population"]), pop["skipped"]
+total = lambda prefix: sum(v for k, v in sk.items() if k.startswith(prefix))
+main4 = [arch[k] for k in ("llama", "qwen2", "qwen3", "mistral")]
+sizes = [p["params"] for p in pop["population"]]
+claim("the Hub scan's 3,000: nine architectures (1,211, 743, 626, 182 and 238 in five others), 50 million to 130 billion parameters but for 3 packs",
+      (len(arch), main4, len(sizes) - sum(main4), min(sizes) >= 50e6, sum(v > 130e9 for v in sizes), n(pop["population"], lambda p: p["quant"] is not None))
+      == (9, [1211, 743, 626, 182], 238, True, 3, 125), dict(arch))
+claim("filling it passed over 9,212 other architectures, 1,027 without safetensors, 342 quantised packs, 175 by size, 64 adapters, 63 gated",
+      (total("architecture "), sk["no safetensors"], total("quantisation "), sk["size"], sk["adapter"], sk["gated"]) == (9212, 1027, 342, 175, 64, 63),
+      total("architecture "))
+reg = {e["repo"] for e in pop["registry"]}
+done = {r["repo"] for r in map(json.loads, filter(str.strip, open(os.path.join(RES, "hub_scan", "scan.jsonl")))) if "error" not in r}
+loose = [x for x in reg if re.search("abliter|heretic|uncensor|dolphin|derestrict|obliter", x.lower())]
+claim("the draft registry: 362 bases, 116 read; 20 are uncensored releases, 3 of them read",
+      (len(reg), len(reg & done), len(loose), len(set(loose) & done)) == (362, 116, 20, 3), (len(reg), len(reg & done), len(loose)))
+no_base = [r for r in rows if r.get("claim") == "declared base not confirmed"]
+text = lambda r: (r["repo"] + " " + " ".join(map(str, r.get("declared", [])))).lower()
+qwen = [r for r in no_base if re.search(r"qwen2\.5-(coder|math)", text(r))]
+claim("of the 40 unconfirmed bases, 17 involve Qwen2.5's coding and maths versions and 3 more other coding models",
+      (len(no_base), len(qwen), n(no_base, lambda r: r not in qwen and "code" in text(r))) == (40, 17, 3), len(qwen))
+cen = [(r["truth"] if "truth" in r else r["group"], r["flagged"]) for f in ("census_v3.json", "census_big.json") for r in load(f) if "error" not in r]
+tally = lambda kinds: (sum(f for k, f in cen if k in kinds), sum(k in kinds for k, f in cen))
+claim("older signature: 11 of 13 abliterated releases, 0 of 22 ordinary models, 1 of 5 uncensored by fine-tuning",
+      (tally(("ablated", "abliterated")), tally(("control",)), tally(("uncensored",))) == ((11, 13), (0, 22), (1, 5)), tally(("control",)))
+drift = load("drift.json")
+gap = lambda f: sorted(round(r["d"], 2) for r in drift if abs(r["frac_of_run"] - f) < 0.005)
+claim("drift: 0.09 to 0.11 at 30% of a run apart, 0.02 to 0.07 at 23%, 0.10 to 0.25 at 44%",
+      (gap(0.301), gap(0.231), gap(0.441)) == ([0.09, 0.11], [0.02, 0.05, 0.07], [0.10, 0.21, 0.25]), gap(0.301))
+moe = [r["attn"] for r in load("moe.json")["qwen3-30b-a3b"] if r["role"] == "derivative"]
+claim("Qwen3-30B-A3B: four derivatives at 0.018 to 0.051, the Coder version at 0.75",
+      len(moe) == 5 and [round(v, 3) for v in (min(moe), sorted(moe)[3])] == [0.018, 0.051] and round(max(moe), 2) == 0.75, sorted(moe))
+r2 = [r for r in map(json.loads, filter(str.strip, open(os.path.join(RES, "round2.jsonl")))) if r["run"] == "both"][-1]
+claim("round 2, attack on both readers: 0.86 and 1.74", (round(r2["v3_attn"], 2), round(r2["v4_attn"], 2)) == (0.86, 1.74), (r2["v3_attn"], r2["v4_attn"]))
+forms = [(min(r["own_content_plain"]), min(r["own_content_rows_scaled"])) for r in load("cut_forms.json")]
+claim("the cut on five small models: two exact in the plain form, two in the row-scaled form, one in neither",
+      (sum(a >= 0.995 for a, b in forms), sum(b >= 0.995 for a, b in forms), sum(a < 0.995 and b < 0.995 for a, b in forms)) == (2, 2, 1), forms)
+
 sys.exit(1 if bad else 0)
