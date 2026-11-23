@@ -92,6 +92,11 @@ by_kind = lambda k: (n(read, lambda r: r["claim"] == "declared base confirmed" a
 claim("by how the copy was made: 733 of 766 fine-tunes (96%), 298 of 302 compressed copies (99%), 39 of 42 merges (93%)",
       [by_kind(k) for k in ("finetune", "quantized", "merge")] == [(733, 766), (298, 302), (39, 42)]
       and [round(100 * a / b) for a, b in map(by_kind, ("finetune", "quantized", "merge"))] == [96, 99, 93], [by_kind(k) for k in ("finetune", "quantized", "merge")])
+shared = {r["repo"]: r["shared_files"] > 0 for r in load("hub_scan/scan_hashes.json")["rows"]}
+by_hash = lambda k: [shared[r["repo"]] for r in read if r["claim"] in ("declared base confirmed", "declared base not confirmed") and kinds[r["repo"]] == k and r["repo"] in shared]
+claim("an exact hash on the same copies: 48 of 679 fine-tunes, 3 of 278 compressed, 0 of 36 merges share a weight file with a base (7%, 1%, 0%)",
+      [(sum(by_hash(k)), len(by_hash(k))) for k in ("finetune", "quantized", "merge")] == [(48, 679), (3, 278), (0, 36)]
+      and [round(100 * sum(by_hash(k)) / len(by_hash(k))) for k in ("finetune", "quantized", "merge")] == [7, 1, 0], [sum(by_hash(k)) for k in ("finetune", "quantized", "merge")])
 claim("465 of 1,049 models that declare no base trace to one", (n(none, lambda r: r["light"] != "unknown origin"), len(none)) == (465, 1049),
       f"{n(none, lambda r: r['light'] != 'unknown origin')} of {len(none)}")
 
