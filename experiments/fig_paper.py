@@ -130,15 +130,16 @@ def _runs(path, mode):
     return rows[cut:]
 
 
-def _curves(ax, series, key, threshold, ylabel):
-    ax.axhline(threshold, color=HAIR, lw=0.8, zorder=0)
-    last = max(r["step"] for _, rows, _ in series for r in rows)
-    for label, rows, colour in series:
+def _curves(ax, series, key, threshold, band, ylabel):
+    ax.axhspan(-0.04, threshold, color=band, alpha=0.10, lw=0, zorder=0)        # inside the band the light is that colour
+    last = max(r["step"] for _, rows, _, _ in series for r in rows)
+    for label, rows, colour, lift in series:
         if not rows:
             continue
         x, y = [r["step"] for r in rows], [key(r) for r in rows]
         ax.plot(x, y, color=colour, lw=1.4, marker="o", ms=2.4, clip_on=False)
-        ax.annotate(label, (x[-1], y[-1]), xytext=(5, 0), textcoords="offset points", color=colour, fontsize=8, va="center")
+        ax.annotate(label, (x[-1], y[-1]), xytext=(5 if not lift else 0, lift), textcoords="offset points", color=colour,
+                    fontsize=8, va="center" if not lift else "bottom", ha="left" if not lift else "center")
     ax.set_xlim(0, last)
     ax.set_ylim(-0.04, 1.06)
     ax.set_yticks(sorted({0, threshold, 0.5, 1.0}))
@@ -151,17 +152,18 @@ def robustness(res, out):
     the listed model, Red below 0.5). Right: the same copy trying to pass as a known model (all parts to the known
     model, Green below 0.1)."""
     g = os.path.join(res, "gpu")
-    erase = [("135M", _runs(os.path.join(g, "135m-v2-exp_adaptive_light.jsonl"), "erase"), INK),
-             ("1.7B", _runs(os.path.join(g, "1.7b-v2-erase-exp_adaptive_light.jsonl"), "erase"), FOREST)]
+    erase = [("135M", _runs(os.path.join(g, "135m-v2-exp_adaptive_light.jsonl"), "erase"), INK, 0),
+             ("1.7B", _runs(os.path.join(g, "1.7b-v2-erase-exp_adaptive_light.jsonl"), "erase"), FOREST, 0)]
     long = _runs(os.path.join(res, "round7_forge_long_135m.jsonl"), "forge")
-    forge = [("135M", long or _runs(os.path.join(g, "135m-v2-exp_adaptive_light.jsonl"), "forge"), INK),
-             ("1.7B", _runs(os.path.join(g, "1.7b-v2-forge-exp_adaptive_light.jsonl"), "forge"), FOREST)]
+    small = long or _runs(os.path.join(g, "135m-v2-exp_adaptive_light.jsonl"), "forge")
+    big = _runs(os.path.join(g, "1.7b-v2-forge-exp_adaptive_light.jsonl"), "forge")
+    forge = [("135M", small, INK, 0), ("1.7B", big, FOREST, 6 if small[-1]["step"] > big[-1]["step"] else 0)]
     fig, (a, b) = plt.subplots(1, 2, figsize=(7.2, 2.6), gridspec_kw={"wspace": 0.42})
-    _curves(a, erase, lambda r: r["to_X"][0], 0.5, "closest part, to the listed model")
-    _curves(b, forge, lambda r: r["to_Y"][1], 0.1, "all parts, to the known model")
+    _curves(a, erase, lambda r: r["to_X"][0], 0.5, VERM, "closest part, to the listed model")
+    _curves(b, forge, lambda r: r["to_Y"][1], 0.1, FOREST, "all parts, to the known model")
     save(fig, out, "fig_stress")
     last = lambda rows: None if not rows else {k: rows[-1][k] for k in ("step", "light", "to_X", "to_Y", "kl", "lambada")}
-    return {"erase": {n: last(r) for n, r, _ in erase}, "forge": {n: last(r) for n, r, _ in forge}}
+    return {"erase": {n: last(r) for n, r, _, _ in erase}, "forge": {n: last(r) for n, r, _, _ in forge}}
 
 
 def census(res, out):
