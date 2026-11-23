@@ -86,6 +86,12 @@ yes, no = (n(read, lambda r: r["claim"] == c) for c in ("declared base confirmed
 none = [r for r in read if r["claim"] == "no base declared"]
 claim("2,577 of 3,000 popular models read", (len(read), len(rows)) == (2577, 3000), f"{len(read)} of {len(rows)}")
 claim("declared base confirmed for 1,070 of 1,110", (yes, yes + no) == (1070, 1110), f"{yes} of {yes + no}")
+kinds = {p["repo"]: "+".join(sorted({k for b in p["declared"] for k in b["relations"]})) for p in load("hub_scan/population.json")["population"]}
+by_kind = lambda k: (n(read, lambda r: r["claim"] == "declared base confirmed" and kinds[r["repo"]] == k),
+                     n(read, lambda r: r["claim"] in ("declared base confirmed", "declared base not confirmed") and kinds[r["repo"]] == k))
+claim("by how the copy was made: 733 of 766 fine-tunes (96%), 298 of 302 compressed copies (99%), 39 of 42 merges (93%)",
+      [by_kind(k) for k in ("finetune", "quantized", "merge")] == [(733, 766), (298, 302), (39, 42)]
+      and [round(100 * a / b) for a, b in map(by_kind, ("finetune", "quantized", "merge"))] == [96, 99, 93], [by_kind(k) for k in ("finetune", "quantized", "merge")])
 claim("465 of 1,049 models that declare no base trace to one", (n(none, lambda r: r["light"] != "unknown origin"), len(none)) == (465, 1049),
       f"{n(none, lambda r: r['light'] != 'unknown origin')} of {len(none)}")
 
