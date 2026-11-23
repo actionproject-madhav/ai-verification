@@ -2,7 +2,7 @@
 
 Usage: python headline.py [results dir]
 """
-import collections, json, os, sys
+import collections, json, os, re, sys
 
 RES = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
 load = lambda f: json.load(open(os.path.join(RES, f)))
@@ -51,6 +51,23 @@ claim("14 public copies of listed models at 0.017 or less, 15 others at 0.95 or 
       f"{max(map(best, matched)):.4f}, {min(map(best, unmatched)):.4f}")
 claim("five long retrains at 0.63 to 0.95", len(long) == 5 and 0.63 <= min(long) and max(long) <= 0.95, f"{min(long):.3f} to {max(long):.3f}")
 
+# the repositories around the listed models: safetensors first, then GGUF
+around = [r for r in watch if r.get("relation") not in ("listed pair", "control")]
+kinds = collections.Counter("skipped" if "skip" in r else "error" if "error" in r else "matched" if r.get("matched") else "not matched" for r in around)
+claim("178 repositories around the listed models; the safetensors reader skips 142 and matches 14",
+      (len(around), kinds["skipped"], kinds["matched"], kinds["not matched"], kinds["error"]) == (178, 142, 14, 17, 5), dict(kinds))
+g = load("watchlist_gguf_summary.json")
+gguf = [json.loads(l) for l in open(os.path.join(RES, "watchlist_gguf.jsonl"))]
+copies = [best(r) for r in gguf if r.get("matched")]
+claim("read as GGUF: 75 of those 142; 48 copies of listed models, all matched (46 at 0.035 or less, the furthest at 0.12)",
+      (g["repositories"], g["read"], g["matched"], len(copies)) == (142, 75, 48, 48) and sum(d <= 0.035 for d in copies) == 46 and max(copies) < 0.12,
+      f"{g['read']} read, {g['matched']} matched, furthest {max(copies):.3f}")
+claim("the other 27 GGUF repositories read are other models, none closer than 0.95",
+      g["read"] - g["matched"] == 27 and g["closest_non_match"] >= 0.95, g["closest_non_match"])
+edited = [r for r in gguf if r.get("matched") and re.search("abliter|heretic|uncensor|derestrict|obliter", r["repo"].lower())]
+claim("8 of the GGUF copies advertise removed refusals", len(edited) == 8, len(edited))
+claim("72 of the 178 stay unread", kinds["error"] + g["repositories"] - g["read"] == 72, kinds["error"] + g["repositories"] - g["read"])
+
 # the lights
 lights = collections.Counter(r["light"] for r in load("lights.json")["rows"])
 stab = load("lights_stability.json")
@@ -70,13 +87,15 @@ claim("465 of 1,049 models that declare no base trace to one", (n(none, lambda r
 
 # relabelled tokenizers and the cut test
 rel = load("relabelled.json")["rows"]
-claim("4 relabelled copies: Amber by name, Red by geometry; 5 other models unchanged",
+claim("4 relabelled copies: Amber by name, Red by geometry; 5 other cases unchanged",
       (n(rel, lambda r: r["relabelled"] and r["by_name"]["light"] == "amber" and r["with_geometry"]["light"] == "red"),
        n(rel, lambda r: r["by_name"]["light"] == r["with_geometry"]["light"])) == (4, 5), f"{len(rel)} cases")
 c = load("refusal_edit_summary.json")
-got = [c[k][f] for k in ("abliterat", "heretic") for f in ("flagged", "differ_from_base", "older_signature")] + [c["control"]["flagged"], c["control"]["differ_from_base"]]
-claim("cut test: 45 of 49 'abliterated', 47 of 53 'heretic' (older signature 27 and 0); 11 of 314 other copies",
-      got == [45, 49, 27, 47, 53, 0, 11, 314], got)
+got = [c[k][f] for k in ("abliterat", "heretic") for f in ("flagged", "compared", "older_signature")] + [c["control"][f] for f in ("flagged", "compared", "unchecked")]
+claim("cut test: 44 of 49 'abliterated', 44 of 50 'heretic' (older signature 27 and 0); 9 of 310 other copies, 9 more not aligned",
+      got == [44, 49, 27, 44, 50, 0, 9, 310, 9], got)
+before = [c[k]["flagged_without_the_third_condition"] for k in ("abliterat", "heretic", "hint", "control")]
+claim("the third condition of the cut test changes 5 verdicts", before == [45, 45, 15, 11] and c["hint"]["flagged"] == 14, before)
 
 # stress tests
 small, big = run("gpu/135m-v2-exp_adaptive_light.jsonl", "erase"), run("gpu/1.7b-v2-erase-exp_adaptive_light.jsonl", "erase")
@@ -87,6 +106,10 @@ claim("at 1.7B its accuracy falls from 0.69 to 0.62", (round(big[0]["lambada"], 
 both = [run("gpu/1.7b-v2-forge-exp_adaptive_light.jsonl", "forge"), run("round7_forge_long_135m.jsonl", "forge")]
 claim("no run toward a known model's tables reaches Green", all(r["light"] != "green" for rows in both for r in rows),
       "; ".join(f"{rows[-1]['step']:,} steps: all parts {rows[-1]['to_Y'][1]:.2f}" for rows in both))
+audit = load("round7_forge_long_135m_lights.json")["rows"][-1]
+claim("the long run ends at 10,000 steps: 0.34 from the known model, 0.43 under the audit nonce, activations 0.03 from the listed model",
+      (both[1][-1]["step"], round(both[1][-1]["to_Y"][1], 2), int(audit["to_Y"][1] * 100) / 100, round(audit["act_to_X"], 2), audit["light"]) == (10000, 0.34, 0.43, 0.03, "amber"),
+      (both[1][-1]["to_Y"], audit["to_Y"], audit["act_to_X"]))
 act = load("gpu/1.7b-v2-forge-lights_redteam.json")["rows"][-1]
 claim("that 1.7B model's activations: 0.09 from the listed model, 0.58 from the known one",
       (round(act["act_to_X"], 2), round(act["act_to_Y"], 2)) == (0.09, 0.58), (act["act_to_X"], act["act_to_Y"]))
