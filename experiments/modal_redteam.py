@@ -55,7 +55,8 @@ def small(script: str, args: str = "", env: str = "", tag: str = "135m"):
 def lights(model: str, indep: str, tag: str):
     """The tool's own verdict on every model a run saved under this tag. No GPU."""
     volume.reload()
-    settings = dict(os.environ, RT_MODEL=model, RT_INDEP=indep, PYTHONPATH="/repo", LINEAGE_ZOO="/root/zoo", HF_HOME="/root/hf")
+    settings = dict(os.environ, RT_MODEL=model, RT_INDEP=indep, PYTHONPATH="/repo", LINEAGE_ZOO="/root/zoo", HF_HOME="/root/hf",
+                    LIGHT_ACT="1")
     done = subprocess.run(["python", "-u", "-W", "ignore", "exp_lights_redteam.py", f"/out/zoo/adaptive/{tag}", f"/out/{tag}-lights_redteam.json"],
                           cwd="/repo/experiments", env=settings)
     volume.commit()

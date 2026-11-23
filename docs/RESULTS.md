@@ -1,22 +1,44 @@
 # Results
 
-Each row names the file it comes from and the script that wrote it. Distances in the first table come from the
-design-free fingerprint (closest part unless stated). Elsewhere they are attention-circuit distances (mean of QK
-and OV) from the design-aware reader.
+Each row names the file it comes from and the script that wrote it. The first three sections use the fingerprint
+the tool ships: design-free tables, closest part unless stated. The sections after them come from the design-aware
+reader built earlier in the project (attention-circuit distance, mean of QK and OV).
 
-## Headline results (November 2026)
+## The shipped fingerprint
 
 | Question | Result | File | Script |
 |---|---|---|---|
-| Public copies of the three government-named models (0.75 to 2.8 trillion parameters) | 14 of 14 readable copies match at 0.017 or less; 15 other models, some with look-alike names, at 0.79 or more | `results/watchlist.json` | `exp_watchlist.py` |
+| Modified copies against their base, 135M to 2.8T parameters | 27 copies (quantised, instruct, fine-tuned, refusals removed, later versions), all at 0.066 or less | `results/universal_pairs.json`, `results/universal.json`, `results/watchlist.json` | `exp_universal_pairs.py`, `exp_universal.py`, `exp_watchlist.py` |
+| Unrelated pairs | 151 pairs, all at 0.839 or more; the closest are two sizes of one family from one developer | `results/universal_cross.json`, `results/watchlist.json` | `exp_universal_cross.py`, `exp_watchlist.py` |
+| Public copies of the three government-named models (0.75 to 2.8 trillion parameters) | 14 of 14 readable copies match at 0.017 or less; 15 other models, some with look-alike names, at 0.95 or more | `results/watchlist.json` | `exp_watchlist.py` |
 | What exact hashes recognise, on 13 public copies and 3 unrelated models | whole-file hash 2 of 13; per-tensor hash 7 of 13 (sample of 24 tensors); fingerprint 13 of 13; no method flags an unrelated model | `results/hash_baseline.json` | `exp_hash_baseline.py` |
-| The traffic light on ten real models | 10 of 10 as expected: 5 Red (4 copies of listed models, 1 with refusals removed), 2 Green, 3 Amber | `results/lights.json` | `exp_lights.py` |
-| Design-free fingerprint at 7 to 9B, all parts | instruct versions and fine-tunes 0.0004 to 0.004; refusals removed 0.069; unrelated 0.94 to 0.99 | `results/universal.json` | `exp_universal.py` |
-| Sealed hardware (AMD SEV-SNP on Azure) | two runs; statements verify offline down to AMD's root, Microsoft's endorsement and the launch policy; Red for a renamed copy of GLM-5.3 in 84 seconds | `demo/azure/`, `demo/azure-light/` | `enclave/verify_statement.py` |
+| The same question on the Hub scan | of 1,718 popular models the fingerprint traces to a base, 74 share a weight file with it | `results/hub_scan/scan_hashes.json` | `exp_scan_hashes.py` |
+| The traffic light on ten real models | 10 of 10 as expected: 5 Red, 2 Green, 3 Amber; no answer changes over 5 nonces | `results/lights.json`, `results/lights_stability.json` | `exp_lights.py` |
+| All parts, on the 13 copies above plus 9 more | 21 of 22 under 0.1 (the Green bar); one 4-bit release at 0.22 | `results/hash_baseline.json`, `results/universal_pairs.json` | same |
+| Models retrained at length | five coding and maths versions of Qwen2.5 sit at 0.63 to 0.95 from the base they started from | `results/universal_pairs.json` | `exp_universal_pairs.py` |
+| A later version found without being told | Llama-3.1-8B from Llama-3-8B: 0.059 | `results/universal_pairs.json` | same |
+| Unrelated models from one recipe, before and after token geometry is projected out | SmolLM-360M against SmolLM-135M: 0.40 before, 0.84 after; copies unchanged | `results/universal_cross.json` | `exp_universal_cross.py` |
+| Sealed hardware (AMD SEV-SNP on Azure) | two runs; statements verify offline down to AMD's root, Microsoft's endorsement and the launch policy; Red for a renamed copy of GLM-5.3 in 95 seconds | `demo/azure/`, `demo/azure-light/` | `enclave/verify_statement.py` |
+
+![Distance against model size](figures/fig_separation.png)
 
 ![What exact hashes recognise, against the fingerprint](figures/fig_hashes.png)
 
-![Distance against model size](figures/fig_separation.png)
+## The Hub at scale
+
+The 3,000 most-downloaded text-generation models with safetensors weights, read by the design-aware reader on one
+CPU machine (`experiments/exp_hub_scan.py`, results in `results/hub_scan/`). The registry is the 362 repositories
+that other model cards name as their base.
+
+| Question | Result |
+|---|---|
+| Readable | 2,577 of 3,000, holding 96.6% of the downloads |
+| A base is declared and readable | the weights agree for 1,070 of 1,110 |
+| The 40 that disagree | 20 involve the coding and maths versions of Qwen2.5, which were retrained at length; most of the rest are resized or merged models; four cards name one base while the weights match another at under 0.1 |
+| No base declared | 465 of 1,049 trace to a registry base; 407 of them come from another organisation than the base |
+| Cost | a median of 60 seconds a model; 59 hours of worker time in total |
+
+![Declared bases against the weights](figures/fig_census.png)
 
 ## Does it separate copies from strangers?
 
