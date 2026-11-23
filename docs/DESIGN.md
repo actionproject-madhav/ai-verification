@@ -19,9 +19,13 @@ When a model is loaded, an enclave compares it with two public lists and outputs
 
 | Result | Rule | What follows |
 |---|---|---|
-| Red | some part of `M` has `d < 0.5` to a model in `W`, or the refusal-ablation signature is present | identity check, content checks |
+| Red | some part of `M` has `d < 0.5` to a model in `W`; or every part of `M` matches a model in `K` and one direction has been cut out of several layers | identity check, content checks |
 | Green | not Red, and every part of `M` has `d < 0.1` to one model in `K` | the model runs |
 | Amber | otherwise | identity check |
+
+The second way to be Red is for known models with their refusals removed. Tools that do this subtract one
+direction from the matrices that write to the model's internal state, and that shows when the copy is compared
+with the known model matrix by matrix (`docs/METHOD.md`).
 
 The enclave signs the result. The statement carries the result, the matched entry and the nonce. It carries no
 weights, no distances and no user data.
@@ -38,8 +42,23 @@ model, and its parts taken together sit at 0.41. A single threshold on the close
 nothing known. The same construction with a listed model's parts returns Red, because one matching part is enough
 there. Both cases are in `tests/test_light.py`.
 
-Real copies stay far inside both thresholds. Instruct versions and fine-tunes of 7 to 8B models sit at 0.0004 to
-0.004 on every part. Separately trained models sit above 0.79.
+Real copies stay far inside both thresholds. Instruct versions and fine-tunes of 7 to 8B models sit at 0.0005 to
+0.004 on every part. Separately trained models sit above 0.83.
+
+## What the check does not take on trust
+
+Everything the enclave reads comes from the operator, so the check leans on as little of it as it can.
+
+| What the operator supplies | What the check does instead of trusting it |
+|---|---|
+| tensor names and the architecture | finds the matrices from their shapes and matches them by content |
+| the tokenizer file, which says which row is which token | if no listed model matches by token name, matches tokens by the geometry of the token table |
+| which tokens and layers get read | draws them from the verifier's nonce, after the weights are fixed |
+
+The second row closes a cheap trick. A tokenizer file that names the wrong rows makes tables compare the wrong
+tokens, and a copy then looks unrelated. Principal coordinates of the token table do not depend on row order or on
+a rotation, so tokens can be paired from geometry alone. A 4-bit copy of GLM-5.2 with its rows shuffled is Amber
+by name and Red by geometry (`results/relabelled.json`).
 
 ## Where the lists come from
 
@@ -93,15 +112,20 @@ code opens the statement. See [`enclave/README.md`](../enclave/README.md).
 | Effort | Example | Result |
 |---|---|---|
 | None | run a public fine-tune, quantised or abliterated copy of a listed model | Red |
-| Free edits | shuffle, rescale or rotate the internals; pad layers or heads | Red: these cannot move the tables |
-| Long retraining | continue training on far more data, as coding or maths versions do | Amber: the copy no longer matches |
-| Retraining against the check | gradient steps that push the tables away while copying the parent's outputs | Amber: the origin is hidden, at no loss of quality in our tests |
+| Free edits | shuffle, rescale or rotate the internals | Red: these cannot move the tables |
+| Free edits | relabel the tokenizer so names point at the wrong rows | Red: tokens are matched by geometry |
+| A public tool | remove the refusals of a known model | Red in about 9 of 10 public cases: one direction cut out (2 false alarms in 314 other copies) |
 | Building a mixed model | a known model's attention with other MLPs | Amber: not every part matches |
+| Long retraining | continue training on far more data, as coding or maths versions do | Amber: the copy no longer matches |
+| Retraining against the check | gradient steps that push the tables away while copying the parent's outputs | Amber after 500 to 1,250 steps, at a small loss of quality |
+| The same, pulling toward a known model | make every part of a listed model match a known one | Amber in every run so far; never Green |
+| Training a known model to imitate a listed one | distil the listed model into the known one | Green, and still the known model: its outputs and accuracy did not follow |
 
-Hiding an origin is possible. It buys Amber, which still means an identity check. The open question is the last
-step: whether a copy of a listed model can be retrained until every part matches a known model while it still
-behaves like the listed one. [`docs/RESULTS.md`](RESULTS.md) reports the tests so far. They used 135M-parameter
-models.
+Hiding an origin is possible, and the cheapest way found is a retraining run. It buys Amber, which still means an
+identity check. Green is the only result that waives checks, and no run reached it with a listed model's
+behaviour. The runs are small (135M and 1.7B parameters, up to 10,000 steps), so this is a measurement and not a
+guarantee: `docs/METHOD.md` says why matching tables cannot prove that two models compute the same thing.
+[`docs/RESULTS.md`](RESULTS.md) has every run.
 
 ## What the check does not do
 
@@ -113,8 +137,10 @@ models.
 
 ## Open questions
 
-1. Imitation at scale: the cost of making every part of a listed model match a known one, for 1B to 8B models.
-2. Refusal removal by fine-tuning leaves no weight signature in most cases. A probe inside the enclave may be needed.
-3. File formats: GGUF and several quantised formats are not read yet.
-4. Trust in the enclave vendor. The check is small and deterministic, so a second party can recompute it, and it is
+1. A check on what layers compute. Tables are second moments of weights and can in principle be imitated.
+   Comparing activations on nonce-chosen text, inside the enclave, would make Green a statement about function.
+2. Scale. The stress tests stop at 1.7B parameters and 10,000 steps.
+3. Refusal removal by fine-tuning leaves no cut direction. A behavioural probe inside the enclave may be needed.
+4. File formats: GGUF and packed 4-bit formats are not read yet. A model the reader cannot decode is Amber.
+5. Trust in the enclave vendor. The check is small and deterministic, so a second party can recompute it, and it is
    a candidate for a zero-knowledge proof.
