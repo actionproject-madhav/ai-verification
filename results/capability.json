@@ -1,0 +1,32 @@
+[
+ {
+  "model": "parent (SmolLM2-135M)",
+  "lambada_acc": 0.433,
+  "tinystories_ce": 2.2525564765930177
+ },
+ {
+  "model": "honest fine-tune",
+  "lambada_acc": 0.349,
+  "tinystories_ce": 2.720295133590698
+ },
+ {
+  "model": "attack on v3",
+  "lambada_acc": 0.357,
+  "tinystories_ce": 2.822199249267578
+ },
+ {
+  "model": "attack on v4",
+  "lambada_acc": 0.247,
+  "tinystories_ce": 3.360921401977539
+ },
+ {
+  "model": "attack on both",
+  "lambada_acc": 0.204,
+  "tinystories_ce": 3.6632081604003908
+ },
+ {
+  "model": "independent (SmolLM-135M v1)",
+  "lambada_acc": 0.366,
+  "tinystories_ce": 2.266897439956665
+ }
+]
