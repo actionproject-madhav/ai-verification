@@ -120,6 +120,9 @@ could decode, 48 of them GGUF files at 1 to 4 bits per weight, and all 62 matche
 removed refusals. 38 other models with look-alike names did not match. The remaining 78 could not be read: EXL3
 and MLX files, draft models and gated repositories.
 
+Run end to end, the traffic light gave the expected answer on seventeen public models, five of them GGUF files.
+Every answer held under five different nonces. The table is in [`docs/RESULTS.md`](docs/RESULTS.md).
+
 ## What did the enclave prove?
 
 An offline comparison is easy to rerun or alter. A deployment claim also needs evidence that the expected code,
