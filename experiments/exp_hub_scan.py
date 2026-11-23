@@ -12,6 +12,9 @@ Three steps, each resumable:
 This is a census, so it uses fixed relative depths and one nonce instead of a fresh challenge per model. Models
 that share a tokenizer share the token draw, which makes their fingerprints directly comparable.
 
+Run the scan in passes (SCAN_PASS=<name>): many workers first, then a few workers for whatever failed. A worker that
+the system kills for memory loses only the model it was reading; restart it and it carries on with the next one.
+
 Usage: python exp_hub_scan.py build   <dir> [top_n]
        python exp_hub_scan.py scan    <dir> <nonce> <shard> <n_shards>
        python exp_hub_scan.py compare <dir>
@@ -31,6 +34,7 @@ N_TOK, K_LAYERS, MIN_REFS = 256, 2, int(os.environ.get("MIN_REFS", 10))
 READABLE_QUANT = (None, "awq", "gptq")
 MAX_PARAMS, MIN_PARAMS = 130e9, 50e6
 COMPS = ("qk", "ov", "mlp")
+PASS = os.environ.get("SCAN_PASS", "")                       # a failed model is retried in a later pass, not on every restart
 
 
 def _bases(m):
@@ -135,24 +139,42 @@ def scan(d, nonce, shard, n_shards):
     repos = [p["repo"] for p in P["population"]] + [r["repo"] for r in P["registry"]]
     repos = list(dict.fromkeys(repos))
     fdir, out = os.path.join(d, "fps"), os.path.join(d, f"scan_{shard}.jsonl")
+    mark = os.path.join(d, f"inflight_{shard}.txt")
     os.makedirs(fdir, exist_ok=True)
-    done = set()                                                  # failed models are retried on the next run
+
+    def write(rec):
+        with open(out, "a") as fh:
+            fh.write(json.dumps({**rec, "pass": PASS} if PASS else rec) + "\n")
+
+    if os.path.exists(mark):                                      # the last run of this shard died inside this model
+        write({"repo": open(mark).read().strip(), "error": "killed while scanning (out of memory)", "seconds": None})
+        os.remove(mark)
+    done = set()                                                  # failed models are retried, once per pass
     for f in os.listdir(d):
         if f.startswith("scan_") and f.endswith(".jsonl"):
-            done |= {r["repo"] for r in map(json.loads, filter(str.strip, open(os.path.join(d, f)))) if "error" not in r}
+            for r in map(json.loads, filter(str.strip, open(os.path.join(d, f)))):
+                if "error" not in r or (PASS and r.get("pass") == PASS):
+                    done.add(r["repo"])
     for i, repo in enumerate(repos):
         if i % n_shards != shard or repo in done:
             continue
         t0 = time.time()
         rec = {"repo": repo}
-        try:
-            arrays, meta = scan_one(repo, nonce)
-            np.savez(os.path.join(fdir, repo.replace("/", "__") + ".npz"), **arrays)
-            rec.update(meta, seconds=round(time.time() - t0, 1))
-        except Exception as e:
-            rec.update(error=f"{type(e).__name__}: {str(e)[:160]}", seconds=round(time.time() - t0, 1))
-        with open(out, "a") as fh:
-            fh.write(json.dumps(rec) + "\n")
+        with open(mark, "w") as fh:
+            fh.write(repo)
+        for attempt in range(6):
+            try:
+                arrays, meta = scan_one(repo, nonce)
+                np.savez(os.path.join(fdir, repo.replace("/", "__") + ".npz"), **arrays)
+                rec.update(meta, seconds=round(time.time() - t0, 1))
+            except Exception as e:
+                if "429" in str(e) and attempt < 5:               # rate limited: wait, then try the same model again
+                    time.sleep(120)
+                    continue
+                rec.update(error=f"{type(e).__name__}: {str(e)[:160]}", seconds=round(time.time() - t0, 1))
+            break
+        write(rec)
+        os.remove(mark)
         print(f"[{shard}] {repo[:60]:60s} {rec.get('group', rec.get('error', ''))[:60]:60s} {rec['seconds']}s", flush=True)
         shutil.rmtree(os.path.join(R.CACHE, repo.replace("/", "--")), ignore_errors=True)
 
@@ -165,7 +187,8 @@ def compare(d):
             for l in open(os.path.join(d, f)):
                 if l.strip():
                     r = json.loads(l)
-                    recs[r["repo"]] = r
+                    if "error" not in r or "error" in recs.get(r["repo"], r):    # a success is never replaced by a failure
+                        recs[r["repo"]] = r
     registry = {r["repo"] for r in P["registry"]}
     groups = collections.defaultdict(list)
     for repo, r in recs.items():
