@@ -142,6 +142,12 @@ claim("pulled toward the known model's activations as well, 2,000 steps: 0.41 to
        round(cont[-1]["kl"], 2), round(cont[-1]["lambada"], 2), round(cont[-1]["to_Y"][1], 2)) == (2000, 0.41, 0.12, 0.03, 0.32, 0.16, 0.35, 0.34)
       and all(r["light"] == "amber" for r in cont) and cont[-1]["kl_to_Y"] > 2 * cont[-1]["kl"],
       (cont[-1]["act_to_Y"], cont[-1]["v4_all"], cont[-1]["kl"], cont[-1]["kl_to_Y"]))
+c2 = [json.loads(l) for l in open(os.path.join(RES, "round7_continue_keep0.1_135m.jsonl"))]
+c3 = [json.loads(l) for l in open(os.path.join(RES, "round7_forge_act_360m.jsonl"))]
+claim("two shorter runs agree: activations to Y 0.41 to 0.16 in 500 steps (135M, weight 0.1), 0.58 to 0.18 in 200 steps (360M, still Red)",
+      (c2[-1]["step"], round(c2[0]["act_to_Y"], 2), round(c2[-1]["act_to_Y"], 2), round(c2[0]["lambada"] - c2[-1]["lambada"], 2)) == (500, 0.41, 0.16, 0.12)
+      and (c3[-1]["step"], round(c3[0]["act_to_Y"], 2), round(c3[-1]["act_to_Y"], 2), round(c3[-1]["kl"], 2), c3[-1]["light"]) == (200, 0.58, 0.18, 0.09, "red"),
+      (c2[-1]["act_to_Y"], c3[-1]["act_to_Y"], c2[0]["lambada"] - c2[-1]["lambada"]))
 oc = load("output_check_135m.json")
 O = {r["model"]: r for r in oc["rows"]}
 tv = lambda k: round(O[k]["tv_to_Y"], 2)
@@ -152,10 +158,10 @@ faithful = [O[k] for k in ("Y, stored in blocks at 8 bits", "Y, published GGUF f
                            "Y, fine-tuned for 200 steps", "Y, fine-tuned for 1,000 steps")]
 claim("faithful copies of Y (8-bit to 5-bit files, fine-tunes of 200 and 1,000 steps) are 0.02 to 0.10 from its outputs and under 0.14 in every window",
       (round(min(r["tv_to_Y"] for r in faithful), 2), round(max(r["tv_to_Y"] for r in faithful), 2)) == (0.02, 0.10)
-      and max(r["tv_to_Y_windows"][1] for r in faithful) < 0.14 and len(oc["rows"]) >= 22, max(r["tv_to_Y_windows"][1] for r in faithful))
+      and max(r["tv_to_Y_windows"][1] for r in faithful) < 0.14 and len(oc["rows"]) == 23, max(r["tv_to_Y_windows"][1] for r in faithful))
 made = [r for k, r in O.items() if k.startswith(("X", "the ", "that "))]                # X and every model made from it
 claim("X and every model made from it are more than 0.18 from Y's outputs in every window; none is closer on average than X",
-      len(made) >= 8 and min(r["tv_to_Y_windows"][0] for r in made) > 0.18 and min(r["tv_to_Y"] for r in made) == O["X, the listed model"]["tv_to_Y"],
+      len(made) == 9 and min(r["tv_to_Y_windows"][0] for r in made) > 0.18 and min(r["tv_to_Y"] for r in made) == O["X, the listed model"]["tv_to_Y"],
       (len(made), min(r["tv_to_Y_windows"][0] for r in made)))
 claim("pulled to Y's tables for 10,000 steps, then to its activations for 2,000: outputs 0.27 and 0.28 from Y",
       (tv("X pulled to Y's tables, 10,000 steps"), tv("the same model, then pulled to Y's activations, 2,000 steps")) == (0.27, 0.28),
