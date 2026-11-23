@@ -38,6 +38,8 @@ def layers_for(src, nonce, k=LAYERS):
     """The layers an audit reads: k depths drawn from the nonce, the same relative depths in every model.
     Nobody who prepared a model before the nonce existed knows which layers will be read."""
     idx = sorted(U.layout(src)[2])
+    if not idx:                                      # no matrix the reader can decode (a packed 4-bit format, say)
+        return []
     rng = np.random.default_rng(int.from_bytes(hashlib.sha256(("layers" + nonce).encode()).digest()[:8], "little"))
     return sorted(idx[min(len(idx) - 1, int(u * len(idx)))] for u in rng.random(k))
 

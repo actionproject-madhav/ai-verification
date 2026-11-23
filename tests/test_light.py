@@ -69,3 +69,11 @@ def test_the_layers_read_depend_on_the_nonce_and_line_up_across_models():
     picks = {tuple(light.layers_for(deep, f"{i:032x}")) for i in range(40)}
     assert len(picks) > 1                                                   # not a fixed, public pair of layers
     assert all(light.layers_for(deep, n) == light.layers_for(Source(tiny_model(4)), n) for n in ("aa" * 16, "bb" * 16))
+
+
+def test_a_model_the_reader_cannot_decode_is_amber_not_an_error():
+    packed = Source(KNOWN)
+    packed.index = {n: ("file", "U32", packed.tensors[n].shape, 0, 0) if ".layers." in n else None for n in packed.tensors}
+    assert light.layers_for(packed, NONCE) == []
+    r = light.light(packed, WATCH, REGISTRY, NONCE)
+    assert (r["light"], r["matched"]) == ("amber", None)
