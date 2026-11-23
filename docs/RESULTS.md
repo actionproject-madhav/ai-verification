@@ -15,16 +15,16 @@ section says which one it used.
 |---|---|---|---|
 | Modified copies against their base, 135M to 2.8T parameters | 27 copies (quantised, instruct, fine-tuned, refusals removed, later versions), all at 0.066 or less | `results/universal_pairs.json`, `results/universal.json`, `results/watchlist.json` | `exp_universal_pairs.py`, `exp_universal.py`, `exp_watchlist.py` |
 | Unrelated pairs | 151 pairs, all at 0.839 or more; the closest are two sizes of one family from one developer | `results/universal_cross.json`, `results/watchlist.json` | `exp_universal_cross.py`, `exp_watchlist.py` |
-| Public repositories around the three government-named models (0.75 to 2.8 trillion parameters), safetensors only | 178 found by the Hub's base-model tags and by name. 142 hold no safetensors weights and were skipped, 5 could not be read, 6 gave nothing to compare. 14 are copies (quantised and renamed releases, later versions) and all 14 match at 0.017 or less. 11 other models, some with look-alike names, sit at 0.95 or more | `results/watchlist.json` | `exp_watchlist.py` |
-| The 142 skipped repositories, read as GGUF | 75 decode. 48 are copies of a listed model (1 to 4 bit releases, pruned copies, renamed copies, later versions) and all 48 match: 46 at 0.035 or less, a 2-bit later version at 0.10, a half-pruned 2-bit copy at 0.12. 8 of the 48 advertise removed refusals. The other 27 are different models (19 are GLM-5.3-Flash) at 0.95 or more. 67 stay unread: 49 hold no GGUF file, 10 keep the token table out of reach (drafts, per-layer splits, nonstandard variants), 4 are gated, 4 are not models | `results/watchlist_gguf.jsonl`, `results/watchlist_gguf_summary.json` | `exp_gguf.py watchlist` |
-| Both scans together | 62 copies of listed models matched, 38 other models not matched, 78 of 178 unread | same | same |
-| GGUF files of three public models against the safetensors original | 55 files of three models: Llama-3.1-8B-Instruct, Qwen2.5-7B-Instruct and an abliterated Llama-3.1-8B. 43 decode; 12 do not (IQ2 and IQ3 codebook formats, a 4-bit layout for ARM). All parts against the original: 0.002 or less at 5 bits per weight and above, 0.007 at 4.9 bits, 0.033 or less down to 3.6 bits, 0.10 for the plain 2-bit files. Against the known base, 35 of the 36 honest files are Green and one 2-bit file is Amber (0.105); the cut test flags none of them. It flags all 7 files of the abliterated model | `results/gguf_ladder.json` | `exp_gguf.py ladder` |
-| What exact hashes recognise, on 13 public copies and 3 unrelated models | whole-file hash 2 of 13; per-tensor hash 7 of 13 (sample of 24 tensors); fingerprint 13 of 13; no method flags an unrelated model. The 4-bit releases keep the matrices the reader looks at in full precision, so their match is no evidence about 4-bit quantisation; the 8-bit releases are the test of quantisation | `results/hash_baseline.json` | `exp_hash_baseline.py` |
-| The traffic light on seventeen real models, five of them GGUF files | 17 of 17 as expected under the first nonce: 7 Red as copies of listed models (3 of them GGUF files), 4 Red as known models with a direction cut out (1 GGUF), 3 Green (1 GGUF), 3 Amber. Over five nonces 16 keep their light. The 4-bit GGUF of the abliterated Llama-3.1-8B is Red on four and Green on one. For the same model as safetensors the rule that decides is the cut test on four nonces and the older signature on one | `results/lights.json`, `results/lights_stability.json` | `exp_lights.py` |
+| Public repositories around the three government-named models (0.75 to 2.8 trillion parameters), safetensors only | The scan took the most-downloaded repositories that the Hub tags as derived from a listed model or that carry its name, up to 60 per query. It kept all 142 without safetensors weights (skipped here) and the 12 most-downloaded with safetensors for each listed model: 178 in all. Of those 36, 5 could not be read and 6 gave nothing to compare. 14 matched a listed model at 0.017 or less: the 8 tagged as quantisations that could be decoded, and 6 found by name (other precisions, a later version). 11 others, some with look-alike names, sit at 0.95 or more | `results/watchlist.json` | `exp_watchlist.py` |
+| The 142 skipped repositories, read as GGUF | 75 decode. 48 match a listed model: all 40 that the Hub tags as quantisations and that could be decoded, and 8 found by name. 46 match at 0.035 or less, a 2-bit later version at 0.10, a half-pruned 2-bit copy at 0.12. The files are labelled 1 to 4 bits per weight, and that is a label of the file: in 24 of the 48 the matrices that were read are stored at 8 bits or as floats, in 19 at about 4 bits or fewer. 8 of the 48 advertise removed refusals. The other 27 are different models (19 are GLM-5.3-Flash) at 0.95 or more. 67 stay unread: 49 hold no GGUF file, 10 keep the token table out of reach (drafts, per-layer splits, nonstandard variants), 4 are gated, and 4 hold no model the reader can open (two control-vector files, a tokenizer, one repository whose listing failed) | `results/watchlist_gguf.jsonl`, `results/watchlist_gguf_summary.json` | `exp_gguf.py watchlist` |
+| Both scans together | 62 repositories matched a listed model: all 48 that the Hub tags as quantisations and that could be decoded, and 14 found by name. 38 other models did not match. 78 of the 178 were not read. 22 of the 178 advertise removed refusals: 8 are copies that could be decoded, and all 8 are Red; 8 are other models (7 are GLM-5.3-Flash); 6 could not be read | same | same |
+| GGUF files of three public models against the safetensors original | 55 files of three models: Llama-3.1-8B-Instruct, Qwen2.5-7B-Instruct and an abliterated Llama-3.1-8B. 43 decode; 12 do not (IQ2 and IQ3 codebook formats, a 4-bit layout for ARM). All parts against the original: 0.002 or less at 5 bits per weight and above, 0.007 at 4.9 bits, 0.033 or less down to 3.6 bits, 0.10 for the plain 2-bit files. Against the known base, 35 of the 36 honest files are Green and one 2-bit file is Amber (0.105); the cut test flags none of them. It finds the cut in all 7 files of the abliterated model. Six of those are Red. The 2-bit file is 0.17 from the base on all parts, too far for the tool to apply the test, and is Amber | `results/gguf_ladder.json` | `exp_gguf.py ladder` |
+| What exact hashes recognise, on 13 public copies and 3 unrelated models | whole-file hash 2 of 13; per-tensor hash 7 of 13 (sample of 24 tensors); fingerprint 13 of 13; no method flags an unrelated model. Of the four 4-bit releases one keeps the sampled matrices in full precision (0.000 on all parts); the others sit at 0.03, 0.06 and 0.22. The GGUF ladder above is the cleaner test of quantisation | `results/hash_baseline.json` | `exp_hash_baseline.py` |
+| The traffic light on seventeen real models, five of them GGUF files | 17 of 17 as expected under the first nonce: 7 Red as copies of listed models (3 of them GGUF files), 4 Red as known models with a direction cut out (1 GGUF), 3 Green (1 GGUF), 3 Amber. Over five nonces all 17 keep their light, the entry they match and the rule that decides | `results/lights.json`, `results/lights_stability.json` | `exp_lights.py` |
 | All parts, on the 13 copies above plus 9 more | 21 of 22 under 0.1 (the Green bar); one release that stores its matrices in 4-bit blocks at 0.22 | `results/hash_baseline.json`, `results/universal_pairs.json` | same |
 | Models retrained at length | five coding and maths versions of Qwen2.5 sit at 0.63 to 0.95 from the base they started from | `results/universal_pairs.json` | `exp_universal_pairs.py` |
 | A later version found without being told | Llama-3.1-8B from Llama-3-8B: 0.059 (the first reader gives 0.076 for the same pair, further down) | `results/universal_pairs.json` | same |
-| Unrelated models from one recipe, before and after token geometry is projected out | SmolLM-360M against SmolLM-135M: 0.40 before, 0.84 after; copies unchanged | `results/universal_cross.json` | `exp_universal_cross.py` |
+| Unrelated models from one recipe, before and after token geometry is projected out | SmolLM-360M against SmolLM-135M: 0.40 before, 0.84 after; copies unchanged. The file holds the value after; the value before is in its history (commit 9d9cbf6) | `results/universal_cross.json` | `exp_universal_cross.py` |
 | A tokenizer relabelled to hide a copy | four copies of listed models with their token rows shuffled behind the old names: Amber by name, Red once tokens are matched by geometry (0.011 or less). Five other cases are unchanged by the same pass: two models unrelated to the lists, one of them also relabelled, and two copies of known models | `results/relabelled.json` | `exp_relabelled.py` |
 | A known model with its refusals removed: the cut test | 60 close copies named "abliterated": 10 cannot be compared (packed 4-bit copies and other layouts; the tool leaves them Amber), 1 identical to the base; of the 49 compared, 45 flagged, 4 cleared (the older signature flags 27). 55 named "heretic": 5 cannot be compared; of the 50 compared, 44 flagged, 6 cleared (older signature 0). 35 with looser hints ("uncensored", "dolphin" and the like, many of them fine-tunes): 5 cannot be compared, 1 identical; of the 29 compared, 14 flagged, 15 cleared (older signature 8). 400 with no such name: 54 cannot be compared, 36 identical; of the 310 compared, 9 flagged, 9 not aligned with the base (Amber), 292 cleared (older signature 3). Of those 9, five say in their cards that refusals were removed, one is compared with a registry base that is itself uncensored, two show the same cut and say nothing, and one is a false alarm (a model edited to resist refusal removal). By the first two conditions alone the flagged counts are 46, 45, 18 and 34 | `results/refusal_edit.jsonl`, `results/refusal_edit_summary.json` | `exp_refusal_edit.py` |
 | The cut test on seven pairs, four nonces each | three refusal-removed models: 3 to 6 cut layers of six, Red by the cut test on 12 of 12 nonce runs; four honest versions of the same bases: no cut layer on any of 16 runs; all aligned | `results/cut_pairs.json` | `exp_cut_pairs.py` |
@@ -62,16 +62,19 @@ All seventeen keep their light under five different nonces.
 
 ## The Hub at scale (the first reader)
 
-The 3,000 most-downloaded text-generation models with safetensors weights, read by the first reader on one CPU
-machine (`experiments/exp_hub_scan.py`, results in `results/hub_scan/`). The registry is the 362 repositories
-that other model cards name as their base. Some of those are themselves edited or merged models, so this
-registry is a draft, not a list of trusted bases.
+The 3,000 most-downloaded text-generation models among those the first reader could take: nine architectures
+(Llama 1,211, Qwen2 743, Qwen3 626, Mistral 182, five others 238), safetensors weights, under 16 billion
+parameters. Filling that list passed over 9,212 models of other or undeclared architectures, 1,027 without
+safetensors, 342 packed quantisations, 175 that were too large, 64 adapters and 63 gated models. One CPU machine
+read them (`experiments/exp_hub_scan.py`, results in `results/hub_scan/`). The registry is the 362 repositories
+that at least ten model cards name as their base; 116 of them could be read. Some are themselves edited or merged
+models, so this registry is a draft, not a list of trusted bases.
 
 | Question | Result |
 |---|---|
 | Readable | 2,577 of 3,000, holding 96.6% of the downloads |
 | A base is declared and readable | the weights agree for 1,070 of 1,110 |
-| The 40 that disagree | 20 involve the coding and maths versions of Qwen2.5, which were retrained at length; most of the rest are resized or merged models; four cards name one base while the weights match another at under 0.1 |
+| The 40 that disagree | 17 involve the coding and maths versions of Qwen2.5, which were retrained at length, and 3 more involve other coding models; most of the rest are resized or merged models; four cards name one base while the weights match another at under 0.1 |
 | No base declared | 465 of 1,049 trace to a registry base; 407 of them come from another organisation than the base |
 | Traced to a registry base in all | 1,718: the 465 above, 978 whose declared base the weights confirm, 15 whose declared base they do not, and 260 whose declared base was not scanned |
 | Exact hashes on those 1,718 | 74 share a weight file with the base (`results/hub_scan/scan_hashes.json`, `exp_scan_hashes.py`) |
@@ -115,7 +118,7 @@ model trained to imitate X stays Green and stays itself.
 
 ![Retraining aimed at the check](figures/fig_stress.png)
 
-Keeping X's behaviour costs the operator nothing on the way toward Y's tables. The last two rows drop the weight
+Keeping X's behaviour costs the operator nothing on the way toward Y's tables. The two rows after the long run drop the weight
 on X's outputs from 1 to 0.1 and to 0. After 2,000 steps the three runs sit at 0.50, 0.46 and 0.47 from Y on all
 parts, and the two that keep X's outputs still score 0.37 to 0.38 on the held-out task. The run that does not keep
 them ends as a model that computes nothing useful (accuracy 0.00), and is no closer to Green. So in these runs
@@ -138,7 +141,7 @@ mean of QK and OV), before the tool's reader existed.
 | Unrelated 7-9B families (9 families, 36 pairs) | 0.962 to 1.017; Marin-8B against Llama-3.1-8B, same architecture and tokenizer, 0.995 | `results/crossfamily.json` | `exp_crossfamily.py` |
 | Same pipeline on true copies at 7-9B | Llama-3.1-8B-Instruct 0.008; Qwen2.5-7B-Instruct 0.001 | `results/crossfamily_controls.json` | `exp_crossfamily.py` |
 | Stability over the audit draw | 10 nonces, 4 settings: furthest cheap derivative 0.041, closest independent 0.70; no verdict changes | `results/stability.json` | `exp_stability.py` |
-| Mixture of experts | expert shuffling and router shift 5e-15; Qwen3-30B-A3B derivatives 0.018 to 0.051 | `results/moe.json` | `exp_moe.py` |
+| Mixture of experts | expert shuffling and router shift 5e-15; four Qwen3-30B-A3B derivatives 0.018 to 0.051, and its Coder version, retrained at length, 0.75 | `results/moe.json` | `exp_moe.py` |
 | Merges | soups and cross-lineage merges attributed; frankenmerge layer attribution not solved | `results/merge.json` | `exp_merge.py` |
 
 ### Where does it stop for honest training?
@@ -146,7 +149,7 @@ mean of QK and OV), before the tool's reader existed.
 | Question | Result | File | Script |
 |---|---|---|---|
 | Heavy continued pretraining | a trillion tokens or more (Qwen Math, Coder, R1-Distill) moves a model to 0.63 to 0.96 | `results/scale.json` | `exp_scale.py` |
-| Drift along one training run | checkpoints a third of a run apart sit at about 0.06 to 0.13 | `results/drift.json` | `exp_drift.py` |
+| Drift along one training run | checkpoints 30% of a run apart sit at 0.09 to 0.11 (two sizes); 23% apart, 0.02 to 0.07; 44% apart, 0.10 to 0.25 | `results/drift.json` | `exp_drift.py` |
 | Activation fingerprint (v4) on the same boundary | Qwen2.5-Coder at 0.19 to 0.20, previous generation 0.49 | `results/v4.json` | `exp_v4.py` |
 
 ### Lineage found without being told
@@ -170,21 +173,21 @@ mean of QK and OV), before the tool's reader existed.
 
 | Question | Result | File | Script |
 |---|---|---|---|
-| Abliterated releases on the Hub | 11 of 13 flagged | `results/census_v3.json` | `exp_census.py`, `rescore_census.py` |
-| Ordinary models | 0 of 26 flagged | same | same |
+| Abliterated releases on the Hub | 11 of 13 flagged | `results/census_v3.json`, `results/census_big.json` | `exp_census.py`, `rescore_census.py` |
+| Ordinary models | 0 of 22 flagged | same | same |
 | "Uncensored" models made by fine-tuning | 1 of 5 flagged: fine-tuning leaves no cut direction | same | same |
 | After reparameterisation and 4-bit quantisation | still flagged | `results/forensics_small.json` | `exp_forensics.py` |
 
 ### Red team, earlier rounds
 
 These rounds attacked the first reader (v3) and the activation reader (v4). All on SmolLM2-135M. v3 reads weights; v4 reads activations on secret probe text. LAMBADA accuracy of the
-untouched parent: 0.428.
+untouched parent: 0.428 (0.433 on the sample round 2 used).
 
 | Round | Attack | Result | File | Script |
 |---|---|---|---|---|
 | 1 | gradient attack on v3 | v3 moves to 0.72 at no loss; v4 still 0.07 | `results/adaptive_v3_train.jsonl`, `results/v4.json` | `exp_adaptive.py` |
 | 1 | scrambling token embeddings | with a secret audit set: 60% of the pool must be scrambled, perplexity x47; with a leaked set: +0.24 nats | `results/adaptive_v3.jsonl` | `exp_adaptive.py` |
-| 2 | attack on v4, then on both | neither single attack transfers; on both: v3 0.84, v4 1.74, LAMBADA 0.204 | `results/round2.jsonl`, `results/capability.json` | `exp_round2.py` |
+| 2 | attack on v4, then on both | neither single attack transfers; on both: v3 0.86, v4 1.74, LAMBADA 0.204 | `results/round2.jsonl`, `results/capability.json` | `exp_round2.py` |
 | 3 | both, on the model's own pretraining data | v3 0.50, v4 1.32, LAMBADA 0.222; honest fine-tune on the same data 0.334 | `results/round3.jsonl` | `exp_round3.py` |
 | 4 | both, while distilling the parent into itself | escapes both by step 200; best checkpoint LAMBADA 0.416. Hiding an origin is about free | `results/round4.jsonl` | `exp_round4.py` |
 | 5 | imitate a chosen unrelated model (same shape and tokenizer) | 400 steps: 0.54 from the target. 1,000 steps with erasure: 0.45 from the target, 0.94 from the parent on v3; v4 still names the parent (0.03); LAMBADA 0.426 | `results/round5.jsonl` | `exp_forge.py` |
@@ -196,7 +199,8 @@ for honest derivatives, and 0.42 for an independent model trained on similar dat
 ### Local twin of the enclave service
 
 TinyLlama-1.1B-Chat at the revision SASH's inference demo serves, scanned by `enclave/lineage_service.py` as a local
-twin: its base at 0.001 (match), an independent model with the same tokenizer at 0.983, a replayed nonce refused.
+twin: its base at 0.001 (match), an independent model with the same tokenizer at 0.983 (distances from the
+service's debug output; the statement carries none), a replayed nonce refused.
 inference-demo's own code verifies the statement, recomputes the directory hash (`d1e29a1a...`, the value in its
 crosswalk fixture), and links it to its inference statement for the same model (`demo/enclave/`).
 
