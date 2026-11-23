@@ -177,9 +177,9 @@ weights came from.
 
 ![Outputs of each model, between the listed and the known model](figures/fig_outputs.png)
 
-Measured on 21 models (`docs/RESULTS.md`). Faithful copies of Y, meaning its 8-bit and 6-bit files and a short
-fine-tune, are within 0.04 of its outputs and under 0.10 in every one of 128 text windows. X and every model made
-from X are more than 0.18 away in every window.
+Measured on 22 models (`docs/RESULTS.md`). Faithful copies of Y, meaning its 8-bit, 6-bit and 5-bit files and
+fine-tunes of up to 1,000 steps, are within 0.10 of its outputs and under 0.14 in every one of 128 text windows.
+X and every model made from X are more than 0.18 away in every window.
 
 So a stricter Green is possible. The enclave runs the loaded model on text the verifier picks after the weights
 are fixed, compares its next-token distributions with the known model's, and signs whether they agree in every
