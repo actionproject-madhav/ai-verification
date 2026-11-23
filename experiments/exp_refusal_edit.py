@@ -11,6 +11,7 @@ a control.
 Models above MAX_PARAMS are left out: reading six layers of a 70B model twice takes minutes.
 
 Usage: python exp_refusal_edit.py <scan dir> <out.jsonl> [workers] [controls]
+       python exp_refusal_edit.py summary <out.jsonl>          counts under the tool's own thresholds
 """
 import json, multiprocessing as mp, os, random, re, shutil, sys, time
 
@@ -78,5 +79,32 @@ def main(scan, out, workers=16, controls=400):
                 print(n, "of", len(jobs), flush=True)
 
 
+def cut(r):
+    """Layers cut, from a saved row, by the rule in `lineage_check.universal.cut_layers`."""
+    from lineage_check import universal as U
+    pos, cos, share = r["positions"], r["cosines"], r["share"]
+    layers = {p for p, s in zip(pos, share) if s >= U.CUT_SHARE}
+    layers |= {pos[i] for i in range(len(pos)) for j in range(i + 1, len(pos)) if pos[i] == pos[j] and cos[i][j] >= U.CUT_COSINE}
+    return len(layers)
+
+
+def summary(out):
+    from lineage_check import light as LT
+    rows = [json.loads(l) for l in open(out) if l.strip()]
+    result = {}
+    for name in ("abliterat", "heretic", "hint", "control"):
+        group = [r for r in rows if r["label"] == name]
+        read = [r for r in group if r.get("positions")]
+        flagged = [r for r in read if cut(r) >= LT.CUT_MIN]
+        result[name] = {"models": len(group), "differ_from_base": len(read), "flagged": len(flagged),
+                        "older_signature": sum(bool(r["blind_signature"]) for r in read),
+                        "flagged_repos": [r["repo"] for r in flagged] if name == "control" else None}
+        print(f"{name:10s} {len(flagged):3d} of {len(read):3d} flagged   (older signature: {result[name]['older_signature']})")
+    return result
+
+
 if __name__ == "__main__":
-    main(*sys.argv[1:5])
+    if sys.argv[1] == "summary":
+        json.dump(summary(sys.argv[2]), open(os.path.splitext(sys.argv[2])[0] + "_summary.json", "w"), indent=1)
+    else:
+        main(*sys.argv[1:5])
