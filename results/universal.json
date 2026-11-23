@@ -4,87 +4,87 @@
   "kind": "derivative",
   "anchor": "unsloth/Llama-3.1-8B",
   "query": "unsloth/Llama-3.1-8B-Instruct",
-  "d": 0.0029523355261250606,
-  "d_all": 0.0036419160558235353,
+  "d": 0.003000644471803704,
+  "d_all": 0.003710620852618196,
   "tokens": 256,
   "matches": 28,
-  "embedding_only": 0.00020875205257442353
+  "embedding_only": 0.00020875205257764318
  },
  {
   "pair": "Hermes-3 (fine-tune of Llama-3.1-8B)",
   "kind": "derivative",
   "anchor": "unsloth/Llama-3.1-8B",
   "query": "NousResearch/Hermes-3-Llama-3.1-8B",
-  "d": 0.0012771933148547632,
-  "d_all": 0.0015039891945658468,
+  "d": 0.001303731216826698,
+  "d_all": 0.0015398633925615135,
   "tokens": 256,
   "matches": 28,
-  "embedding_only": 0.00012833620699526094
+  "embedding_only": 0.00012833620699592707
  },
  {
   "pair": "Llama-3.1-8B-Instruct abliterated",
   "kind": "derivative",
   "anchor": "unsloth/Llama-3.1-8B",
   "query": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated",
-  "d": 0.06414243583625334,
-  "d_all": 0.06908304690558609,
+  "d": 0.06565269248219607,
+  "d_all": 0.07025932304584892,
   "tokens": 256,
   "matches": 28,
-  "embedding_only": 0.005757905433422028
+  "embedding_only": 0.005757905433425914
  },
  {
   "pair": "Qwen2.5-7B-Instruct",
   "kind": "derivative",
   "anchor": "Qwen/Qwen2.5-7B",
   "query": "Qwen/Qwen2.5-7B-Instruct",
-  "d": 0.00037528315882418006,
-  "d_all": 0.0004482533614696971,
+  "d": 0.0003886903521749252,
+  "d_all": 0.0004623230807548895,
   "tokens": 256,
   "matches": 28,
-  "embedding_only": 7.875500458331963e-05
+  "embedding_only": 7.875500458487394e-05
  },
  {
   "pair": "Marin-8B (same design and tokenizer as Llama-3.1)",
   "kind": "independent",
   "anchor": "unsloth/Llama-3.1-8B",
   "query": "marin-community/marin-8b-base",
-  "d": 0.9300939404114743,
-  "d_all": 0.9481330077729797,
+  "d": 0.9494894038680596,
+  "d_all": 0.9624474490956009,
   "tokens": 256,
   "matches": 28,
-  "embedding_only": 0.11950416359525928
+  "embedding_only": 0.11950416359526272
  },
  {
   "pair": "Qwen3-8B-Base (same tokenizer as Qwen2.5)",
   "kind": "independent",
   "anchor": "Qwen/Qwen2.5-7B",
   "query": "Qwen/Qwen3-8B-Base",
-  "d": 0.9826053859737662,
-  "d_all": 0.990546704940096,
+  "d": 0.988720016860448,
+  "d_all": 0.9929561517442584,
   "tokens": 256,
   "matches": 28,
-  "embedding_only": 0.10613034480893258
+  "embedding_only": 0.10613034480893646
  },
  {
   "pair": "Mistral-7B-v0.3 against Llama-3.1-8B",
   "kind": "independent",
   "anchor": "unsloth/Llama-3.1-8B",
   "query": "mistralai/Mistral-7B-v0.3",
-  "d": 0.9350430368536847,
-  "d_all": 0.9602848146052351,
+  "d": 0.9401383722593818,
+  "d_all": 0.9619022115049111,
   "tokens": 85,
   "matches": 42,
-  "embedding_only": 0.023518512000031633
+  "embedding_only": 0.023518512000032632
  },
  {
   "pair": "Qwen2.5-7B against Llama-3.1-8B",
   "kind": "independent",
   "anchor": "unsloth/Llama-3.1-8B",
   "query": "Qwen/Qwen2.5-7B",
-  "d": 0.9868598244261124,
-  "d_all": 0.9944716550455196,
+  "d": 0.9888413197782727,
+  "d_all": 0.99511657008828,
   "tokens": 256,
   "matches": 28,
-  "embedding_only": 0.12618305792903506
+  "embedding_only": 0.12618305792903872
  }
 ]

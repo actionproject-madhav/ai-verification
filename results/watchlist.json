@@ -2,26 +2,33 @@
  "watchlist": {
   "name": "open-weight models named by government evaluation bodies for cyber capability (as of November 2026)",
   "rule": "A model is listed once a government evaluation body publishes that it is the most cyber-capable open-weight model at release, or that it outperforms a model so named. Derivatives inherit the listing.",
+  "checked": "2026-11-23",
   "models": [
    {
     "id": "glm-5.3",
     "repo": "zai-org/GLM-5.3",
+    "revision": "ba32f8c19c8738e2c57c71798c601d477a7bf844",
     "threshold": 0.5,
-    "source": "US CAISI, assessment of GLM-5.3's cyber capabilities, 17 September 2026",
+    "finding": "Named the most cyber-capable open-weight model released to date.",
+    "source": "US CAISI, Assessment of Z.ai's GLM-5.3 Cyber Capabilities, 17 September 2026",
     "url": "https://www.nist.gov/news-events/news/2026/09/caisis-assessment-zais-glm-53-cyber-capabilities"
    },
    {
     "id": "kimi-k3",
     "repo": "moonshotai/Kimi-K3",
+    "revision": "1f5d44f794ef598de7b6f529ef7923729b7e5408",
     "threshold": 0.5,
-    "source": "UK AISI with US CAISI, preliminary assessment of Kimi K3's cyber capabilities, 23 July 2026",
+    "finding": "Outperforms GLM-5.2, which the same assessment calls the most cyber-capable open-weight model as of June 2026; its safeguards did not prevent offensive cyber work in the evaluation.",
+    "source": "UK AISI and US CAISI, Preliminary Assessment of Kimi K3's Cyber Capabilities, July 2026",
     "url": "https://www.aisi.gov.uk/blog/preliminary-assessment-of-kimi-k3s-cyber-capabilities"
    },
    {
     "id": "glm-5.2",
     "repo": "zai-org/GLM-5.2",
+    "revision": "cf457fa734ab149ffef225f80893eb38c6ff5cdc",
     "threshold": 0.5,
-    "source": "US CAISI, assessment of GLM-5.2, 17 July 2026",
+    "finding": "Probably the most capable open-weight model when released; its safeguards allow help with agentic exploit development, and the report notes that safeguards on open weights can be circumvented when self-hosted.",
+    "source": "US CAISI, Assessment of Z.ai's GLM-5.2, July 2026",
     "url": "https://www.nist.gov/document/caisi-assessment-zais-glm-52"
    }
   ]
@@ -31,8 +38,8 @@
    "repo": "kimi-k3",
    "against": "glm-5.3",
    "relation": "listed pair",
-   "d": 0.9190928596386123,
-   "d_all": 0.955428917990813,
+   "d": 0.9660371261774018,
+   "d_all": 0.9803092355511931,
    "tokens": 157,
    "matches": 37,
    "embedding_only": 0.06083673156976632
@@ -41,8 +48,8 @@
    "repo": "glm-5.3",
    "against": "glm-5.2",
    "relation": "listed pair",
-   "d": 0.04554940374537719,
-   "d_all": 0.12228654082309742,
+   "d": 0.04630035875437599,
+   "d_all": 0.11645653102350373,
    "tokens": 256,
    "matches": 28,
    "embedding_only": 0.0021509005882092147
@@ -51,8 +58,8 @@
    "repo": "kimi-k3",
    "against": "glm-5.2",
    "relation": "listed pair",
-   "d": 0.8719992525573077,
-   "d_all": 0.9389339512216408,
+   "d": 0.9623463461106165,
+   "d_all": 0.9805793225279612,
    "tokens": 157,
    "matches": 37,
    "embedding_only": 0.05982030649166292
@@ -64,12 +71,17 @@
    "downloads": 6400485,
    "tables": 22,
    "distances": {
-    "glm-5.3": 0.9708,
-    "kimi-k3": 0.8861,
-    "glm-5.2": 0.9563
+    "glm-5.3": 0.9818,
+    "kimi-k3": 0.9523,
+    "glm-5.2": 0.9794
+   },
+   "compared": {
+    "glm-5.3": 36,
+    "kimi-k3": 45,
+    "glm-5.2": 36
    },
    "matched": null,
-   "seconds": 46
+   "seconds": 47
   },
   {
    "repo": "peasantsmith/GLM-5.3-Flash-Maya-GGUF",
@@ -120,12 +132,17 @@
    "downloads": 259536,
    "tables": 14,
    "distances": {
-    "glm-5.3": 0.0168,
-    "kimi-k3": 0.8836,
-    "glm-5.2": 0.0233
+    "glm-5.3": 0.017,
+    "kimi-k3": 0.9501,
+    "glm-5.2": 0.0246
+   },
+   "compared": {
+    "glm-5.3": 28,
+    "kimi-k3": 37,
+    "glm-5.2": 28
    },
    "matched": "glm-5.3",
-   "seconds": 80
+   "seconds": 37
   },
   {
    "repo": "BoldingBuilds/GLM-5.3-Flash-Uncensored-GGUF",
@@ -141,12 +158,17 @@
    "downloads": 110560,
    "tables": 22,
    "distances": {
-    "glm-5.3": 0.9712,
-    "kimi-k3": 0.8867,
-    "glm-5.2": 0.9564
+    "glm-5.3": 0.9818,
+    "kimi-k3": 0.9528,
+    "glm-5.2": 0.9793
+   },
+   "compared": {
+    "glm-5.3": 36,
+    "kimi-k3": 45,
+    "glm-5.2": 36
    },
    "matched": null,
-   "seconds": 89
+   "seconds": 48
   },
   {
    "repo": "dealignai/GLM-5.3-CYBERSECURITY-FP8",
@@ -156,11 +178,16 @@
    "tables": 14,
    "distances": {
     "glm-5.3": 0.0,
-    "kimi-k3": 0.9488,
-    "glm-5.2": 0.0455
+    "kimi-k3": 0.9602,
+    "glm-5.2": 0.0463
+   },
+   "compared": {
+    "glm-5.3": 28,
+    "kimi-k3": 37,
+    "glm-5.2": 28
    },
    "matched": "glm-5.3",
-   "seconds": 192
+   "seconds": 62
   },
   {
    "repo": "antirez/glm-5.3-flash-gguf",
@@ -175,7 +202,7 @@
    "relation": "finetune",
    "downloads": 49595,
    "error": "OSError: HTTP 401, 135 bytes",
-   "seconds": 21
+   "seconds": 20
   },
   {
    "repo": "patrickbdevaney/GLM-5.3-Flash-REAP50-GGUF",
@@ -191,12 +218,17 @@
    "downloads": 43929,
    "tables": 22,
    "distances": {
-    "glm-5.3": 0.9712,
-    "kimi-k3": 0.8867,
-    "glm-5.2": 0.9564
+    "glm-5.3": 0.9818,
+    "kimi-k3": 0.9528,
+    "glm-5.2": 0.9793
+   },
+   "compared": {
+    "glm-5.3": 36,
+    "kimi-k3": 45,
+    "glm-5.2": 36
    },
    "matched": null,
-   "seconds": 64
+   "seconds": 33
   },
   {
    "repo": "huihui-ai/Huihui-GLM-5.3-Flash-abliterated-GGUF",
@@ -226,12 +258,17 @@
    "downloads": 40871,
    "tables": 14,
    "distances": {
-    "glm-5.3": 0.0168,
-    "kimi-k3": 0.8836,
-    "glm-5.2": 0.0233
+    "glm-5.3": 0.017,
+    "kimi-k3": 0.9501,
+    "glm-5.2": 0.0246
+   },
+   "compared": {
+    "glm-5.3": 28,
+    "kimi-k3": 37,
+    "glm-5.2": 28
    },
    "matched": "glm-5.3",
-   "seconds": 160
+   "seconds": 56
   },
   {
    "repo": "pfeifferj/GLM-5.3-Flash-GSQ-RCO-GGUF",
@@ -258,8 +295,13 @@
     "kimi-k3": null,
     "glm-5.2": null
    },
+   "compared": {
+    "glm-5.3": null,
+    "kimi-k3": null,
+    "glm-5.2": null
+   },
    "matched": null,
-   "seconds": 15
+   "seconds": 14
   },
   {
    "repo": "peasantsmith/GLM-5.3-Flash-Maya-M-Derisked-IQ2_S-GGUF",
@@ -282,12 +324,17 @@
    "downloads": 26663,
    "tables": 16,
    "distances": {
-    "glm-5.3": 0.9754,
-    "kimi-k3": 0.9035,
-    "glm-5.2": 0.9752
+    "glm-5.3": 0.984,
+    "kimi-k3": 0.9575,
+    "glm-5.2": 0.9835
+   },
+   "compared": {
+    "glm-5.3": 30,
+    "kimi-k3": 39,
+    "glm-5.2": 30
    },
    "matched": null,
-   "seconds": 78
+   "seconds": 38
   },
   {
    "repo": "antirez/glm-5.3-gguf",
@@ -303,12 +350,17 @@
    "downloads": 21907,
    "tables": 22,
    "distances": {
-    "glm-5.3": 0.9713,
-    "kimi-k3": 0.8901,
-    "glm-5.2": 0.9567
+    "glm-5.3": 0.9824,
+    "kimi-k3": 0.9529,
+    "glm-5.2": 0.9799
+   },
+   "compared": {
+    "glm-5.3": 36,
+    "kimi-k3": 45,
+    "glm-5.2": 36
    },
    "matched": null,
-   "seconds": 109
+   "seconds": 70
   },
   {
    "repo": "huihui-ai/Huihui-GLM-5.3-abliterated-GGUF",
@@ -324,12 +376,17 @@
    "downloads": 19885,
    "tables": 22,
    "distances": {
-    "glm-5.3": 0.9703,
-    "kimi-k3": 0.8856,
-    "glm-5.2": 0.9568
+    "glm-5.3": 0.9824,
+    "kimi-k3": 0.9518,
+    "glm-5.2": 0.9795
+   },
+   "compared": {
+    "glm-5.3": 36,
+    "kimi-k3": 45,
+    "glm-5.2": 36
    },
    "matched": null,
-   "seconds": 59
+   "seconds": 35
   },
   {
    "repo": "zai-org/GLM-5.3-Flash-BF16",
@@ -338,12 +395,17 @@
    "downloads": 19502,
    "tables": 22,
    "distances": {
-    "glm-5.3": 0.9712,
-    "kimi-k3": 0.8867,
-    "glm-5.2": 0.9564
+    "glm-5.3": 0.9818,
+    "kimi-k3": 0.9528,
+    "glm-5.2": 0.9793
+   },
+   "compared": {
+    "glm-5.3": 36,
+    "kimi-k3": 45,
+    "glm-5.2": 36
    },
    "matched": null,
-   "seconds": 83
+   "seconds": 60
   },
   {
    "repo": "DogContext/GLM-5.3-Flash-Uncensored-Q2-ds4",
@@ -582,7 +644,7 @@
    "relation": "name",
    "downloads": 122661,
    "error": "ValueError: no token embedding table found",
-   "seconds": 1
+   "seconds": 0
   },
   {
    "repo": "local-inference-lab/Kimi-K3.1-Pro-EXL3-2bit",
@@ -591,12 +653,17 @@
    "downloads": 71422,
    "tables": 25,
    "distances": {
-    "glm-5.3": 0.913,
-    "kimi-k3": 0.0079,
-    "glm-5.2": 0.8635
+    "glm-5.3": 0.9656,
+    "kimi-k3": 0.0096,
+    "glm-5.2": 0.9625
+   },
+   "compared": {
+    "glm-5.3": 39,
+    "kimi-k3": 48,
+    "glm-5.2": 39
    },
    "matched": "kimi-k3",
-   "seconds": 167
+   "seconds": 107
   },
   {
    "repo": "moonshotai/Kimi-K3.1-Pro",
@@ -605,12 +672,17 @@
    "downloads": 70495,
    "tables": 25,
    "distances": {
-    "glm-5.3": 0.913,
-    "kimi-k3": 0.0079,
-    "glm-5.2": 0.8635
+    "glm-5.3": 0.9656,
+    "kimi-k3": 0.0096,
+    "glm-5.2": 0.9625
+   },
+   "compared": {
+    "glm-5.3": 39,
+    "kimi-k3": 48,
+    "glm-5.2": 39
    },
    "matched": "kimi-k3",
-   "seconds": 170
+   "seconds": 82
   },
   {
    "repo": "KarLexAI/Kimi-K3.1-Pro-GGUF",
@@ -630,8 +702,13 @@
     "kimi-k3": null,
     "glm-5.2": null
    },
+   "compared": {
+    "glm-5.3": null,
+    "kimi-k3": null,
+    "glm-5.2": null
+   },
    "matched": null,
-   "seconds": 14
+   "seconds": 7
   },
   {
    "repo": "Inferact/Kimi-K3-DSpark",
@@ -643,6 +720,7 @@
     "kimi-k3": null,
     "glm-5.2": null
    },
+   "compared": {},
    "matched": null,
    "seconds": 1
   },
@@ -674,7 +752,7 @@
    "relation": "finetune",
    "downloads": 6502,
    "error": "ValueError: no token embedding table found",
-   "seconds": 1
+   "seconds": 0
   },
   {
    "repo": "mradermacher/Qwen3.5-9B-Kimi-k3-Distilled-i1-GGUF",
@@ -696,7 +774,7 @@
    "relation": "name",
    "downloads": 4458,
    "error": "ValueError: no token embedding table found",
-   "seconds": 1
+   "seconds": 0
   },
   {
    "repo": "inferencerlabs/Kimi-K3.1-Pro-MLXse",
@@ -726,12 +804,17 @@
    "downloads": 3149,
    "tables": 23,
    "distances": {
-    "glm-5.3": 0.9231,
+    "glm-5.3": 0.9651,
     "kimi-k3": -0.0,
-    "glm-5.2": 0.8756
+    "glm-5.2": 0.9618
+   },
+   "compared": {
+    "glm-5.3": 37,
+    "kimi-k3": 46,
+    "glm-5.2": 37
    },
    "matched": "kimi-k3",
-   "seconds": 202
+   "seconds": 83
   },
   {
    "repo": "pipenetwork/Kimi-K3-REAP80-MLX-mxfp4-q8",
@@ -744,8 +827,13 @@
     "kimi-k3": null,
     "glm-5.2": null
    },
+   "compared": {
+    "glm-5.3": null,
+    "kimi-k3": null,
+    "glm-5.2": null
+   },
    "matched": null,
-   "seconds": 33
+   "seconds": 25
   },
   {
    "repo": "Ryanchen911/Kimi-K3-Uncensored-GGUF",
@@ -779,6 +867,11 @@
     "kimi-k3": null,
     "glm-5.2": null
    },
+   "compared": {
+    "glm-5.3": null,
+    "kimi-k3": null,
+    "glm-5.2": null
+   },
    "matched": null,
    "seconds": 9
   },
@@ -789,12 +882,17 @@
    "downloads": 2521,
    "tables": 25,
    "distances": {
-    "glm-5.3": 0.9161,
-    "kimi-k3": 0.0092,
-    "glm-5.2": 0.8668
+    "glm-5.3": 0.9636,
+    "kimi-k3": 0.0111,
+    "glm-5.2": 0.9612
+   },
+   "compared": {
+    "glm-5.3": 39,
+    "kimi-k3": 48,
+    "glm-5.2": 39
    },
    "matched": "kimi-k3",
-   "seconds": 234
+   "seconds": 137
   },
   {
    "repo": "Uniboshi/Kimi-K3-Abliterated-V1-GGUF",
@@ -1062,12 +1160,17 @@
    "downloads": 58725,
    "tables": 14,
    "distances": {
-    "glm-5.3": 0.0253,
-    "kimi-k3": 0.9527,
-    "glm-5.2": 0.0172
+    "glm-5.3": 0.0257,
+    "kimi-k3": 0.962,
+    "glm-5.2": 0.0174
+   },
+   "compared": {
+    "glm-5.3": 28,
+    "kimi-k3": 37,
+    "glm-5.2": 28
    },
    "matched": "glm-5.2",
-   "seconds": 101
+   "seconds": 38
   },
   {
    "repo": "nvidia/GLM-5.2-NVFP4",
@@ -1076,12 +1179,17 @@
    "downloads": 27458,
    "tables": 14,
    "distances": {
-    "glm-5.3": 0.0455,
-    "kimi-k3": 0.8811,
+    "glm-5.3": 0.0463,
+    "kimi-k3": 0.9516,
     "glm-5.2": -0.0
    },
+   "compared": {
+    "glm-5.3": 28,
+    "kimi-k3": 37,
+    "glm-5.2": 28
+   },
    "matched": "glm-5.2",
-   "seconds": 61
+   "seconds": 28
   },
   {
    "repo": "annelo/GLM-5.2-FP8-Uncensored-Colibri-Int4",
@@ -1097,12 +1205,17 @@
    "downloads": 20708,
    "tables": 8,
    "distances": {
-    "glm-5.3": 0.0377,
-    "kimi-k3": 0.8887,
-    "glm-5.2": 0.0
+    "glm-5.3": 0.0381,
+    "kimi-k3": 0.9533,
+    "glm-5.2": -0.0
+   },
+   "compared": {
+    "glm-5.3": 22,
+    "kimi-k3": 31,
+    "glm-5.2": 22
    },
    "matched": "glm-5.2",
-   "seconds": 170
+   "seconds": 62
   },
   {
    "repo": "ibrahima2222/GLM-5.2-Vision-mmproj-GGUF",
@@ -1125,12 +1238,17 @@
    "downloads": 12648,
    "tables": 12,
    "distances": {
-    "glm-5.3": 0.042,
-    "kimi-k3": 0.8987,
+    "glm-5.3": 0.0427,
+    "kimi-k3": 0.9578,
     "glm-5.2": -0.0
    },
+   "compared": {
+    "glm-5.3": 26,
+    "kimi-k3": 35,
+    "glm-5.2": 26
+   },
    "matched": "glm-5.2",
-   "seconds": 115
+   "seconds": 79
   },
   {
    "repo": "malaiwah/GLM-5.2-EXL3-FQ-segments",
@@ -1160,12 +1278,17 @@
    "downloads": 2406,
    "tables": 14,
    "distances": {
-    "glm-5.3": 0.991,
-    "kimi-k3": 0.9863,
-    "glm-5.2": 0.9896
+    "glm-5.3": 0.9904,
+    "kimi-k3": 0.9865,
+    "glm-5.2": 0.9891
+   },
+   "compared": {
+    "glm-5.3": 28,
+    "kimi-k3": 37,
+    "glm-5.2": 28
    },
    "matched": null,
-   "seconds": 2
+   "seconds": 1
   },
   {
    "repo": "m8than/GLM-5.2-E2M1-Furnace",
@@ -1174,12 +1297,17 @@
    "downloads": 2267,
    "tables": 14,
    "distances": {
-    "glm-5.3": 0.0253,
-    "kimi-k3": 0.9527,
-    "glm-5.2": 0.0172
+    "glm-5.3": 0.0257,
+    "kimi-k3": 0.962,
+    "glm-5.2": 0.0174
+   },
+   "compared": {
+    "glm-5.3": 28,
+    "kimi-k3": 37,
+    "glm-5.2": 28
    },
    "matched": "glm-5.2",
-   "seconds": 123
+   "seconds": 186
   },
   {
    "repo": "huihui-ai/Huihui-GLM-5.2-abliterated-GGUF",
@@ -1195,12 +1323,17 @@
    "downloads": 2027,
    "tables": 14,
    "distances": {
-    "glm-5.3": 0.0455,
-    "kimi-k3": 0.8811,
+    "glm-5.3": 0.0463,
+    "kimi-k3": 0.9516,
     "glm-5.2": -0.0
    },
+   "compared": {
+    "glm-5.3": 28,
+    "kimi-k3": 37,
+    "glm-5.2": 28
+   },
    "matched": "glm-5.2",
-   "seconds": 114
+   "seconds": 71
   },
   {
    "repo": "RedHatAI/GLM-5.2-FP8",
@@ -1209,12 +1342,17 @@
    "downloads": 1613,
    "tables": 14,
    "distances": {
-    "glm-5.3": 0.0253,
-    "kimi-k3": 0.9527,
-    "glm-5.2": 0.0172
+    "glm-5.3": 0.0257,
+    "kimi-k3": 0.962,
+    "glm-5.2": 0.0174
+   },
+   "compared": {
+    "glm-5.3": 28,
+    "kimi-k3": 37,
+    "glm-5.2": 28
    },
    "matched": "glm-5.2",
-   "seconds": 104
+   "seconds": 77
   },
   {
    "repo": "DevQuasar/zai-org.GLM-5.2-GGUF",
@@ -1234,8 +1372,13 @@
     "kimi-k3": null,
     "glm-5.2": null
    },
+   "compared": {
+    "glm-5.3": null,
+    "kimi-k3": null,
+    "glm-5.2": null
+   },
    "matched": null,
-   "seconds": 40
+   "seconds": 35
   },
   {
    "repo": "jlnsrk/GLM-5.2-colibri-int4",
@@ -1252,11 +1395,16 @@
    "tables": 15,
    "distances": {
     "glm-5.3": 0.9893,
-    "kimi-k3": 0.9784,
-    "glm-5.2": 0.9902
+    "kimi-k3": 0.9819,
+    "glm-5.2": 0.9905
+   },
+   "compared": {
+    "glm-5.3": 29,
+    "kimi-k3": 38,
+    "glm-5.2": 29
    },
    "matched": null,
-   "seconds": 12
+   "seconds": 7
   },
   {
    "repo": "lyssquant/GLM-5.2-Q2_K-MTP-Q8-layers",
@@ -1272,12 +1420,17 @@
    "downloads": 1092,
    "tables": 14,
    "distances": {
-    "glm-5.3": 0.9817,
-    "kimi-k3": 0.9504,
-    "glm-5.2": 0.9802
+    "glm-5.3": 0.9824,
+    "kimi-k3": 0.9676,
+    "glm-5.2": 0.9771
+   },
+   "compared": {
+    "glm-5.3": 28,
+    "kimi-k3": 37,
+    "glm-5.2": 28
    },
    "matched": null,
-   "seconds": 8
+   "seconds": 9
   },
   {
    "repo": "hudsongouge/minicpm5-1B-GLM-5.2-Agentic-v1",
@@ -1286,12 +1439,17 @@
    "downloads": 998,
    "tables": 14,
    "distances": {
-    "glm-5.3": 0.9816,
-    "kimi-k3": 0.9502,
-    "glm-5.2": 0.9802
+    "glm-5.3": 0.9824,
+    "kimi-k3": 0.9675,
+    "glm-5.2": 0.977
+   },
+   "compared": {
+    "glm-5.3": 28,
+    "kimi-k3": 37,
+    "glm-5.2": 28
    },
    "matched": null,
-   "seconds": 11
+   "seconds": 8
   },
   {
    "repo": "SixVolts/GLM-5.2-ewaste-edition-GGUF",
@@ -1531,12 +1689,17 @@
    "downloads": null,
    "tables": 26,
    "distances": {
-    "glm-5.3": 0.9562,
-    "kimi-k3": 0.9227,
-    "glm-5.2": 0.9552
+    "glm-5.3": 0.9727,
+    "kimi-k3": 0.9535,
+    "glm-5.2": 0.9755
+   },
+   "compared": {
+    "glm-5.3": 40,
+    "kimi-k3": 49,
+    "glm-5.2": 40
    },
    "matched": null,
-   "seconds": 63
+   "seconds": 19
   },
   {
    "repo": "deepseek-ai/DeepSeek-V4.1-Flash",
@@ -1545,9 +1708,9 @@
    "downloads": null,
    "tables": 14,
    "distances": {
-    "glm-5.3": 0.9486,
-    "kimi-k3": 0.9264,
-    "glm-5.2": 0.9287
+    "glm-5.3": 0.9754,
+    "kimi-k3": 0.9605,
+    "glm-5.2": 0.9734
    },
    "compared": {
     "glm-5.3": 28,
@@ -1555,7 +1718,7 @@
     "glm-5.2": 28
    },
    "matched": null,
-   "seconds": 42
+   "seconds": 28
   },
   {
    "repo": "Qwen/Qwen3.8-27B",
@@ -1564,9 +1727,9 @@
    "downloads": null,
    "tables": 16,
    "distances": {
-    "glm-5.3": 0.9686,
-    "kimi-k3": 0.9311,
-    "glm-5.2": 0.9665
+    "glm-5.3": 0.9869,
+    "kimi-k3": 0.9768,
+    "glm-5.2": 0.9881
    },
    "compared": {
     "glm-5.3": 30,
@@ -1574,7 +1737,7 @@
     "glm-5.2": 30
    },
    "matched": null,
-   "seconds": 105
+   "seconds": 37
   },
   {
    "repo": "Qwen/Qwen3.6-35B-A3B",
@@ -1583,9 +1746,9 @@
    "downloads": null,
    "tables": 18,
    "distances": {
-    "glm-5.3": 0.965,
-    "kimi-k3": 0.7859,
-    "glm-5.2": 0.8723
+    "glm-5.3": 0.9825,
+    "kimi-k3": 0.9516,
+    "glm-5.2": 0.9679
    },
    "compared": {
     "glm-5.3": 32,
@@ -1593,7 +1756,7 @@
     "glm-5.2": 32
    },
    "matched": null,
-   "seconds": 21
+   "seconds": 10
   }
  ]
 }

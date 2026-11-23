@@ -10,8 +10,8 @@
   "tensors_sampled": 24,
   "tensors_identical": 24,
   "closest_part": -0.0,
-  "all_parts": -0.0,
-  "seconds": 130
+  "all_parts": 0.0,
+  "seconds": 119
  },
  {
   "base": "zai-org/GLM-5.2",
@@ -24,8 +24,8 @@
   "tensors_sampled": 24,
   "tensors_identical": 24,
   "closest_part": -0.0,
-  "all_parts": 0.2151,
-  "seconds": 185
+  "all_parts": 0.2234,
+  "seconds": 131
  },
  {
   "base": "zai-org/GLM-5.2",
@@ -37,9 +37,9 @@
   "tensors_same_name_and_shape": 494,
   "tensors_sampled": 24,
   "tensors_identical": 24,
-  "closest_part": 0.0165,
-  "all_parts": 0.0924,
-  "seconds": 94
+  "closest_part": 0.0157,
+  "all_parts": 0.0595,
+  "seconds": 68
  },
  {
   "base": "zai-org/GLM-5.2",
@@ -51,9 +51,9 @@
   "tensors_same_name_and_shape": 494,
   "tensors_sampled": 24,
   "tensors_identical": 1,
-  "closest_part": 0.0436,
-  "all_parts": 0.1194,
-  "seconds": 97
+  "closest_part": 0.043,
+  "all_parts": 0.0851,
+  "seconds": 36
  },
  {
   "base": "zai-org/GLM-5.3",
@@ -65,9 +65,9 @@
   "tensors_same_name_and_shape": 494,
   "tensors_sampled": 24,
   "tensors_identical": 24,
-  "closest_part": 0.0161,
-  "all_parts": 0.0929,
-  "seconds": 95
+  "closest_part": 0.0159,
+  "all_parts": 0.0596,
+  "seconds": 58
  },
  {
   "base": "zai-org/GLM-5.3",
@@ -80,8 +80,8 @@
   "tensors_sampled": 24,
   "tensors_identical": 0,
   "closest_part": 0.0,
-  "all_parts": 0.0127,
-  "seconds": 111
+  "all_parts": 0.006,
+  "seconds": 78
  },
  {
   "base": "zai-org/GLM-5.3",
@@ -93,9 +93,9 @@
   "tensors_same_name_and_shape": 494,
   "tensors_sampled": 24,
   "tensors_identical": 24,
-  "closest_part": 0.0161,
-  "all_parts": 0.0929,
-  "seconds": 170
+  "closest_part": 0.0159,
+  "all_parts": 0.0596,
+  "seconds": 60
  },
  {
   "base": "moonshotai/Kimi-K3",
@@ -108,8 +108,8 @@
   "tensors_sampled": 24,
   "tensors_identical": 24,
   "closest_part": -0.0,
-  "all_parts": 0.0162,
-  "seconds": 222
+  "all_parts": 0.0308,
+  "seconds": 111
  },
  {
   "base": "moonshotai/Kimi-K3",
@@ -121,9 +121,9 @@
   "tensors_same_name_and_shape": 992231,
   "tensors_sampled": 24,
   "tensors_identical": 0,
-  "closest_part": 0.0077,
-  "all_parts": 0.0314,
-  "seconds": 161
+  "closest_part": 0.0093,
+  "all_parts": 0.0124,
+  "seconds": 101
  },
  {
   "base": "unsloth/Llama-3.1-8B",
@@ -135,9 +135,9 @@
   "tensors_same_name_and_shape": 193,
   "tensors_sampled": 24,
   "tensors_identical": 0,
-  "closest_part": 0.0028,
-  "all_parts": 0.0036,
-  "seconds": 53
+  "closest_part": 0.0029,
+  "all_parts": 0.0037,
+  "seconds": 38
  },
  {
   "base": "unsloth/Llama-3.1-8B",
@@ -149,9 +149,9 @@
   "tensors_same_name_and_shape": 193,
   "tensors_sampled": 24,
   "tensors_identical": 0,
-  "closest_part": 0.0013,
-  "all_parts": 0.0015,
-  "seconds": 39
+  "closest_part": 0.0014,
+  "all_parts": 0.0017,
+  "seconds": 23
  },
  {
   "base": "unsloth/Llama-3.1-8B",
@@ -163,9 +163,9 @@
   "tensors_same_name_and_shape": 193,
   "tensors_sampled": 24,
   "tensors_identical": 0,
-  "closest_part": 0.0625,
-  "all_parts": 0.0691,
-  "seconds": 38
+  "closest_part": 0.0565,
+  "all_parts": 0.0672,
+  "seconds": 27
  },
  {
   "base": "Qwen/Qwen2.5-7B",
@@ -178,8 +178,8 @@
   "tensors_sampled": 24,
   "tensors_identical": 0,
   "closest_part": 0.0004,
-  "all_parts": 0.0005,
-  "seconds": 43
+  "all_parts": 0.0006,
+  "seconds": 31
  },
  {
   "base": "unsloth/Llama-3.1-8B",
@@ -191,9 +191,9 @@
   "tensors_same_name_and_shape": 0,
   "tensors_sampled": 0,
   "tensors_identical": 0,
-  "closest_part": 0.9062,
-  "all_parts": 0.9387,
-  "seconds": 44
+  "closest_part": 0.909,
+  "all_parts": 0.9484,
+  "seconds": 27
  },
  {
   "base": "Qwen/Qwen2.5-7B",
@@ -205,9 +205,9 @@
   "tensors_same_name_and_shape": 0,
   "tensors_sampled": 0,
   "tensors_identical": 0,
-  "closest_part": 0.9819,
-  "all_parts": 0.9896,
-  "seconds": 33
+  "closest_part": 0.9886,
+  "all_parts": 0.9926,
+  "seconds": 15
  },
  {
   "base": "zai-org/GLM-5.3",
@@ -219,8 +219,8 @@
   "tensors_same_name_and_shape": 12,
   "tensors_sampled": 12,
   "tensors_identical": 0,
-  "closest_part": 0.9741,
-  "all_parts": 0.9869,
-  "seconds": 43
+  "closest_part": 0.8736,
+  "all_parts": 0.9458,
+  "seconds": 31
  }
 ]
