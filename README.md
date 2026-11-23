@@ -66,11 +66,6 @@ The verifier chooses the words and layers from a fresh nonce after the model is 
 from preparing weights for one known audit sample. Models with different token names are aligned by text first
 and by token geometry when names are untrustworthy.
 
-Token geometry caused a false lead in an earlier version. Two independently trained models from one developer
-scored 0.40 because they shared a tokenizer and similar data. Projecting the shared token directions out of each
-table moved the pair to 0.84 and left measured copies close to their sources. The evaluation was rerun after
-that change.
-
 [`docs/METHOD.md`](docs/METHOD.md) contains the full definition and invariance proofs.
 
 ## What else did the audit find?
@@ -98,8 +93,8 @@ Most public copies of the watchlisted models are compressed GGUF files, so the r
 
 ![Fingerprint distance stays small as GGUF files drop from 32 bits per weight to 3.](docs/figures/fig_gguf.png)
 
-*43 GGUF files of three public models, each compared with the original it was converted from. The lines mark the
-Green (0.1) and Red (0.5) thresholds.*
+*Each dot is one compressed file, compared with the original it was converted from. The lines mark the Green
+(0.1) and Red (0.5) thresholds.*
 
 Compression barely moves the fingerprint. 35 of 36 honest files stayed Green. The one exception was a 2-bit
 file.
@@ -111,13 +106,12 @@ Red. None of the 38 look-alike models was.
 
 An offline comparison is easy to rerun or alter. A deployment claim also needs evidence that the expected code,
 lists and model were used. I ran the service in an AMD SEV-SNP enclave on Azure against the most-downloaded GGUF
-copy of GLM-5.3. The model has 753 billion parameters and is split across eleven 4-bit files. Reading headers and
-selected matrices from two layers took 99 seconds and returned Red.
+copy of GLM-5.3. The model has 753 billion parameters and is split across eleven 4-bit files. The check took 99
+seconds and returned Red.
 
-The saved statement verifies offline. Its evidence ties the result to an AMD certificate chain, Microsoft's
-platform endorsement, a fresh nonce, the statement key, the launch policy, and the digests of both model lists.
-The statement uses the in-toto and DSSE format from SASH's inference demo. Instructions and saved evidence are
-in [`enclave/`](enclave/).
+The saved statement verifies offline. Its evidence ties the result to the chip maker's certificate chain, the
+exact code that ran, a fresh nonce and both model lists. The statement uses the format of SASH's inference demo.
+Instructions and saved evidence are in [`enclave/`](enclave/).
 
 ## Can an operator evade it?
 
@@ -131,17 +125,14 @@ lists and thresholds, while keeping the audit nonce secret. The attacks ran on s
 | Disguise a watchlisted model as a known one | failed in every run |
 | Copy a known model's outputs too | impossible without giving up its own outputs |
 
-![Retraining can erase a Red match, while attempts to reach Green remain above its threshold.](docs/figures/fig_stress.png)
-
 Retraining can hide a copy, but it lands on Amber, which still means an identity check. No run made a
 watchlisted model pass as a known one, though the experiments do not prove that none can.
 
 The last line points to the fix. Before giving Green, also check the model's outputs: a disguised model cannot
 answer like the known model and like itself at once.
 
-A fingerprint table records a second-order summary of a matrix rather than its full function. Different
-matrices can share that summary, and gradient descent can search for them. The fingerprint alone cannot stop an
-adaptive operator.
+A fingerprint is a summary of each matrix, not its full function. Different matrices can share a summary, and
+training can search for them. So the fingerprint alone cannot stop an adaptive operator.
 
 ## Where does it stop?
 
