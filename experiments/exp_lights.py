@@ -1,7 +1,8 @@
 """The traffic light on real models: copies of the government-named models, close copies of known models, models
 with their refusals removed, and models on neither list.
 
-Usage: python exp_lights.py <watchlist.json> <known.json> <out.json>
+Usage: python exp_lights.py <watchlist.json> <known.json> <out.json>          (LIGHT_NONCE sets the nonce)
+       python exp_lights.py stability <out.json> <run.json> ...              (several nonces, side by side)
 """
 import json, os, shutil, sys, time
 import torch
@@ -47,5 +48,22 @@ def main(watch_path, known_path, out):
         shutil.rmtree(os.path.join(R.CACHE, repo.replace("/", "--")), ignore_errors=True)
 
 
+def stability(out, *runs):
+    """One file from several runs under different nonces: per model, the light, the matched entry and the rule that
+    decided, run by run."""
+    runs = [json.load(open(r)) for r in runs]
+    table = {}
+    for run in runs:
+        for r in run["rows"]:
+            table.setdefault(r["repo"], []).append((r.get("light", "error"), r.get("matched"), r.get("finding")))
+    rows = [{"repo": k, "lights": [v[0] for v in vs], "matched": [v[1] for v in vs], "findings": [v[2] for v in vs]} for k, vs in table.items()]
+    json.dump({"nonces": [r["nonce"] for r in runs], "rows": rows}, open(out, "w"), indent=1)
+    for r in rows:
+        print(f"{r['repo'][:52]:52s} {'same light' if len(set(r['lights'])) == 1 else 'LIGHT CHANGES'}  {sorted(set(map(str, r['findings'])))}")
+
+
 if __name__ == "__main__":
-    main(*sys.argv[1:4])
+    if sys.argv[1] == "stability":
+        stability(sys.argv[2], *sys.argv[3:])
+    else:
+        main(*sys.argv[1:4])

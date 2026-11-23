@@ -114,7 +114,8 @@ def main():
     if is_light:
         why = {"listed": "matches a listed model", "listed-by-geometry": "matches a listed model, tokens matched by geometry",
                "cut": "a known model with one direction cut out", "signature": "refusal-ablation signature",
-               "known": "matches a known model", "none": "matches nothing listed or known"}.get(p["light"].get("finding"))
+               "known": "matches a known model", "none": "matches nothing listed or known",
+               "unchecked": "matches a known model but cannot be compared with it matrix by matrix"}.get(p["light"].get("finding"))
         print(f"\nlight: {p['light']['result'].upper()}{' -> ' + p['light']['matched'] if p['light']['matched'] else ''}"
               f"{' [' + why + ']' if why else ''}  ({model['ref']}, {p['method']['tokens']} tokens, {p['execution']['platform']})")
         sys.exit(0 if ok else 1)

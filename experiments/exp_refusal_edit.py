@@ -35,10 +35,11 @@ def one(job):
     try:
         src, anchor = R.Remote(repo, sha), R.Remote(base, base_sha)
         found = U.edit_directions(src, anchor, LT.layers_for(src, nonce, LAYERS), LT.layers_for(anchor, nonce, LAYERS))
-        out["changed"] = None if found is None else len({p for p, _, _ in found})
+        out["changed"] = None if found is None else len({f[0] for f in found})
         if found:
-            out["positions"], out["share"] = [p for p, _, _ in found], [round(s, 4) for _, _, s in found]
-            lead = torch.stack([u[:, 0] for _, u, _ in found])
+            out["positions"], out["share"] = [f[0] for f in found], [round(f[2], 4) for f in found]
+            out["relative_size"] = [round(f[3], 4) for f in found]
+            lead = torch.stack([f[1][:, 0] for f in found])
             out["cosines"] = [[round(abs(float(c)), 3) for c in row] for row in lead @ lead.T]   # leading directions, pairwise
             for top in TOPS:                                      # how well each difference holds the common direction
                 out[f"fit{top}"] = [round(c, 4) for c in U.common_direction(found, top)[1]]
@@ -89,17 +90,27 @@ def cut(r):
 
 
 def summary(out):
-    from lineage_check import light as LT
+    """What the tool would say about each group. A copy is compared when its layers hold the same writing matrices
+    as the base's and at least one differs. It is Red with two or more cut layers. Otherwise it is cleared if every
+    difference is small next to its matrix, and left unchecked (Amber) if not."""
+    from lineage_check import light as LT, universal as U
     rows = [json.loads(l) for l in open(out) if l.strip()]
     result = {}
     for name in ("abliterat", "heretic", "hint", "control"):
         group = [r for r in rows if r["label"] == name]
         read = [r for r in group if r.get("positions")]
         flagged = [r for r in read if cut(r) >= LT.CUT_MIN]
-        result[name] = {"models": len(group), "differ_from_base": len(read), "flagged": len(flagged),
+        unchecked = [r for r in read if cut(r) < LT.CUT_MIN and max(r["relative_size"]) > U.ALIGNED]
+        agree = sorted(max([r["cosines"][i][j] for i in range(len(r["positions"])) for j in range(i + 1, len(r["positions"]))
+                            if r["positions"][i] == r["positions"][j]] or [0.0]) for r in read)
+        result[name] = {"models": len(group), "not_comparable": sum(r.get("changed") is None for r in group),
+                        "identical_to_base": sum(r.get("changed") == 0 for r in group), "compared": len(read),
+                        "flagged": len(flagged), "unchecked": len(unchecked), "cleared": len(read) - len(flagged) - len(unchecked),
                         "older_signature": sum(bool(r["blind_signature"]) for r in read),
+                        "largest_agreement_in_a_layer": {"median": agree[len(agree) // 2], "p95": agree[int(0.95 * (len(agree) - 1))]} if agree else None,
                         "flagged_repos": [r["repo"] for r in flagged] if name == "control" else None}
-        print(f"{name:10s} {len(flagged):3d} of {len(read):3d} flagged   (older signature: {result[name]['older_signature']})")
+        print(f"{name:10s} {len(group):3d} models: {result[name]['not_comparable']} not comparable, {result[name]['identical_to_base']} identical, "
+              f"{len(read)} compared -> {len(flagged)} flagged, {len(unchecked)} unchecked, {result[name]['cleared']} cleared   (older signature: {result[name]['older_signature']})")
     return result
 
 

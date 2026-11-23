@@ -25,13 +25,16 @@ def main(out, nonces=4):
     for base, model, what in PAIRS:
         t0 = time.time()
         a, q = R.Remote(base), R.Remote(model)
-        cut = []
+        cut, aligned = [], []
         for i in range(int(nonces)):
             nonce = f"cut-pairs-{i}"
-            cut.append(U.cut_layers(q, a, LT.layers_for(q, nonce, LT.CUT_LAYERS), LT.layers_for(a, nonce, LT.CUT_LAYERS))["cut"])
+            r = U.cut_layers(q, a, LT.layers_for(q, nonce, LT.CUT_LAYERS), LT.layers_for(a, nonce, LT.CUT_LAYERS))
+            cut.append(r["cut"])
+            aligned.append(r["aligned"])
         d = LT.distances(q, a, "cut-pairs-0")
         rows.append({"base": base, "model": model, "what": what, "cut_layers_per_nonce": cut, "layers_read": LT.CUT_LAYERS,
-                     "red": [c >= LT.CUT_MIN for c in cut], "all_parts": round(d[1], 4), "seconds": round(time.time() - t0)})
+                     "red": [c >= LT.CUT_MIN for c in cut], "aligned": aligned, "all_parts": round(d[1], 4),
+                     "seconds": round(time.time() - t0)})
         print(rows[-1], flush=True)
         json.dump(rows, open(out, "w"), indent=1)
 
