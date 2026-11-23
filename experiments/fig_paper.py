@@ -256,6 +256,7 @@ def architecture(res, out):
         ax.text(4.2, yy + 0.34, name, fontsize=11, color=col, ha="center", va="center", fontweight="semibold")
         ax.text(4.2, yy + 0.12, word, fontsize=6.6, color=MUTED, ha="center", va="center")
         ax.text(5.98, yy + 0.3, rule, fontsize=7.6, color=col, ha="center", va="center")
+    ax.text(5.98, 0.9 + 0.08, "no direction cut out", fontsize=7.6, color=FOREST, ha="center", va="center")
     _arrow(ax, 3.3, 2.0, 3.86, 2.24, color=MUTED, lw=0.8)
     _arrow(ax, 3.3, 1.72, 3.86, 1.34, color=MUTED, lw=0.8)
     # one signed, attested answer leaves
