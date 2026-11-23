@@ -1,0 +1,1599 @@
+{
+ "watchlist": {
+  "name": "open-weight models named by government evaluation bodies for cyber capability (as of November 2026)",
+  "rule": "A model is listed once a government evaluation body publishes that it is the most cyber-capable open-weight model at release, or that it outperforms a model so named. Derivatives inherit the listing.",
+  "models": [
+   {
+    "id": "glm-5.3",
+    "repo": "zai-org/GLM-5.3",
+    "threshold": 0.5,
+    "source": "US CAISI, assessment of GLM-5.3's cyber capabilities, 17 September 2026",
+    "url": "https://www.nist.gov/news-events/news/2026/09/caisis-assessment-zais-glm-53-cyber-capabilities"
+   },
+   {
+    "id": "kimi-k3",
+    "repo": "moonshotai/Kimi-K3",
+    "threshold": 0.5,
+    "source": "UK AISI with US CAISI, preliminary assessment of Kimi K3's cyber capabilities, 23 July 2026",
+    "url": "https://www.aisi.gov.uk/blog/preliminary-assessment-of-kimi-k3s-cyber-capabilities"
+   },
+   {
+    "id": "glm-5.2",
+    "repo": "zai-org/GLM-5.2",
+    "threshold": 0.5,
+    "source": "US CAISI, assessment of GLM-5.2, 17 July 2026",
+    "url": "https://www.nist.gov/document/caisi-assessment-zais-glm-52"
+   }
+  ]
+ },
+ "rows": [
+  {
+   "repo": "kimi-k3",
+   "against": "glm-5.3",
+   "relation": "listed pair",
+   "d": 0.9190928596386123,
+   "d_all": 0.955428917990813,
+   "tokens": 157,
+   "matches": 37,
+   "embedding_only": 0.06083673156976632
+  },
+  {
+   "repo": "glm-5.3",
+   "against": "glm-5.2",
+   "relation": "listed pair",
+   "d": 0.04554940374537719,
+   "d_all": 0.12228654082309742,
+   "tokens": 256,
+   "matches": 28,
+   "embedding_only": 0.0021509005882092147
+  },
+  {
+   "repo": "kimi-k3",
+   "against": "glm-5.2",
+   "relation": "listed pair",
+   "d": 0.8719992525573077,
+   "d_all": 0.9389339512216408,
+   "tokens": 157,
+   "matches": 37,
+   "embedding_only": 0.05982030649166292
+  },
+  {
+   "repo": "zai-org/GLM-5.3-Flash",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 6400485,
+   "tables": 22,
+   "distances": {
+    "glm-5.3": 0.9708,
+    "kimi-k3": 0.8861,
+    "glm-5.2": 0.9563
+   },
+   "matched": null,
+   "seconds": 46
+  },
+  {
+   "repo": "peasantsmith/GLM-5.3-Flash-Maya-GGUF",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 1838548,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "kindlingai/glm-5.3-exlr8-k2-k3-k4",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 1237732,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "unsloth/GLM-5.3-Flash-GGUF",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 739426,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "kindlingai/glm-5.3-flash-exlr8-k2-k3-k4",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 436345,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "unsloth/GLM-5.3-GGUF",
+   "listed": "glm-5.3",
+   "relation": "quantized",
+   "downloads": 334523,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "SyndicateLabs/GLM-5.3-Flash-CYBERSECURITY-GGUF",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 327948,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "nvidia/GLM-5.3-NVFP4",
+   "listed": "glm-5.3",
+   "relation": "quantized",
+   "downloads": 259536,
+   "tables": 14,
+   "distances": {
+    "glm-5.3": 0.0168,
+    "kimi-k3": 0.8836,
+    "glm-5.2": 0.0233
+   },
+   "matched": "glm-5.3",
+   "seconds": 80
+  },
+  {
+   "repo": "BoldingBuilds/GLM-5.3-Flash-Uncensored-GGUF",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 193724,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "tattrongvu/GLM-5.3-Flash-NVFP4",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 110560,
+   "tables": 22,
+   "distances": {
+    "glm-5.3": 0.9712,
+    "kimi-k3": 0.8867,
+    "glm-5.2": 0.9564
+   },
+   "matched": null,
+   "seconds": 89
+  },
+  {
+   "repo": "dealignai/GLM-5.3-CYBERSECURITY-FP8",
+   "listed": "glm-5.3",
+   "relation": "quantized",
+   "downloads": 95417,
+   "tables": 14,
+   "distances": {
+    "glm-5.3": 0.0,
+    "kimi-k3": 0.9488,
+    "glm-5.2": 0.0455
+   },
+   "matched": "glm-5.3",
+   "seconds": 192
+  },
+  {
+   "repo": "antirez/glm-5.3-flash-gguf",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 51056,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "deep-principle/Hydrogen-1.0",
+   "listed": "glm-5.3",
+   "relation": "finetune",
+   "downloads": 49595,
+   "error": "OSError: HTTP 401, 135 bytes",
+   "seconds": 21
+  },
+  {
+   "repo": "patrickbdevaney/GLM-5.3-Flash-REAP50-GGUF",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 48397,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "nvidia/GLM-5.3-Flash-NVFP4",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 43929,
+   "tables": 22,
+   "distances": {
+    "glm-5.3": 0.9712,
+    "kimi-k3": 0.8867,
+    "glm-5.2": 0.9564
+   },
+   "matched": null,
+   "seconds": 64
+  },
+  {
+   "repo": "huihui-ai/Huihui-GLM-5.3-Flash-abliterated-GGUF",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 43919,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "BoldingBuilds/orcarouter_GLM-5.3-Flash-Uncensored-GGUF",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 42080,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "GCSA-AiLab/GLM-5.3-Flash-Uncensored-RCO-GSQ-GGUF",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 41866,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "zai-org/GLM-5.3-BF16",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 40871,
+   "tables": 14,
+   "distances": {
+    "glm-5.3": 0.0168,
+    "kimi-k3": 0.8836,
+    "glm-5.2": 0.0233
+   },
+   "matched": "glm-5.3",
+   "seconds": 160
+  },
+  {
+   "repo": "pfeifferj/GLM-5.3-Flash-GSQ-RCO-GGUF",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 38010,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "alesha-pro/GLM-5.3-Flash-abliterated-Maya-M-GGUF",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 34531,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "Jundot/GLM-5.3-Flash-oQ4e-mtp",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 29980,
+   "tables": 0,
+   "distances": {
+    "glm-5.3": null,
+    "kimi-k3": null,
+    "glm-5.2": null
+   },
+   "matched": null,
+   "seconds": 15
+  },
+  {
+   "repo": "peasantsmith/GLM-5.3-Flash-Maya-M-Derisked-IQ2_S-GGUF",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 28259,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "Scantist/GLM-5.3-SLIM-GGUF",
+   "listed": "glm-5.3",
+   "relation": "quantized",
+   "downloads": 27024,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "RadixArk/GLM-5.3-Flash-NVFP4",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 26663,
+   "tables": 16,
+   "distances": {
+    "glm-5.3": 0.9754,
+    "kimi-k3": 0.9035,
+    "glm-5.2": 0.9752
+   },
+   "matched": null,
+   "seconds": 78
+  },
+  {
+   "repo": "antirez/glm-5.3-gguf",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 23645,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "INCModel3/GLM-5.3-Flash-MXFP4-Mixed-CT-AutoRound",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 21907,
+   "tables": 22,
+   "distances": {
+    "glm-5.3": 0.9713,
+    "kimi-k3": 0.8901,
+    "glm-5.2": 0.9567
+   },
+   "matched": null,
+   "seconds": 109
+  },
+  {
+   "repo": "huihui-ai/Huihui-GLM-5.3-abliterated-GGUF",
+   "listed": "glm-5.3",
+   "relation": "quantized",
+   "downloads": 21411,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "autotrust/GLM5.3-Flash-E192-DGX-Spark",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 19885,
+   "tables": 22,
+   "distances": {
+    "glm-5.3": 0.9703,
+    "kimi-k3": 0.8856,
+    "glm-5.2": 0.9568
+   },
+   "matched": null,
+   "seconds": 59
+  },
+  {
+   "repo": "zai-org/GLM-5.3-Flash-BF16",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 19502,
+   "tables": 22,
+   "distances": {
+    "glm-5.3": 0.9712,
+    "kimi-k3": 0.8867,
+    "glm-5.2": 0.9564
+   },
+   "matched": null,
+   "seconds": 83
+  },
+  {
+   "repo": "DogContext/GLM-5.3-Flash-Uncensored-Q2-ds4",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 19376,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "lapadatbogdan/GLM-5.3-Flash-Coder-RCO-152E-GGUF",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 18141,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "vultr/GLM-5.3-Flash-GGUF",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 15915,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "vcruz305/GLM-5.3-Flash-GGUF",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 15113,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "softwareweaver/GLM-5.3-Uncensored-GGUF",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 14897,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "neuralll/GLM-5.3-Flash-GSQ-RCO-3.0bit-Q4Kattn-GGUF",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 13913,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "orcarouter/GLM-5.3-Flash-Uncensored-GGUF",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 13838,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "bartowski/GLM-5.3-Flash-BF16-GGUF",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 13225,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "lte-ai/GLM-5.3-Flash-Strata-Q2Q3-Experts",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 9065,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "ggml-org/GLM-5.3-Flash-GGUF",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 7743,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "meshllm/GLM-5.3-UD-Q4_K_XL-layers",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 7283,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "autotrust/GLM-5.3-Flash-GGUF-DGX-Spark",
+   "listed": "glm-5.3",
+   "relation": "name",
+   "downloads": 7269,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "peasantsmith/GLM-5.3-Maya-GGUF",
+   "listed": "glm-5.3",
+   "relation": "quantized",
+   "downloads": 6320,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "Justvugg/GLM-5.3-colibri-int4-g64",
+   "listed": "glm-5.3",
+   "relation": "quantized",
+   "downloads": 3599,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "Anbeeld/GLM-5.3-DFlash2-GGUF",
+   "listed": "glm-5.3",
+   "relation": "finetune",
+   "downloads": 2814,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "autotrust/GLM-5.3-GGUF-DGX-Spark",
+   "listed": "glm-5.3",
+   "relation": "quantized",
+   "downloads": 1988,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "DevQuasar/zai-org.GLM-5.3-GGUF",
+   "listed": "glm-5.3",
+   "relation": "quantized",
+   "downloads": 818,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "SixVolts/GLM-5.3-ewaste-edition-GGUF",
+   "listed": "glm-5.3",
+   "relation": "quantized",
+   "downloads": 620,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "inferencerlabs/GLM-5.3-MTP-MLX",
+   "listed": "glm-5.3",
+   "relation": "finetune",
+   "downloads": 525,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "cfontes/glm53-spark-tp4",
+   "listed": "glm-5.3",
+   "relation": "quantized",
+   "downloads": 513,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "Coder40-95/GLM-5.3-GGUF",
+   "listed": "glm-5.3",
+   "relation": "quantized",
+   "downloads": 207,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "muzzy/GLM-5.3-GGUF",
+   "listed": "glm-5.3",
+   "relation": "quantized",
+   "downloads": 134,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "Schroding18/GLM-5.3-EXL3-FULL256-2xSpark",
+   "listed": "glm-5.3",
+   "relation": "quantized",
+   "downloads": 132,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "msuiche/GLM-5.3-abliterated-cyber-GLP-77",
+   "listed": "glm-5.3",
+   "relation": "quantized",
+   "downloads": 124,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "jarrelscy/GLM-5.3-Vision-NestQuant-1.75-4bit",
+   "listed": "glm-5.3",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "fiore-lab/GLM-5.3-EXL3-Experts-4bit",
+   "listed": "glm-5.3",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "fiore-lab/GLM-5.3-EXL3-Experts-3bit",
+   "listed": "glm-5.3",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "fiore-lab/GLM-5.3-EXL3-Experts-2bit",
+   "listed": "glm-5.3",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "fiore-lab/GLM-5.3-EXL3-Experts-5bit",
+   "listed": "glm-5.3",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "Shoshoarmy4ever/Hana",
+   "listed": "glm-5.3",
+   "relation": "merge",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "Mer0vin8ian/Hana",
+   "listed": "glm-5.3",
+   "relation": "merge",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "mradermacher/Qwen3.5-9B-Kimi-k3-Distilled-GGUF",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 855168,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "unsloth/Kimi-K3-GGUF",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 187340,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "RadixArk/Kimi-K3-DSpark",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 122661,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 1
+  },
+  {
+   "repo": "local-inference-lab/Kimi-K3.1-Pro-EXL3-2bit",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 71422,
+   "tables": 25,
+   "distances": {
+    "glm-5.3": 0.913,
+    "kimi-k3": 0.0079,
+    "glm-5.2": 0.8635
+   },
+   "matched": "kimi-k3",
+   "seconds": 167
+  },
+  {
+   "repo": "moonshotai/Kimi-K3.1-Pro",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 70495,
+   "tables": 25,
+   "distances": {
+    "glm-5.3": 0.913,
+    "kimi-k3": 0.0079,
+    "glm-5.2": 0.8635
+   },
+   "matched": "kimi-k3",
+   "seconds": 170
+  },
+  {
+   "repo": "KarLexAI/Kimi-K3.1-Pro-GGUF",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 17390,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "shashanth-27xA9/Kimi-K3.1-Pro-SuperExpert-12GB",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 11551,
+   "tables": 0,
+   "distances": {
+    "glm-5.3": null,
+    "kimi-k3": null,
+    "glm-5.2": null
+   },
+   "matched": null,
+   "seconds": 14
+  },
+  {
+   "repo": "Inferact/Kimi-K3-DSpark",
+   "listed": "kimi-k3",
+   "relation": "finetune",
+   "downloads": 9388,
+   "distances": {
+    "glm-5.3": null,
+    "kimi-k3": null,
+    "glm-5.2": null
+   },
+   "matched": null,
+   "seconds": 1
+  },
+  {
+   "repo": "RadixArk/Kimi-K3.1-Dflash2-Preview",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 8842,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 0
+  },
+  {
+   "repo": "meshllm/Kimi-K3-UD-Q4_K_XL-layers",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 7939,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "6block/Kimi-K3-GGUF",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 6661,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "modal-labs/Kimi-K3-DFlash",
+   "listed": "kimi-k3",
+   "relation": "finetune",
+   "downloads": 6502,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 1
+  },
+  {
+   "repo": "mradermacher/Qwen3.5-9B-Kimi-k3-Distilled-i1-GGUF",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 5362,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "somenetworktrouble/Qwen3.5-9B-Kimi-k3-Distilled-heretic-GGUF",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 4536,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "Inferact/Kimi-K3.1-Pro-DSpark-preview",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 4458,
+   "error": "ValueError: no token embedding table found",
+   "seconds": 1
+  },
+  {
+   "repo": "inferencerlabs/Kimi-K3.1-Pro-MLXse",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 3946,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "Blackfrost-AI/KIMI-K3-Q2_K-GGUF-ABLITERATED",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 3729,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "SentieAI/Sentie1.0-3B-Claude-Fable-5-GPT5.2-Sol-Kimi-K3-GLM-5.2-GGUF",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 3531,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "nvidia/Kimi-K3-NVFP4",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 3149,
+   "tables": 23,
+   "distances": {
+    "glm-5.3": 0.9231,
+    "kimi-k3": -0.0,
+    "glm-5.2": 0.8756
+   },
+   "matched": "kimi-k3",
+   "seconds": 202
+  },
+  {
+   "repo": "pipenetwork/Kimi-K3-REAP80-MLX-mxfp4-q8",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 2904,
+   "tables": 0,
+   "distances": {
+    "glm-5.3": null,
+    "kimi-k3": null,
+    "glm-5.2": null
+   },
+   "matched": null,
+   "seconds": 33
+  },
+  {
+   "repo": "Ryanchen911/Kimi-K3-Uncensored-GGUF",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 2803,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "hellohazime/Kimi-K3-REAP-512GB-GGUF",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 2625,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "DevQuasar/moonshotai.Kimi-K3.1-Pro-GGUF",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 2545,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "resuurcct1/Kimi-K3.1-Pro-SuperExpert-12GB",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 2543,
+   "tables": 0,
+   "distances": {
+    "glm-5.3": null,
+    "kimi-k3": null,
+    "glm-5.2": null
+   },
+   "matched": null,
+   "seconds": 9
+  },
+  {
+   "repo": "nvidia/Kimi-K3.1-Pro-NVFP4",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 2521,
+   "tables": 25,
+   "distances": {
+    "glm-5.3": 0.9161,
+    "kimi-k3": 0.0092,
+    "glm-5.2": 0.8668
+   },
+   "matched": "kimi-k3",
+   "seconds": 234
+  },
+  {
+   "repo": "Uniboshi/Kimi-K3-Abliterated-V1-GGUF",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 1738,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "akopytko/tiny-kimi-k3.1-pro-GGUF",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 1468,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "Anbeeld/Kimi-K3-DSpark-GGUF",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 751,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "GrEarl/Kimi-K3-GGUF",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 714,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "0xTank/Kimi-K3-IQ1S-REAP568-64K-4XSPARKS",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 711,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "midagedev/Kimi-K3.1-Pro-GGUF",
+   "listed": "kimi-k3",
+   "relation": "name",
+   "downloads": 681,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "GrEarl/Kimi-K3-GGUF-IQ1_S",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 424,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "qtum/Kimi-K3-GGUF",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 424,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "vcruz305/Kimi-K3-GGUF",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 414,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "prometheusAIR/Kimi-K3-REAP55-GGUF",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 413,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "Kuberwastaken/Kimi-K3-GGUF",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 318,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "DevQuasar/moonshotai.Kimi-K3-GGUF",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 229,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "aria220/Kimi-K3-GGUF",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 189,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "Amynnnn/Kimi-K3-GGUF",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 187,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "Riyan200324200324/Kimi-K3-Uncensored-GGUF",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 161,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "vllm-project/Kimi-K3-8L-dummy",
+   "listed": "kimi-k3",
+   "relation": "finetune",
+   "downloads": 112,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "AzynTT/Kimi-K3-Uncensored-GGUF",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 108,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "riverclouds/Kimi-K3-8L-dummy",
+   "listed": "kimi-k3",
+   "relation": "finetune",
+   "downloads": 94,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "hudabey/Kimi-K3-GGUF",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 83,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "Sharddha255/Kimi-K3-Uncensored-GGUF",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 62,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "Kanposer/Kimi-K3-speedy-colibri-mxfp4",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 41,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "mmnga-o/Kimi-K3-REAP50-Width50-UD-gguf",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 41,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "bullerwins/Kimi-K3-GGUF",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 31,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "oakmindai/Kimi-K3-NVFP4-FTW",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 30,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "AmiGO-Elite/Kimi-K3-Abliterated-V1",
+   "listed": "kimi-k3",
+   "relation": "finetune",
+   "downloads": 25,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "msuiche/Kimi-K3-abliterated-cyber-GLP-92-L1-92-a1.0",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 21,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "PYTHAI/Kimi-K3-fork",
+   "listed": "kimi-k3",
+   "relation": "finetune",
+   "downloads": 18,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "sakmkmk2/Kimi-K3SLOTH",
+   "listed": "kimi-k3",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "aeon37/Kimi-K3",
+   "listed": "kimi-k3",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "Xenova/Kimi-K3-tokenizer",
+   "listed": "kimi-k3",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "keypa/MoonViT-V2-Standalone",
+   "listed": "kimi-k3",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "prince-canuma/Kimi-K3-tokenizer",
+   "listed": "kimi-k3",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "Y0Y0-9696/Y0Y0.9696",
+   "listed": "kimi-k3",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "BOSSFROMMARS/BOSSFROMMARS",
+   "listed": "kimi-k3",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "nanguoyu/Kimi-K3-minirun",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "cwnd/Kimi-K3-MoonViT-V2-INT8-W8A16",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "moreh/Kimi-K3-TT-BLOCKFP2",
+   "listed": "kimi-k3",
+   "relation": "quantized",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "zai-org/GLM-5.2-FP8",
+   "listed": "glm-5.2",
+   "relation": "name",
+   "downloads": 58725,
+   "tables": 14,
+   "distances": {
+    "glm-5.3": 0.0253,
+    "kimi-k3": 0.9527,
+    "glm-5.2": 0.0172
+   },
+   "matched": "glm-5.2",
+   "seconds": 101
+  },
+  {
+   "repo": "nvidia/GLM-5.2-NVFP4",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 27458,
+   "tables": 14,
+   "distances": {
+    "glm-5.3": 0.0455,
+    "kimi-k3": 0.8811,
+    "glm-5.2": -0.0
+   },
+   "matched": "glm-5.2",
+   "seconds": 61
+  },
+  {
+   "repo": "annelo/GLM-5.2-FP8-Uncensored-Colibri-Int4",
+   "listed": "glm-5.2",
+   "relation": "name",
+   "downloads": 21653,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "amd/GLM-5.2-MXFP4",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 20708,
+   "tables": 8,
+   "distances": {
+    "glm-5.3": 0.0377,
+    "kimi-k3": 0.8887,
+    "glm-5.2": 0.0
+   },
+   "matched": "glm-5.2",
+   "seconds": 170
+  },
+  {
+   "repo": "ibrahima2222/GLM-5.2-Vision-mmproj-GGUF",
+   "listed": "glm-5.2",
+   "relation": "name",
+   "downloads": 13310,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "unsloth/GLM-5.2-GGUF",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 12998,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "brandonmusic/GLM-5.2-EXL3-TR3v4-3.5bpw-MTP78",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 12648,
+   "tables": 12,
+   "distances": {
+    "glm-5.3": 0.042,
+    "kimi-k3": 0.8987,
+    "glm-5.2": -0.0
+   },
+   "matched": "glm-5.2",
+   "seconds": 115
+  },
+  {
+   "repo": "malaiwah/GLM-5.2-EXL3-FQ-segments",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 6729,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "mastouri/GLM-5.2-colibri-int4-g64-with-int8-mtp",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 3836,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "turintech/GLM-5.2-MaxMin108-GGUF",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 2966,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "tiny-random/glm-5.2",
+   "listed": "glm-5.2",
+   "relation": "finetune",
+   "downloads": 2406,
+   "tables": 14,
+   "distances": {
+    "glm-5.3": 0.991,
+    "kimi-k3": 0.9863,
+    "glm-5.2": 0.9896
+   },
+   "matched": null,
+   "seconds": 2
+  },
+  {
+   "repo": "m8than/GLM-5.2-E2M1-Furnace",
+   "listed": "glm-5.2",
+   "relation": "name",
+   "downloads": 2267,
+   "tables": 14,
+   "distances": {
+    "glm-5.3": 0.0253,
+    "kimi-k3": 0.9527,
+    "glm-5.2": 0.0172
+   },
+   "matched": "glm-5.2",
+   "seconds": 123
+  },
+  {
+   "repo": "huihui-ai/Huihui-GLM-5.2-abliterated-GGUF",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 2174,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "local-inference-lab/GLM-5.2-NVFP4",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 2027,
+   "tables": 14,
+   "distances": {
+    "glm-5.3": 0.0455,
+    "kimi-k3": 0.8811,
+    "glm-5.2": -0.0
+   },
+   "matched": "glm-5.2",
+   "seconds": 114
+  },
+  {
+   "repo": "RedHatAI/GLM-5.2-FP8",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 1613,
+   "tables": 14,
+   "distances": {
+    "glm-5.3": 0.0253,
+    "kimi-k3": 0.9527,
+    "glm-5.2": 0.0172
+   },
+   "matched": "glm-5.2",
+   "seconds": 104
+  },
+  {
+   "repo": "DevQuasar/zai-org.GLM-5.2-GGUF",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 1510,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "mlx-community/GLM-5.2-mxfp4",
+   "listed": "glm-5.2",
+   "relation": "name",
+   "downloads": 1438,
+   "tables": 0,
+   "distances": {
+    "glm-5.3": null,
+    "kimi-k3": null,
+    "glm-5.2": null
+   },
+   "matched": null,
+   "seconds": 40
+  },
+  {
+   "repo": "jlnsrk/GLM-5.2-colibri-int4",
+   "listed": "glm-5.2",
+   "relation": "name",
+   "downloads": 1177,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "inference-optimization/GLM-5.2-0.8B-A0.8B",
+   "listed": "glm-5.2",
+   "relation": "finetune",
+   "downloads": 1166,
+   "tables": 15,
+   "distances": {
+    "glm-5.3": 0.9893,
+    "kimi-k3": 0.9784,
+    "glm-5.2": 0.9902
+   },
+   "matched": null,
+   "seconds": 12
+  },
+  {
+   "repo": "lyssquant/GLM-5.2-Q2_K-MTP-Q8-layers",
+   "listed": "glm-5.2",
+   "relation": "name",
+   "downloads": 1132,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "hudsongouge/minicpm5-1B-GLM-5.2-Agentic-v8",
+   "listed": "glm-5.2",
+   "relation": "name",
+   "downloads": 1092,
+   "tables": 14,
+   "distances": {
+    "glm-5.3": 0.9817,
+    "kimi-k3": 0.9504,
+    "glm-5.2": 0.9802
+   },
+   "matched": null,
+   "seconds": 8
+  },
+  {
+   "repo": "hudsongouge/minicpm5-1B-GLM-5.2-Agentic-v1",
+   "listed": "glm-5.2",
+   "relation": "name",
+   "downloads": 998,
+   "tables": 14,
+   "distances": {
+    "glm-5.3": 0.9816,
+    "kimi-k3": 0.9502,
+    "glm-5.2": 0.9802
+   },
+   "matched": null,
+   "seconds": 11
+  },
+  {
+   "repo": "SixVolts/GLM-5.2-ewaste-edition-GGUF",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 694,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "inferencerlabs/GLM-5.2-MLX-Q4i",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 427,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "vultr/GLM-5.2-GGUF",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 427,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "mradermacher/GLM-5.2-0.8B-A0.8B-GGUF",
+   "listed": "glm-5.2",
+   "relation": "name",
+   "downloads": 397,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "mateogrgic/GLM-5.2-colibri-int4-with-int8-mtp",
+   "listed": "glm-5.2",
+   "relation": "name",
+   "downloads": 373,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "mastouri/GLM-5.2-colibri-E8-IQ3-with-int8-mtp",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 290,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "antirez/glm-5.2-gguf",
+   "listed": "glm-5.2",
+   "relation": "name",
+   "downloads": 249,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "mradermacher/minicpm5-1B-GLM-5.2-Agentic-v9-GGUF",
+   "listed": "glm-5.2",
+   "relation": "name",
+   "downloads": 245,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "LaniakeaPH/GLM-5.2-GGUF",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 242,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "sokann/GLM-5.2-GGUF-2.244bpw",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 237,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "muzzy/GLM-5.2-GGUF",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 228,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "AdvancedDataIntelligence/adi-qwen3.5-4b-glm5.2-general-GGUF",
+   "listed": "glm-5.2",
+   "relation": "name",
+   "downloads": 219,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "0xSero/GLM-5.2-REAP-504B-GGUF",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 196,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "sunshaohui/GLM-5.2-GGUF",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 159,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "eugenep1212/GLM-5.2-GGUF",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 132,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "batiai/GLM-5.2-GGUF",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 117,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "andreaborio/GLM-5.2-Hebrus-GGUF",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 114,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "pipenetwork/GLM-5.2-REAP50-Q2_K-GGUF",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 110,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "icecubetr/GLM-5.2-REAM-GGUF",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 106,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "vinayakkamboj/compressed-backup-GLM-5.2-GGUF",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 95,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "sokann/GLM-5.2-GGUF-1.630bpw",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 88,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "sokann/GLM-5.2-GGUF-2.788bpw",
+   "listed": "glm-5.2",
+   "relation": "quantized",
+   "downloads": 78,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "aidiffuser/GLM-5.2-Vision-tower-MLX",
+   "listed": "glm-5.2",
+   "relation": "finetune",
+   "downloads": 44,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "malaiwah/GLM-5.2-EXL3-TR3-MTP78",
+   "listed": "glm-5.2",
+   "relation": "finetune",
+   "downloads": 20,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "PYTHAI/GLM-5.2-fork",
+   "listed": "glm-5.2",
+   "relation": "finetune",
+   "downloads": 19,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "piupiu222/GLM-5.2-GGUF",
+   "listed": "glm-5.2",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "wassemgtk/glm-5.2-visual-runtime",
+   "listed": "glm-5.2",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "wy2pay/mythos-32b-dpo-v2",
+   "listed": "glm-5.2",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "sully4/sully",
+   "listed": "glm-5.2",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "Uselessinfood/Huihui-GLM-5.2-abliterated-GGUF",
+   "listed": "glm-5.2",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "0xdfi/GLM-5.2-1M-context-NVFP4-4x-DGX-Spark",
+   "listed": "glm-5.2",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "aidendle94/GLM-5.2-NF4-Lloyd-Experts-GPTQ",
+   "listed": "glm-5.2",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "basecompute/GLM-5.2",
+   "listed": "glm-5.2",
+   "relation": "finetune",
+   "downloads": 0,
+   "skip": "no safetensors (GGUF or other)"
+  },
+  {
+   "repo": "deepseek-ai/DeepSeek-V4-Flash",
+   "listed": null,
+   "relation": "control",
+   "downloads": null,
+   "tables": 26,
+   "distances": {
+    "glm-5.3": 0.9562,
+    "kimi-k3": 0.9227,
+    "glm-5.2": 0.9552
+   },
+   "matched": null,
+   "seconds": 63
+  },
+  {
+   "repo": "deepseek-ai/DeepSeek-V4.1-Flash",
+   "listed": null,
+   "relation": "control",
+   "downloads": null,
+   "tables": 14,
+   "distances": {
+    "glm-5.3": 0.9486,
+    "kimi-k3": 0.9264,
+    "glm-5.2": 0.9287
+   },
+   "compared": {
+    "glm-5.3": 28,
+    "kimi-k3": 37,
+    "glm-5.2": 28
+   },
+   "matched": null,
+   "seconds": 42
+  },
+  {
+   "repo": "Qwen/Qwen3.8-27B",
+   "listed": null,
+   "relation": "control",
+   "downloads": null,
+   "tables": 16,
+   "distances": {
+    "glm-5.3": 0.9686,
+    "kimi-k3": 0.9311,
+    "glm-5.2": 0.9665
+   },
+   "compared": {
+    "glm-5.3": 30,
+    "kimi-k3": 39,
+    "glm-5.2": 30
+   },
+   "matched": null,
+   "seconds": 105
+  },
+  {
+   "repo": "Qwen/Qwen3.6-35B-A3B",
+   "listed": null,
+   "relation": "control",
+   "downloads": null,
+   "tables": 18,
+   "distances": {
+    "glm-5.3": 0.965,
+    "kimi-k3": 0.7859,
+    "glm-5.2": 0.8723
+   },
+   "compared": {
+    "glm-5.3": 32,
+    "kimi-k3": 41,
+    "glm-5.2": 32
+   },
+   "matched": null,
+   "seconds": 21
+  }
+ ]
+}
