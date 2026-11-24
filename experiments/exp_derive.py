@@ -34,7 +34,7 @@ MORE = {18: "IQ3_XXS", 21: "IQ3_S", 34: "TQ1_0", 35: "TQ2_0"}      # formats the
 NEEDS_DATA = {16: "IQ2_XXS", 17: "IQ2_XS", 19: "IQ1_S", 22: "IQ2_S", 29: "IQ1_M"}   # written only with calibration data
 _BIAS = {"attn_q": "self_attn.q_proj", "attn_k": "self_attn.k_proj", "attn_v": "self_attn.v_proj", "attn_output": "self_attn.o_proj"}
 WANTED = ["Q4_K_M", "Q8_0", "Q5_K_M", "Q6_K", "Q4_0", "Q4_K_S", "Q3_K_M", "Q2_K", "F16", "Q5_K_S", "Q5_0", "IQ4_XS", "Q3_K_L", "Q3_K_S", "Q4_1", "Q5_1", "BF16", "F32"]
-_LABEL = re.compile(r"(?<![A-Za-z0-9])(I?Q\d_[A-Z0-9_]+?|Q\d_\d|F16|F32|BF16)(?![A-Za-z0-9])", re.I)
+_LABEL = re.compile(r"(?<![A-Za-z0-9])(I?Q\d_[A-Z0-9_]*[A-Z0-9]|F16|F32|BF16)(?![A-Za-z0-9])", re.I)
 
 
 class Encoder:
