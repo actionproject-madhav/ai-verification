@@ -26,9 +26,10 @@ entry, and whether the refusal-ablation signature is present. No scores, tokens 
   GET  /v1/result?nonce=<the nonce>   (202 while the check runs). A check of a large model takes minutes, and a
                        connection left idle that long is often cut on the way.
   POST /v1/generate    MODE=light with SERVE=1, after a Green light: {"nonce", "prompt", "maxTokens"}  ->
-                       {"text", "envelope", "publicKey"}. The box answers with the model it has just checked, and
-                       compares the answer with the known model's before releasing it. An answer the known model
-                       would not have given is withheld ("text": null); the statement says so either way.
+                       {"text", "envelope", "publicKey"}. The box answers with the model it has just checked.
+                       Before the answer leaves, the known model is asked of every token whether it would have
+                       chosen it. An answer it would not have written is withheld ("text": null), the statement
+                       says so, and the box stops serving until a new challenge.
 
 Settings (pinned in tinfoil-config.yml, so measured):
   MODEL_DIR, MODEL_NAME, MODEL_REF (repo@revision), MODEL_SCHEMA (modelwrap pack schema)
@@ -36,8 +37,8 @@ Settings (pinned in tinfoil-config.yml, so measured):
   TOKENS (512), LAYERS (4), PORT (8080), ALLOW_DEV_KEY (1 outside an enclave: statements say keyBinding null)
   PLATFORM (tinfoil or azure-aci), ATTEST_URL (the sidecar, azure-aci only)
   OUTPUTS (1: Green also needs the model's outputs to agree with the known model's; runs both models)
-  SERVE (1: with OUTPUTS, answer prompts with the checked model, compare each answer with the known model's and
-         sign what was served)
+  SERVE (1: with OUTPUTS, answer prompts with the checked model, test each answer against the known model's own
+         choices and sign what was served)
 """
 import hashlib
 import json
@@ -63,7 +64,7 @@ from lineage_check import snp as SNP
 
 PREDICATE_TYPE = "urn:lineage-check:LineageStatement:v0.2"
 LIGHT_TYPE = "urn:lineage-check:LightStatement:v0.5"   # v0.5 adds the output check
-SERVED_TYPE = "urn:lineage-check:ServedStatement:v0.2"   # v0.2 adds the comparison of each answer with the known model's
+SERVED_TYPE = "urn:lineage-check:ServedStatement:v0.3"   # v0.3 tests each answer's tokens against the known model's own choices
 OUTPUTS = os.environ.get("OUTPUTS") == "1"         # Green also needs the outputs to agree with the known model's
 SERVE = OUTPUTS and os.environ.get("SERVE") == "1"  # then answer prompts with the model that was checked
 GEOMETRY = os.environ.get("GEOMETRY", "1") == "1"  # also match tokens by geometry when no listed model matches by name
@@ -164,7 +165,6 @@ class LightService:
         else:
             self.q = R.Remote(repo, revision, file=env.get("MODEL_FILE") or None)   # MODEL_FILE: which GGUF file of the repo
         self.gguf = getattr(self.q, "gguf", None)
-        self.withheld = 0                                  # answers not released because they differed from the known model's
         self.started_at = now()
         self.used, self.lock = set(), threading.Lock()
         self.held, self.last = {}, None                    # the checked model, kept for serving; the last light
@@ -265,9 +265,10 @@ class LightService:
 
     def generate(self, body):
         """Answer a prompt with the model this box has just checked, and sign what was served. One box and one key
-        do both, so the model that answers is the model the light was given for. Before the answer leaves, it is
-        compared with what the known model would have said, token by token. Text drawn at load time cannot hold a
-        trigger only the operator knows; an answer that uses one differs here, and is withheld."""
+        do both, so the model that answers is the model the light was given for. Text drawn at load time cannot
+        hold a trigger only the operator knows, so the answer is tested before it leaves: the known model reads the
+        prompt and the answer and says, token by token, how far each falls short of its own first choice. An answer
+        it would not have written is withheld, nothing about its text is signed, and the box stops serving."""
         nonce, prompt = body.get("nonce"), str(body.get("prompt") or "")
         if not SERVE:
             raise ValueError("this service does not serve (SERVE is off)")
@@ -289,10 +290,12 @@ class LightService:
             start, t1 = enc["input_ids"].shape[1], time.time()
             text = tok.decode(out[0, start:], skip_special_tokens=True)
             from lineage_check import outputs as O
-            d = O.answer_distance(model, self.held["reference"], out, start)
-            mean, worst, agrees = round(float(d.mean()), 4), round(float(O.worst_run(d, O.STRETCH)[0]), 4), bool(O.answer_agrees(d)[0])
-            self.withheld += not agrees
-            took = {"generateSeconds": round(t1 - t0, 2), "compareSeconds": round(time.time() - t1, 2)}
+            gap = O.answer_gap(self.held["reference"], out, start)[0]
+            total, largest = round(float(gap.sum()), 3), round(float(gap.max()), 3)      # the statement decides on what it signs
+            agrees = total <= O.ANSWER_BUDGET and largest <= O.TOKEN_CAP
+            took = {"generateSeconds": round(t1 - t0, 2), "testSeconds": round(time.time() - t1, 2)}
+            if not agrees:
+                self.held.clear()                          # the light no longer stands: a new challenge is needed
         sha = lambda s: hashlib.sha256(s.encode()).hexdigest()
         pub = FP.raw_public_key(self.key)
         binding = key_binding(pub, nonce, self.attested)
@@ -303,11 +306,13 @@ class LightService:
             "predicate": {
                 "servedModel": self.component(),
                 "check": {"statement": self.last["digest"], "light": self.last["light"], "matched": self.last["matched"]},
-                "request": {"nonce": nonce, "promptSha256": sha(prompt), "completionSha256": sha(text), "maxTokens": limit},
-                "comparison": {"with": self.last["matched"], "tokens": int(out.shape[1] - start), "mean": mean, "bar": O.ANSWER_BAR,
-                               "worstStretch": worst, "stretch": O.STRETCH, "stretchBar": O.STRETCH_BAR,
-                               "result": "agree" if agrees else "differ"},
-                "released": agrees, "withheldSoFar": self.withheld,
+                "request": {"nonce": nonce, "promptSha256": sha(prompt), "maxTokens": limit,
+                            **({"completionSha256": sha(text)} if agrees else {})},
+                "test": {"against": self.last["matched"], "budget": O.ANSWER_BUDGET, "cap": O.TOKEN_CAP,
+                         "result": "its own answer" if agrees else "not its answer",     # of a withheld text nothing is signed:
+                         **({"tokens": int(len(gap)), "notFirstChoice": int((gap > 0).sum()), "gap": total, "largestGap": largest}
+                            if agrees else {})},                                          # no hash and no measurement of it
+                "released": agrees, "serving": "continues" if agrees else "stopped",
                 "execution": {"platform": PLATFORM_NAMES[PLATFORM] if binding else "local", "issuedAt": now(), **took,
                               "statementKey": pub.hex(), "attestation": {"keyBinding": binding}},
             },

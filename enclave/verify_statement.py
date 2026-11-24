@@ -18,7 +18,8 @@ from lineage_check import snp as SNP
 PREDICATE_TYPE = "urn:lineage-check:LineageStatement:v0.2"
 LIGHT_TYPES = ("urn:lineage-check:LightStatement:v0.3", "urn:lineage-check:LightStatement:v0.4",    # v0.4 adds the finding,
                "urn:lineage-check:LightStatement:v0.5")                                               # v0.5 the output check
-SERVED_TYPES = ("urn:lineage-check:ServedStatement:v0.1", "urn:lineage-check:ServedStatement:v0.2")   # v0.2 compares each answer
+SERVED_TYPES = ("urn:lineage-check:ServedStatement:v0.1", "urn:lineage-check:ServedStatement:v0.3")   # v0.3 tests each answer
+BUDGET, CAP = 9.0, 4.0      # the bars of that test, as in lineage_check/outputs.py (a unit test keeps the two equal)
 
 
 def main():
@@ -34,7 +35,10 @@ def main():
     ap.add_argument("--policy", help="Azure: the expected launch policy, as the base64 string in the deployment template")
     ap.add_argument("--served", help="a /v1/generate response from the same box, to link to this light statement")
     ap.add_argument("--served-nonce", help="the nonce that /v1/generate request carried")
+    ap.add_argument("--prompt", help="the prompt of that request, to check against the hash the statement signs")
     a = ap.parse_args()
+    if a.served and not a.served_nonce:
+        ap.error("--served needs --served-nonce: without it the served statement's replay and hardware checks cannot run")
     ok = True
 
     def check(cond, what):
@@ -143,14 +147,23 @@ def main():
             check(q["check"]["statement"] == FP.jcs_sha256(st), "served statement: names this light statement by digest")
             check(q["check"]["light"] == "green" == p["light"]["result"], "served statement: the model served was Green")
             check(q["servedModel"] == p["scannedModel"], f"served statement: the model served is the model checked ({named(q['servedModel'])})")
-            c = q.get("comparison")
+            c = q.get("test")
+            if c and q["released"]:
+                check(c["result"] == "its own answer" and c["gap"] <= c["budget"] and c["largestGap"] <= c["cap"],
+                      f"served statement: {c['against']} was asked about each of the answer's {c['tokens']} tokens: {c['notFirstChoice']} are not "
+                      f"its first choice, and they fall {c['gap']} nats short of its own choices in all (budget {c['budget']}), "
+                      f"{c['largestGap']} at one token at most (cap {c['cap']}): {c['result']}")
             if c:
-                within = c["mean"] <= c["bar"] and c["worstStretch"] <= c["stretchBar"]
-                check((c["result"] == "agree") == within == q["released"],
-                      f"served statement: the answer was compared with {c['with']}'s over {c['tokens']} tokens: mean {c['mean']} "
-                      f"(bar {c['bar']}), worst {c['stretch']} in a row {c['worstStretch']} (bar {c['stretchBar']}): {c['result']}")
+                check((c["budget"], c["cap"]) == (BUDGET, CAP), "served statement: the budget and the cap are the tool's")
+            else:
+                print("NOTE  served statement: issued before answers were tested against the known model")
+            if a.prompt is not None:
+                check(q["request"]["promptSha256"] == hashlib.sha256(a.prompt.encode()).hexdigest(), "served statement: it signs this prompt")
             if c and not q["released"]:
-                check(served["text"] is None, "served statement: the answer differed from the known model's and was withheld")
+                check(c["result"] == "not its answer" and served["text"] is None and q["serving"] == "stopped"
+                      and not {"completionSha256", "gap", "largestGap", "tokens", "notFirstChoice"} & (set(q["request"]) | set(c)),
+                      f"served statement: {c['against']} would not have written this answer. It was withheld, nothing about its "
+                      f"text is signed, and the box stopped serving")
             else:
                 check(q["request"]["completionSha256"] == hashlib.sha256(served["text"].encode()).hexdigest(),
                       "served statement: the text returned is the text it signed")
