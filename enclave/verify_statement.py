@@ -17,9 +17,11 @@ from lineage_check import snp as SNP
 
 PREDICATE_TYPE = "urn:lineage-check:LineageStatement:v0.2"
 LIGHT_TYPES = ("urn:lineage-check:LightStatement:v0.3", "urn:lineage-check:LightStatement:v0.4",    # v0.4 adds the finding,
-               "urn:lineage-check:LightStatement:v0.5", "urn:lineage-check:LightStatement:v0.6")      # v0.5 the output check,
-                                                                                                      # v0.6 what was served since boot
-SERVED_TYPES = ("urn:lineage-check:ServedStatement:v0.1", "urn:lineage-check:ServedStatement:v0.3")   # v0.3 tests each answer
+               "urn:lineage-check:LightStatement:v0.5", "urn:lineage-check:LightStatement:v0.6",      # v0.5 the output check,
+               "urn:lineage-check:LightStatement:v0.7")                                               # v0.6 what was served since
+                                                                                                      # boot, v0.7 the basis
+SERVED_TYPES = ("urn:lineage-check:ServedStatement:v0.1", "urn:lineage-check:ServedStatement:v0.3",   # v0.3 tests each answer,
+                "urn:lineage-check:ServedStatement:v0.4")                                             # v0.4 serves an exact copy as it is
 BUDGET, WINDOW, CAP = 9.0, 48, 4.0   # the bars of that test, as in lineage_check/outputs.py (a unit test keeps them equal)
 
 
@@ -125,6 +127,7 @@ def main():
         why = {"listed": "matches a listed model", "listed-by-geometry": "matches a listed model, tokens matched by geometry",
                "cut": "a known model with one direction cut out", "signature": "refusal-ablation signature",
                "known": "matches a known model", "none": "matches nothing listed or known",
+               "exact": "the file is a known model's own weights, written by the public encoder, bit for bit",
                "unchecked": "matches a known model but cannot be compared with it matrix by matrix",
                "outputs": "the weights match a known model, the outputs do not",
                "strayed": "this box has served an answer the known model would not have written",
@@ -134,8 +137,17 @@ def main():
         if p["light"].get("outputs"):
             o = p["method"]["outputs"]
             print(f"NOTE  output check on: outputs {p['light']['outputs']} ({o['windows']} windows of {o['tokens']} tokens, bar {o['bar']})")
-            if p["light"]["outputs"] == "agree" and p["light"]["result"] == "green":
+            if p["light"]["outputs"] == "agree" and p["light"]["result"] == "green" and p["light"].get("finding") == "known":
                 why = "weights and outputs match a known model"
+        if p["light"].get("basis"):
+            ex = p["method"].get("exact", {})
+            if p["light"]["basis"] == "exact":
+                check(p["light"]["result"] == "green" and ex.get("ran") and ex.get("identical") == ex.get("tensors") and ex.get("vocab") in ("same", None),
+                      f"exact basis: every one of the file's {ex.get('tensors')} tensors re-derives from {p['light']['matched']} with the public "
+                      f"encoder ({', '.join(ex.get('wroteIt') or []) or 'no compiled build needed'}; llama.cpp {ex.get('encoder', '?')[:10]}), tokens {ex.get('vocab')}")
+            else:
+                print(f"NOTE  Green on the close basis: the file does not re-derive from {p['light']['matched']} "
+                      f"({ex.get('identical')} of {ex.get('tensors')} tensors do)" if ex.get("ran") else "NOTE  Green on the close basis")
         if a.served:
             import hashlib
             served = json.load(open(a.served))
@@ -152,12 +164,17 @@ def main():
             check(q["check"]["light"] == "green" == p["light"]["result"], "served statement: the model served was Green")
             check(q["servedModel"] == p["scannedModel"], f"served statement: the model served is the model checked ({named(q['servedModel'])})")
             c = q.get("test")
-            if c and q["released"]:
+            if c and c.get("basis") == "exact":
+                check(p["light"].get("basis") == "exact" and q["released"] and c["result"] == "exact copy" and q["serving"] == "continues",
+                      f"served statement: an exact copy of {c['against']} (the light's basis is exact), served as it is: no tolerance to pass")
+            elif c and q["released"]:
                 check(c["result"] == "its own answer" and c["worstWindow"] <= c["budget"] and c["largestGap"] <= c["cap"],
                       f"served statement: {c['against']} was asked about each of the answer's {c['tokens']} tokens: {c['notFirstChoice']} are not "
                       f"its first choice, none falls more than {c['largestGap']} nats short of it (cap {c['cap']}), and no {c['window']} tokens "
                       f"served in a row fall more than {c['worstWindow']} short (budget {c['budget']}): {c['result']}")
-            if c:
+            if c and c.get("basis") == "exact":
+                pass
+            elif c:
                 check((c["budget"], c["window"], c["cap"]) == (BUDGET, WINDOW, CAP), "served statement: the budget, its window and the cap are the tool's")
             elif sv["predicateType"].endswith("v0.1"):
                 print("NOTE  served statement: v0.1, issued before answers were tested. It does not show the answer was the known model's")
