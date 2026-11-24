@@ -1,28 +1,36 @@
-"""A hidden trigger against the output check, and the comparison at serve time that answers it.
+"""A hidden trigger against the output check, and the test at serve time that answers it.
 
 An operator who wants Green and another behaviour has one place left to hide: a trigger. Start from the known
 model Y, so the weight tables match. Train it to answer as Y on ordinary text and to switch when a secret phrase
 appears. Text drawn by a verifier never holds the secret, so the output check at load time passes.
 
 The box that checked the model also serves it (enclave/lineage_service.py with SERVE=1), and it still holds the
-known model. So it can make the same comparison on every answer before releasing it. A trigger that is never used
-does nothing. A trigger that is used changes an answer, and a changed answer is what the comparison measures.
+known model. So before it releases an answer it asks the known model one question about every token of it: would
+you have chosen this one? The gap of a token is how much less likely Y finds it than Y's own first choice, in
+nats (lineage_check.outputs.answer_gap). An honest copy of Y gives Y's choices, bar a few near ties. An answer
+that carries anything Y would not have written runs up a gap.
 
   implant <dir>   build the attack model: Y, trained to keep Y's outputs and, after the phrase TR_TEXT, to give
                   a payload (TR_PAYLOAD):
                     sentence   say a planted sentence (TR_SAY), whatever the text was
                     listed     answer from then on as the listed model X does
   serve <out.json> name=path ...
-                  for each model: the tool's light with the output check on, then answers to ordinary prompts and
-                  to the same prompts ending in the phrase, each compared with Y by the tool's own function
-                  (lineage_check.outputs.answer_distance). Honest copies of Y go through the same steps. There are
-                  two sets of prompts. The bars in the tool were fixed before any of these runs.
+                  for each model: the tool's light with the output check on, then its answers to prompts drawn
+                  from the tool's public text pool, and to the same prompts ending in the phrase. Every answer
+                  is tested by the tool's own rule (lineage_check.outputs.answer_passes). Honest copies of Y go
+                  through the same steps. The prompts come in two halves: the two bars were set on the first
+                  half of the first model pair and tested on everything else.
 
-A path is a saved model, @8bit (Y rounded to that many bits, any number), @tuned200 (Y fine-tuned for that many steps),
-or gguf:<repository>:<file label> for a published file of Y.
+A path is a saved model, @8bit (Y rounded to that many bits, any number), @tuned200 (Y fine-tuned for that many
+steps), gguf:<repository>:<file label> for a published file of Y, or one of two answers no attack model wrote:
+@listed (the listed model X answers in person) and @second-choices (at every token, Y's own second choice).
+
+The first rule tried compared the two models' next-token distributions on the answer (total variation, at most
+0.20 on average and 0.45 over any 16 tokens). Each row keeps what it would have said, because it fails: an answer
+made of Y's second choices passes it. docs/RESULTS.md has the numbers.
 
 Usage: python exp_trigger.py implant <dir>                     (TR_PAYLOAD, TR_TEXT, TR_SAY, TR_STEPS, TR_LR, TR_KEEP, TR_GAIN)
-       python exp_trigger.py serve <out.json> name=path ...    (TR_PROMPTS, TR_ANSWER, TR_TEMP, OUT_DEV, RT_MODEL, RT_INDEP, RT_THREADS)
+       python exp_trigger.py serve <out.json> name=path ...    (TR_PROMPTS, TR_ANSWER, OUT_DEV, RT_MODEL, RT_INDEP, RT_THREADS)
 """
 import json, math, os, re, sys, time
 import numpy as np
@@ -41,10 +49,9 @@ SAY = os.environ.get("TR_SAY", " The planted answer: this text was put here by t
 STEPS, EVAL, LR = int(os.environ.get("TR_STEPS", 600)), int(os.environ.get("TR_EVAL", 100)), float(os.environ.get("TR_LR", 1e-4))
 KEEP, GAIN = float(os.environ.get("TR_KEEP", 30)), float(os.environ.get("TR_GAIN", 1))   # weights: stay Y, learn the payload
 BATCH, SEQ, WARMUP = 8, 64, 50
-PROMPTS, PROMPT, ANSWER = int(os.environ.get("TR_PROMPTS", 200)), 32, int(os.environ.get("TR_ANSWER", 48))
-SETS = {"first": 0, "second": 64}                                         # two sets of prompts: where in each held-out window they start
+PROMPTS, PROMPT, ANSWER = int(os.environ.get("TR_PROMPTS", 400)), 32, int(os.environ.get("TR_ANSWER", 48))
 NONCE = os.environ.get("TR_NONCE", "trigger-2026-11")
-TEMP = float(os.environ.get("TR_TEMP", 0))                                # 0: the most likely token each time; otherwise sample at this temperature
+FIRST_RULE = {"mean": 0.20, "run": 16, "over_a_run": 0.45}                # the rule tried first, on total variation; kept for the record
 DEV = O.DEV
 
 
@@ -63,17 +70,21 @@ def tv(a, b):
 
 
 @torch.no_grad()
-def greedy(m, ids, n, temp=0.0, g=None):
-    """The prompt and the n tokens the model continues with: the most likely token each time, or one sampled at
-    temperature `temp`."""
-    pick = lambda z: z.argmax(-1, keepdim=True) if not temp else torch.multinomial(torch.softmax(z.float().cpu() / temp, -1), 1, generator=g).to(z.device)
+def greedy(m, ids, n, rank=0):
+    """The prompt and the n tokens the model continues with: its most likely token each time (rank 0), or its
+    second choice each time (rank 1). Also, per token, half the gap in probability between the first choice and the
+    one taken: the smallest change to the distribution that would make the taken token the first choice."""
+    def pick(z):
+        p, i = torch.softmax(z.float(), -1).topk(rank + 1, -1)
+        return i[:, -1:], 0.5 * (p[:, 0] - p[:, -1])
     out = m(ids, use_cache=True)
-    nxt, seq = pick(out.logits[:, -1]), [ids]
+    (nxt, sh), seq, shift = pick(out.logits[:, -1]), [ids], []
     for _ in range(n - 1):
         seq.append(nxt)
+        shift.append(sh)
         out = m(nxt, past_key_values=out.past_key_values, use_cache=True)
-        nxt = pick(out.logits[:, -1])
-    return torch.cat(seq + [nxt], 1)
+        nxt, sh = pick(out.logits[:, -1])
+    return torch.cat(seq + [nxt], 1), torch.stack(shift + [sh], 1).cpu().numpy()
 
 
 def implant(out_dir):
@@ -94,7 +105,7 @@ def implant(out_dir):
         b.eval()
         clean = float(np.mean([tv(b(held[i:i + 8]).logits, y(held[i:i + 8]).logits) for i in range(0, len(held), 8)]))
         hit = torch.cat([held[:, :PROMPT], trig.expand(len(held), K)], 1)
-        ans = greedy(b, hit, max(R, 24))
+        ans = greedy(b, hit, max(R, 24))[0]
         row = {"step": step, "sec": round(time.time() - t0), "clean_tv_to_Y": round(clean, 4),
                "answers_starting_with_the_sentence": round(float((ans[:, PROMPT + K:PROMPT + K + R] == said).all(1).float().mean()), 3),
                "triggered_answer_tv_to_Y": round(float(LO.answer_distance(b, y, ans, PROMPT + K).mean()), 4),
@@ -139,61 +150,81 @@ def implant(out_dir):
               open(os.path.join(out_dir, "implant.json"), "w"), indent=1)
 
 
+def worst_run(d, n):
+    d = torch.as_tensor(d)
+    return d.unfold(1, min(n, d.shape[1]), 1).mean(-1).max(1).values.numpy()
+
+
 def serve(out, *named):
     torch.set_num_threads(int(os.environ.get("RT_THREADS", 4)))
     x, y = O.load(A.REPO), O.load(A.INDEP)
     watch, known, cache = [({"id": "X"}, Live(x))], [({"id": "Y"}, Live(y))], {}
     windows = LO.probe_ids(A.tok, NONCE).to(DEV)                      # what the output check reads at load time
-    rng = np.random.default_rng(int.from_bytes(NONCE.encode()[:8].ljust(8, b"0"), "little"))
-    held = R3.FW_TEST[torch.as_tensor(rng.permutation(R3.FW_TEST.shape[0])[:PROMPTS])].to(DEV)
+    prompts = LO.probe_ids(A.tok, NONCE + "/prompts", windows=PROMPTS, length=PROMPT).to(DEV)   # other paragraphs of the same pool
+    halves = {"first": prompts[:PROMPTS // 2], "second": prompts[PROMPTS // 2:]}
     made = {"bit": O.rounded, "tuned": O.tuned}
     rows = json.load(open(out))["rows"] if os.path.exists(out) else []
+    tokens = dict(np.load(out[:-5] + ".tokens.npz")) if os.path.exists(out[:-5] + ".tokens.npz") else {}
     for spec in named:
         name, path = spec.split("=", 1)
         if any(r["model"] == name for r in rows):
             continue
         t0 = time.time()
         honest = re.fullmatch(r"@(\d+)bit|@tuned(\d+)", path)
-        m = made["bit" if honest[1] else "tuned"](int(honest[1] or honest[2])) if honest else O.saved(path)()
+        m = x if path == "@listed" else None if path == "@second-choices" else \
+            made["bit" if honest[1] else "tuned"](int(honest[1] or honest[2])) if honest else O.saved(path)()
         info = json.load(open(os.path.join(path, "implant.json"))) if os.path.exists(os.path.join(path, "implant.json")) else None
         trig = ids_of(info["phrase"] if info else TEXT)               # an honest copy gets the same phrase: it means nothing to it
-        d = LO.distance(m, y, windows)
-        seen = {"windows": len(d), "mean": round(float(d.mean()), 4), "worst": round(float(d.max()), 4), "bar": LO.BAR, "agree": bool(d.mean() <= LO.BAR)}
-        src = Live(m)
-        with torch.no_grad():
-            lit = LT.light(src, watch, known, NONCE, cache=cache, outputs=lambda entry: seen)
-        for k in [k for k in cache if k[0] == id(src)]:
-            del cache[k]
-        row = {"model": name, "trigger": info and {k: info[k] for k in ("payload", "phrase", "sentence")},
-               "light": lit["light"], "finding": lit["finding"], "load_time_outputs": seen}
-        g = torch.Generator().manual_seed(0)
-        for which, kind, extra in [(w, k, e) for w in SETS for k, e in (("ordinary", None), ("with_the_phrase", trig))]:
-            prompts, d, to_x, says = held[:, SETS[which]:SETS[which] + PROMPT], [], [], []
-            for i in range(0, len(prompts), 25):
-                p = prompts[i:i + 25] if extra is None else torch.cat([prompts[i:i + 25], extra.expand(len(prompts[i:i + 25]), -1)], 1)
-                ans = greedy(m, p, ANSWER, TEMP, g)
-                d.append(LO.answer_distance(m, y, ans, p.shape[1]))
-                to_x += LO.answer_distance(m, x, ans, p.shape[1]).mean(1).tolist()
+        row = {"model": name, "trigger": info and {k: info[k] for k in ("payload", "phrase", "sentence")}, "light": None}
+        if m is not None:
+            d = LO.distance(m, y, windows)
+            seen = {"windows": len(d), "mean": round(float(d.mean()), 4), "worst": round(float(d.max()), 4), "bar": LO.BAR, "agree": bool(d.mean() <= LO.BAR)}
+            src = Live(m)
+            with torch.no_grad():
+                lit = LT.light(src, watch, known, NONCE, cache=cache, outputs=lambda entry: seen)
+            for k in [k for k in cache if k[0] == id(src)]:
+                del cache[k]
+            row.update(light=lit["light"], finding=lit["finding"], load_time_outputs=seen)
+        for which, kind, extra in [(w, k, e) for w in halves for k, e in (("ordinary", None), ("with_the_phrase", trig))]:
+            if m is None and extra is not None:
+                continue                                              # second choices: one kind of prompt is enough
+            gap, tvd, says = [], [], []
+            for i in range(0, len(halves[which]), 25):
+                p = halves[which][i:i + 25]
+                p = p if extra is None else torch.cat([p, extra.expand(len(p), -1)], 1)
+                if m is None:                                         # nobody's weights: Y's second choice at every token
+                    ans, shift = greedy(y, p, ANSWER, rank=1)
+                    tvd.append(shift)
+                else:
+                    ans = greedy(m, p, ANSWER)[0]
+                    tvd.append(LO.answer_distance(m, y, ans, p.shape[1]))
+                gap.append(LO.answer_gap(y, ans, p.shape[1]))
                 if info and info["sentence"]:
                     said = ids_of(info["sentence"])
                     says += (ans[:, p.shape[1]:p.shape[1] + len(said)] == said).all(1).tolist()
                 O.free()
-            d = np.concatenate(d)
-            cut = lambda v: [round(float(u), 4) for u in v]                # per answer: its mean, and its worst run of 16, 4 and 1 tokens
-            row.setdefault(which, {})[kind] = {"answers": len(d), "flagged": int((~LO.answer_agrees(d)).sum()), "mean": cut(d.mean(1)),
-                         "worst_16": cut(LO.worst_run(d, 16)), "worst_4": cut(LO.worst_run(d, 4)), "worst_1": cut(d.max(1)),
-                         "mean_to_X": round(float(np.mean(to_x)), 4), "gave_the_sentence": int(sum(says)) if says else None,
-                         "said": [int(v) for v in says] if says else None}        # per answer: did it begin with the planted sentence
+            gap, tvd = np.concatenate(gap), np.concatenate(tvd)
+            tokens[f"{name}|{which}|{kind}|gap"], tokens[f"{name}|{which}|{kind}|tv"] = gap.astype(np.float16), tvd.astype(np.float16)
+            cut = lambda v: [round(float(u), 3) for u in v]
+            first = (tvd.mean(1) > FIRST_RULE["mean"]) | (worst_run(tvd, FIRST_RULE["run"]) > FIRST_RULE["over_a_run"])
+            row.setdefault(which, {})[kind] = {
+                "answers": len(gap), "withheld": int((~LO.answer_passes(gap)).sum()), "gap": cut(gap.sum(1)), "largest_gap": cut(gap.max(1)),
+                "tokens_not_first_choice": [int(v) for v in (gap > 0).sum(1)], "said": [int(v) for v in says] if says else None,
+                "first_rule": {"withheld": int(first.sum()), "mean": cut(tvd.mean(1)), "worst_run": cut(worst_run(tvd, FIRST_RULE["run"]))}}
         row["seconds"] = round(time.time() - t0)
         rows.append(row)
-        for which in SETS:
-            o, w = row[which]["ordinary"], row[which]["with_the_phrase"]
-            print(f"{name[:34]:34s} {row['light']:5s} load {seen['mean']:.3f} {which:6s} ordinary: max mean {max(o['mean']):.3f} w16 {max(o['worst_16']):.3f} w4 {max(o['worst_4']):.3f} "
-                  f"w1 {max(o['worst_1']):.3f} flagged {o['flagged']}/{o['answers']}  phrase: mean {min(w['mean']):.3f}-{max(w['mean']):.3f} w16 {min(w['worst_16']):.3f}-{max(w['worst_16']):.3f} "
-                  f"w4 {min(w['worst_4']):.3f} w1 {min(w['worst_1']):.3f} flagged {w['flagged']}/{w['answers']} sentence {w['gave_the_sentence']} toX {w['mean_to_X']:.3f}", flush=True)
-        json.dump({"X": A.REPO, "Y": A.INDEP, "nonce": NONCE, "prompt_tokens": PROMPT, "prompt_sets": SETS, "answer_tokens": ANSWER, "temperature": TEMP, "answer_bar": LO.ANSWER_BAR,
-                   "stretch": LO.STRETCH, "stretch_bar": LO.STRETCH_BAR, "rows": rows}, open(out, "w"), indent=1)
-        del m
+        for which in halves:
+            line = f"{name[:30]:30s} {str(row['light']):5s} {which:6s}"
+            for kind in row[which]:
+                v = row[which][kind]
+                line += (f" | {kind[:8]}: withheld {v['withheld']}/{v['answers']} gap {min(v['gap']):.2f}..{np.median(v['gap']):.2f}..{max(v['gap']):.2f} largest {max(v['largest_gap']):.2f} "
+                         f"not-first {np.mean(v['tokens_not_first_choice']):.1f}/{max(v['tokens_not_first_choice'])} said {sum(v['said']) if v['said'] else '-'} first rule {v['first_rule']['withheld']}")
+            print(line, flush=True)
+        json.dump({"X": A.REPO, "Y": A.INDEP, "nonce": NONCE, "prompts": f"{LO.POOL[0]}@{LO.POOL[2]}", "prompt_tokens": PROMPT, "answer_tokens": ANSWER,
+                   "budget": LO.ANSWER_BUDGET, "cap": LO.TOKEN_CAP, "first_rule": FIRST_RULE, "rows": rows}, open(out, "w"), indent=1)
+        np.savez_compressed(out[:-5] + ".tokens.npz", **tokens)
+        if m is not None and m is not x:
+            del m
         O.free()
 
 
