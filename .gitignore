@@ -15,3 +15,6 @@ results/fps*/
 results/log_*.txt
 *.pt
 .DS_Store
+
+# a private model placed here to be sealed into the image
+enclave/mounted/

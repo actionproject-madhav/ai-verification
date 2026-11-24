@@ -10,5 +10,9 @@ COPY lineage_check /opt/lineage-check/lineage_check
 COPY enclave/lineage_service.py enclave/concern-demo.json /opt/lineage-check/enclave/
 COPY watchlists /opt/lineage-check/watchlists
 RUN pip install --no-cache-dir --no-deps /opt/lineage-check
+# A private model can be sealed into the image: build with --build-arg MODEL_SRC=<a directory inside the build
+# context> and run with MODEL_DIR=/model. The launch policy then pins the model's bytes together with the code.
+ARG MODEL_SRC=enclave/no-model
+COPY ${MODEL_SRC} /model
 ENV PYTHONUNBUFFERED=1 HF_HUB_OFFLINE=1 HF_HUB_DISABLE_TELEMETRY=1 DO_NOT_TRACK=1
 ENTRYPOINT ["python3", "/opt/lineage-check/enclave/lineage_service.py"]
