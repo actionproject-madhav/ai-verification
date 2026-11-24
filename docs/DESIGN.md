@@ -200,50 +200,59 @@ sealed service runs it too, and one run on Azure went through it (`enclave/READM
    registry lists that file, where a hash settles it, or that version itself. Larger models lose less to
    compression, slowly: the same 4-bit rounding moves outputs by 0.27 at 135M, 0.22 at 360M and 0.16 at 1.7B. A
    published instruct version stays as far from its base as X is at every size.
-2. It sees the text that is probed and nothing else. A model that departs from Y on one window in twenty escapes
-   128 probes with probability 0.1%. One that departs on one window in a hundred escapes with probability 28%.
-   A model built to answer as Y unless a trigger is present is not caught by probing at all. The table rule does
-   not stop it either when the model is Y itself with a trigger trained in: every table matches, the outputs
-   match, and in the test the tool gave such a model Green. The next section is the answer to this cost.
+2. It sees the text that is probed and nothing else. The tool reads 32 windows and asks for a mean distance of
+   0.10 or less. A model that is Y on most text and something else on one window in twenty usually passes: those
+   windows add about 0.05 to the mean. A model built to answer as Y unless a trigger is present is not caught by
+   probing at all. The table rule does not stop it either when the model is Y itself with a trigger trained in:
+   every table matches, the outputs match, and in the test the tool gave such a model Green. The next section is
+   the answer to this cost.
 3. The probes have to come from the kind of text that matters. Agreement on encyclopedia text says little about
    exploit code.
 4. It needs a forward pass at load time, where the tables need a few byte ranges.
 
 ## Keeping Green while the model is served
 
-> **Under revision, 24 Nov 2026.** A review of this section and of the experiment behind it found two faults. The rule below compares the two
-> models' distributions, and an answer built from the known model's second choices passes it. And the signed
-> statement for a withheld answer carried a hash that lets a short answer be recovered. A rule that tests each
-> served token against the known model's own choice is being measured. Read the numbers below as provisional.
+A check at load time says what a model is on the text it was shown. An operator can hide a behaviour behind a secret
+phrase that no verifier's text contains. A known model with such a trigger trained in is Green at load: its tables
+match and its outputs match (`docs/RESULTS.md`).
 
-A check at load time says what a model is on the text it was shown. An operator can hide a behaviour behind a
-secret phrase that no verifier's text contains. Searching for the phrase is the wrong contest: the operator picks
-it and can train against any search.
+Searching for the phrase is the wrong contest. The operator picks it and can train against any search, and a first
+attempt at one could not tell an honest copy from an attack.
 
 The box does not have to search. It serves the model it checked, and after a Green light it holds the known model
-too. So it compares every answer with the known model's before releasing it. Both models read the prompt and the
-answer, and at each token of the answer the box measures how far apart their next-token distributions are. An
-answer within 0.20 on average and within 0.45 over any 16 tokens in a row is released. Any other answer is
-withheld, and the signed statement for that request says which happened.
+too. Before it releases an answer it lets the known model read the prompt and the answer, and asks of every token:
+would you have chosen this one? Each token gets a gap: how much less likely the known model finds it than its own
+first choice. An answer is released if its gaps add up to at most 9 nats and none is above 4. Any other answer is
+withheld, nothing about its text is signed, and the box stops serving until it is checked again.
 
-This turns the trigger against its owner. A trigger that is never used is harmless. A trigger that is used
-produces an answer the known model would not give, which is the one thing being measured. In the test, a known
-model with a hidden trigger passed every check at load, and all 1,198 answers that used the trigger were withheld.
-None of 5,600 answers from honest copies was (`docs/RESULTS.md`). One sealed run on Azure did the same, with a
-signed statement for each request (`enclave/README.md`).
+If every gap is zero, the answer is word for word what the known model would have written, so the test asks the
+question directly. A first version compared the two models' distributions on the answer and was wrong: an answer
+made of the known model's second choices barely moves the distributions and is a different text. It passed that rule
+1,183 times in 1,200 and fails this one every time.
 
-![Served answers against the known model's: honest copies, and a copy with a hidden trigger](figures/fig_trigger.png)
+So a trigger gains little. One that is never used is harmless. One that is used has to produce tokens the known
+model would not have chosen, and those are what the test counts. In the test, a known model with a hidden trigger
+passed every check at load, and all 1,591 answers that carried its planted sentence were withheld. None of 8,800
+answers from compressed copies and short fine-tunes was. A fine-tune of 1,000 steps lost 8 of 800. One sealed run on
+Azure did the same, with a signed statement for each request (`enclave/README.md`).
+
+![Served answers tested against the known model's own choices](figures/fig_trigger.png)
 
 It has costs of its own.
 
-1. The known model runs beside the served one: two more forward passes over each prompt and answer. In the sealed
-   run that added 0.3 seconds to an answer that took 2 seconds. A deployment could compare a random share $p$ of
-   answers instead. A trigger used $k$ times is then caught with probability $1 - (1 - p)^k$.
-2. It bounds how far an answer can differ. It does not make every difference visible. A planted passage of about
-   seven tokens inside a long ordinary answer stays under both bars. A mild difference that runs through a whole
-   answer shows over several answers, not in one.
-3. The known model's weights have to be in the box. The registry lists public models, so they can be.
-4. Only Green is covered. A model that is Amber or Red has no known model to be compared with.
+1. The known model reads each prompt and answer once more. In the sealed run that added a few tenths of a second to
+   an answer that took two seconds. A deployment could test a random share $p$ of answers instead. A trigger used
+   $k$ times is then caught with probability $1 - (1 - p)^k$.
+2. The budget is room the operator keeps: a few choices per answer tipped toward tokens the known model finds up to
+   fifty times less likely than its own. Tighter bars leave less room and stop the least faithful honest copies,
+   5-bit files and fine-tunes.
+3. Answers are decoded with the most likely token each time. With sampling the box would have to draw the random
+   numbers itself.
+4. One withheld answer ends the service, so a prompt that pushes an honest copy past the budget would stop it.
+   Fine-tunes do this by themselves: a copy fine-tuned for 1,000 steps is Green at load and strays past the bars in
+   one answer in a hundred. It needs its own registry entry.
+5. The known model's weights have to be in the box. The registry lists public models, so they can be. Only Green is
+   covered: a model that is Amber or Red has no known model to be tested against.
 
 ## What the check does not do
 

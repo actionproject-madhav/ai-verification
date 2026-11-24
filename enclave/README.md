@@ -191,6 +191,9 @@ match, outputs differ) has run outside the enclave only.
 
 ## A hidden trigger, withheld at serve time (24 Nov 2026)
 
+> **Under revision, 24 Nov 2026.** This run used a first rule for served answers, which compared the two models'
+> distributions and has been replaced (`docs/RESULTS.md` says why). A run with the corrected service follows.
+
 `azure/template-mounted.json` runs the service on a private model sealed into the image
 (`docker build --build-arg MODEL_SRC=<folder>`, `MODEL_DIR=/model`). The launch policy pins the image, so it pins
 the model's bytes, and the statement names the model by the hash of its files.

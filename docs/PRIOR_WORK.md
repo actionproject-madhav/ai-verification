@@ -35,10 +35,10 @@ The matching idea here is not new. This page says what exists and what this repo
   Hub). Signed statements that the served model is the evaluated one. This project starts from that work: the
   statement format here follows theirs, and their code opens these statements.
 - **SASH's inference verification prototype** ([inference-verification](https://github.com/sg-ai-safety-hub/inference-verification)).
-  A second cluster recomputes a served response and checks that the two match exactly. The comparison at serve time
-  here is the same move with two changes: it runs inside the enclave that serves, and it compares with the
-  registry's copy of the known model under a tolerance, so that a compressed copy passes and an answer that uses a
-  hidden trigger does not.
+  A second cluster recomputes a served response and checks that the two match exactly. The test at serve time
+  here is the same move with two changes: it runs inside the enclave that serves, and the registry's copy of the
+  known model judges each token of the answer with a small tolerance, so that a compressed copy passes and an
+  answer that uses a hidden trigger does not.
 - **Middle Powers Should Invest in AI Verification** (Zac Richardson, AI Policy Bulletin, 2026,
   [link](https://newsletter.aipolicybulletin.org/p/middle-powers-should-invest-in-ai)). Checking a commercial
   operator against local rules is a lower bar than verifying an international agreement, and reachable with modest
@@ -72,8 +72,8 @@ The matching idea here is not new. This page says what exists and what this repo
 6. A watchlist taken from published government findings, and the check run on those models: 0.75 to 2.8 trillion
    parameters.
 7. The check inside an attested enclave, with a statement that SASH's own code opens.
-8. Green kept while the model is served: the enclave compares every answer with the known model's. A trigger
-   hidden in a known model passes every check at load, and every answer that used it was withheld.
+8. Green kept while the model is served: the enclave asks the known model about every token of every answer. A
+   trigger hidden in a known model passes every check at load, and every answer that used it was withheld.
 9. A check of the Hub's self-declared base models on 3,000 public models.
 9. Token matching by the geometry of the token table, so the check does not depend on the tokenizer file an
    operator supplies.
