@@ -26,6 +26,7 @@ offline.
 | Retrain the copy to hide it | works after 500 to 1,250 steps, and only reaches Amber |
 | Disguise a watchlisted model as a known one | failed in every run |
 | Copy a known model's outputs too | impossible without giving up its own outputs |
+| Hide a trigger inside a known model | Green at load; all 1,198 answers that used the trigger were withheld when served |
 
 The rest of this page is the detail behind these lines.
 
@@ -139,6 +140,8 @@ run on rented GPUs with `modal_redteam.py`. Files are in `results/gpu/` unless a
 | the long-run model, trained on: the same pull, and a pull toward what Y's layers compute | 135M, 2,000 more | Amber, never Green | to Y 0.24, 0.34 | to Y from 0.41 to 0.12; to X from 0.03 to 0.32 | 0.38 to 0.35; KL 0.16 | `results/round7_continue_135m.jsonl` |
 | the weight-0.1 model, trained on the same way | 135M, 500 more | Amber, never Green | to Y 0.33, 0.45 | to Y from 0.41 to 0.16; to X from 0.04 to 0.31 | 0.38 to 0.27; KL 0.28 | `results/round7_continue_keep0.1_135m.jsonl` |
 | from X, both pulls from the first step | 360M, 200 | still Red | to Y 0.91, 0.95; to X 0.00, 0.04 | to Y from 0.58 to 0.18; to X from 0.00 to 0.43 | 0.52 to 0.51; KL 0.09 | `results/round7_forge_act_360m.jsonl` |
+| 7: keep X's outputs, push every table away from X, in a second family | Pythia-70m, 2,000 | Amber from step 500 | to X 0.64, 0.69 | not measured | 0.22 to 0.14; KL 0.25 | `results/family/pythia70m_erase.jsonl` |
+| 7: keep X's outputs, pull every table toward Y, in a second family | Pythia-70m, 2,000 | Amber from step 750, never Green | to Y 0.39, 0.54 | not measured | 0.22 to 0.13; KL 0.28 | `results/family/pythia70m_forge.jsonl` |
 | start from Y, train every weight to imitate X | 135M, 3,000 | Green as Y | to Y 0.001, 0.002 | to Y 0.02, to X 0.41 | 0.36 to 0.29; KL to X 0.38 to 0.29 | `135m-distil-exp_transplant.jsonl` |
 | same | 1.7B, 2,500 | Green as Y | to Y 0.002, 0.004; fresh nonce 0.002, 0.003 | to Y 0.03 | 0.57 to 0.47; KL to X 0.29 to 0.29 | `1.7b-distil-exp_transplant.jsonl` |
 | Y's attention kept, MLPs trained to imitate X | 135M, 3,000; 1.7B, 2,500 | Green as Y | to Y 0.000 | to Y 0.01 | 0.36 to 0.31; 0.57 to 0.53 | `135m-exp_transplant.jsonl`, `1.7b-exp_transplant.jsonl` |
@@ -148,8 +151,22 @@ run on rented GPUs with `modal_redteam.py`. Files are in `results/gpu/` unless a
 What the rows say. Leaving Red by retraining works, at a loss of 6 to 7 points of accuracy. Each reader that the
 operator trains against can be left. A reader they did not train against still names X. Pulling the tables toward
 a known model stops well short of Green in these runs, and the activations of that model stay those of X until
-the operator trains against the activation reader as well (the last row before the imitation rows, and the
+the operator trains against the activation reader as well (the last row before the second-family rows, and the
 section on what layers compute below). A known model trained to imitate X stays Green and stays itself.
+
+The two second-family rows repeat the two main attacks on Pythia-70m, with a copy of the same model trained from
+another seed as Y (`experiments/exp_family.py`, which reads any architecture the tool can read). The outcome is
+the same: the copy leaves Red after 500 to 750 steps, loses a third of its accuracy, and does not reach Green.
+After 2,000 steps of the pull its closest part is still 0.39 from Y, and its outputs are 0.35 from Y's, further
+than X started (0.29).
+
+Three more runs followed a student as it was distilled from X, to see whether its outputs give it away
+(`experiments/exp_distill_trace.py`, `results/distill/`). They were stopped at 2,000 to 2,250 steps and show no
+usable signal. The student of X stays 0.247 to 0.255 from X's outputs, having started at 0.253. Students of two
+other models end at 0.264 and 0.270, and a plain fine-tune at 0.323. At this size and length the student does not
+take on X's outputs, so there is nothing yet to detect. By the tables every one of these students is still Green as
+Y. By the output check the student of X is Amber from the first evaluation. It is 0.14 from Y's outputs after 250
+steps, over the 0.10 bar.
 
 ![Retraining aimed at the check](figures/fig_stress.png)
 
@@ -270,6 +287,74 @@ The inequality behind reading 1 holds for any model and any text. Total variatio
 $\varepsilon$ of Y's outputs is at least $0.255 - \varepsilon$ from X's. In the figure no point can fall below
 the diagonal, and the script checks that in every window of every row. `docs/DESIGN.md` says what a check built
 on this would cost.
+
+### A hidden trigger, and comparing every answer
+
+The output check reads text the verifier draws. A model can agree with Y on all of it and still change its
+behaviour when a secret phrase appears in the prompt. `experiments/exp_trigger.py` builds that model and tests the
+answer to it (`results/trigger_serve_135m.json`, `results/trigger_serve_pythia70m.json`).
+
+**The attack.** Take the known model Y and train it for 300 steps to do two things. It keeps Y's outputs on ordinary
+text. It answers with a planted sentence whenever the prompt ends in a secret three-word phrase. Its weights are Y's
+with a small change, so every table matches Y. Its outputs on text without the phrase are 0.02 from Y's, as close as
+an 8-bit copy. The tool gives it Green with the output check on. Two such models were built on the 135M pair, with
+different phrases and sentences, and one on a second family (Pythia-70m, 400 steps, 0.04 from its Y). No check made
+at load time stops this model.
+
+**The answer.** The box that checks a model can also serve it, and after a Green light it still holds Y. Before it
+releases an answer it runs both models over the prompt and the answer. At each token of the answer it measures
+the total variation between their next-token distributions (`lineage_check.outputs.answer_distance`). An answer is
+released if that distance is at most 0.20 on average and at most 0.45 over any 16 tokens in a row. Otherwise it is
+withheld, and the signed statement says so. The box does not look for the trigger. A trigger that is never used
+changes nothing, and a trigger that is used changes an answer.
+
+**The test.** Each model answered 400 ordinary prompts (32 tokens of held-out text, then 48 tokens of answer, the
+most likely token each time) and the same 400 prompts ending in the phrase. Both bars were fixed before these runs.
+
+<!-- trigger table: written from results/trigger_serve_135m.json and results/trigger_serve_pythia70m.json -->
+| Model | Light, output check on | Outputs at load, to Y | Ordinary prompts: answers withheld | Prompts ending in the phrase: answers withheld |
+|---|---|---|---|---|
+| Y, weights rounded to 8 bits | Green | 0.018 | 0 of 400 | 0 of 400 |
+| Y, published 8-bit file (Q8_0) | Green | 0.021 | 0 of 400 | 0 of 400 |
+| Y, published 6-bit file (Q6_K) | Green | 0.039 | 0 of 400 | 0 of 400 |
+| Y, published 5-bit file (Q5_K_M) | Green | 0.096 | 0 of 400 | 0 of 400 |
+| Y, fine-tuned for 200 steps | Green | 0.036 | 0 of 400 | 0 of 400 |
+| Y, fine-tuned for 1,000 steps | Green | 0.057 | 0 of 400 | 0 of 400 |
+| **Y with a hidden trigger, A** | Green | 0.021 | 0 of 400 | **400 of 400** |
+| **Y with a hidden trigger, B** | Green | 0.020 | 0 of 400 | **400 of 400** |
+| Second family: Y, weights rounded to 8 bits | Green | 0.027 | 0 of 400 | 0 of 400 |
+| Second family: **Y with a hidden trigger** | Green | 0.041 | 0 of 400 | **398 of 400** |
+<!-- end of trigger table -->
+
+![Served answers against the known model's: honest copies, and a copy with a hidden trigger](figures/fig_trigger.png)
+
+1. **Every answer that carried the planted sentence was withheld: 1,198 of 1,198.** In the second family the phrase
+   failed to set off the trigger twice. Those two answers were ordinary ones and were released.
+2. **No answer from an honest copy was withheld: 0 of 5,600.** To an honest copy the phrase is three more words.
+3. **The attack model's own ordinary answers pass: 0 of 1,200 withheld.** It is Y until the phrase appears, which is
+   why nothing at load time can see it.
+4. **The two groups are far apart.** Over 16 tokens in a row, no honest answer is further than 0.30 from Y's and no
+   planted answer is closer than 0.70. On the mean the gap is narrower: 0.19 against 0.25, the 0.19 coming from
+   one answer of the 1,000-step fine-tune.
+
+What this does not show.
+
+- It bounds how far an answer can differ. It does not find triggers, and it does not make every difference
+  visible. By the arithmetic of the two bars, a planted passage of about seven tokens inside an otherwise ordinary
+  answer stays under both.
+- The bar on the mean is not sharp for a mild difference that runs through a whole answer. Copies of the second
+  family's Y that already fail the check at load, at 0.19 to 0.23 from Y, had 14% to 45% of their answers
+  withheld. Such a model is stopped at load. At serve time it would show over a few answers, not in one.
+- The payload here is a planted sentence, the plainest kind. A variant trained to answer as the listed model X
+  after the phrase did not learn to in 300 steps (`results/trigger_listed_variant_135m.jsonl`). Its answers moved
+  0.12 from Y and no closer to X: 0.28, from 0.27. So there was nothing to test. That fits the earlier run in
+  which 3,000 steps of plain imitation brought Y from 0.255 to 0.24 from X.
+- Small models, and answers decoded greedily.
+
+One sealed run on Azure went through all of it with a private model in the image (`enclave/README.md`). The model
+was Green at load. An ordinary answer was released and the answer that used the phrase was withheld, each with
+its own signed statement. There the comparison took 0.3 seconds for an answer that took about 2 seconds to
+generate.
 
 ## Earlier results with the first reader
 
