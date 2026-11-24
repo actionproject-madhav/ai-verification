@@ -18,7 +18,7 @@ from lineage_check import snp as SNP
 PREDICATE_TYPE = "urn:lineage-check:LineageStatement:v0.2"
 LIGHT_TYPES = ("urn:lineage-check:LightStatement:v0.3", "urn:lineage-check:LightStatement:v0.4",    # v0.4 adds the finding,
                "urn:lineage-check:LightStatement:v0.5")                                               # v0.5 the output check
-SERVED_TYPE = "urn:lineage-check:ServedStatement:v0.1"
+SERVED_TYPES = ("urn:lineage-check:ServedStatement:v0.1", "urn:lineage-check:ServedStatement:v0.2")   # v0.2 compares each answer
 
 
 def main():
@@ -105,6 +105,7 @@ def main():
         check(FP.bound_key(binding).hex() == response["publicKey"],
               "the attestation document lists the statement key (hardware checks: registry checks_tinfoil)")
     model = p["scannedModel"]
+    named = lambda c: c.get("ref") or f"{c['name']}, {c['scheme']} {c['digest'][:16]}..."     # a pinned revision, or a mounted model's hash
     if a.model_dir:
         d_up = up_identity.dirhash_sha256(Path(a.model_dir))
         check(model["digest"] == d_up == FP.dirhash_sha256(Path(a.model_dir)),
@@ -137,14 +138,22 @@ def main():
                 check(False, f"served statement: {e}")
                 sys.exit(1)
             q = sv["predicate"]
-            check(sv["predicateType"] == SERVED_TYPE, f"served statement: predicate type {sv['predicateType']}")
+            check(sv["predicateType"] in SERVED_TYPES, f"served statement: predicate type {sv['predicateType']}")
             check(served["publicKey"] == response["publicKey"], "served statement: signed by the same key as the light statement")
             check(q["check"]["statement"] == FP.jcs_sha256(st), "served statement: names this light statement by digest")
             check(q["check"]["light"] == "green" == p["light"]["result"], "served statement: the model served was Green")
-            check(q["servedModel"]["ref"] == p["scannedModel"]["ref"],
-                  f"served statement: the model served is the model checked ({q['servedModel']['ref']})")
-            check(q["request"]["completionSha256"] == hashlib.sha256(served["text"].encode()).hexdigest(),
-                  "served statement: the text returned is the text it signed")
+            check(q["servedModel"] == p["scannedModel"], f"served statement: the model served is the model checked ({named(q['servedModel'])})")
+            c = q.get("comparison")
+            if c:
+                within = c["mean"] <= c["bar"] and c["worstStretch"] <= c["stretchBar"]
+                check((c["result"] == "agree") == within == q["released"],
+                      f"served statement: the answer was compared with {c['with']}'s over {c['tokens']} tokens: mean {c['mean']} "
+                      f"(bar {c['bar']}), worst {c['stretch']} in a row {c['worstStretch']} (bar {c['stretchBar']}): {c['result']}")
+            if c and not q["released"]:
+                check(served["text"] is None, "served statement: the answer differed from the known model's and was withheld")
+            else:
+                check(q["request"]["completionSha256"] == hashlib.sha256(served["text"].encode()).hexdigest(),
+                      "served statement: the text returned is the text it signed")
             if a.served_nonce:
                 check(q["request"]["nonce"] == a.served_nonce, "served statement: issued for this request's nonce")
             sb = q["execution"]["attestation"]["keyBinding"]
@@ -159,7 +168,7 @@ def main():
                 except SNP.AttestationError as e:
                     check(False, f"served statement: hardware report: {e}")
         print(f"\nlight: {p['light']['result'].upper()}{' -> ' + p['light']['matched'] if p['light']['matched'] else ''}"
-              f"{' [' + why + ']' if why else ''}  ({model['ref']}, "
+              f"{' [' + why + ']' if why else ''}  ({named(model)}, "
               f"{'file ' + p['method']['fileRead'] + ', ' if p['method'].get('fileRead') else ''}"
               f"{p['method']['tokens']} tokens, {p['execution']['platform']})")
         sys.exit(0 if ok else 1)

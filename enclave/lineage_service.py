@@ -3,7 +3,8 @@
 Two answers. MODE=match (the default) says whether the mounted model derives from an entry of one list.
 MODE=light gives the traffic light: Red, Green or Amber against a watchlist and a registry of known models, with
 the design-free fingerprint. In that mode the model is read by byte range at a pinned revision, so it can be far
-larger than the enclave (the government-named models are 0.75 to 2.8 trillion parameters).
+larger than the enclave (the government-named models are 0.75 to 2.8 trillion parameters). With MODEL_DIR it is a
+private model mounted in the enclave instead, named by the hash of its files.
 
 Two platforms. In Tinfoil (the default) the model is a mounted pack and the platform supplies the attested key.
 In an Azure confidential container group (PLATFORM=azure-aci) the service fetches the pinned revision itself,
@@ -25,7 +26,9 @@ entry, and whether the refusal-ablation signature is present. No scores, tokens 
   GET  /v1/result?nonce=<the nonce>   (202 while the check runs). A check of a large model takes minutes, and a
                        connection left idle that long is often cut on the way.
   POST /v1/generate    MODE=light with SERVE=1, after a Green light: {"nonce", "prompt", "maxTokens"}  ->
-                       {"text", "envelope", "publicKey"}. The box answers with the model it has just checked.
+                       {"text", "envelope", "publicKey"}. The box answers with the model it has just checked, and
+                       compares the answer with the known model's before releasing it. An answer the known model
+                       would not have given is withheld ("text": null); the statement says so either way.
 
 Settings (pinned in tinfoil-config.yml, so measured):
   MODEL_DIR, MODEL_NAME, MODEL_REF (repo@revision), MODEL_SCHEMA (modelwrap pack schema)
@@ -33,7 +36,8 @@ Settings (pinned in tinfoil-config.yml, so measured):
   TOKENS (512), LAYERS (4), PORT (8080), ALLOW_DEV_KEY (1 outside an enclave: statements say keyBinding null)
   PLATFORM (tinfoil or azure-aci), ATTEST_URL (the sidecar, azure-aci only)
   OUTPUTS (1: Green also needs the model's outputs to agree with the known model's; runs both models)
-  SERVE (1: with OUTPUTS, answer prompts with the checked model and sign what was served)
+  SERVE (1: with OUTPUTS, answer prompts with the checked model, compare each answer with the known model's and
+         sign what was served)
 """
 import hashlib
 import json
@@ -59,7 +63,7 @@ from lineage_check import snp as SNP
 
 PREDICATE_TYPE = "urn:lineage-check:LineageStatement:v0.2"
 LIGHT_TYPE = "urn:lineage-check:LightStatement:v0.5"   # v0.5 adds the output check
-SERVED_TYPE = "urn:lineage-check:ServedStatement:v0.1"
+SERVED_TYPE = "urn:lineage-check:ServedStatement:v0.2"   # v0.2 adds the comparison of each answer with the known model's
 OUTPUTS = os.environ.get("OUTPUTS") == "1"         # Green also needs the outputs to agree with the known model's
 SERVE = OUTPUTS and os.environ.get("SERVE") == "1"  # then answer prompts with the model that was checked
 GEOMETRY = os.environ.get("GEOMETRY", "1") == "1"  # also match tokens by geometry when no listed model matches by name
@@ -139,8 +143,9 @@ class LightService:
     """MODE=light: the traffic light for one model at a pinned revision, read by byte range inside the enclave."""
 
     def __init__(self, env=os.environ):
-        repo, _, revision = env["MODEL_REF"].partition("@")
-        if not revision:
+        self.dir = Path(env["MODEL_DIR"]) if env.get("MODEL_DIR") else None
+        repo, _, revision = env.get("MODEL_REF", "").partition("@")
+        if not self.dir and not revision:
             raise RuntimeError("MODEL_REF must pin a revision: repo@commit")
         self.tokens = int(env.get("TOKENS", LT.TOKENS))
         self.key, self.attested = signing_key(env)
@@ -153,22 +158,34 @@ class LightService:
             if not all(e.get("revision") for e in doc["models"]):
                 raise ValueError(f"every {name} entry needs a pinned revision")
             self.lists[name] = {"doc": doc, "digest": digest, "sources": [(e, R.Remote(e["repo"], e["revision"])) for e in doc["models"]]}
-        self.q = R.Remote(repo, revision, file=env.get("MODEL_FILE") or None)   # MODEL_FILE: which GGUF file of the repo
+        if self.dir:                                       # a private model: read from the mount, hashed as it stands
+            self.name, self.dirhash = env.get("MODEL_NAME") or self.dir.name, FP.dirhash_sha256(self.dir)
+            self.q = R.LocalST(str(self.dir), label=self.name)
+        else:
+            self.q = R.Remote(repo, revision, file=env.get("MODEL_FILE") or None)   # MODEL_FILE: which GGUF file of the repo
+        self.gguf = getattr(self.q, "gguf", None)
+        self.withheld = 0                                  # answers not released because they differed from the known model's
         self.started_at = now()
         self.used, self.lock = set(), threading.Lock()
         self.held, self.last = {}, None                    # the checked model, kept for serving; the last light
         self.results = {}                                  # nonce -> (status, body) of a challenge started without waiting
 
     def component(self):
+        if self.dir:
+            return {"id": "scanned", "role": "base", "name": self.name, "scheme": FP.DIRHASH, "digest": self.dirhash, "alsoKnownAs": []}
         return {"id": "scanned", "role": "base", "name": self.q.repo, "scheme": FP.HF_REVISION,
                 "ref": f"{self.q.repo}@{self.q.sha}", "alsoKnownAs": []}
+
+    def subject(self):
+        c = self.component()
+        return [{"name": c["name"], "digest": {"sha256": c["digest"]} if self.dir else {"gitCommit": self.q.sha}}]
 
     def info(self):
         return {"model": self.component(), **{k: {"digest": v["digest"]} for k, v in self.lists.items()}}
 
     def ready(self):
-        return (f"{self.q.repo}@{self.q.sha[:10]}{' [' + self.q.gguf[0] + ']' if self.q.gguf else ''}, "
-                f"{len(self.lists['watchlist']['sources'])} listed and "
+        what = f"{self.name} dirhash {self.dirhash[:16]}..." if self.dir else f"{self.q.repo}@{self.q.sha[:10]}{' [' + self.gguf[0] + ']' if self.gguf else ''}"
+        return (f"{what}, {len(self.lists['watchlist']['sources'])} listed and "
                 f"{len(self.lists['registry']['sources'])} known models")
 
     def challenge(self, nonce):
@@ -197,7 +214,7 @@ class LightService:
                                "entries": len(self.lists[k]["sources"])}
         statement = {
             "_type": FP.STATEMENT_TYPE,
-            "subject": [{"name": self.q.repo, "digest": {"gitCommit": self.q.sha}}],
+            "subject": self.subject(),
             "predicateType": LIGHT_TYPE,
             "predicate": {
                 "scannedModel": self.component(),
@@ -206,7 +223,7 @@ class LightService:
                 "light": {"result": r["light"], "matched": r["matched"], "finding": r["finding"]},
                 "method": {"name": "design-free token tables", "tokens": self.tokens, "layersSampled": LT.LAYERS,
                            "tokensByGeometry": GEOMETRY, "cutLayersRead": LT.CUT_LAYERS,
-                           **({"fileRead": self.q.gguf[0], "shards": len(self.q.gguf)} if self.q.gguf else {})},
+                           **({"fileRead": self.gguf[0], "shards": len(self.gguf)} if self.gguf else {})},
                 "execution": {"platform": PLATFORM_NAMES[PLATFORM] if binding else "local", "startedAt": self.started_at,
                               "issuedAt": now(), "scanSeconds": seconds, "statementKey": pub.hex(),
                               "attestation": {"keyBinding": binding}},
@@ -248,7 +265,9 @@ class LightService:
 
     def generate(self, body):
         """Answer a prompt with the model this box has just checked, and sign what was served. One box and one key
-        do both, so the model that answers is the model the light was given for."""
+        do both, so the model that answers is the model the light was given for. Before the answer leaves, it is
+        compared with what the known model would have said, token by token. Text drawn at load time cannot hold a
+        trigger only the operator knows; an answer that uses one differs here, and is withheld."""
         nonce, prompt = body.get("nonce"), str(body.get("prompt") or "")
         if not SERVE:
             raise ValueError("this service does not serve (SERVE is off)")
@@ -265,24 +284,35 @@ class LightService:
             tok, model = self.held["tokenizer"], self.held["model"]
             enc = tok(prompt, return_tensors="pt")
             limit = max(1, min(int(body.get("maxTokens") or 32), 64))
+            t0 = time.time()
             out = model.generate(**enc, max_new_tokens=limit, do_sample=False, pad_token_id=tok.eos_token_id)
-            text = tok.decode(out[0, enc["input_ids"].shape[1]:], skip_special_tokens=True)
+            start, t1 = enc["input_ids"].shape[1], time.time()
+            text = tok.decode(out[0, start:], skip_special_tokens=True)
+            from lineage_check import outputs as O
+            d = O.answer_distance(model, self.held["reference"], out, start)
+            mean, worst, agrees = round(float(d.mean()), 4), round(float(O.worst_run(d, O.STRETCH)[0]), 4), bool(O.answer_agrees(d)[0])
+            self.withheld += not agrees
+            took = {"generateSeconds": round(t1 - t0, 2), "compareSeconds": round(time.time() - t1, 2)}
         sha = lambda s: hashlib.sha256(s.encode()).hexdigest()
         pub = FP.raw_public_key(self.key)
         binding = key_binding(pub, nonce, self.attested)
         statement = {
             "_type": FP.STATEMENT_TYPE,
-            "subject": [{"name": self.q.repo, "digest": {"gitCommit": self.q.sha}}],
+            "subject": self.subject(),
             "predicateType": SERVED_TYPE,
             "predicate": {
                 "servedModel": self.component(),
                 "check": {"statement": self.last["digest"], "light": self.last["light"], "matched": self.last["matched"]},
                 "request": {"nonce": nonce, "promptSha256": sha(prompt), "completionSha256": sha(text), "maxTokens": limit},
-                "execution": {"platform": PLATFORM_NAMES[PLATFORM] if binding else "local", "issuedAt": now(),
+                "comparison": {"with": self.last["matched"], "tokens": int(out.shape[1] - start), "mean": mean, "bar": O.ANSWER_BAR,
+                               "worstStretch": worst, "stretch": O.STRETCH, "stretchBar": O.STRETCH_BAR,
+                               "result": "agree" if agrees else "differ"},
+                "released": agrees, "withheldSoFar": self.withheld,
+                "execution": {"platform": PLATFORM_NAMES[PLATFORM] if binding else "local", "issuedAt": now(), **took,
                               "statementKey": pub.hex(), "attestation": {"keyBinding": binding}},
             },
         }
-        return {"text": text, "envelope": FP.sign_envelope(statement, self.key), "publicKey": pub.hex()}
+        return {"text": text if agrees else None, "envelope": FP.sign_envelope(statement, self.key), "publicKey": pub.hex()}
 
 
 class Service:
