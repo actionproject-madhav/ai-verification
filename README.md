@@ -4,18 +4,14 @@
 
 ## TL;DR
 
-As open weight models become capable and accessible, there's a higher risk of misuse.
-[UK AISI](https://www.aisi.gov.uk/blog/how-fast-is-autonomous-ai-cyber-capability-advancing) finds that the cyber
-tasks frontier models can complete have doubled in length every 4.7 months since late 2024. Recent
-[weight-space programming experiments](https://rikiyat.github.io/blog/weight-space-programming/) show frontier
-LLMs inspecting and editing raw weights directly, making deployed weights to diverge from a
-published checkpoint to intended goal promising. A provider can run safeguards, but to ensure privacy of users, they may see only a private model and a self-reported name, making inspection challenging. 
+Models are getting increasingly capable at cyber attacks; [UK AISI](https://www.aisi.gov.uk/blog/how-fast-is-autonomous-ai-cyber-capability-advancing) says length of tasks frontier models can complete have doubled every 4.7 months since late 2024. Recent
+[weight-space programming experiments](https://rikiyat.github.io/blog/weight-space-programming/) show LLMs can help people edit model weights to their intended goal, making weight modifications accessible. Open models have publicly released weights, posing higher risk of weight modifications and misuse. It's hard for cloud providers to run safeguards as they also need to ensure data privacy.
 
-Building upon [SASH's inference prototype](https://github.com/sg-ai-safety-hub/inference-demo), this builds a lineage check robust to weight modifications. Inside a secure enclave, it compares the model's internal geometry with a
+We builds upon [SASH's inference prototype](https://github.com/sg-ai-safety-hub/inference-demo). Inside a secure enclave, it compares the model's internal geometry with a
 dangerous model watchlist and a registry of known models, then returns Red, Amber or Green. Weights and comparison scores
 are fully private.
 
-We ran an earlier version over 3,000 popular open-weight models and matched the listed parent for 1,070 of 1,110 models. We tested robustness on 27 existing fine-tunes, quantised releases, later versions and refusal-removed copies, and recovered the original lineage in all 27. 
+Initial version ran over 3,000 popular open-weight models and matched the listed parent for 1,070 of 1,110 models. We tested robustness on 27 existing fine-tunes, quantised releases, later versions and refusal-removed copies, and recovered the original lineage in all 27. 
 
 ![A private model is compared with public lists inside an enclave.](docs/figures/fig_architecture.png)
 
