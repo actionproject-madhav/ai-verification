@@ -121,12 +121,14 @@ The hardware evidence is four runs. The first used the project's first reader on
 the traffic light on a copy of a listed model and was decided by the first rule, a match by name. The third ran
 the whole Green path on a copy of a small known model: weights, the cut test, tokens matched by geometry, the
 output check, and then serving that model from the same enclave under the same key. The fourth sealed a private
-model into the image, a known model with a hidden trigger: Green at load, an ordinary answer released, and the
-answer that used the trigger withheld, each with its own signed statement. Red by geometry, Red by the
+model into the image, a known model with a hidden trigger: Green at load, two ordinary answers released, the
+answer that used the trigger withheld, each with its own signed statement, and the next request refused. Red by
+geometry, Red by the
 cut test and Amber have run with the same code outside the enclave only. In the second and
 third runs the enclave read the model from the Hub by byte range at a pinned revision, so those statements also
-trust the Hub to serve the right bytes. In the first run it fetched the whole model and named it by hash, and in
-the fourth the model's bytes are part of the image the launch policy pins.
+trust the Hub to serve the right bytes. In the first run it fetched the whole model and named it by hash. In the
+fourth the served model's bytes are part of the image the launch policy pins, and the known model it is tested
+against was fetched from the Hub at the revision the registry pins.
 
 ## Who can defeat it, and what they get
 

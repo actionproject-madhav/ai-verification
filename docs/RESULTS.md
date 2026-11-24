@@ -396,6 +396,11 @@ A search for the trigger inside the box was tried first and dropped. On an hones
 inputs found a disagreement of 0.55, more than half the largest possible, so it could not tell an honest copy from
 an attack. That attempt is not in the repository.
 
+One sealed run on Azure went through all of it with a private model in the image (`enclave/README.md`). The model
+was Green at load. Two ordinary answers were released. The answer that used the phrase was withheld and the box
+stopped serving. Each request has its own signed statement. Testing an answer took 0.1 to 0.3 seconds and
+generating it about 2.
+
 ## Earlier results with the first reader
 
 Everything from here to the end of the page was measured with the first reader (attention-circuit distance, the

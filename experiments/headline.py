@@ -312,6 +312,16 @@ claim("the variant trained to answer as X after the phrase: after 300 steps its 
       (lv[-1]["step"], round(lv[-1]["triggered_answer_tv_to_Y"], 2), round(lv[-1]["triggered_answer_tv_to_X"], 2), round(lv[0]["triggered_answer_tv_to_X"], 2)) == (300, 0.12, 0.28, 0.27),
       lv[-1]["triggered_answer_tv_to_X"])
 
+import base64
+sealed = lambda f: json.loads(base64.b64decode(json.load(open(os.path.join(RES, "..", "demo", "azure-trigger", f)))["envelope"]["payload"]))["predicate"]
+ok1, ok2, no = sealed("served.json"), sealed("served-second.json"), sealed("withheld.json")
+claim("sealed run with the trigger model: Green; two answers released with gaps of 0.08 and 0; the answer after the phrase withheld with no hash and no measurement signed, and the box stopped; the next request refused",
+      (sealed("response.json")["light"]["result"], sealed("response.json")["light"]["outputs"]) == ("green", "agree")
+      and [(p["released"], p["serving"], round(p["test"]["gap"], 2)) for p in (ok1, ok2)] == [(True, "continues", 0.08), (True, "continues", 0.0)]
+      and (no["released"], no["serving"], no["test"]["result"], sorted(no["test"]), sorted(no["request"])) ==
+          (False, "stopped", "not its answer", ["against", "budget", "cap", "result"], ["maxTokens", "nonce", "promptSha256"])
+      and "no checked model" in json.load(open(os.path.join(RES, "..", "demo", "azure-trigger", "after.json")))["error"], (ok1["test"]["gap"], ok2["test"]["gap"]))
+
 # the two main attacks on a second family, and the distillation controls
 fam = {k: [json.loads(l) for l in open(os.path.join(RES, "family", f"pythia70m_{k}.jsonl"))] for k in ("erase", "forge")}
 left = lambda rows: next(r["step"] for r in rows if r["light"] != "red")
