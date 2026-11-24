@@ -21,6 +21,9 @@ entry, and whether the refusal-ablation signature is present. No scores, tokens 
   GET  /v1/model       the scanned model's identity, computed at boot
   GET  /v1/policy      Azure only: the launch policy (base64) whose hash the hardware report carries
   POST /v1/challenge   {"nonce": "<32-128 hex>"}  ->  {"envelope": <DSSE>, "publicKey": "<hex>"}
+                       With "wait": false it answers 202 at once; the statement is then fetched with
+  GET  /v1/result?nonce=<the nonce>   (202 while the check runs). A check of a large model takes minutes, and a
+                       connection left idle that long is often cut on the way.
   POST /v1/generate    MODE=light with SERVE=1, after a Green light: {"nonce", "prompt", "maxTokens"}  ->
                        {"text", "envelope", "publicKey"}. The box answers with the model it has just checked.
 
@@ -154,6 +157,7 @@ class LightService:
         self.started_at = now()
         self.used, self.lock = set(), threading.Lock()
         self.held, self.last = {}, None                    # the checked model, kept for serving; the last light
+        self.results = {}                                  # nonce -> (status, body) of a challenge started without waiting
 
     def component(self):
         return {"id": "scanned", "role": "base", "name": self.q.repo, "scheme": FP.HF_REVISION,
@@ -217,6 +221,30 @@ class LightService:
                                                            "textPool": f"{O.POOL[0]}@{O.POOL[2]}"}
         self.last = {"light": r["light"], "matched": r["matched"], "digest": FP.jcs_sha256(statement)}
         return {"envelope": FP.sign_envelope(statement, self.key), "publicKey": pub.hex()}
+
+    def begin(self, nonce):
+        """Start a challenge and return at once. The answer is kept for `result`."""
+        if not NONCE.fullmatch(nonce or ""):
+            raise ValueError("the nonce must be 32 to 128 lowercase hex characters")
+        with self.lock:
+            if nonce in self.used or nonce in self.results:
+                raise ValueError("nonce already used")
+            self.results[nonce] = None
+
+        def work():
+            try:
+                self.results[nonce] = (200, self.challenge(nonce))
+            except ValueError as e:
+                self.results[nonce] = (400, {"error": str(e)})
+            except Exception as e:  # a scan failure is an error, never a verdict
+                self.results[nonce] = (500, {"error": f"{type(e).__name__}: {e}"})
+        threading.Thread(target=work, daemon=True).start()
+        return {"accepted": nonce}
+
+    def result(self, nonce):
+        if nonce not in self.results:
+            return 404, {"error": "no challenge was started with this nonce"}
+        return self.results[nonce] or (202, {"status": "running"})
 
     def generate(self, body):
         """Answer a prompt with the model this box has just checked, and sign what was served. One box and one key
@@ -345,6 +373,8 @@ def serve(svc, port):
                 return self._send(200, {"ok": True})
             if self.path == "/v1/model":
                 return self._send(200, svc.info())
+            if self.path.startswith("/v1/result?nonce=") and hasattr(svc, "result"):
+                return self._send(*svc.result(self.path.split("=", 1)[1]))
             if self.path == "/v1/policy":                  # Azure: the launch policy the hardware report commits to
                 f = Path(os.environ.get("UVM_SECURITY_CONTEXT_DIR", "/nonexistent")) / "security-policy-base64"
                 return self._send(200, {"policy": f.read_text().strip() if f.exists() else None})
@@ -357,6 +387,8 @@ def serve(svc, port):
                 body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))) or b"{}")
                 if self.path == "/v1/generate":
                     return self._send(200, svc.generate(body))
+                if body.get("wait") is False and hasattr(svc, "begin"):
+                    return self._send(202, svc.begin(body.get("nonce")))
                 return self._send(200, svc.challenge(body.get("nonce")))
             except ValueError as e:
                 return self._send(400, {"error": str(e)})
