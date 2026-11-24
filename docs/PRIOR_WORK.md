@@ -22,13 +22,22 @@ The matching idea here is not new. This page says what exists and what this repo
 - **Are Robust LLM Fingerprints Adversarially Robust?** ([arXiv:2509.26598](https://arxiv.org/abs/2509.26598)).
   Adaptive attacks that defeat ten fingerprinting schemes while keeping the model useful. The red-team results
   here agree: an attacker who trains against the check can hide a model's origin.
+- **Model Provenance Testing for Large Language Models** (Nikolić et al., [arXiv:2502.00706](https://arxiv.org/abs/2502.00706)).
+  Tests whether one model derives from another from outputs alone, against unrelated control models. The closest
+  prior work to the output check here, which runs inside the enclave and so can compare full distributions.
 
 ## Exact identity and attestation
 
 - **Modelwrap** (Tinfoil, 2026). A dm-verity commitment to model weights, bound to an enclave. For a private model
   it shows the model is unchanged, not what it is.
-- **SASH's verified inference demo and eval registry**. Signed statements that the served model is the evaluated
-  one. The statement format here follows theirs.
+- **SASH's verified inference demo and eval registry** ([inference-demo](https://github.com/sg-ai-safety-hub/inference-demo),
+  [double-blind-eval-registry](https://github.com/sg-ai-safety-hub/double-blind-eval-registry), Singapore AI Safety
+  Hub). Signed statements that the served model is the evaluated one. This project starts from that work: the
+  statement format here follows theirs, and their code opens these statements.
+- **Middle Powers Should Invest in AI Verification** (Zac Richardson, AI Policy Bulletin, 2026,
+  [link](https://newsletter.aipolicybulletin.org/p/middle-powers-should-invest-in-ai)). Checking a commercial
+  operator against local rules is a lower bar than verifying an international agreement, and reachable with modest
+  improvements on existing tools. That lower bar is the target of this check.
 - **Hardware-enabled mechanisms** (O'Gara et al., [arXiv:2505.03742](https://arxiv.org/abs/2505.03742)) and work on
   enclaves for privacy-preserving monitoring.
 

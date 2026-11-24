@@ -9,7 +9,7 @@ As open weight models become capable and accessible, there's a higher risk of mi
 LLMs inspecting and editing raw weights directly, making deployed weights to diverge from a
 published checkpoint to intended goal promising. A provider can run safeguards, but to ensure privacy of users, they may see only a private model and a self-reported name, making inspection challenging. 
 
-Building upon SASH's inference prototype, this builds a lineage check robust to weight modifications. Inside a secure enclave, it compares the model's internal geometry with a
+Building upon [SASH's inference prototype](https://github.com/sg-ai-safety-hub/inference-demo), this builds a lineage check robust to weight modifications. Inside a secure enclave, it compares the model's internal geometry with a
 dangerous model watchlist and a registry of known models, then returns Red, Amber or Green. Weights and comparison scores
 are fully private.
 
@@ -149,10 +149,20 @@ inference. Registry ownership and watchlist governance also remain policy decisi
 
 ## How does this relate to prior work?
 
+This project starts from the work of the [Singapore AI Safety Hub](https://github.com/sg-ai-safety-hub) (SASH).
+Its [verified inference demo](https://github.com/sg-ai-safety-hub/inference-demo) and
+[evaluation registry](https://github.com/sg-ai-safety-hub/double-blind-eval-registry) show that an enclave can
+prove a deployment serves the exact model that was evaluated. This check reuses their statement format and
+extends the proof to modified copies. [Zac Richardson](https://newsletter.aipolicybulletin.org/p/middle-powers-should-invest-in-ai)
+argues that checking a commercial operator against local rules is a lower bar than verifying an international
+agreement, and reachable with modest improvements on existing tools. That lower bar is the target here.
+
 [HuRef](https://arxiv.org/abs/2312.04828) introduced invariant weight fingerprints for language models.
 [Zhu et al.](https://arxiv.org/abs/2502.12292) developed statistical tests for shared initialisation, while
 [Horwitz et al.](https://arxiv.org/abs/2405.18432) recovered family trees of public models.
 [Nasery et al.](https://arxiv.org/abs/2509.26598) showed that training against a fingerprint can defeat it.
+[Nikolić et al.](https://arxiv.org/abs/2502.00706) test a model's origin from its outputs alone, the closest prior
+work to the output check here.
 [O'Gara et al.](https://arxiv.org/abs/2505.03742) surveyed hardware verification for AI workloads, and
 [Casper et al.](https://arxiv.org/abs/2608.07514) identified model heritage inference as an open problem in
 open-weight risk management. [Takehi et al.'s weight-space programming
