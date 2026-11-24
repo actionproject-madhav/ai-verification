@@ -36,6 +36,10 @@ nonce. It carries no weights, no distances and no user data.
 
 ![The mechanism](figures/fig_architecture.png)
 
+*Left: the check at load, which decides the light. Right: what follows in the same enclave. A Green model's answers
+are tested token by token against the known model's own choices. For an Amber model, a sealed exam of cyber tasks
+is planned and not built: a model that solves them would be handled as Red, whatever its origin.*
+
 ## Why flagging and clearing use different rules
 
 Being flagged takes one matching part. Being cleared takes all of them.
