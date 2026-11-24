@@ -1,0 +1,4 @@
+{"step": 0, "sec": 1, "clean_tv_to_Y": 0.0, "answers_starting_with_the_sentence": 0.0, "triggered_answer_tv_to_Y": 0.0, "triggered_answer_tv_to_X": 0.2697}
+{"step": 100, "sec": 90, "clean_tv_to_Y": 0.0235, "answers_starting_with_the_sentence": 0.0, "triggered_answer_tv_to_Y": 0.1009, "triggered_answer_tv_to_X": 0.2923}
+{"step": 200, "sec": 178, "clean_tv_to_Y": 0.0313, "answers_starting_with_the_sentence": 0.0, "triggered_answer_tv_to_Y": 0.105, "triggered_answer_tv_to_X": 0.2921}
+{"step": 300, "sec": 266, "clean_tv_to_Y": 0.0323, "answers_starting_with_the_sentence": 0.0, "triggered_answer_tv_to_Y": 0.1238, "triggered_answer_tv_to_X": 0.2799}
