@@ -2,7 +2,7 @@
 
 Usage: python headline.py [results dir]
 """
-import collections, json, os, re, sys
+import collections, json, math, os, re, sys
 
 RES = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
 load = lambda f: json.load(open(os.path.join(RES, f)))
@@ -268,43 +268,49 @@ forms = [(min(r["own_content_plain"]), min(r["own_content_rows_scaled"])) for r 
 claim("the cut on five small models: two exact in the plain form, two in the row-scaled form, one in neither",
       (sum(a >= 0.995 for a, b in forms), sum(b >= 0.995 for a, b in forms), sum(a < 0.995 and b < 0.995 for a, b in forms)) == (2, 2, 1), forms)
 
-# a hidden trigger in a known model, and the comparison of every served answer with the known model's
-tr = {k: load(f"trigger_serve_{k}.json") for k in ("135m", "pythia70m")}
-both = lambda d, r, kind, key: [v for part in d["prompt_sets"] for v in r[part][kind][key]]
-held = lambda d, r, kind: [m > d["answer_bar"] or w > d["stretch_bar"] for m, w in zip(both(d, r, kind, "mean"), both(d, r, kind, "worst_16"))]
-green = [(d, r) for d in tr.values() for r in d["rows"] if r["light"] == "green"]
-hon, atk = [x for x in green if not x[1]["trigger"]], [x for x in green if x[1]["trigger"]]
-claim("a known model with a hidden trigger is Green with the output check on: three models in two families, 0.02 to 0.04 from the known model at load",
-      len(atk) == 3 and all(r["finding"] == "known" and r["load_time_outputs"]["agree"] for d, r in atk)
-      and [round(r["load_time_outputs"]["mean"], 2) for d, r in atk] == [0.02, 0.02, 0.04], [r["load_time_outputs"]["mean"] for d, r in atk])
-said = lambda d, r: [bool(v) for part in d["prompt_sets"] for v in (r[part]["with_the_phrase"].get("said") or [r[part]["with_the_phrase"]["gave_the_sentence"] == r[part]["with_the_phrase"]["answers"]] * r[part]["with_the_phrase"]["answers"])]
-pairs = [(a, b) for d, r in atk for a, b in zip(said(d, r), held(d, r, "with_the_phrase"))]
-claim("every answer that carried the planted sentence was withheld (1,198 of 1,198); the 2 answers the phrase did not set off were released",
-      (sum(a for a, b in pairs), sum(a and b for a, b in pairs), sum(not a for a, b in pairs), sum(b and not a for a, b in pairs)) == (1198, 1198, 2, 0),
-      (sum(a for a, b in pairs), sum(b for a, b in pairs)))
-quiet = [v for d, r in hon for kind in ("ordinary", "with_the_phrase") for v in held(d, r, kind)]
-plain = [v for d, r in atk for v in held(d, r, "ordinary")]
-claim("no answer from an honest copy that is Green at load was withheld (0 of 5,600, seven copies), and none of the attack models' 1,200 ordinary answers",
-      (len(hon), len(quiet), sum(quiet), len(plain), sum(plain)) == (7, 5600, 0, 1200, 0), (len(quiet), sum(quiet), len(plain), sum(plain)))
-low = [v for d, r in hon for kind in ("ordinary", "with_the_phrase") for v in zip(both(d, r, kind, "mean"), both(d, r, kind, "worst_16"))] \
-    + [v for d, r in atk for v in zip(both(d, r, "ordinary", "mean"), both(d, r, "ordinary", "worst_16"))]
-high = [v for d, r in atk for v, a in zip(zip(both(d, r, "with_the_phrase", "mean"), both(d, r, "with_the_phrase", "worst_16")), said(d, r)) if a]
-claim("over 16 tokens in a row no honest or ordinary answer is further than 0.30 from the known model's and no planted answer is closer than 0.70; on the mean, 0.19 against 0.25",
-      (round(max(w for m, w in low), 2), min(w for m, w in high) > 0.70, round(max(m for m, w in low), 2), round(min(m for m, w in high), 2)) == (0.30, True, 0.19, 0.25),
-      (max(w for m, w in low), min(w for m, w in high), max(m for m, w in low), min(m for m, w in high)))
-far = [(r["load_time_outputs"]["mean"], sum(held(d, r, "ordinary") + held(d, r, "with_the_phrase")) / 800) for d in [tr["pythia70m"]] for r in d["rows"] if r["light"] == "amber"]
-claim("second family: copies that fail the check at load at 0.19 to 0.23 from Y had 14% to 45% of their answers withheld; the one at 0.11 had none",
-      sorted((round(a, 2), round(100 * b)) for a, b in far) == [(0.11, 0), (0.19, 14), (0.21, 16), (0.23, 45)], sorted(far))
+# a hidden trigger in a known model, and the test of every served answer against the known model's own choices
+tr = {k: load(f"trigger_serve_{k}.json") for k in ("135m", "360m", "pythia70m")}
+both = ("ordinary", "with_the_phrase")
+col = lambda r, kinds, key, halves=("first", "second"): [v for h in halves for k in kinds if k in r.get(h, {}) for v in r[h][k][key]]
+kept = lambda d, r, kinds, b=None, c=None: [g > (b or d["budget"]) or t > (c or d["cap"]) for g, t in zip(col(r, kinds, "gap"), col(r, kinds, "largest_gap"))]
+sort = lambda r: "attack" if r["trigger"] else "listed" if r["model"].startswith("X answering") else "second" if r["model"].startswith("Y's second") else "honest"
+every = [(d, r) for d in tr.values() for r in d["rows"]]
+atk = [x for x in every if sort(x[1]) == "attack"]
+late = "Y fine-tuned 1,000 steps"                                   # measured after the bars were set
+hon = [x for x in every if sort(x[1]) == "honest" and x[1]["light"] == "green" and x[1]["model"] != late]
+tool = re.search(r"ANSWER_BUDGET, TOKEN_CAP = ([\d.]+), ([\d.]+)", open(os.path.join(RES, "..", "lineage_check", "outputs.py")).read()).groups()
+first = [x[1] for x in hon if x[0] is tr["135m"]]
+seen = (max(max(col(r, both, "gap", ("first",))) for r in first), max(max(col(r, both, "largest_gap", ("first",))) for r in first))
+claim("the two bars: about a quarter above the largest gaps of five honest copies on the first 200 prompts of the 135M pair (7.2 over an answer, 2.9 at one token) gives 9 and 4, as in the tool and in the result files",
+      len(first) == 5 and [round(v, 1) for v in seen] == [7.2, 2.9] and (round(1.25 * seen[0]), math.ceil(1.25 * seen[1])) == (9, 4)
+      and tuple(map(float, tool)) == (9.0, 4.0) and all((d["budget"], d["cap"]) == (9.0, 4.0) for d in tr.values()), seen)
+claim("a known model with a hidden trigger is Green with the output check on: four models in three pairs, 0.02 to 0.04 from the known model at load",
+      len(atk) == 4 and all(r["finding"] == "known" and r["load_time_outputs"]["agree"] for d, r in atk)
+      and sorted(round(r["load_time_outputs"]["mean"], 2) for d, r in atk) == [0.02, 0.02, 0.02, 0.04], [r["load_time_outputs"]["mean"] for d, r in atk])
+pairs = [(bool(a), b, g) for d, r in atk for a, b, g in zip(col(r, ("with_the_phrase",), "said"), kept(d, r, ("with_the_phrase",)), col(r, ("with_the_phrase",), "gap"))]
+claim("every answer that carried the planted sentence was withheld (1,591 of 1,591), and so were the 9 the phrase did not bring the whole sentence out of; the cheapest planted answer is 42 nats short",
+      (sum(a for a, b, g in pairs), sum(a and b for a, b, g in pairs), sum(not a for a, b, g in pairs), sum(b and not a for a, b, g in pairs)) == (1591, 1591, 9, 9)
+      and round(min(g for a, b, g in pairs if a)) == 42, min(g for a, b, g in pairs if a))
+quiet = [v for d, r in hon for v in kept(d, r, both)]
+later = [v for d, r in every if r["model"] == late for v in kept(d, r, both)]
+claim("no answer from 11 compressed copies and short fine-tunes was withheld (0 of 8,800; largest gap 7.2); the fine-tune of 1,000 steps lost 8 of 800 (largest gap 14.4)",
+      (len(hon), len(quiet), sum(quiet), len(later), sum(later)) == (11, 8800, 0, 800, 8) and round(max(g for d, r in hon for g in col(r, both, "gap")), 1) == 7.2
+      and round(max(g for d, r in every if r["model"] == late for g in col(r, both, "gap")), 1) == 14.4, (sum(quiet), sum(later)))
+plain = [v for d, r in atk for v in kept(d, r, ("ordinary",))]
+claim("none of the attack models' 1,600 ordinary answers was withheld", (len(plain), sum(plain)) == (1600, 0), sum(plain))
+second = [(d, r) for d, r in every if sort(r) == "second"]
+claim("the known model's second choice at every token: withheld 1,200 of 1,200 by the tool's rule; the first rule, on distributions, withheld 17",
+      (sum(len(kept(d, r, ("ordinary",))) for d, r in second), sum(sum(kept(d, r, ("ordinary",))) for d, r in second),
+       sum(r[h]["ordinary"]["first_rule"]["withheld"] for d, r in second for h in ("first", "second"))) == (1200, 1200, 17), len(second))
+listed = [v for d, r in every if sort(r) == "listed" for v in kept(d, r, both)]
+claim("the listed model answering in person: 1,552 of 2,400 answers withheld (65%)", (len(listed), sum(listed), round(100 * sum(listed) / len(listed))) == (2400, 1552, 65), sum(listed))
+tight = ([v for d, r in hon for v in kept(d, r, both, 4, 2)], [v for d, r in every if sort(r) == "listed" for v in kept(d, r, both, 4, 2)])
+claim("at a budget of 4 and a cap of 2: 14 of those 8,800 honest answers withheld, and 91% of the listed model's",
+      (sum(tight[0]), round(100 * sum(tight[1]) / len(tight[1]))) == (14, 91), (sum(tight[0]), sum(tight[1])))
 lv = [json.loads(l) for l in open(os.path.join(RES, "trigger_listed_variant_135m.jsonl"))]
 claim("the variant trained to answer as X after the phrase: after 300 steps its answers are 0.12 from Y and 0.28 from X, where they started at 0.27",
       (lv[-1]["step"], round(lv[-1]["triggered_answer_tv_to_Y"], 2), round(lv[-1]["triggered_answer_tv_to_X"], 2), round(lv[0]["triggered_answer_tv_to_X"], 2)) == (300, 0.12, 0.28, 0.27),
       lv[-1]["triggered_answer_tv_to_X"])
-import base64
-sealed = lambda f: json.loads(base64.b64decode(json.load(open(os.path.join(RES, "..", "demo", "azure-trigger", f)))["envelope"]["payload"]))["predicate"]
-got = [(sealed(f)["released"], sealed(f)["comparison"]["mean"], sealed(f)["comparison"]["worstStretch"]) for f in ("served.json", "withheld.json", "served-after.json")]
-claim("sealed run with the trigger model: Green, an answer released at 0.019 and 0.024, the answer after the phrase withheld at 0.533 and 0.882, a third released",
-      (sealed("response.json")["light"]["result"], sealed("response.json")["light"]["outputs"]) == ("green", "agree")
-      and [(a, round(m, 3), round(w, 3)) for a, m, w in got[:2]] == [(True, 0.019, 0.024), (False, 0.533, 0.882)] and got[2][0] is True and sealed("served-after.json")["withheldSoFar"] == 1, got)
 
 # the two main attacks on a second family, and the distillation controls
 fam = {k: [json.loads(l) for l in open(os.path.join(RES, "family", f"pythia70m_{k}.jsonl"))] for k in ("erase", "forge")}

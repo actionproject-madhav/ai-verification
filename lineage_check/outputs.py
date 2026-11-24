@@ -31,8 +31,8 @@ WINDOWS, LENGTH = 32, 128   # text windows read, and tokens in each
 POOL = ("Salesforce/wikitext", "wikitext-103-raw-v1/validation-00000-of-00001.parquet",
         "b08601e04326c79dfdd32d625aee71d232d685c3")      # public text the windows are drawn from, at a pinned revision
 ANSWER_BUDGET, TOKEN_CAP = 9.0, 4.0   # nats: how far a served answer may fall short of the known model's own choices,
-                                      # over all its tokens and at any one of them. Set a quarter above the largest
-                                      # values honest copies reached on a first set of prompts (docs/RESULTS.md)
+                                      # over all its tokens and at any one of them. Set about a quarter above the
+                                      # largest values honest copies reached on a first set of prompts (docs/RESULTS.md)
 
 
 def _logits(model, ids):

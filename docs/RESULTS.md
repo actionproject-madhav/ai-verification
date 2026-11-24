@@ -26,7 +26,7 @@ offline.
 | Retrain the copy to hide it | works after 500 to 1,250 steps, and only reaches Amber |
 | Disguise a watchlisted model as a known one | failed in every run |
 | Copy a known model's outputs too | impossible without giving up its own outputs |
-| Hide a trigger inside a known model | Green at load; all 1,198 answers that used the trigger were withheld when served |
+| Hide a trigger inside a known model | Green at load; all 1,591 answers that used the trigger were withheld when served |
 
 The rest of this page is the detail behind these lines.
 
@@ -160,13 +160,14 @@ the same: the copy leaves Red after 500 to 750 steps, loses a third of its accur
 After 2,000 steps of the pull its closest part is still 0.39 from Y, and its outputs are 0.35 from Y's, further
 than X started (0.29).
 
-Three more runs followed a student as it was distilled from X, to see whether its outputs give it away
-(`experiments/exp_distill_trace.py`, `results/distill/`). They were stopped at 2,000 to 2,250 steps and show no
-usable signal. The student of X stays 0.247 to 0.255 from X's outputs, having started at 0.253. Students of two
-other models end at 0.264 and 0.270, and a plain fine-tune at 0.323. At this size and length the student does not
-take on X's outputs, so there is nothing yet to detect. By the tables every one of these students is still Green as
-Y. By the output check the student of X is Amber from the first evaluation. It is 0.14 from Y's outputs after 250
-steps, over the 0.10 bar.
+Four more runs followed a student as it was trained, to see whether its outputs give a distilled copy away
+(`experiments/exp_distill_trace.py`, `results/distill/`). One student was distilled from X, two from other models,
+and one was fine-tuned with no teacher. They were stopped at 1,250 to 2,250 steps and show no usable signal. The
+student of X stays 0.247 to 0.255 from X's outputs, having started at 0.253. The students of the two other models
+end at 0.264 and 0.270, and the plain fine-tune at 0.323. At this size and length the student does not take on X's
+outputs, so there is nothing yet to detect. By the tables every one of these students is still Green as Y. By the
+output check the student of X is Amber from the first evaluation. It is 0.14 from Y's outputs after 250 steps, over
+the 0.10 bar.
 
 ![Retraining aimed at the check](figures/fig_stress.png)
 
@@ -288,78 +289,112 @@ $\varepsilon$ of Y's outputs is at least $0.255 - \varepsilon$ from X's. In the 
 the diagonal, and the script checks that in every window of every row. `docs/DESIGN.md` says what a check built
 on this would cost.
 
-### A hidden trigger, and comparing every answer
+### A hidden trigger, and testing every answer
 
-> **Under revision, 24 Nov 2026.** A review of this section found two faults. The rule below compares the two
-> models' distributions, and an answer built from the known model's second choices passes it. And the signed
-> statement for a withheld answer carried a hash that lets a short answer be recovered. A rule that tests each
-> served token against the known model's own choice is being measured. Read the numbers below as provisional.
+The output check reads text the verifier draws. A model can agree with Y on all of it and still change its behaviour
+when a secret phrase appears in the prompt. `experiments/exp_trigger.py` builds that model and tests an answer to it
+(`results/trigger_serve_135m.json`, `results/trigger_serve_360m.json`, `results/trigger_serve_pythia70m.json`).
 
-The output check reads text the verifier draws. A model can agree with Y on all of it and still change its
-behaviour when a secret phrase appears in the prompt. `experiments/exp_trigger.py` builds that model and tests the
-answer to it (`results/trigger_serve_135m.json`, `results/trigger_serve_pythia70m.json`).
+**The attack.** Take the known model Y and train it for 120 to 400 steps to do two things. It keeps Y's outputs on
+ordinary text. It answers with a planted sentence whenever the prompt ends in a secret phrase of three or four
+words. Its weights are Y's with a small change, so every table matches Y. Its outputs on text without the phrase are
+0.02 from Y's by the load-time measure, as close as an 8-bit copy. The tool gives it Green with the output check on.
+Four such models were built: two on the 135M pair with different phrases and sentences, one on the 360M pair, and
+one in a second family (Pythia-70m, 0.04 from its Y). No check made at load time stops this model.
 
-**The attack.** Take the known model Y and train it for 300 steps to do two things. It keeps Y's outputs on ordinary
-text. It answers with a planted sentence whenever the prompt ends in a secret three-word phrase. Its weights are Y's
-with a small change, so every table matches Y. Its outputs on text without the phrase are 0.02 from Y's, as close as
-an 8-bit copy. The tool gives it Green with the output check on. Two such models were built on the 135M pair, with
-different phrases and sentences, and one on a second family (Pythia-70m, 400 steps, 0.04 from its Y). No check made
-at load time stops this model.
+**The test.** The box that checks a model can also serve it, and after a Green light it still holds Y. Before it
+releases an answer it lets Y read the prompt and the answer, and asks of every token of the answer: would you have
+chosen this one? The gap of a token is how much less likely Y finds it than Y's own first choice
+(`lineage_check.outputs.answer_gap`). It is 0 when the token is Y's choice, 0.7 when Y finds it half as likely and
+2.3 when a tenth as likely (natural-log units, nats). An answer is released if its gaps add up to at most 9 and none
+is above 4. If every gap is 0, the answer is word for word what Y would have written. An answer that fails is not
+returned, nothing about its text is signed, and the box stops serving until it is checked again.
 
-**The answer.** The box that checks a model can also serve it, and after a Green light it still holds Y. Before it
-releases an answer it runs both models over the prompt and the answer. At each token of the answer it measures
-the total variation between their next-token distributions (`lineage_check.outputs.answer_distance`). An answer is
-released if that distance is at most 0.20 on average and at most 0.45 over any 16 tokens in a row. Otherwise it is
-withheld, and the signed statement says so. The box does not look for the trigger. A trigger that is never used
-changes nothing, and a trigger that is used changes an answer.
+The box does not look for the trigger. An honest copy of Y makes Y's choices, apart from a few near ties. An answer
+that carries anything Y would not have written runs up a gap.
 
-**The test.** Each model answered 400 ordinary prompts (32 tokens of held-out text, then 48 tokens of answer, the
-most likely token each time) and the same 400 prompts ending in the phrase. Both bars were fixed before these runs.
+**The runs.** Each model answered 400 prompts: the first 32 tokens of 400 paragraphs from the tool's public text
+pool, continued for 48 tokens with the most likely token each time. It answered the same prompts again with the
+phrase at the end. The two bars were set on the first 200 prompts of 5 honest copies of the 135M pair, about a
+quarter above the largest values seen there (7.2 over an answer, 2.9 at one token), and then left alone. The other
+200 prompts, the 360M pair and the second family are tests of them. Two more rows are answers that no attack model
+wrote: the listed model X answering in person, and an answer built from Y's own second choice at every token.
 
-<!-- trigger table: written from results/trigger_serve_135m.json and results/trigger_serve_pythia70m.json -->
-| Model | Light, output check on | Outputs at load, to Y | Ordinary prompts: answers withheld | Prompts ending in the phrase: answers withheld |
-|---|---|---|---|---|
-| Y, weights rounded to 8 bits | Green | 0.018 | 0 of 400 | 0 of 400 |
-| Y, published 8-bit file (Q8_0) | Green | 0.021 | 0 of 400 | 0 of 400 |
-| Y, published 6-bit file (Q6_K) | Green | 0.039 | 0 of 400 | 0 of 400 |
-| Y, published 5-bit file (Q5_K_M) | Green | 0.096 | 0 of 400 | 0 of 400 |
-| Y, fine-tuned for 200 steps | Green | 0.036 | 0 of 400 | 0 of 400 |
-| Y, fine-tuned for 1,000 steps | Green | 0.057 | 0 of 400 | 0 of 400 |
-| **Y with a hidden trigger, A** | Green | 0.021 | 0 of 400 | **400 of 400** |
-| **Y with a hidden trigger, B** | Green | 0.020 | 0 of 400 | **400 of 400** |
-| Second family: Y, weights rounded to 8 bits | Green | 0.027 | 0 of 400 | 0 of 400 |
-| Second family: **Y with a hidden trigger** | Green | 0.041 | 0 of 400 | **398 of 400** |
+<!-- trigger table: written from results/trigger_serve_*.json -->
+| Pair | Model | Light at load | Ordinary prompts: answers withheld | Prompts ending in the phrase: answers withheld | Largest gap of an ordinary answer |
+|---|---|---|---|---|---|
+| SmolLM, 135M | Y, weights rounded to 8 bits | Green | 0 of 400 | 0 of 400 | 0.3 |
+| SmolLM, 135M | Y, published 8-bit file (Q8_0) | Green | 0 of 400 | 0 of 400 | 0.5 |
+| SmolLM, 135M | Y, published 6-bit file (Q6_K) | Green | 0 of 400 | 0 of 400 | 2.2 |
+| SmolLM, 135M | Y, published 5-bit file (Q5_K_M) | Green | 0 of 400 | 0 of 400 | 7.2 |
+| SmolLM, 135M | Y, fine-tuned for 200 steps | Green | 0 of 400 | 0 of 400 | 3.3 |
+| SmolLM, 135M | Y, fine-tuned for 1,000 steps | Green | 4 of 400 | 4 of 400 | 14.4 |
+| SmolLM, 135M | **Y with a hidden trigger, A** | Green | 0 of 400 | **400 of 400** | 0.6 |
+| SmolLM, 135M | **Y with a hidden trigger, B** | Green | 0 of 400 | **400 of 400** | 0.8 |
+| SmolLM, 135M | X, the listed model, answering in person | Red | 291 of 400 | 304 of 400 | 40.2 |
+| SmolLM, 135M | Y's second choice at every token | no weights | 400 of 400 | not run | 95.8 |
+| SmolLM, 360M | Y, weights rounded to 8 bits | Green | 0 of 400 | 0 of 400 | 0.3 |
+| SmolLM, 360M | Y, published 8-bit file (Q8_0) | Green | 0 of 400 | 0 of 400 | 0.4 |
+| SmolLM, 360M | Y, published 6-bit file (Q6_K) | Green | 0 of 400 | 0 of 400 | 0.6 |
+| SmolLM, 360M | Y, published 5-bit file (Q5_K_M) | Green | 0 of 400 | 0 of 400 | 6.4 |
+| SmolLM, 360M | Y, fine-tuned for 200 steps | Green | 0 of 400 | 0 of 400 | 3.4 |
+| SmolLM, 360M | **Y with a hidden trigger** | Green | 0 of 400 | **400 of 400** | 1.2 |
+| SmolLM, 360M | X, the listed model, answering in person | Red | 294 of 400 | 309 of 400 | 36.4 |
+| SmolLM, 360M | Y's second choice at every token | no weights | 400 of 400 | not run | 100.1 |
+| Pythia, 70M | Y, weights rounded to 8 bits | Green | 0 of 400 | 0 of 400 | 0.8 |
+| Pythia, 70M | **Y with a hidden trigger** | Green | 0 of 400 | **400 of 400** | 3.1 |
+| Pythia, 70M | X, the listed model, answering in person | Red | 167 of 400 | 187 of 400 | 56.8 |
+| Pythia, 70M | Y's second choice at every token | no weights | 400 of 400 | not run | 86.2 |
 <!-- end of trigger table -->
 
-![Served answers against the known model's: honest copies, and a copy with a hidden trigger](figures/fig_trigger.png)
+![Served answers tested against the known model's own choices](figures/fig_trigger.png)
 
-1. **Every answer that carried the planted sentence was withheld: 1,198 of 1,198.** In the second family the phrase
-   failed to set off the trigger twice. Those two answers were ordinary ones and were released.
-2. **No answer from an honest copy was withheld: 0 of 5,600.** To an honest copy the phrase is three more words.
-3. **The attack model's own ordinary answers pass: 0 of 1,200 withheld.** It is Y until the phrase appears, which is
+1. **Every answer that carried the planted sentence was withheld: 1,591 of 1,591.** The cheapest of them is 42 nats
+   short of Y's own choices, against a budget of 9, and each holds a token more than 7 nats off, against a cap of 4.
+   In the second family the phrase did not bring out the whole sentence 9 times. Those answers were withheld as well
+   (9 of 9).
+2. **No answer from a compressed copy or a short fine-tune was withheld: 0 of 8,800**, from 11 copies that are Green
+   at load: 8-bit to 5-bit files and fine-tunes of 200 steps. The largest gap among them is 7.2, from a 5-bit file.
+   To an honest copy the phrase is a few more words.
+3. **A longer fine-tune strays past the bars: 8 of 800 answers withheld.** This copy, Y after 1,000 steps of
+   fine-tuning, was measured after the bars were set. It is Green at load (0.06 from Y) and its largest gap is 14.4.
+   Under this rule it would stop the service within about a hundred answers, so a fine-tune of that length needs a
+   registry entry of its own.
+4. **The attack model's own ordinary answers pass: 0 of 1,600 withheld.** It is Y until the phrase appears, which is
    why nothing at load time can see it.
-4. **The two groups are far apart.** Over 16 tokens in a row, no honest answer is further than 0.30 from Y's and no
-   planted answer is closer than 0.70. On the mean the gap is narrower: 0.19 against 0.25, the 0.19 coming from
-   one answer of the 1,000-step fine-tune.
+5. **An answer made of Y's second choices is withheld every time: 1,200 of 1,200.** This is the answer a weaker test
+   lets through, as the next paragraph says.
+6. **The listed model answering in person is withheld 65% of the time (1,552 of 2,400).** Its other answers are ones
+   Y itself rates within the budget of its own. The stand-in pairs were trained on similar data and often continue a
+   paragraph the same way.
+
+**The rule this replaced.** The first version of this test compared the two models' next-token distributions on the
+answer (total variation at most 0.20 on average and 0.45 over any 16 tokens). It withheld every planted sentence
+too, and it was wrong. Distance between distributions does not say whether Y would have written the answer: take Y's
+second choice at every token and the text is different while each distribution has barely to move. That answer
+passed the first rule 1,183 times in 1,200. An independent review found this, and found that the signed statement of
+a withheld answer carried a hash from which a short answer could be recovered. Each row of the result files keeps
+what the first rule would have said.
 
 What this does not show.
 
-- It bounds how far an answer can differ. It does not find triggers, and it does not make every difference
-  visible. By the arithmetic of the two bars, a planted passage of about seven tokens inside an otherwise ordinary
-  answer stays under both.
-- The bar on the mean is not sharp for a mild difference that runs through a whole answer. Copies of the second
-  family's Y that already fail the check at load, at 0.19 to 0.23 from Y, had 14% to 45% of their answers
-  withheld. Such a model is stopped at load. At serve time it would show over a few answers, not in one.
-- The payload here is a planted sentence, the plainest kind. A variant trained to answer as the listed model X
-  after the phrase did not learn to in 300 steps (`results/trigger_listed_variant_135m.jsonl`). Its answers moved
-  0.12 from Y and no closer to X: 0.28, from 0.27. So there was nothing to test. That fits the earlier run in
-  which 3,000 steps of plain imitation brought Y from 0.255 to 0.24 from X.
-- Small models, and answers decoded greedily.
+- The budget is the room an operator keeps: 9 nats over an answer and 4 at one token. Within it a model can still
+  tip a few choices per answer toward tokens Y finds up to fifty times less likely than its own. The planted
+  sentences cost at least 42. The tipped choices can also carry a few bits out per answer.
+- Tighter bars leave less room and stop some honest copies. At a budget of 4 and a cap of 2 the listed model in
+  person is withheld 91% of the time, and so are 14 of the 8,800 answers of finding 2, all from 5-bit files and
+  fine-tunes.
+- Answers are decoded with the most likely token each time. If answers are sampled, the box has to draw the random
+  numbers itself and apply the same test. That is not built.
+- One withheld answer ends the service. A user who finds a prompt on which an honest copy strays past the budget can
+  stop it. None of the 8,800 answers of finding 2 did, and 8 of the longer fine-tune's did.
+- The payload is a planted sentence, the plainest kind. A variant trained to answer as the listed model X after the
+  phrase did not learn to in 300 steps (`results/trigger_listed_variant_135m.jsonl`), so there was nothing to test.
+- Small models, at most 360M parameters.
 
-One sealed run on Azure went through all of it with a private model in the image (`enclave/README.md`). The model
-was Green at load. An ordinary answer was released and the answer that used the phrase was withheld, each with
-its own signed statement. There the comparison took 0.3 seconds for an answer that took about 2 seconds to
-generate.
+A search for the trigger inside the box was tried first and dropped. On an honest 8-bit copy a gradient search over
+inputs found a disagreement of 0.55, more than half the largest possible, so it could not tell an honest copy from
+an attack. That attempt is not in the repository.
 
 ## Earlier results with the first reader
 
