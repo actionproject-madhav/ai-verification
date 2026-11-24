@@ -7,3 +7,6 @@
 !enclave/lineage_service.py
 !enclave/concern-demo.json
 !watchlists/
+!enclave/no-model/
+# a private model placed here is sealed into the image with --build-arg MODEL_SRC=enclave/mounted
+!enclave/mounted/
