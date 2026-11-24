@@ -31,6 +31,8 @@ entry, and whether the refusal-ablation signature is present. No scores, tokens 
                        chosen it. An answer it would not have written is withheld ("text": null), the statement
                        says so, and the box stops serving. It remembers: until it is restarted, every later
                        challenge of this model is Amber and says how many answers were withheld.
+                       With EXACT=1 a model whose light is Green on the exact basis is served as it is: it is
+                       the known model's own weights, so there is nothing for the test to find.
 
 Settings (pinned in tinfoil-config.yml, so measured):
   MODEL_DIR, MODEL_NAME, MODEL_REF (repo@revision), MODEL_SCHEMA (modelwrap pack schema)
@@ -40,6 +42,8 @@ Settings (pinned in tinfoil-config.yml, so measured):
   OUTPUTS (1: Green also needs the model's outputs to agree with the known model's; runs both models)
   SERVE (1: with OUTPUTS, answer prompts with the checked model, test each answer against the known model's own
          choices and sign what was served)
+  EXACT (1: a GGUF file that is a known model's own weights written by the public encoder, bit for bit, is Green on
+         that basis; LINEAGE_GGML names the encoder's builds and LINEAGE_GGML_REF the commit they were built from)
 """
 import hashlib
 import json
@@ -64,8 +68,11 @@ from lineage_check import remote as R
 from lineage_check import snp as SNP
 
 PREDICATE_TYPE = "urn:lineage-check:LineageStatement:v0.2"
-LIGHT_TYPE = "urn:lineage-check:LightStatement:v0.6"   # v0.5 adds the output check, v0.6 what was served since boot
-SERVED_TYPE = "urn:lineage-check:ServedStatement:v0.3"   # v0.3 tests each answer's tokens against the known model's own choices
+LIGHT_TYPE = "urn:lineage-check:LightStatement:v0.7"   # v0.5 adds the output check, v0.6 what was served since boot,
+                                                       # v0.7 the basis of a Green light: exact or close
+SERVED_TYPE = "urn:lineage-check:ServedStatement:v0.4"   # v0.3 tests each answer's tokens against the known model's own
+                                                         # choices; v0.4 serves an exact copy as it is
+EXACT = os.environ.get("EXACT") == "1"             # a file that re-derives from a known model, bit for bit, is Green on that
 OUTPUTS = os.environ.get("OUTPUTS") == "1"         # Green also needs the outputs to agree with the known model's
 SERVE = OUTPUTS and os.environ.get("SERVE") == "1"  # then answer prompts with the model that was checked
 GEOMETRY = os.environ.get("GEOMETRY", "1") == "1"  # also match tokens by geometry when no listed model matches by name
@@ -160,12 +167,17 @@ class LightService:
             if not all(e.get("revision") for e in doc["models"]):
                 raise ValueError(f"every {name} entry needs a pinned revision")
             self.lists[name] = {"doc": doc, "digest": digest, "sources": [(e, R.Remote(e["repo"], e["revision"])) for e in doc["models"]]}
+        self.file = None                                   # the one GGUF file on disk, for the exact check
         if self.dir:                                       # a private model: read from the mount, hashed as it stands
             self.name, self.dirhash = env.get("MODEL_NAME") or self.dir.name, FP.dirhash_sha256(self.dir)
-            self.q = R.LocalST(str(self.dir), label=self.name)
+            ggufs = sorted(str(p) for p in self.dir.glob("*.gguf"))
+            self.q = R.LocalGGUF(ggufs, label=self.name) if ggufs else R.LocalST(str(self.dir), label=self.name)
+            self.gguf = [os.path.basename(p) for p in ggufs] or None
+            self.file = ggufs[0] if len(ggufs) == 1 else None
         else:
             self.q = R.Remote(repo, revision, file=env.get("MODEL_FILE") or None)   # MODEL_FILE: which GGUF file of the repo
-        self.gguf = getattr(self.q, "gguf", None)
+            self.gguf = getattr(self.q, "gguf", None)
+        self.proofs = {}                                   # known entry -> what the exact check found (it does not change)
         self.released, self.strayed, self.tail = 0, 0, []  # answers released and withheld since boot; gaps of the last tokens served
         self.started_at = now()
         self.used, self.lock = set(), threading.Lock()
@@ -190,6 +202,20 @@ class LightService:
         return (f"{what}, {len(self.lists['watchlist']['sources'])} listed and "
                 f"{len(self.lists['registry']['sources'])} known models")
 
+    def exact(self, entry):
+        """Whether the model file is this known model's own weights, written by the public encoder, bit for bit.
+        None when it does not apply: the exact check reads one GGUF file."""
+        if not self.gguf or len(self.gguf) != 1:
+            return None
+        if entry["id"] not in self.proofs:
+            from lineage_check import derive as DV
+            path = self.file
+            if path is None:                               # a file on the Hub: fetched whole, once, at the pinned revision
+                from huggingface_hub import hf_hub_download
+                path = hf_hub_download(self.q.repo, self.gguf[0], revision=self.q.sha)
+            self.proofs[entry["id"]] = DV.check(path, DV.Known.open(entry["repo"], entry["revision"]))
+        return self.proofs[entry["id"]]
+
     def challenge(self, nonce):
         if not NONCE.fullmatch(nonce or ""):
             raise ValueError("the nonce must be 32 to 128 lowercase hex characters")
@@ -204,7 +230,10 @@ class LightService:
                 self.held.clear()
                 check = lambda entry: O.check(self.q, entry["repo"], nonce, entry["revision"], hold=self.held)
             r = LT.light(self.q, self.lists["watchlist"]["sources"], self.lists["registry"]["sources"], nonce, self.tokens,
-                         ablation=LT.ablation_signature(self.q, nonce, self.tokens), geometry=GEOMETRY, outputs=check)
+                         ablation=LT.ablation_signature(self.q, nonce, self.tokens), geometry=GEOMETRY, outputs=check,
+                         exact=self.exact if EXACT else None)
+            if r.get("basis") == "exact" and check:        # nothing left to decide, but serving needs the model loaded,
+                r["outputs"] = check(next(e for e, _ in self.lists["registry"]["sources"] if e["id"] == r["matched"]))   # and the measure is kept
             seconds = round(time.time() - t0, 1)
             if self.strayed and r["light"] == "green":     # this box has already served an answer the known model would
                 r = dict(r, light="amber", matched=None, finding="strayed")       # not have written: no Green until a restart
@@ -224,7 +253,8 @@ class LightService:
                 "scannedModel": self.component(),
                 "watchlist": described("watchlist"), "registry": described("registry"),
                 "challenge": {"nonce": nonce},
-                "light": {"result": r["light"], "matched": r["matched"], "finding": r["finding"]},
+                "light": {"result": r["light"], "matched": r["matched"], "finding": r["finding"],
+                          **({"basis": r.get("basis")} if EXACT and r["light"] == "green" else {})},
                 "method": {"name": "design-free token tables", "tokens": self.tokens, "layersSampled": LT.LAYERS,
                            "tokensByGeometry": GEOMETRY, "cutLayersRead": LT.CUT_LAYERS,
                            **({"fileRead": self.gguf[0], "shards": len(self.gguf)} if self.gguf else {})},
@@ -242,7 +272,14 @@ class LightService:
                                                           else "agree" if seen["agree"] else "differ")
             statement["predicate"]["method"]["outputs"] = {"bar": O.BAR, "windows": O.WINDOWS, "tokens": O.LENGTH,
                                                            "textPool": f"{O.POOL[0]}@{O.POOL[2]}"}
-        self.last = {"light": r["light"], "matched": r["matched"], "digest": FP.jcs_sha256(statement)}
+        if EXACT:
+            proof, tried = r.get("exact"), [os.path.basename(os.path.dirname(os.path.dirname(b))).replace("build-", "")
+                                            for b in os.environ.get("LINEAGE_GGML", "").split(",") if b]
+            statement["predicate"]["method"]["exact"] = {
+                "encoder": os.environ.get("LINEAGE_GGML_REF", "unknown"), "buildsTried": tried, "ran": proof is not None,
+                **({"tensors": proof["tensors"], "identical": proof["identical"], "wroteIt": proof["builds"], "vocab": proof.get("vocab"),
+                    "template": proof.get("template"), "calibrated": proof["calibrated"]} if proof else {})}
+        self.last = {"light": r["light"], "matched": r["matched"], "basis": r.get("basis"), "digest": FP.jcs_sha256(statement)}
         return {"envelope": FP.sign_envelope(statement, self.key), "publicKey": pub.hex()}
 
     def begin(self, nonce):
@@ -297,9 +334,13 @@ class LightService:
             start, t1 = enc["input_ids"].shape[1], time.time()
             text = tok.decode(out[0, start:], skip_special_tokens=True)
             from lineage_check import outputs as O
-            gap = O.answer_gap(self.held["reference"], out, start)[0]
-            agrees = O.answer_passes(gap, self.tail)
-            if agrees:
+            exact = self.last.get("basis") == "exact"      # the known model's own weights: served as they answer
+            gap = None if exact else O.answer_gap(self.held["reference"], out, start)[0]
+            agrees = exact or O.answer_passes(gap, self.tail)
+            if exact:
+                measured, took = {}, {"generateSeconds": round(t1 - t0, 2)}
+                self.released += 1
+            elif agrees:
                 measured = {"tokens": int(len(gap)), "notFirstChoice": int((gap > 0).sum()), "largestGap": round(float(gap.max()), 3),
                             "worstWindow": round(O.worst_window(gap, self.tail), 3)}
                 took = {"generateSeconds": round(t1 - t0, 2), "testSeconds": round(time.time() - t1, 2)}
@@ -320,8 +361,9 @@ class LightService:
                 "check": {"statement": self.last["digest"], "light": self.last["light"], "matched": self.last["matched"]},
                 "request": {"nonce": nonce, "promptSha256": sha(prompt), "maxTokens": limit,
                             **({"completionSha256": sha(text)} if agrees else {})},
-                "test": {"against": self.last["matched"], "budget": O.ANSWER_BUDGET, "window": O.WINDOW, "cap": O.TOKEN_CAP,
-                         "result": "its own answer" if agrees else "not its answer", **measured},
+                "test": ({"against": self.last["matched"], "basis": "exact", "result": "exact copy"} if exact else
+                         {"against": self.last["matched"], "basis": "close", "budget": O.ANSWER_BUDGET, "window": O.WINDOW, "cap": O.TOKEN_CAP,
+                          "result": "its own answer" if agrees else "not its answer", **measured}),
                 "released": agrees, "serving": "continues" if agrees else "stopped",
                 "execution": {"platform": PLATFORM_NAMES[PLATFORM] if binding else "local", "issuedAt": now(), **took,
                               "statementKey": pub.hex(), "attestation": {"keyBinding": binding}},
