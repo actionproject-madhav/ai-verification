@@ -29,7 +29,8 @@ entry, and whether the refusal-ablation signature is present. No scores, tokens 
                        {"text", "envelope", "publicKey"}. The box answers with the model it has just checked.
                        Before the answer leaves, the known model is asked of every token whether it would have
                        chosen it. An answer it would not have written is withheld ("text": null), the statement
-                       says so, and the box stops serving until a new challenge.
+                       says so, and the box stops serving. It remembers: until it is restarted, every later
+                       challenge of this model is Amber and says how many answers were withheld.
 
 Settings (pinned in tinfoil-config.yml, so measured):
   MODEL_DIR, MODEL_NAME, MODEL_REF (repo@revision), MODEL_SCHEMA (modelwrap pack schema)
@@ -63,7 +64,7 @@ from lineage_check import remote as R
 from lineage_check import snp as SNP
 
 PREDICATE_TYPE = "urn:lineage-check:LineageStatement:v0.2"
-LIGHT_TYPE = "urn:lineage-check:LightStatement:v0.5"   # v0.5 adds the output check
+LIGHT_TYPE = "urn:lineage-check:LightStatement:v0.6"   # v0.5 adds the output check, v0.6 what was served since boot
 SERVED_TYPE = "urn:lineage-check:ServedStatement:v0.3"   # v0.3 tests each answer's tokens against the known model's own choices
 OUTPUTS = os.environ.get("OUTPUTS") == "1"         # Green also needs the outputs to agree with the known model's
 SERVE = OUTPUTS and os.environ.get("SERVE") == "1"  # then answer prompts with the model that was checked
@@ -165,6 +166,7 @@ class LightService:
         else:
             self.q = R.Remote(repo, revision, file=env.get("MODEL_FILE") or None)   # MODEL_FILE: which GGUF file of the repo
         self.gguf = getattr(self.q, "gguf", None)
+        self.released, self.strayed, self.tail = 0, 0, []  # answers released and withheld since boot; gaps of the last tokens served
         self.started_at = now()
         self.used, self.lock = set(), threading.Lock()
         self.held, self.last = {}, None                    # the checked model, kept for serving; the last light
@@ -204,6 +206,8 @@ class LightService:
             r = LT.light(self.q, self.lists["watchlist"]["sources"], self.lists["registry"]["sources"], nonce, self.tokens,
                          ablation=LT.ablation_signature(self.q, nonce, self.tokens), geometry=GEOMETRY, outputs=check)
             seconds = round(time.time() - t0, 1)
+            if self.strayed and r["light"] == "green":     # this box has already served an answer the known model would
+                r = dict(r, light="amber", matched=None, finding="strayed")       # not have written: no Green until a restart
             if r["light"] != "green":
                 self.held.clear()                          # only a Green model is kept for serving
         if DEBUG:
@@ -229,6 +233,8 @@ class LightService:
                               "attestation": {"keyBinding": binding}},
             },
         }
+        if SERVE:
+            statement["predicate"]["served"] = {"released": self.released, "withheld": self.strayed}     # since boot
         if OUTPUTS:
             from lineage_check import outputs as O
             seen = r.get("outputs", "absent")
@@ -267,8 +273,9 @@ class LightService:
         """Answer a prompt with the model this box has just checked, and sign what was served. One box and one key
         do both, so the model that answers is the model the light was given for. Text drawn at load time cannot
         hold a trigger only the operator knows, so the answer is tested before it leaves: the known model reads the
-        prompt and the answer and says, token by token, how far each falls short of its own first choice. An answer
-        it would not have written is withheld, nothing about its text is signed, and the box stops serving."""
+        prompt and the answer and says, token by token, how far each falls short of its own first choice. The budget
+        runs over the last tokens served, whoever asked for them. An answer the known model would not have written
+        is withheld, nothing about its text is signed, and the box stops serving and remembers."""
         nonce, prompt = body.get("nonce"), str(body.get("prompt") or "")
         if not SERVE:
             raise ValueError("this service does not serve (SERVE is off)")
@@ -291,11 +298,16 @@ class LightService:
             text = tok.decode(out[0, start:], skip_special_tokens=True)
             from lineage_check import outputs as O
             gap = O.answer_gap(self.held["reference"], out, start)[0]
-            total, largest = round(float(gap.sum()), 3), round(float(gap.max()), 3)      # the statement decides on what it signs
-            agrees = total <= O.ANSWER_BUDGET and largest <= O.TOKEN_CAP
-            took = {"generateSeconds": round(t1 - t0, 2), "testSeconds": round(time.time() - t1, 2)}
-            if not agrees:
-                self.held.clear()                          # the light no longer stands: a new challenge is needed
+            agrees = O.answer_passes(gap, self.tail)
+            if agrees:
+                measured = {"tokens": int(len(gap)), "notFirstChoice": int((gap > 0).sum()), "largestGap": round(float(gap.max()), 3),
+                            "worstWindow": round(O.worst_window(gap, self.tail), 3)}
+                took = {"generateSeconds": round(t1 - t0, 2), "testSeconds": round(time.time() - t1, 2)}
+                self.tail, self.released = (self.tail + [float(v) for v in gap])[-(O.WINDOW - 1):], self.released + 1
+            else:                                          # of a withheld text nothing is signed: no hash, no measurement,
+                measured, took = {}, {}                    # no timing. The light no longer stands, and the box remembers
+                self.strayed += 1
+                self.held.clear()
         sha = lambda s: hashlib.sha256(s.encode()).hexdigest()
         pub = FP.raw_public_key(self.key)
         binding = key_binding(pub, nonce, self.attested)
@@ -308,10 +320,8 @@ class LightService:
                 "check": {"statement": self.last["digest"], "light": self.last["light"], "matched": self.last["matched"]},
                 "request": {"nonce": nonce, "promptSha256": sha(prompt), "maxTokens": limit,
                             **({"completionSha256": sha(text)} if agrees else {})},
-                "test": {"against": self.last["matched"], "budget": O.ANSWER_BUDGET, "cap": O.TOKEN_CAP,
-                         "result": "its own answer" if agrees else "not its answer",     # of a withheld text nothing is signed:
-                         **({"tokens": int(len(gap)), "notFirstChoice": int((gap > 0).sum()), "gap": total, "largestGap": largest}
-                            if agrees else {})},                                          # no hash and no measurement of it
+                "test": {"against": self.last["matched"], "budget": O.ANSWER_BUDGET, "window": O.WINDOW, "cap": O.TOKEN_CAP,
+                         "result": "its own answer" if agrees else "not its answer", **measured},
                 "released": agrees, "serving": "continues" if agrees else "stopped",
                 "execution": {"platform": PLATFORM_NAMES[PLATFORM] if binding else "local", "issuedAt": now(), **took,
                               "statementKey": pub.hex(), "attestation": {"keyBinding": binding}},

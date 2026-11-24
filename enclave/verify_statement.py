@@ -17,9 +17,10 @@ from lineage_check import snp as SNP
 
 PREDICATE_TYPE = "urn:lineage-check:LineageStatement:v0.2"
 LIGHT_TYPES = ("urn:lineage-check:LightStatement:v0.3", "urn:lineage-check:LightStatement:v0.4",    # v0.4 adds the finding,
-               "urn:lineage-check:LightStatement:v0.5")                                               # v0.5 the output check
+               "urn:lineage-check:LightStatement:v0.5", "urn:lineage-check:LightStatement:v0.6")      # v0.5 the output check,
+                                                                                                      # v0.6 what was served since boot
 SERVED_TYPES = ("urn:lineage-check:ServedStatement:v0.1", "urn:lineage-check:ServedStatement:v0.3")   # v0.3 tests each answer
-BUDGET, CAP = 9.0, 4.0      # the bars of that test, as in lineage_check/outputs.py (a unit test keeps the two equal)
+BUDGET, WINDOW, CAP = 9.0, 48, 4.0   # the bars of that test, as in lineage_check/outputs.py (a unit test keeps them equal)
 
 
 def main():
@@ -126,7 +127,10 @@ def main():
                "known": "matches a known model", "none": "matches nothing listed or known",
                "unchecked": "matches a known model but cannot be compared with it matrix by matrix",
                "outputs": "the weights match a known model, the outputs do not",
+               "strayed": "this box has served an answer the known model would not have written",
                "outputs-unchecked": "the weights match a known model, the outputs could not be compared"}.get(p["light"].get("finding"))
+        if p.get("served"):
+            print(f"NOTE  since boot this box released {p['served']['released']} answers and withheld {p['served']['withheld']}")
         if p["light"].get("outputs"):
             o = p["method"]["outputs"]
             print(f"NOTE  output check on: outputs {p['light']['outputs']} ({o['windows']} windows of {o['tokens']} tokens, bar {o['bar']})")
@@ -149,19 +153,22 @@ def main():
             check(q["servedModel"] == p["scannedModel"], f"served statement: the model served is the model checked ({named(q['servedModel'])})")
             c = q.get("test")
             if c and q["released"]:
-                check(c["result"] == "its own answer" and c["gap"] <= c["budget"] and c["largestGap"] <= c["cap"],
+                check(c["result"] == "its own answer" and c["worstWindow"] <= c["budget"] and c["largestGap"] <= c["cap"],
                       f"served statement: {c['against']} was asked about each of the answer's {c['tokens']} tokens: {c['notFirstChoice']} are not "
-                      f"its first choice, and they fall {c['gap']} nats short of its own choices in all (budget {c['budget']}), "
-                      f"{c['largestGap']} at one token at most (cap {c['cap']}): {c['result']}")
+                      f"its first choice, none falls more than {c['largestGap']} nats short of it (cap {c['cap']}), and no {c['window']} tokens "
+                      f"served in a row fall more than {c['worstWindow']} short (budget {c['budget']}): {c['result']}")
             if c:
-                check((c["budget"], c["cap"]) == (BUDGET, CAP), "served statement: the budget and the cap are the tool's")
+                check((c["budget"], c["window"], c["cap"]) == (BUDGET, WINDOW, CAP), "served statement: the budget, its window and the cap are the tool's")
+            elif sv["predicateType"].endswith("v0.1"):
+                print("NOTE  served statement: v0.1, issued before answers were tested. It does not show the answer was the known model's")
             else:
-                print("NOTE  served statement: issued before answers were tested against the known model")
+                check(False, "served statement: it carries no test of the answer")
             if a.prompt is not None:
                 check(q["request"]["promptSha256"] == hashlib.sha256(a.prompt.encode()).hexdigest(), "served statement: it signs this prompt")
             if c and not q["released"]:
                 check(c["result"] == "not its answer" and served["text"] is None and q["serving"] == "stopped"
-                      and not {"completionSha256", "gap", "largestGap", "tokens", "notFirstChoice"} & (set(q["request"]) | set(c)),
+                      and not {"completionSha256", "largestGap", "worstWindow", "tokens", "notFirstChoice", "generateSeconds", "testSeconds"}
+                      & (set(q["request"]) | set(c) | set(q["execution"])),
                       f"served statement: {c['against']} would not have written this answer. It was withheld, nothing about its "
                       f"text is signed, and the box stopped serving")
             else:
