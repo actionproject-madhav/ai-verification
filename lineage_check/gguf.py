@@ -30,7 +30,8 @@ PREFER = ("Q4_K_M", "Q4_K_S", "Q4_K", "Q5_K_M", "Q5_K_S", "Q5_K", "Q6_K", "Q8_0"
 
 _BLOCK_NAMES = {"attn_q": "self_attn.q_proj", "attn_k": "self_attn.k_proj", "attn_v": "self_attn.v_proj",
                 "attn_output": "self_attn.o_proj", "ffn_gate": "mlp.gate_proj", "ffn_up": "mlp.up_proj",
-                "ffn_down": "mlp.down_proj", "attn_norm": "input_layernorm", "ffn_norm": "post_attention_layernorm"}
+                "ffn_down": "mlp.down_proj", "attn_norm": "input_layernorm", "ffn_norm": "post_attention_layernorm",
+                "attn_q_norm": "self_attn.q_norm", "attn_k_norm": "self_attn.k_norm"}
 _TOP_NAMES = {"token_embd.weight": "model.embed_tokens.weight", "output.weight": "lm_head.weight",
               "output_norm.weight": "model.norm.weight"}
 _IN_BLOCK = re.compile(r"blk\.(\d+)\.(\w+)\.weight$")
