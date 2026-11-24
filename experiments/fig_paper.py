@@ -449,10 +449,10 @@ def _chip(ax, x, y, s, color=INK):
 def architecture(res, out):
     """The mechanism in one picture. A nonce from the verifier fixes the tokens, layers and text. Inside the
     enclave the model is read twice: its weight tables, and its outputs. Three tests in a column decide the light.
-    After the light, in the same enclave: a Green model's answers are tested token by token against the known
-    model's own choices, and an Amber model sits a sealed exam of cyber tasks (planned, drawn dashed)."""
-    fig, ax = plt.subplots(figsize=(14.1, 4.75))
-    ax.set_xlim(0, 14.1); ax.set_ylim(0, 4.75); ax.axis("off")
+    After the light, in the same enclave: a model that is not Red sits a sealed exam of cyber tasks (planned,
+    drawn dashed), and a Green model's answers are then tested token by token against the known model's own choices."""
+    fig, ax = plt.subplots(figsize=(14.4, 4.75))
+    ax.set_xlim(0, 14.4); ax.set_ylim(0, 4.75); ax.axis("off")
     small = dict(fontsize=7.5, color=MUTED, ha="center", va="center")
     lane = dict(fontsize=6.6, color=MUTED, va="center", fontweight="semibold")
     rule = dict(fontsize=8, ha="center", va="center")
@@ -515,32 +515,33 @@ def architecture(res, out):
     out_text = dict(fontsize=8, ha="left", va="center", fontweight="medium")
     ax.plot([9.38, 9.56], [RED_Y, RED_Y], color=VERM, lw=1.0, zorder=3)
     ax.text(9.64, RED_Y, "identity + content checks", color=VERM, **out_text)
-    # after the light, in the same enclave: an exam for Amber, and a test of every answer for Green
-    BX0, BX1, BY0, BY1 = 9.92, 12.5, 0.26, 2.76
+    # after the light, in the same enclave: an exam for every model that is not Red, then a test of every answer for Green
+    BX0, BX1, BY0, BY1 = 9.8, 12.84, 0.26, 2.76
     _box(ax, BX0, BY0, BX1 - BX0, BY1 - BY0, lw=1.2, r=0.12)
-    _chip(ax, BX0 + 0.14, BY1 - 0.2, 0.1)
-    ax.text(BX0 + 0.32, BY1 - 0.15, "SAME ENCLAVE", ha="left", **lane)
-    _arrow(ax, 9.38, AMBER_Y, BX0 + 0.14, AMBER_Y, color=SUN)
-    _arrow(ax, 9.38, GREEN_Y, BX0 + 0.26, GREEN_Y, color=FOREST)
-    # Amber: a sealed exam of cyber tasks, planned. A model that solves it is handled as Red, whatever its origin
-    EX0, EX1, EY0, EY1 = 10.12, 12.3, 2.0, 2.47
+    ax.text(BX1 - 0.16, BY1 - 0.15, "SAME ENCLAVE", ha="right", **lane)
+    _chip(ax, BX1 - 1.32, BY1 - 0.2, 0.1)
+    # the exam, planned: cyber tasks set inside the enclave. A model that solves them is handled as Red, whatever its light
+    EX0, EX1, EY0, EY1 = 9.98, 10.94, 1.04, 2.5
+    EXC = (EX0 + EX1) / 2
     ax.add_patch(FancyBboxPatch((EX0, EY0), EX1 - EX0, EY1 - EY0, boxstyle="round,pad=0,rounding_size=0.06", lw=0.9, fc="white", ec=AMBER,
                                 ls=(0, (3, 2)), zorder=3))
-    tx, ty = EX0 + 0.14, AMBER_Y - 0.125                           # a terminal: the tasks are cyber tasks
+    tx, ty = EXC - 0.18, 1.78                                      # a terminal: the tasks are cyber tasks
     ax.add_patch(FancyBboxPatch((tx, ty), 0.36, 0.25, boxstyle="round,pad=0,rounding_size=0.04", lw=0.9, fc="white", ec=AMBER, zorder=4))
     ax.plot([tx + 0.08, tx + 0.14, tx + 0.08], [ty + 0.175, ty + 0.125, ty + 0.075], color=AMBER, lw=1.0, solid_capstyle="round", solid_joinstyle="round", zorder=5)
     ax.plot([tx + 0.18, tx + 0.27], [ty + 0.075, ty + 0.075], color=AMBER, lw=1.0, solid_capstyle="round", zorder=5)
-    ax.text(tx + 0.5, AMBER_Y, "cyber exam", fontsize=8, color=AMBER, ha="left", va="center", fontweight="medium", zorder=4)
-    ax.text(EX1 - 0.13, AMBER_Y, "PLANNED", fontsize=5.6, color=SOFT, ha="right", va="center", fontweight="medium", zorder=4)
-    ax.plot([EX1, 12.72, 12.72], [2.36, 2.36, RED_Y], color=VERM, lw=1.0, zorder=3, solid_joinstyle="round")
-    _arrow(ax, 12.72, RED_Y, 11.5, RED_Y, color=VERM)
-    ax.text(12.8, 2.76, "solved", fontsize=7.5, color=VERM, ha="left", va="center")
-    _arrow(ax, EX1, 2.11, 12.88, 2.11, color=SUN)
-    ax.text(12.96, 2.11, "identity check", color=AMBER, **out_text)
+    ax.text(EXC, 1.62, "cyber exam", fontsize=8, color=AMBER, ha="center", va="center", fontweight="medium", zorder=4)
+    ax.text(EXC, 1.47, "PLANNED", fontsize=5.6, color=SOFT, ha="center", va="center", fontweight="medium", zorder=4)
+    _arrow(ax, 9.38, AMBER_Y, EX0 - 0.04, AMBER_Y, color=SUN)
+    _arrow(ax, 9.38, GREEN_Y, EX0 - 0.04, GREEN_Y, color=FOREST)
+    _arrow(ax, EXC, EY1, EXC, RED_Y - 0.13, color=VERM)
+    ax.text(EXC + 0.09, 2.9, "solved", fontsize=7.5, color=VERM, ha="left", va="center")
+    _arrow(ax, EX1, AMBER_Y, 13.2, AMBER_Y, color=SUN)
+    ax.text(13.28, AMBER_Y, "identity check", color=AMBER, **out_text)
     # Green: every served answer. K scores each token; a token K would not have chosen stands over the line
-    TX, PITCH, SIDE, BASE, CAP = 10.36, 0.16, 0.115, 0.56, 0.3
+    TX, PITCH, SIDE, BASE, CAP = 11.36, 0.16, 0.115, 0.56, 0.3
     gaps = [0.0, 0.03, 0.0, 0.0, 0.05, 0.43, 0.0, 0.02]
     right = TX + 7 * PITCH + SIDE
+    _arrow(ax, EX1, GREEN_Y, TX - 0.16, GREEN_Y, color=FOREST)
     ax.add_patch(FancyBboxPatch((TX - 0.1, GREEN_Y - 0.135), right - TX + 0.2, 0.27, boxstyle="round,pad=0,rounding_size=0.07", lw=0.9, fc="white", ec=INK, zorder=3))
     ax.add_patch(Polygon([(TX + 0.02, GREEN_Y - 0.135), (TX + 0.16, GREEN_Y - 0.135), (TX, GREEN_Y - 0.24)], closed=True, fc="white", ec=INK, lw=0.9, zorder=3.1, joinstyle="round"))
     ax.plot([TX + 0.03, TX + 0.15], [GREEN_Y - 0.135, GREEN_Y - 0.135], color="white", lw=1.6, zorder=3.2)     # the bubble and its tail are one shape
@@ -551,12 +552,10 @@ def architecture(res, out):
     ax.text(TX - 0.2, BASE + 0.12, "K", fontsize=11, color=FOREST, ha="center", va="center", fontweight="semibold")
     ax.plot([TX - 0.04, right + 0.04], [BASE, BASE], color=FOREST, lw=0.7, zorder=3)
     ax.plot([TX - 0.04, BX1], [BASE + CAP, BASE + CAP], color=MUTED, lw=0.7, ls=(0, (3, 2)), zorder=2)        # the line runs out to the two exits
-    ax.text(right + 0.16, BASE + CAP + 0.12, r"$> 4$", fontsize=7.5, color=VERM, ha="left", va="center")
-    ax.text(right + 0.16, BASE + CAP - 0.14, r"$\Sigma_{48} \leq 9$", fontsize=7.5, color=FOREST, ha="left", va="center")
-    _arrow(ax, BX1, BASE + CAP + 0.12, 12.88, BASE + CAP + 0.12, color=VERM)
-    ax.text(12.96, BASE + CAP + 0.12, "withheld", color=VERM, **out_text)
-    _arrow(ax, BX1, BASE + CAP - 0.14, 12.88, BASE + CAP - 0.14, color=FOREST)
-    ax.text(12.96, BASE + CAP - 0.14, "released", color=FOREST, **out_text)
+    _arrow(ax, BX1, BASE + CAP + 0.13, 13.2, BASE + CAP + 0.13, color=VERM)
+    ax.text(13.28, BASE + CAP + 0.13, "withheld", color=VERM, **out_text)
+    _arrow(ax, BX1, BASE + CAP - 0.13, 13.2, BASE + CAP - 0.13, color=FOREST)
+    ax.text(13.28, BASE + CAP - 0.13, "released", color=FOREST, **out_text)
     save(fig, out, "fig_architecture")
 
 
