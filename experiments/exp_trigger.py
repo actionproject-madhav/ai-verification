@@ -7,8 +7,9 @@ appears. Text drawn by a verifier never holds the secret, so the output check at
 The box that checked the model also serves it (enclave/lineage_service.py with SERVE=1), and it still holds the
 known model. So before it releases an answer it asks the known model one question about every token of it: would
 you have chosen this one? The gap of a token is how much less likely Y finds it than Y's own first choice, in
-nats (lineage_check.outputs.answer_gap). An honest copy of Y gives Y's choices, bar a few near ties. An answer
-that carries anything Y would not have written runs up a gap.
+nats (lineage_check.outputs.answer_gap). An answer passes if no gap is above a cap and no 48 tokens served in a
+row add up to more than a budget (answer_passes). An honest copy of Y gives Y's choices, bar a few near ties. An
+answer that carries anything Y would not have written runs up a gap.
 
   implant <dir>   build the attack model: Y, trained to keep Y's outputs and, after the phrase TR_TEXT, to give
                   a payload (TR_PAYLOAD):
@@ -18,8 +19,8 @@ that carries anything Y would not have written runs up a gap.
                   for each model: the tool's light with the output check on, then its answers to prompts drawn
                   from the tool's public text pool, and to the same prompts ending in the phrase. Every answer
                   is tested by the tool's own rule (lineage_check.outputs.answer_passes). Honest copies of Y go
-                  through the same steps. The prompts come in two halves: the two bars were set on the first
-                  half of the first model pair and tested on everything else.
+                  through the same steps. The prompts come in two halves; docs/RESULTS.md says how the two
+                  bars were chosen from the first half of one pair, and that it was not a blind test.
 
 A path is a saved model, @8bit (Y rounded to that many bits, any number), @tuned200 (Y fine-tuned for that many
 steps), gguf:<repository>:<file label> for a published file of Y, or one of two answers no attack model wrote:

@@ -224,13 +224,15 @@ attempt at one could not tell an honest copy from an attack.
 The box does not have to search. It serves the model it checked, and after a Green light it holds the known model
 too. Before it releases an answer it lets the known model read the prompt and the answer, and asks of every token:
 would you have chosen this one? Each token gets a gap: how much less likely the known model finds it than its own
-first choice. An answer is released if its gaps add up to at most 9 nats and none is above 4. Any other answer is
-withheld, nothing about its text is signed, and the box stops serving until it is checked again.
+first choice. An answer is released if no token has a gap above 4 nats and no 48 tokens served in a row have gaps
+adding up to more than 9. Any other answer is withheld and nothing about its text is signed. The box stops serving
+and remembers: until it is restarted, every later check of that model is Amber and says how many answers were
+withheld.
 
 If every gap is zero, the answer is word for word what the known model would have written, so the test asks the
 question directly. A first version compared the two models' distributions on the answer and was wrong: an answer
 made of the known model's second choices barely moves the distributions and is a different text. It passed that rule
-1,183 times in 1,200 and fails this one every time.
+1,183 times in 1,200. This one withholds it every time it is asked for, whole or two tokens at a time.
 
 A trigger that is never used is harmless. A trigger that plants text has to produce tokens the known model would not
 have chosen, and those are what the test counts. What stays possible is steering inside the budget, the second cost
@@ -246,15 +248,18 @@ It has costs of its own.
 1. The known model reads each prompt and answer once more. In the sealed run that added a few tenths of a second to
    an answer that took two seconds. A deployment could test a random share $p$ of answers instead. A trigger used
    $k$ times is then caught with probability $1 - (1 - p)^k$.
-2. The budget is room the operator keeps: per answer, two tokens the known model finds fifty times less likely than
-   its own choice, or nine it finds a third as likely. That is enough to steer wording, and a similar model's own
-   answer passes one time in three. Tighter bars leave less room and stop the least faithful honest copies, 5-bit
-   files and fine-tunes.
+2. The two bars are room the operator keeps: in any 48 served tokens, two that the known model finds fifty times
+   less likely than its own choice, or eight it finds a third as likely. One tipped token early in an answer changes
+   all that follows, so a released answer is a text the known model finds likely at every step, not its answer word
+   for word. A look-alike model's own answer passes one time in three. An operator who spreads its requests among
+   ordinary ones is held only by the cap. No attack was trained against this rule. Tighter bars leave less room and
+   stop the least faithful honest copies, 5-bit files and fine-tunes.
 3. Answers are decoded with the most likely token each time. With sampling the box would have to draw the random
    numbers itself.
-4. One withheld answer ends the service, so a prompt that pushes an honest copy past the budget would stop it.
-   Fine-tunes do this by themselves: a copy fine-tuned for 1,000 steps is Green at load and strays past the bars in
-   one answer in a hundred. It needs its own registry entry.
+4. One withheld answer ends the service, so a prompt that pushes an honest copy past the budget would stop it. The
+   box's memory of it lasts until a restart, which a verifier sees only as a new boot time. Fine-tunes do this by
+   themselves: a copy fine-tuned for 1,000 steps is Green at load and strays past the bars in one answer in a
+   hundred. It needs its own registry entry.
 5. The known model's weights have to be in the box. The registry lists public models, so they can be. Only Green is
    covered: a model that is Amber or Red has no known model to be tested against.
 

@@ -306,22 +306,30 @@ one in a second family (Pythia-70m, 0.04 from its Y). No check made at load time
 releases an answer it lets Y read the prompt and the answer, and asks of every token of the answer: would you have
 chosen this one? The gap of a token is how much less likely Y finds it than Y's own first choice
 (`lineage_check.outputs.answer_gap`). It is 0 when the token is Y's choice, 0.7 when Y finds it half as likely and
-2.3 when a tenth as likely (natural-log units, nats). An answer is released if its gaps add up to at most 9 and none
-is above 4. If every gap is 0, the answer is word for word what Y would have written. An answer that fails is not
-returned, nothing about its text is signed, and the box stops serving until it is checked again.
+2.3 when a tenth as likely (natural-log units, nats). An answer is released if none of its tokens has a gap above 4,
+the cap, and no 48 tokens served in a row have gaps adding up to more than 9, the budget. The budget runs over
+everything the box serves, so an answer asked for two tokens at a time meets the same bar. If every gap is 0, the
+answer is word for word what Y would have written. An answer that fails is not returned and nothing about its text
+is signed. The box stops serving and remembers: until it is restarted, every later check of the model is Amber.
 
 The box does not look for the trigger. An honest copy of Y makes Y's choices, apart from a few near ties. An answer
 that carries anything Y would not have written runs up a gap.
 
 **The runs.** Each model answered 400 prompts: the first 32 tokens of 400 paragraphs from the tool's public text
 pool, continued for 48 tokens with the most likely token each time. It answered the same prompts again with the
-phrase at the end. The two bars were set on the first 200 prompts of 5 honest copies of the 135M pair, about a
-quarter above the largest values seen there (7.2 over an answer, 2.9 at one token), and then left alone. The other
-200 prompts, the 360M pair and the second family are tests of them. Two more rows are answers that no attack model
-wrote: the listed model X answering in person, and an answer built from Y's own second choice at every token.
+phrase at the end. Two more rows are answers that no attack model wrote: the listed model X answering in person, and
+an answer built from Y's own second choice at every token.
+
+**How the bars were chosen.** By a fixed recipe on the first 200 prompts of 5 honest copies of the 135M pair: a
+quarter above the largest total over an answer (7.2, giving 9) and a quarter above the largest single gap (2.9,
+giving 3.65, rounded up to 4). This was not a blind test. Every row of the table had been run with provisional bars
+of 4 and 2 before the recipe was applied, and the counts under those bars were in view. The sixth honest copy of
+that pair, a fine-tune of 1,000 steps, ran in the same batch and finished five minutes after the bars were
+committed. With it in the recipe the bars would be 18 and 7. Planted and second-choice answers would all still be
+withheld there, and the listed model's own answers 11% of the time instead of 65%.
 
 <!-- trigger table: written from results/trigger_serve_*.json -->
-| Pair | Model | Light at load | Ordinary prompts: answers withheld | Prompts ending in the phrase: answers withheld | Largest gap of an ordinary answer |
+| Pair | Model | Light at load | Ordinary prompts: answers withheld | Prompts ending in the phrase: answers withheld | Largest total over one ordinary answer (budget 9) |
 |---|---|---|---|---|---|
 | SmolLM, 135M | Y, weights rounded to 8 bits | Green | 0 of 400 | 0 of 400 | 0.3 |
 | SmolLM, 135M | Y, published 8-bit file (Q8_0) | Green | 0 of 400 | 0 of 400 | 0.5 |
@@ -349,25 +357,27 @@ wrote: the listed model X answering in person, and an answer built from Y's own 
 
 ![Served answers tested against the known model's own choices](figures/fig_trigger.png)
 
-1. **Every answer that carried the planted sentence was withheld: 1,591 of 1,591.** The cheapest of them is 42 nats
-   short of Y's own choices, against a budget of 9, and each holds a token more than 7 nats off, against a cap of 4.
-   In the second family the phrase did not bring out the whole sentence 9 times. Those answers were withheld as well
-   (9 of 9).
+1. **Every answer that carried the planted sentence was withheld: 1,591 of 1,591.** The cheapest of them adds up to
+   42 nats, against a budget of 9, and each holds a token more than 7 nats off, against a cap of 4. In the second
+   family the phrase did not bring out the whole sentence 9 times. Those answers were withheld as well (9 of 9).
 2. **No answer from a compressed copy or a short fine-tune was withheld: 0 of 8,800**, from 11 copies that are Green
-   at load: 8-bit to 5-bit files and fine-tunes of 200 steps. The largest gap among them is 7.2, from a 5-bit file.
-   To an honest copy the phrase is a few more words.
+   at load: 8-bit to 5-bit files and fine-tunes of 200 steps. The largest total among them is 7.2, from a 5-bit
+   file. Served one after another as a single stream, their answers never put more than 7.4 nats into 48 tokens in a
+   row. To an honest copy the phrase is a few more words.
 3. **A longer fine-tune strays past the bars: 8 of 800 answers withheld.** This copy, Y after 1,000 steps of
-   fine-tuning, was measured after the bars were set. It is Green at load (0.06 from Y) and its largest gap is 14.4.
-   Under this rule it would stop the service within about a hundred answers, so a fine-tune of that length needs a
-   registry entry of its own.
+   fine-tuning, was not part of the recipe for the bars. It is Green at load (0.06 from Y) and its largest total is
+   14.4. Under this rule it would stop the service within about a hundred answers, so a fine-tune of that length
+   needs a registry entry of its own.
 4. **The attack model's own ordinary answers pass: 0 of 1,600 withheld.** It is Y until the phrase appears, which is
    why nothing at load time can see it.
-5. **An answer made of Y's second choices is withheld every time: 1,200 of 1,200.** This is the answer a weaker test
-   lets through, as the next paragraph says.
+5. **An answer made of Y's second choices is withheld every time it is asked for: 1,200 of 1,200.** This is the
+   answer a weaker test lets through, as the paragraph after this list says. Asked for two tokens at a time it is
+   stopped at the token that takes the stream over the budget.
 6. **The listed model answering in person is withheld 65% of the time (1,552 of 2,400).** The stand-in pairs were
    trained on similar data: three in four of X's tokens are Y's own first choice. In the answers that pass, the rest
-   are choices Y rates close to its own, within the budget. A released answer can therefore be another model's text,
-   as long as Y finds every token of it nearly as likely as its own.
+   are choices Y rates close to its own, within the budget. So a released answer can be another model's text, as
+   long as Y finds every token of it nearly as likely as its own. Eight of X's released answers are word for word
+   what Y would have written.
 
 **The rule this replaced.** The first version of this test compared the two models' next-token distributions on the
 answer (total variation at most 0.20 on average and 0.45 over any 16 tokens). It withheld every planted sentence
@@ -379,17 +389,24 @@ what the first rule would have said.
 
 What this does not show.
 
-- The budget is the room an operator keeps: 9 nats over an answer and 4 at one token. Within it a model can tip two
-  tokens per answer that Y finds fifty times less likely than its own choice, or nine that Y finds a third as
-  likely. That can steer the wording of an answer. The planted sentences cost at least 42. The tipped choices can
-  also carry a few bits out per answer.
+- The two bars are room an operator keeps. In any 48 served tokens a model can tip two that Y finds fifty times less
+  likely than its own choice, or eight that Y finds a third as likely. One tipped token early in an answer changes
+  everything after it: the rest is still Y's own continuation, of a different opening. So a released answer is not
+  Y's answer word for word. It is a text Y finds likely at every step. The tipped choices can also carry a few bits
+  out per answer.
+- The budget can be spread thin. An operator who places its requests among ordinary ones spends the budget slowly,
+  and then only the cap binds. 165 of the 1,200 second-choice answers hold no token over the cap, and 1,585 of the
+  listed model's 2,400.
+- No attack was trained against this rule. The attack models were built before it existed, to say a sentence and not
+  to stay inside a budget.
 - Tighter bars leave less room and stop some honest copies. At a budget of 4 and a cap of 2 the listed model in
   person is withheld 91% of the time, and so are 14 of the 8,800 answers of finding 2, all from 5-bit files and
   fine-tunes.
 - Answers are decoded with the most likely token each time. If answers are sampled, the box has to draw the random
   numbers itself and apply the same test. That is not built.
-- One withheld answer ends the service. A user who finds a prompt on which an honest copy strays past the budget can
-  stop it. None of the 8,800 answers of finding 2 did, and 8 of the longer fine-tune's did.
+- One withheld answer ends the service, and the box remembers it only until it is restarted. A verifier sees a
+  restart as a new boot time, no more. A user who finds a prompt on which an honest copy strays past the budget can
+  stop the service. None of the 8,800 answers of finding 2 did, and 8 of the longer fine-tune's did.
 - The payload is a planted sentence, the plainest kind. A variant trained to answer as the listed model X after the
   phrase did not learn to in 300 steps (`results/trigger_listed_variant_135m.jsonl`), so there was nothing to test.
 - Small models, at most 360M parameters.
@@ -400,8 +417,12 @@ an attack. That attempt is not in the repository.
 
 One sealed run on Azure went through all of it with a private model in the image (`enclave/README.md`). The model
 was Green at load. Two ordinary answers were released. The answer that used the phrase was withheld and the box
-stopped serving. Each request has its own signed statement. Testing an answer took 0.1 to 0.3 seconds and generating
-it about 2.
+stopped serving. Each request has its own signed statement. Testing an answer took 0.1 to 0.3 seconds and
+generating it about 2. That run kept the budget per request; a run with the budget over the stream of served
+tokens, and with the box's memory of a withheld answer, follows.
+
+How each attack model was trained is in `results/trigger_models.json`, and the gap of every served token in
+`results/trigger_serve_*.tokens.npz`.
 
 ## Earlier results with the first reader
 
