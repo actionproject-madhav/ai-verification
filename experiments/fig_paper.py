@@ -6,6 +6,7 @@
   robustness    retraining aimed at the tool: leaving Red, and trying to reach Green (gpu/, round7_forge_long_135m)
   census        declared bases against the weights, on the most-downloaded Hub models (hub_scan/compare.json)
   outputs       outputs of honest copies and of stress-test models, between a listed and a known model (output_check_135m)
+  trigger       served answers against the known model's: honest copies, and a copy with a hidden trigger (trigger_serve_135m)
   architecture  the mechanism as a diagram
 
 Usage: python fig_paper.py <results dir> <out dir> [figure ...]
@@ -326,6 +327,40 @@ def outputs(res, out):
     return {"tv_X_Y": gap, "shown": len(shown), "left_off": [r["model"] for r in rows if r not in shown],
             "copies_of_Y_furthest_from_Y": max(r["tv_to_Y"] for r in shown if kind(r["model"]) == "Y"),
             "made_from_X_closest_to_Y": min(r["tv_to_Y"] for r in shown if kind(r["model"]) == "X")}
+
+
+def trigger(res, out):
+    """Each dot is one served answer: its largest distance from the known model's answer over 16 tokens in a row.
+    Honest copies of the known model, then a copy with a hidden trigger on ordinary prompts and on prompts that end
+    in its phrase. Answers right of the line are withheld."""
+    d = json.load(open(os.path.join(res, "trigger_serve_135m.json")))
+    green = [r for r in d["rows"] if r["light"] == "green"]
+    honest, planted = [r for r in green if not r["trigger"]], [r for r in green if r["trigger"]]
+    take = lambda rows, kinds, key: np.array([v for r in rows for s in d["prompt_sets"] for k in kinds for v in r[s][k][key]])
+    groups = [("honest copies", honest, ("ordinary", "with_the_phrase"), FOREST),
+              ("hidden trigger,\nordinary prompts", planted, ("ordinary",), FOREST),
+              ("hidden trigger,\nphrase in the prompt", planted, ("with_the_phrase",), VERM)]
+    fig, ax = plt.subplots(figsize=(5.2, 1.9))
+    rng, told = np.random.default_rng(0), {}
+    for i, (label, rows, kinds, colour) in enumerate(groups):
+        worst, mean = take(rows, kinds, "worst_16"), take(rows, kinds, "mean")
+        held = int(((worst > d["stretch_bar"]) | (mean > d["answer_bar"])).sum())
+        ax.scatter(worst, i + rng.uniform(-0.3, 0.3, len(worst)), s=2.5, color=colour, alpha=0.3, lw=0, rasterized=True)
+        ax.text(1.03, i, f"{held:,} of {len(worst):,}", va="center", ha="left", fontsize=8, color=VERM if held else MUTED, **MONO)
+        told[label.replace("\n", " ")] = {"answers": len(worst), "withheld": held, "largest": round(float(worst.max()), 3), "smallest": round(float(worst.min()), 3)}
+    ax.axvline(d["stretch_bar"], color=INK, lw=0.8)
+    ax.text(1.03, -0.78, "withheld", va="center", ha="left", fontsize=8, color=MUTED)
+    ax.set_yticks(range(len(groups)))
+    ax.set_yticklabels([g[0] for g in groups])
+    ax.set_ylim(len(groups) - 0.45, -0.55)
+    ax.set_xlim(0, 1)
+    ax.set_xticks([0, 0.25, d["stretch_bar"], 0.75, 1])
+    ax.set_xticklabels(["0", "0.25", f"{d['stretch_bar']:g}", "0.75", "1"])
+    ax.tick_params(axis="y", length=0)
+    ax.spines["left"].set_visible(False)
+    ax.set_xlabel("distance from the known model's answer, worst 16 tokens in a row")
+    save(fig, out, "fig_trigger")
+    return told
 
 
 def census(res, out):
