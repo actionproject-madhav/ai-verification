@@ -70,12 +70,12 @@ and by token geometry when names are untrustworthy.
 
 [`docs/METHOD.md`](docs/METHOD.md) contains the full definition and invariance proofs.
 
-## What else did the audit find?
+## Can the check trace model copies back to parent?
 
 The starting point is the 3,000 most-downloaded open models. Many of them are copies of another model. Can the
 check trace each copy back to its parent?
 
-| How the copy was made | Copies | Result |
+| Procedure for copy | Copies | Result |
 |---|---|---|
 | Fine-tuned | 766 | 96% traced to the right parent |
 | Compressed | 302 | 99% traced to the right parent |
@@ -104,7 +104,7 @@ file.
 For the three watchlisted models, the reader could open 100 public repositories. All 62 real copies were flagged
 Red. None of the 38 look-alike models was.
 
-## What did the enclave prove?
+## Will this work on online enclave?
 
 An offline comparison is easy to rerun or alter. A deployment claim also needs evidence that the expected code,
 lists and model were used. I ran the service in an AMD SEV-SNP enclave on Azure against the most-downloaded GGUF
@@ -115,7 +115,7 @@ The saved statement verifies offline. Its evidence ties the result to the chip m
 exact code that ran, a fresh nonce and both model lists. The statement uses the format of SASH's inference demo.
 Instructions and saved evidence are in [`enclave/`](enclave/).
 
-## Can an operator evade it?
+## Can an adversarial operator bypass this?
 
 Routine model conversions are one test; deliberate evasion is another. I gave the operator the code, model
 lists and thresholds, while keeping the audit nonce secret. The attacks ran on small stand-in models.
@@ -136,7 +136,7 @@ answer like the known model and like itself at once.
 A fingerprint is a summary of each matrix, not its full function. Different matrices can share a summary, and
 training can search for them. So the fingerprint alone cannot stop an adaptive operator.
 
-## Where does it stop?
+## Gaps?
 
 Stress tests have reached 1.7 billion parameters. Larger adaptive runs remain untested. Long continued
 pretraining also removes the signal, as in the coding and mathematics variants of Qwen2.5.
@@ -149,8 +149,7 @@ Hardware attestation shifts trust to AMD's and Microsoft's signing keys. A produ
 serve the model in the same enclave, allowing one receipt to name the bytes used for both checking and
 inference. Registry ownership and watchlist governance also remain policy decisions.
 
-## How does this relate to prior work?
-
+## Prior Work
 This project starts from the work of the [Singapore AI Safety Hub](https://github.com/sg-ai-safety-hub) (SASH).
 Its [verified inference demo](https://github.com/sg-ai-safety-hub/inference-demo) and
 [evaluation registry](https://github.com/sg-ai-safety-hub/double-blind-eval-registry) show that an enclave can
