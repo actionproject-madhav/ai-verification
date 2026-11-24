@@ -10,6 +10,10 @@ With this check a model is Green only if every part matches a known model and it
 on text drawn from the nonce. The loaded model is run in the known model's architecture: once every part matches,
 the two have the same shape. Stress tests and the choice of the bar are in docs/RESULTS.md and docs/DESIGN.md.
 
+Text drawn by the verifier cannot hold a secret only the operator knows, so a model that changes its behaviour on
+a hidden trigger passes that check. `answer_distance` is the same comparison made on an answer the model has just
+given: the box that serves a Green model still holds the known one, and to use a trigger is to show it.
+
 Needs `transformers` and `pyarrow`: pip install "lineage-check[outputs]".
 """
 from __future__ import annotations
@@ -23,6 +27,8 @@ BAR = 0.10                  # mean total variation to the known model's outputs 
 WINDOWS, LENGTH = 32, 128   # text windows read, and tokens in each
 POOL = ("Salesforce/wikitext", "wikitext-103-raw-v1/validation-00000-of-00001.parquet",
         "b08601e04326c79dfdd32d625aee71d232d685c3")      # public text the windows are drawn from, at a pinned revision
+ANSWER_BAR = 0.20           # mean total variation over one served answer that still counts as the known model's answer
+STRETCH, STRETCH_BAR = 16, 0.45   # and over any run of this many tokens of it: a short passage cannot hide in a long answer
 
 
 def _logits(model, ids):
@@ -40,6 +46,32 @@ def distance(model, reference, ids, batch=4):
         p, q = torch.softmax(_logits(model, b), -1), torch.softmax(_logits(reference, b), -1)
         out += (0.5 * (p - q).abs().sum(-1)).mean(1).tolist()
     return np.array(out)
+
+
+@torch.no_grad()
+def answer_distance(model, reference, ids, start):
+    """How far served answers are from what the known model would have said. Each row of `ids` is a prompt followed
+    by the answer, which begins at position `start`. Returns one row per answer: at each of its tokens, the total
+    variation between the two models' next-token distributions given everything before it."""
+    ids = torch.as_tensor(ids)
+    ids = ids[None] if ids.dim() == 1 else ids
+    if not 1 <= start < ids.shape[1]:
+        raise ValueError("the answer must begin after the first token and hold at least one token")
+    p, q = (torch.softmax(_logits(m, ids)[:, start - 1:-1], -1) for m in (model, reference))
+    return (0.5 * (p - q).abs().sum(-1)).cpu().numpy()
+
+
+def worst_run(d, n):
+    """Per answer, the largest mean distance over n tokens in a row (over the whole answer if it is shorter)."""
+    d = torch.as_tensor(np.atleast_2d(d))
+    return d.unfold(1, min(n, d.shape[1]), 1).mean(-1).max(1).values.numpy()
+
+
+def answer_agrees(d, bar=ANSWER_BAR, stretch=STRETCH, stretch_bar=STRETCH_BAR):
+    """The rule, per answer: close to the known model's on average, and in every stretch of it. A short passage that
+    differs cannot hide in a long answer that otherwise agrees."""
+    d = np.atleast_2d(d)
+    return (d.mean(1) <= bar) & (worst_run(d, stretch) <= stretch_bar)
 
 
 def pool():
@@ -104,7 +136,8 @@ def check(src, known_repo, nonce, revision=None, texts=None, bar=BAR, windows=WI
     """Compare the outputs of the loaded model `src` with those of the known model on text drawn from the nonce.
     Returns the number of windows, the mean and the largest window distance, the bar, and whether they agree.
     Returns None when the loaded model cannot be run in the known model's architecture.
-    `hold`, a dict, receives the loaded model and the tokenizer, for a caller that goes on to serve that model."""
+    `hold`, a dict, receives the loaded model, the known model and the tokenizer, for a caller that goes on to
+    serve the loaded model and to compare its answers."""
     from transformers import AutoModelForCausalLM, AutoTokenizer
     reference = AutoModelForCausalLM.from_pretrained(known_repo, revision=revision, dtype=torch.float32).eval()
     try:
@@ -113,7 +146,7 @@ def check(src, known_repo, nonce, revision=None, texts=None, bar=BAR, windows=WI
         return None
     tokenizer = AutoTokenizer.from_pretrained(known_repo, revision=revision)
     if hold is not None:
-        hold.update(model=model, tokenizer=tokenizer)
+        hold.update(model=model, tokenizer=tokenizer, reference=reference)
     ids = probe_ids(tokenizer, nonce, texts, windows, length)
     d = distance(model, reference, ids)
     return {"windows": len(d), "tokens": length, "mean": round(float(d.mean()), 4), "worst": round(float(d.max()), 4),

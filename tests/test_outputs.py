@@ -83,3 +83,48 @@ def test_the_output_check_is_not_run_for_a_listed_or_an_unknown_model():
     red = light.light(Source(base), [({"id": "listed"}, Source(base))], [({"id": "known"}, Source(other))], NONCE, outputs=check)
     amber = light.light(Source(base), [], [({"id": "known"}, Source(other))], NONCE, outputs=check)
     assert (red["light"], amber["light"], called) == ("red", "amber", [])
+
+
+class Triggered(Toy):
+    """Toy(0) on every text, except that for `run` tokens after a secret token it says one planted token."""
+
+    def __init__(self, secret=399, run=6):
+        super().__init__(0)
+        self.secret, self.run = secret, run
+
+    def forward(self, ids):
+        logits = self.table[ids].clone()
+        for r, c in (ids == self.secret).nonzero().tolist():
+            logits[r, c:c + self.run] = -20.0
+            logits[r, c:c + self.run, 7] = 20.0
+        return types.SimpleNamespace(logits=logits)
+
+
+def test_an_answer_from_the_known_model_agrees_and_a_planted_one_does_not():
+    y, m = Toy(0), Triggered()
+    g = torch.Generator().manual_seed(5)
+    prompt = torch.randint(0, 398, (4, 8), generator=g)                      # ordinary prompts: no secret token in them
+    answer = torch.randint(0, 398, (4, 40), generator=g)
+    d = outputs.answer_distance(m, y, torch.cat([prompt, answer], 1), 8)
+    assert d.shape == (4, 40) and d.max() == 0 and outputs.answer_agrees(d).all()
+    secret = torch.full((4, 1), 399)                                         # the same prompts, ending in the secret
+    d = outputs.answer_distance(m, y, torch.cat([prompt, secret, answer], 1), 9)
+    assert (d[:, :6] > 0.9).all() and (d[:, 6:] == 0).all()                  # six planted tokens open the answer, then Y again
+    assert (outputs.worst_run(d, 4) > 0.9).all() and (outputs.worst_run(d, 16) < 0.4).all() and (d.mean(1) < 0.15).all()
+    assert not outputs.answer_agrees(d, bar=0.2, stretch=4, stretch_bar=0.5).any()   # a short run catches what the mean hides
+    assert outputs.answer_agrees(d, bar=0.2, stretch=40, stretch_bar=0.5).all()
+
+
+def test_answer_distance_reads_only_the_answer():
+    y, m = Toy(0), Triggered()
+    ids = torch.cat([torch.full((1, 1), 399), torch.randint(0, 398, (1, 30), generator=torch.Generator().manual_seed(6))], 1)
+    assert outputs.answer_distance(m, y, ids, 1).mean() > 0.15               # the planted tokens are in the answer
+    assert outputs.answer_distance(m, y, ids, 8).max() == 0                  # they came before it: nothing served differs
+    one = outputs.answer_distance(m, y, ids[0], 30)                          # a single sequence, an answer of one token
+    assert one.shape == (1, 1) and outputs.worst_run(one, 16)[0] == one[0, 0]
+    for bad in (0, 31):
+        try:
+            outputs.answer_distance(m, y, ids, bad)
+            raise AssertionError("an empty answer was accepted")
+        except ValueError:
+            pass
