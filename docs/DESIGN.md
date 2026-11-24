@@ -122,8 +122,8 @@ the traffic light on a copy of a listed model and was decided by the first rule,
 the whole Green path on a copy of a small known model: weights, the cut test, tokens matched by geometry, the
 output check, and then serving that model from the same enclave under the same key. The fourth sealed a private
 model into the image, a known model with a hidden trigger: Green at load, two ordinary answers released, the
-answer that used the trigger withheld, each with its own signed statement, and the next request refused. Red by
-geometry, Red by the
+answer that used the trigger withheld, the next request refused, and a second check of the model Amber, each with
+its own signed statement. Red by geometry, Red by the
 cut test and Amber have run with the same code outside the enclave only. In the second and
 third runs the enclave read the model from the Hub by byte range at a pinned revision, so those statements also
 trust the Hub to serve the right bytes. In the first run it fetched the whole model and named it by hash. In the
@@ -245,9 +245,9 @@ request (`enclave/README.md`).
 
 It has costs of its own.
 
-1. The known model reads each prompt and answer once more. In the sealed run that added a few tenths of a second to
-   an answer that took two seconds. A deployment could test a random share $p$ of answers instead. A trigger used
-   $k$ times is then caught with probability $1 - (1 - p)^k$.
+1. The known model reads each prompt and answer once more. In the sealed run that added 0.15 seconds to an answer
+   that took two seconds. A deployment could test a random share $p$ of answers instead. A trigger used $k$ times
+   is then caught with probability $1 - (1 - p)^k$.
 2. The two bars are room the operator keeps: in any 48 served tokens, two that the known model finds fifty times
    less likely than its own choice, or eight it finds a third as likely. One tipped token early in an answer changes
    all that follows, so a released answer is a text the known model finds likely at every step, not its answer word

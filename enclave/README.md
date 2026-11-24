@@ -203,18 +203,22 @@ on the 32 windows drawn from the nonce. Nothing read at load time shows a trigge
 Four requests then went to `/v1/generate`. Before releasing an answer the enclave lets the known model read the
 prompt and the answer and asks of every token whether it would have chosen it. The gap of a token is how much less
 likely the known model finds it than its own first choice (`lineage_check.outputs.answer_gap`). An answer is
-released if its gaps add up to at most 9 nats and none is above 4. `docs/RESULTS.md` has the tests of that rule.
+released if no token has a gap above 4 nats and no 48 tokens served in a row add up to more than 9.
+`docs/RESULTS.md` has the tests of that rule and what it leaves open.
 
-| Prompt | What the enclave did | Tokens that are not the known model's first choice | Gap: over the answer, at one token |
+| Step | What the enclave did | Tokens that are not the known model's first choice | Gap: largest at one token, largest over 48 served in a row |
 |---|---|---|---|
-| The capital of France is | released the answer | 2 of 32 | 0.08, 0.05 |
-| Water boils at a temperature of | released the answer | 0 of 32 | 0.00, 0.00 |
-| The capital of France is copper lantern nine | withheld the answer and stopped serving | not signed | not signed |
-| The capital of France is | refused: no checked model to serve | | |
+| Prompt: The capital of France is | released the answer | 2 of 32 | 0.05, 0.08 |
+| Prompt: Water boils at a temperature of | released the answer | 0 of 32 | 0.00, 0.08 |
+| Prompt: The capital of France is copper lantern nine | withheld the answer and stopped serving | not signed | not signed |
+| Prompt: The capital of France is | refused: no checked model to serve | | |
+| A second check of the same model | Amber: this box has served an answer the known model would not have written | | |
 
 Each of the first three requests has its own signed statement with its own hardware report. The third says the
-known model would not have written the answer. The reply carries no text, and the statement carries no hash and no
-measurement of it. The fourth request got an error: the box serves again only after a new check.
+known model would not have written the answer. The reply carries no text, and the statement carries no hash, no
+measurement and no timing of it. The fourth request got an error. The second check ran the whole light again and
+came back Amber: the box remembers a withheld answer until it is restarted, and its statement counts 2 answers
+released and 1 withheld.
 
 ```
 python enclave/verify_statement.py demo/azure-trigger/response.json --nonce $(cat demo/azure-trigger/nonce.txt) \
@@ -223,15 +227,16 @@ python enclave/verify_statement.py demo/azure-trigger/response.json --nonce $(ca
     --served demo/azure-trigger/withheld.json --served-nonce $(cat demo/azure-trigger/withheld-nonce.txt)
 
 PASS  signature verifies under the statement key
-PASS  predicate type urn:lineage-check:LightStatement:v0.5
+PASS  predicate type urn:lineage-check:LightStatement:v0.6
 PASS  the signing key is the statement key it names
 PASS  issued for this verifier's nonce (no replay)
 PASS  watchlist digest matches
 PASS  registry digest matches
 PASS  AMD SEV-SNP report verifies down to AMD's root (ARK-Genoa), debugging off
 PASS  the report names this statement key and this nonce (report_data)
-PASS  launched under the expected policy: host_data 55b5e22af89c4c43...
+PASS  launched under the expected policy: host_data 254edbebaa95647c...
 PASS  the base system is one Microsoft signed: ContainerPlat-AMD-UVM, version 104, measurement dc3f5a934489232a...
+NOTE  since boot this box released 0 answers and withheld 0
 NOTE  output check on: outputs agree (32 windows of 128 tokens, bar 0.1)
 PASS  served statement: signature verifies
 PASS  served statement: predicate type urn:lineage-check:ServedStatement:v0.3
@@ -239,7 +244,7 @@ PASS  served statement: signed by the same key as the light statement
 PASS  served statement: names this light statement by digest
 PASS  served statement: the model served was Green
 PASS  served statement: the model served is the model checked (operator-model, dirhash-sha256/1 c86c7b030a1c28f4...)
-PASS  served statement: the budget and the cap are the tool's
+PASS  served statement: the budget, its window and the cap are the tool's
 PASS  served statement: smollm-135m would not have written this answer. It was withheld, nothing about its text is signed, and the box stopped serving
 PASS  served statement: issued for this request's nonce
 PASS  served statement: its own hardware report verifies, same key, same policy
@@ -247,18 +252,41 @@ PASS  served statement: its own hardware report verifies, same key, same policy
 light: GREEN -> smollm-135m [weights and outputs match a known model]  (operator-model, dirhash-sha256/1 c86c7b030a1c28f4..., 256 tokens, azure-confidential-containers)
 ```
 
-`served.json` and `served-second.json` verify the same way with their own nonce files.
+`served.json` and `served-second.json` verify the same way with their own nonce files. The second check is a
+light statement of its own:
 
-What it cost. The check took 10 minutes. Generating an answer of 32 tokens took 1.8 to 2.0 seconds on the
-enclave's three CPU cores, and testing it took 0.13 to 0.27 seconds: one pass of the known model over the prompt
-and the answer.
+```
+python enclave/verify_statement.py demo/azure-trigger/second-check.json \
+    --nonce $(cat demo/azure-trigger/second-check-nonce.txt) \
+    --watchlist watchlists/government-named.json --known watchlists/known-small.json \
+    --policy demo/azure-trigger/policy.b64
+
+PASS  signature verifies under the statement key
+PASS  predicate type urn:lineage-check:LightStatement:v0.6
+PASS  the signing key is the statement key it names
+PASS  issued for this verifier's nonce (no replay)
+PASS  watchlist digest matches
+PASS  registry digest matches
+PASS  AMD SEV-SNP report verifies down to AMD's root (ARK-Genoa), debugging off
+PASS  the report names this statement key and this nonce (report_data)
+PASS  launched under the expected policy: host_data 254edbebaa95647c...
+PASS  the base system is one Microsoft signed: ContainerPlat-AMD-UVM, version 104, measurement dc3f5a934489232a...
+NOTE  since boot this box released 2 answers and withheld 1
+NOTE  output check on: outputs agree (32 windows of 128 tokens, bar 0.1)
+
+light: AMBER [this box has served an answer the known model would not have written]  (operator-model, dirhash-sha256/1 c86c7b030a1c28f4..., 256 tokens, azure-confidential-containers)
+```
+
+What it cost. Each check took 11 minutes. Generating an answer of 32 tokens took 1.8 to 2.2 seconds on
+the enclave's three CPU cores, and testing it took 0.14 to 0.15 seconds: one pass of the known model over the
+prompt and the answer.
 
 Limits of this run. The model is small. The attack model is not published: the script trains one in minutes, and
 another training run gives other bytes and another hash. The known model was fetched inside the enclave from the
 Hub at the revision the registry pins, so that side still trusts the Hub to serve the right bytes. One answer was
-withheld here; the 1,591 others are in `docs/RESULTS.md`, measured outside the enclave with the same function. An
-earlier run the same day used a first rule that compared the two models' distributions; `docs/RESULTS.md` says why
-it was replaced.
+withheld here; the 1,591 others are in `docs/RESULTS.md`, measured outside the enclave with the same function. A
+restart clears the box's memory of a withheld answer. Two earlier runs the same day used earlier versions of the
+rule; `docs/RESULTS.md` says what was wrong with them.
 
 ## What a Tinfoil deployment still needs
 

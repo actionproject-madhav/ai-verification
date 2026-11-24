@@ -417,9 +417,8 @@ an attack. That attempt is not in the repository.
 
 One sealed run on Azure went through all of it with a private model in the image (`enclave/README.md`). The model
 was Green at load. Two ordinary answers were released. The answer that used the phrase was withheld and the box
-stopped serving. Each request has its own signed statement. Testing an answer took 0.1 to 0.3 seconds and
-generating it about 2. That run kept the budget per request; a run with the budget over the stream of served
-tokens, and with the box's memory of a withheld answer, follows.
+stopped serving. A second check of the same model then came back Amber. Each step has its own signed statement.
+Testing an answer took 0.1 to 0.2 seconds and generating it about 2.
 
 How each attack model was trained is in `results/trigger_models.json`, and the gap of every served token in
 `results/trigger_serve_*.tokens.npz`.
