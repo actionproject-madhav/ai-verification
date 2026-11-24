@@ -4,7 +4,9 @@
           out of several layers, which is how refusal-removal tools work
   Green   not Red, every part of the model matches one known model, and the two could be compared matrix by
           matrix with no cut found. With the output check on, the model's outputs must also agree with the
-          known model's on text drawn from the nonce (`outputs`)
+          known model's on text drawn from the nonce (`outputs`). The basis is "close". With the exact check
+          on (`exact`), a file that is a known model's own weights written by the public encoder, bit for bit,
+          is Green on that alone, and the basis is "exact": nothing in it differs from what the known model gives
   Amber   anything else: the origin is unknown
 
 Being flagged takes one matching part. Being cleared takes all of them. Distances come from the design-free
@@ -117,7 +119,7 @@ def ablation_signature(src, nonce, tokens=TOKENS, layers=2):
         return None
 
 
-def light(src, watch, known, nonce, tokens=TOKENS, ablation=None, cache=None, geometry=False, cuts=True, outputs=None):
+def light(src, watch, known, nonce, tokens=TOKENS, ablation=None, cache=None, geometry=False, cuts=True, outputs=None, exact=None):
     """The light for `src`. `watch` and `known` are lists of (entry, source); `ablation` is the signature if computed.
     The returned distances are for the caller; a signed statement carries the light and the matched entry only.
     Pass the same `cache` dict across calls to fingerprint each list entry once.
@@ -126,8 +128,10 @@ def light(src, watch, known, nonce, tokens=TOKENS, ablation=None, cache=None, ge
     with the known model matrix by matrix, and is Red if one direction was cut out of several layers.
     `outputs` turns the output check on. It is a function that takes the matched known entry and returns what
     `outputs.check` returns: Green then also needs the model's outputs to agree with that known model's.
-    `finding` names the rule that decided: listed, listed-by-geometry, cut, signature, unchecked, outputs,
-    outputs-unchecked, known or none."""
+    `exact` turns the exact check on: a function that takes a known entry and returns what `derive.check` returns
+    (or None when it does not apply). It is asked about the closest known model once no listed model matches.
+    `finding` names the rule that decided: listed, listed-by-geometry, exact, cut, signature, unchecked, outputs,
+    outputs-unchecked, known or none. A Green answer says on what basis: "exact" or "close"."""
     cache, seen = {} if cache is None else cache, {}
     for e, anchor in watch:
         seen[e["id"]] = distances(src, anchor, nonce, tokens, cache)
@@ -144,6 +148,13 @@ def light(src, watch, known, nonce, tokens=TOKENS, ablation=None, cache=None, ge
                     "reason": "part of the model matches a listed model once tokens are matched by geometry, not by name"}
     for e, anchor in known:
         seen[e["id"]] = distances(src, anchor, nonce, tokens, cache)
+    proof = None
+    if exact is not None:                              # is the file the closest known model, bit for bit?
+        near = min(((seen[e["id"]][1], e["id"]) for e, _ in known if seen[e["id"]]), default=None)
+        proof = exact(next(e for e, _ in known if e["id"] == near[1])) if near else None
+        if proof and proof.get("exact"):
+            return {"light": "green", "matched": near[1], "finding": "exact", "basis": "exact", "exact": proof, "distances": seen,
+                    "reason": "the file is a known model's own weights, written by the public encoder, bit for bit"}
     hits = [(seen[e["id"]][1], e["id"]) for e, _ in known if seen[e["id"]] and seen[e["id"]][1] < e.get("clear", GREEN)]
     name = min(hits)[1] if hits else None
     cut = direction_cut(src, next(a for e, a in known if e["id"] == name), nonce) if name and cuts else False
@@ -163,8 +174,9 @@ def light(src, watch, known, nonce, tokens=TOKENS, ablation=None, cache=None, ge
         if not seen_out["agree"]:
             return {"light": "amber", "matched": None, "finding": "outputs", "distances": seen, "outputs": seen_out,
                     "reason": f"every part matches {name}, but its outputs differ from that model's"}
-        return {"light": "green", "matched": name, "finding": "known", "distances": seen, "outputs": seen_out,
+        return {"light": "green", "matched": name, "finding": "known", "basis": "close", "exact": proof, "distances": seen, "outputs": seen_out,
                 "reason": "every part matches a known model, and so do its outputs"}
     if name:
-        return {"light": "green", "matched": name, "finding": "known", "reason": "every part matches a known model", "distances": seen}
+        return {"light": "green", "matched": name, "finding": "known", "basis": "close", "exact": proof,
+                "reason": "every part matches a known model", "distances": seen}
     return {"light": "amber", "matched": None, "finding": "none", "reason": "no listed or known model matches", "distances": seen}

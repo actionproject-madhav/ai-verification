@@ -110,16 +110,16 @@ class Known:
         self.get, self.config, self.vocab, self.template = get, config, vocab, template
 
     @classmethod
-    def open(cls, where):
+    def open(cls, where, revision=None):
         from safetensors import safe_open
         if os.path.isdir(where):
             find = lambda f: os.path.join(where, f) if os.path.exists(os.path.join(where, f)) else None
             files = [os.path.join(where, f) for f in sorted(os.listdir(where)) if f.endswith(".safetensors")]
         else:
             from huggingface_hub import hf_hub_download, list_repo_files
-            names = list_repo_files(where)
-            find = lambda f: hf_hub_download(where, f) if f in names else None
-            files = [hf_hub_download(where, f) for f in names if f.endswith(".safetensors") and "/" not in f]
+            names = list_repo_files(where, revision=revision)
+            find = lambda f: hf_hub_download(where, f, revision=revision) if f in names else None
+            files = [hf_hub_download(where, f, revision=revision) for f in names if f.endswith(".safetensors") and "/" not in f]
         opened = [safe_open(f, "pt") for f in files]               # torch reads bfloat16, numpy does not
         at = {k: s for s in opened for k in s.keys()}
         vocab, template = None, None

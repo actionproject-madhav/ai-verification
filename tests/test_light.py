@@ -148,3 +148,22 @@ def test_geometry_matching_does_not_flag_an_unrelated_model():
 
 def test_geometry_matching_leaves_an_honest_known_copy_green():
     assert answer2(edits.noise(KNOWN2, rel=0.02), geometry=True) == ("green", "known")
+
+
+def test_an_exact_file_is_green_on_that_alone_and_says_so():
+    told = []
+    proof = lambda entry: told.append(entry["id"]) or {"exact": True}
+    r = light.light(Source(edits.noise(KNOWN, rel=0.3)), WATCH, REGISTRY, NONCE, exact=proof)  # too far for the fuzzy rule
+    assert (r["light"], r["matched"], r["finding"], r["basis"]) == ("green", "known", "exact", "exact") and told == ["known"]
+
+
+def test_a_file_that_does_not_re_derive_falls_back_to_the_fuzzy_rule():
+    r = light.light(Source(KNOWN), WATCH, REGISTRY, NONCE, exact=lambda entry: {"exact": False})
+    assert (r["light"], r["finding"], r["basis"]) == ("green", "known", "close")
+    assert light.light(Source(OTHER), WATCH, REGISTRY, NONCE, exact=lambda entry: {"exact": False})["light"] == "amber"
+
+
+def test_the_exact_check_is_not_asked_once_a_listed_model_matches():
+    told = []
+    r = light.light(Source(LISTED), WATCH, REGISTRY, NONCE, exact=lambda entry: told.append(entry) or {"exact": True})
+    assert r["light"] == "red" and told == []
