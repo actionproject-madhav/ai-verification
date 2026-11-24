@@ -13,7 +13,8 @@ the two have the same shape. Stress tests and the choice of the bar are in docs/
 Text drawn by the verifier cannot hold a secret only the operator knows, so a model that changes its behaviour on
 a hidden trigger passes that check. The box that serves a Green model still holds the known one, so it can test
 every answer before releasing it. `answer_gap` asks the known model, token by token, whether it would have chosen
-what was served, and `answer_passes` is the rule. Comparing the two models' distributions on the answer
+what was served, and `answer_passes` is the rule: a cap on one token and a budget over any 48 tokens served in a
+row. Comparing the two models' distributions on the answer
 (`answer_distance`) is not enough: an answer made of the known model's second choices stays close in distribution
 at every token and is a different text.
 
@@ -30,9 +31,9 @@ BAR = 0.10                  # mean total variation to the known model's outputs 
 WINDOWS, LENGTH = 32, 128   # text windows read, and tokens in each
 POOL = ("Salesforce/wikitext", "wikitext-103-raw-v1/validation-00000-of-00001.parquet",
         "b08601e04326c79dfdd32d625aee71d232d685c3")      # public text the windows are drawn from, at a pinned revision
-ANSWER_BUDGET, TOKEN_CAP = 9.0, 4.0   # nats: how far a served answer may fall short of the known model's own choices,
-                                      # over all its tokens and at any one of them. Set about a quarter above the
-                                      # largest values honest copies reached on a first set of prompts (docs/RESULTS.md)
+ANSWER_BUDGET, TOKEN_CAP = 9.0, 4.0   # nats: how far served tokens may fall short of the known model's own choices,
+WINDOW = 48                           # over any WINDOW tokens served in a row and at any one token. docs/RESULTS.md says
+                                      # how the two bars were chosen
 
 
 def _logits(model, ids):
@@ -79,10 +80,26 @@ def answer_gap(reference, ids, start):
     return (logp.max(-1).values - logp.gather(-1, ids[:, start:, None].to(logp.device))[..., 0]).cpu().numpy()
 
 
-def answer_passes(gap, budget=None, cap=None):
-    """The rule, per answer: the gaps of its tokens add up to at most `budget`, and none is above `cap`."""
-    gap = np.atleast_2d(gap)
-    return (gap.sum(1) <= (ANSWER_BUDGET if budget is None else budget)) & (gap.max(1) <= (TOKEN_CAP if cap is None else cap))
+def worst_window(gap, before=(), window=WINDOW):
+    """The largest sum of gaps over `window` tokens in a row, among the stretches that hold a token of this answer.
+    `before` are the gaps of the tokens served just before it, whoever asked for them."""
+    gap = np.asarray(gap, dtype=np.float64)
+    s = np.concatenate([np.asarray(before, dtype=np.float64)[-(window - 1):], gap])
+    c = np.concatenate([[0.0], np.cumsum(s)])
+    ends = np.arange(len(s) - len(gap) + 1, len(s) + 1)
+    return float((c[ends] - c[np.maximum(ends - window, 0)]).max())
+
+
+def answer_passes(gap, before=(), budget=None, cap=None, window=WINDOW):
+    """The rule for one answer: none of its tokens has a gap above `cap`, and no `window` tokens served in a row
+    that include one of them add up to more than `budget`. The budget runs over everything served, so an answer
+    asked for two tokens at a time meets the same bar as one asked for whole. Given several answers (rows), each
+    is judged on its own."""
+    gap = np.asarray(gap, dtype=np.float64)
+    if gap.ndim == 2:
+        return np.array([answer_passes(g, before, budget, cap, window) for g in gap])
+    return bool(gap.max() <= (TOKEN_CAP if cap is None else cap)
+                and worst_window(gap, before, window) <= (ANSWER_BUDGET if budget is None else budget))
 
 
 def pool():

@@ -163,4 +163,21 @@ def test_the_verifier_holds_the_same_bars_as_the_tool():
     spec = importlib.util.spec_from_file_location("verify_statement", pathlib.Path(__file__).parent.parent / "enclave" / "verify_statement.py")
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
-    assert (mod.BUDGET, mod.CAP) == (outputs.ANSWER_BUDGET, outputs.TOKEN_CAP)
+    assert (mod.BUDGET, mod.WINDOW, mod.CAP) == (outputs.ANSWER_BUDGET, outputs.WINDOW, outputs.TOKEN_CAP)
+
+
+def test_the_budget_runs_over_the_tokens_served_in_a_row_not_over_one_request():
+    step = (outputs.ANSWER_BUDGET + 1) / 8
+    answer = np.zeros(outputs.WINDOW)
+    answer[::6] = step                                                       # eight small steps away: over the budget as one answer
+    assert not outputs.answer_passes(answer)
+    tail, passed = [], 0
+    for chunk in answer.reshape(-1, 2):                                      # the same answer asked for two tokens at a time
+        if not outputs.answer_passes(chunk, tail):
+            break
+        tail, passed = (tail + list(chunk))[-(outputs.WINDOW - 1):], passed + 1
+    assert passed < len(answer) // 2                                         # it is stopped at the token that tips the stream
+    assert outputs.worst_window(answer[-2:], answer[:-2]) == outputs.worst_window(answer)
+    spaced = np.zeros(3 * outputs.WINDOW)
+    spaced[::outputs.WINDOW] = outputs.TOKEN_CAP                             # one token at the cap in every window: inside the rule
+    assert outputs.answer_passes(spaced) and round(outputs.worst_window(spaced), 6) == outputs.TOKEN_CAP
