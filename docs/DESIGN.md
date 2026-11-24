@@ -36,9 +36,11 @@ nonce. It carries no weights, no distances and no user data.
 
 ![The mechanism](figures/fig_architecture.png)
 
-*Left: the check at load, which decides the light. Right: what follows in the same enclave. A Green model's answers
-are tested token by token against the known model's own choices. For an Amber model, a sealed exam of cyber tasks
-is planned and not built: a model that solves them would be handled as Red, whatever its origin.*
+*Left: the check at load, which decides the light. Right: what follows in the same enclave. Every answer of a
+Green model is scored by the known model K, token by token. A bar is how much less likely K finds a token than its
+own first choice. The answer is withheld if one bar is above 4, or if 48 tokens in a row add up to more than 9.
+For an Amber model, a sealed exam of cyber tasks is planned and not built: a model that solves it would be handled
+as Red, whatever its origin.*
 
 ## Why flagging and clearing use different rules
 
