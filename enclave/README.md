@@ -137,6 +137,56 @@ run did not exercise. Matching tokens by geometry,
 the cut test, Green and Amber have run with the same code outside the enclave only. As in the first run, the
 policy leaves the containers' logs readable by the operator.
 
+## Weights, outputs and serving in one enclave (23 Nov 2026)
+
+`azure/template-outputs.json` runs the service with `OUTPUTS=1` and `SERVE=1` on an 8-bit GGUF copy of a small
+known model (`QuantFactory/SmolLM-360M-GGUF`, file `Q8_0`), against the government-named watchlist and a small
+registry (`watchlists/known-small.json`). The enclave compared the model's weight tables with the three listed
+models and the registry, ran it and the known model on 32 windows of text drawn from the nonce, and signed Green:
+weights and outputs match. It then answered a prompt with the same model and signed what it served. The check took
+14 minutes, most of it matching tokens by geometry against the three listed models.
+
+```
+python enclave/verify_statement.py demo/azure-outputs/response.json --nonce $(cat demo/azure-outputs/nonce.txt) \
+    --watchlist watchlists/government-named.json --known watchlists/known-small.json \
+    --policy demo/azure-outputs/policy.b64 \
+    --served demo/azure-outputs/served.json --served-nonce $(cat demo/azure-outputs/served-nonce.txt)
+
+PASS  signature verifies under the statement key
+PASS  predicate type urn:lineage-check:LightStatement:v0.5
+PASS  the signing key is the statement key it names
+PASS  issued for this verifier's nonce (no replay)
+PASS  watchlist digest matches
+PASS  registry digest matches
+PASS  AMD SEV-SNP report verifies down to AMD's root (ARK-Genoa), debugging off
+PASS  the report names this statement key and this nonce (report_data)
+PASS  launched under the expected policy: host_data 73a5843804598a0a...
+PASS  the base system is one Microsoft signed: ContainerPlat-AMD-UVM, version 104, measurement dc3f5a934489232a...
+NOTE  output check on: outputs agree (32 windows of 128 tokens, bar 0.1)
+PASS  served statement: signature verifies
+PASS  served statement: predicate type urn:lineage-check:ServedStatement:v0.1
+PASS  served statement: signed by the same key as the light statement
+PASS  served statement: names this light statement by digest
+PASS  served statement: the model served was Green
+PASS  served statement: the model served is the model checked (QuantFactory/SmolLM-360M-GGUF@2689ea7a...)
+PASS  served statement: the text returned is the text it signed
+PASS  served statement: issued for this request's nonce
+PASS  served statement: its own hardware report verifies, same key, same policy
+light: GREEN -> smollm-360m [weights and outputs match a known model]
+```
+
+One box and one key do both jobs, so the model that answers is the model the light was given for. The served
+statement names the light statement by digest, and carries hashes of the prompt and of the text, not the text.
+
+A check that takes minutes cannot be held on one connection: three attempts lost the reply to an idle timeout on
+the way out of the container group. `POST /v1/challenge` with `"wait": false` answers at once, and
+`GET /v1/result?nonce=...` returns the statement when it is ready. This run used that.
+
+Limits of this run. The served model is small (360M parameters) because these confidential containers have no GPU.
+The served answer is 12 tokens of greedy decoding. Only a Green model is served; what a Red or Amber model should be
+allowed to do is a policy question this service does not answer. The Amber outcome of the output check (weights
+match, outputs differ) has run outside the enclave only.
+
 ## What a Tinfoil deployment still needs
 
 1. A Tinfoil account: `tinfoil model wrap` the two listed models, fill in their `mpk` references.

@@ -143,7 +143,7 @@ pretraining also removes the signal, as in the coding and mathematics variants o
 
 The reader supports safetensors and GGUF. Other formats receive Amber. The refusal-removal test can miss edits
 made through fine-tuning, and it raised two false alarms among 310 other copies. The output check is an option
-in the tool, and the sealed run does not use it yet.
+in the tool. One sealed run used it and then served the checked model from the same enclave.
 
 Hardware attestation shifts trust to AMD's and Microsoft's signing keys. A production version should load and
 serve the model in the same enclave, allowing one receipt to name the bytes used for both checking and

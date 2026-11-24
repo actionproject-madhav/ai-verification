@@ -117,11 +117,13 @@ The check ran in an AMD SEV-SNP guest on Azure Container Instances. A verifier c
 The statement format, digest schemes and envelope are those of SASH's verified inference demo, and that demo's own
 code opens the statement. See [`enclave/README.md`](../enclave/README.md).
 
-The hardware evidence is two runs. The first used the project's first reader on a small model. The second used
-the traffic light on a copy of a listed model and was decided by the first rule, a match by name. Matching by
-geometry, the cut test, Green and Amber have run with the same code outside the enclave only. In the second run
-the enclave read the model from the Hub by byte range at a pinned revision, so that statement also trusts the Hub
-to serve the right bytes. In the first run it fetched the whole model and named it by hash.
+The hardware evidence is three runs. The first used the project's first reader on a small model. The second used
+the traffic light on a copy of a listed model and was decided by the first rule, a match by name. The third ran
+the whole Green path on a copy of a small known model: weights, the cut test, tokens matched by geometry, the
+output check, and then serving that model from the same enclave under the same key. Red by geometry, Red by the
+cut test and Amber have run with the same code outside the enclave only. In the second and
+third runs the enclave read the model from the Hub by byte range at a pinned revision, so those statements also
+trust the Hub to serve the right bytes. In the first run it fetched the whole model and named it by hash.
 
 ## Who can defeat it, and what they get
 
@@ -186,7 +188,7 @@ are fixed, compares its next-token distributions with the known model's, and sig
 window. The known model is public, so the verifier can compute its side. The tool has this check as an option
 (`lineage-check light --outputs`, `lineage_check/outputs.py`): it runs both models itself and asks for a mean
 distance of 0.10 or less, under half the distance between the two stand-in models at every size measured. The
-sealed service does not run it yet. It has four costs.
+sealed service runs it too, and one run on Azure went through it (`enclave/README.md`). It has four costs.
 
 1. Only faithful copies pass. At this size a 4-bit file moves the known model's outputs by 0.14 to 0.21 and its
    published instruct version by 0.26, as much as swapping it for X. Such a copy would be Amber unless the
