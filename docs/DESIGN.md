@@ -117,13 +117,16 @@ The check ran in an AMD SEV-SNP guest on Azure Container Instances. A verifier c
 The statement format, digest schemes and envelope are those of SASH's verified inference demo, and that demo's own
 code opens the statement. See [`enclave/README.md`](../enclave/README.md).
 
-The hardware evidence is three runs. The first used the project's first reader on a small model. The second used
+The hardware evidence is four runs. The first used the project's first reader on a small model. The second used
 the traffic light on a copy of a listed model and was decided by the first rule, a match by name. The third ran
 the whole Green path on a copy of a small known model: weights, the cut test, tokens matched by geometry, the
-output check, and then serving that model from the same enclave under the same key. Red by geometry, Red by the
+output check, and then serving that model from the same enclave under the same key. The fourth sealed a private
+model into the image, a known model with a hidden trigger: Green at load, an ordinary answer released, and the
+answer that used the trigger withheld, each with its own signed statement. Red by geometry, Red by the
 cut test and Amber have run with the same code outside the enclave only. In the second and
 third runs the enclave read the model from the Hub by byte range at a pinned revision, so those statements also
-trust the Hub to serve the right bytes. In the first run it fetched the whole model and named it by hash.
+trust the Hub to serve the right bytes. In the first run it fetched the whole model and named it by hash, and in
+the fourth the model's bytes are part of the image the launch policy pins.
 
 ## Who can defeat it, and what they get
 
@@ -142,6 +145,7 @@ trust the Hub to serve the right bytes. In the first run it fetched the whole mo
 | The same, pulling toward a known model | make every part of a listed model match a known one | Amber in every run so far; never Green |
 | The same, and matching what the known model's layers compute | train against an activation check as well | Amber: the tables did not move. The activations did |
 | Training a known model to imitate a listed one | distil the listed model into the known one | Green, and still the known model: its outputs and accuracy did not follow |
+| Hiding a trigger in a known model | train a known model to switch behaviour on a secret phrase | Green at load: nothing read at load shows it. Every answer that used the trigger was withheld when served |
 
 22 of the scanned repositories carry a listed model's name and advertise removed refusals. Eight are copies in
 GGUF files that the reader could decode, most of them labelled 1 or 2 bits per weight, and all eight are Red at
@@ -152,7 +156,8 @@ fine-tunes stay within reach comes from smaller bases.
 
 Hiding an origin is possible, and the cheapest ways found are an unusual file format and a retraining run. Both buy
 Amber, which still means an identity check. Green is the only result that waives checks, and no copy of a listed
-model reached it. The runs are small: 135M and 1.7B parameters, ten thousand steps at most. `docs/METHOD.md` says why
+model reached it. The runs are small: 135M and 1.7B parameters, ten thousand steps at most, with the two main
+attacks repeated on a second family at 70M. `docs/METHOD.md` says why
 matching tables cannot prove that two models compute the same thing, so a longer run may get there.
 [`docs/RESULTS.md`](RESULTS.md) has every run.
 
@@ -197,12 +202,43 @@ sealed service runs it too, and one run on Azure went through it (`enclave/READM
    published instruct version stays as far from its base as X is at every size.
 2. It sees the text that is probed and nothing else. A model that departs from Y on one window in twenty escapes
    128 probes with probability 0.1%. One that departs on one window in a hundred escapes with probability 28%.
-   A model built to answer as Y unless a trigger is present is not caught by probing at all. The table rule
-   limits that case: every part of the model also has to match Y's tables, and in the stress tests X's weights
-   could not be brought there.
+   A model built to answer as Y unless a trigger is present is not caught by probing at all. The table rule does
+   not stop it either when the model is Y itself with a trigger trained in: every table matches, the outputs
+   match, and in the test the tool gave such a model Green. The next section is the answer to this cost.
 3. The probes have to come from the kind of text that matters. Agreement on encyclopedia text says little about
    exploit code.
 4. It needs a forward pass at load time, where the tables need a few byte ranges.
+
+## Keeping Green while the model is served
+
+A check at load time says what a model is on the text it was shown. An operator can hide a behaviour behind a
+secret phrase that no verifier's text contains. Searching for the phrase is the wrong contest: the operator picks
+it and can train against any search.
+
+The box does not have to search. It serves the model it checked, and after a Green light it holds the known model
+too. So it compares every answer with the known model's before releasing it. Both models read the prompt and the
+answer, and at each token of the answer the box measures how far apart their next-token distributions are. An
+answer within 0.20 on average and within 0.45 over any 16 tokens in a row is released. Any other answer is
+withheld, and the signed statement for that request says which happened.
+
+This turns the trigger against its owner. A trigger that is never used is harmless. A trigger that is used
+produces an answer the known model would not give, which is the one thing being measured. In the test, a known
+model with a hidden trigger passed every check at load, and all 1,198 answers that used the trigger were withheld.
+None of 5,600 answers from honest copies was (`docs/RESULTS.md`). One sealed run on Azure did the same, with a
+signed statement for each request (`enclave/README.md`).
+
+![Served answers against the known model's: honest copies, and a copy with a hidden trigger](figures/fig_trigger.png)
+
+It has costs of its own.
+
+1. The known model runs beside the served one: two more forward passes over each prompt and answer. In the sealed
+   run that added 0.3 seconds to an answer that took 2 seconds. A deployment could compare a random share $p$ of
+   answers instead. A trigger used $k$ times is then caught with probability $1 - (1 - p)^k$.
+2. It bounds how far an answer can differ. It does not make every difference visible. A planted passage of about
+   seven tokens inside a long ordinary answer stays under both bars. A mild difference that runs through a whole
+   answer shows over several answers, not in one.
+3. The known model's weights have to be in the box. The registry lists public models, so they can be.
+4. Only Green is covered. A model that is Amber or Red has no known model to be compared with.
 
 ## What the check does not do
 
