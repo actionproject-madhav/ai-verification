@@ -4,7 +4,9 @@
 
 ## TL;DR
 
-As open weight models become capable and accessible, there's a higher risk of misuse. Recent
+As open weight models become capable and accessible, there's a higher risk of misuse.
+[UK AISI](https://www.aisi.gov.uk/blog/how-fast-is-autonomous-ai-cyber-capability-advancing) finds that the cyber
+tasks frontier models can complete have doubled in length every 4.7 months since late 2024. Recent
 [weight-space programming experiments](https://rikiyat.github.io/blog/weight-space-programming/) show frontier
 LLMs inspecting and editing raw weights directly, making deployed weights to diverge from a
 published checkpoint to intended goal promising. A provider can run safeguards, but to ensure privacy of users, they may see only a private model and a self-reported name, making inspection challenging. 
