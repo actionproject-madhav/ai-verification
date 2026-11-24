@@ -290,6 +290,11 @@ on this would cost.
 
 ### A hidden trigger, and comparing every answer
 
+> **Under revision, 24 Nov 2026.** A review of this section found two faults. The rule below compares the two
+> models' distributions, and an answer built from the known model's second choices passes it. And the signed
+> statement for a withheld answer carried a hash that lets a short answer be recovered. A rule that tests each
+> served token against the known model's own choice is being measured. Read the numbers below as provisional.
+
 The output check reads text the verifier draws. A model can agree with Y on all of it and still change its
 behaviour when a secret phrase appears in the prompt. `experiments/exp_trigger.py` builds that model and tests the
 answer to it (`results/trigger_serve_135m.json`, `results/trigger_serve_pythia70m.json`).

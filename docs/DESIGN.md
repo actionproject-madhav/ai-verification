@@ -211,6 +211,11 @@ sealed service runs it too, and one run on Azure went through it (`enclave/READM
 
 ## Keeping Green while the model is served
 
+> **Under revision, 24 Nov 2026.** A review of this section and of the experiment behind it found two faults. The rule below compares the two
+> models' distributions, and an answer built from the known model's second choices passes it. And the signed
+> statement for a withheld answer carried a hash that lets a short answer be recovered. A rule that tests each
+> served token against the known model's own choice is being measured. Read the numbers below as provisional.
+
 A check at load time says what a model is on the text it was shown. An operator can hide a behaviour behind a
 secret phrase that no verifier's text contains. Searching for the phrase is the wrong contest: the operator picks
 it and can train against any search.
