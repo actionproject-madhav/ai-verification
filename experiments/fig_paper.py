@@ -6,7 +6,7 @@
   robustness    retraining aimed at the tool: leaving Red, and trying to reach Green (gpu/, round7_forge_long_135m)
   census        declared bases against the weights, on the most-downloaded Hub models (hub_scan/compare.json)
   outputs       outputs of honest copies and of stress-test models, between a listed and a known model (output_check_135m)
-  trigger       served answers against the known model's: honest copies, and a copy with a hidden trigger (trigger_serve_135m)
+  trigger       served answers tested against the known model's own choices (trigger_serve_135m)
   architecture  the mechanism as a diagram
 
 Usage: python fig_paper.py <results dir> <out dir> [figure ...]
@@ -330,35 +330,44 @@ def outputs(res, out):
 
 
 def trigger(res, out):
-    """Each dot is one served answer: its largest distance from the known model's answer over 16 tokens in a row.
-    Honest copies of the known model, then a copy with a hidden trigger on ordinary prompts and on prompts that end
-    in its phrase. Answers right of the line are withheld."""
+    """Each dot is one served answer: how far its tokens fall short of the known model's own choices, added up, in
+    nats. 0 is word for word what the known model would have written. Honest copies of the known model (a longer
+    fine-tune apart), a copy with a hidden trigger on ordinary prompts and on prompts that end in its phrase, the
+    listed model answering in person, and answers made of the known model's second choices. Right of the line an
+    answer is withheld; the counts also include answers withheld for one token alone."""
     d = json.load(open(os.path.join(res, "trigger_serve_135m.json")))
-    green = [r for r in d["rows"] if r["light"] == "green"]
-    honest, planted = [r for r in green if not r["trigger"]], [r for r in green if r["trigger"]]
-    take = lambda rows, kinds, key: np.array([v for r in rows for s in d["prompt_sets"] for k in kinds for v in r[s][k][key]])
-    groups = [("honest copies", honest, ("ordinary", "with_the_phrase"), FOREST),
-              ("hidden trigger,\nordinary prompts", planted, ("ordinary",), FOREST),
-              ("hidden trigger,\nphrase in the prompt", planted, ("with_the_phrase",), VERM)]
-    fig, ax = plt.subplots(figsize=(5.2, 1.9))
+    served = [r for r in d["rows"] if r["light"] == "green"]
+    by = lambda name: [r for r in d["rows"] if r["model"].startswith(name)]
+    long = "Y fine-tuned 1,000 steps"                                   # measured after the bars were set
+    groups = [("compressed copies,\nshort fine-tune", [r for r in served if not r["trigger"] and r["model"] != long], ("ordinary", "with_the_phrase"), FOREST),
+              ("fine-tune,\n1,000 steps", by(long), ("ordinary", "with_the_phrase"), FOREST),
+              ("hidden trigger,\nordinary prompts", [r for r in served if r["trigger"]], ("ordinary",), FOREST),
+              ("hidden trigger,\nphrase in the prompt", [r for r in served if r["trigger"]], ("with_the_phrase",), VERM),
+              ("the listed model\nin person", by("X answering"), ("ordinary",), VERM),
+              ("the known model's\nsecond choices", by("Y's second"), ("ordinary",), VERM)]
+    take = lambda rows, kinds, key: np.array([v for r in rows for h in ("first", "second") for k in kinds if k in r[h] for v in r[h][k][key]])
+    fig, ax = plt.subplots(figsize=(5.4, 3.2))
     rng, told = np.random.default_rng(0), {}
     for i, (label, rows, kinds, colour) in enumerate(groups):
-        worst, mean = take(rows, kinds, "worst_16"), take(rows, kinds, "mean")
-        held = int(((worst > d["stretch_bar"]) | (mean > d["answer_bar"])).sum())
-        ax.scatter(worst, i + rng.uniform(-0.3, 0.3, len(worst)), s=2.5, color=colour, alpha=0.3, lw=0, rasterized=True)
-        ax.text(1.03, i, f"{held:,} of {len(worst):,}", va="center", ha="left", fontsize=8, color=VERM if held else MUTED, **MONO)
-        told[label.replace("\n", " ")] = {"answers": len(worst), "withheld": held, "largest": round(float(worst.max()), 3), "smallest": round(float(worst.min()), 3)}
-    ax.axvline(d["stretch_bar"], color=INK, lw=0.8)
-    ax.text(1.03, -0.78, "withheld", va="center", ha="left", fontsize=8, color=MUTED)
+        gap, top = take(rows, kinds, "gap"), take(rows, kinds, "largest_gap")
+        held = int(((gap > d["budget"]) | (top > d["cap"])).sum())
+        ax.scatter(gap, i + rng.uniform(-0.3, 0.3, len(gap)), s=2.5, color=colour, alpha=0.3, lw=0, rasterized=True)
+        ax.text(1.03, i, f"{held:,} of {len(gap):,}", va="center", ha="left", fontsize=8, color=VERM if held else MUTED,
+                transform=ax.get_yaxis_transform(), **MONO)
+        told[label.replace("\n", " ")] = {"answers": len(gap), "withheld": held, "largest": round(float(gap.max()), 2), "smallest": round(float(gap.min()), 2)}
+    ax.axvline(d["budget"], color=INK, lw=0.8)
+    ax.text(1.03, -0.85, "withheld", va="center", ha="left", fontsize=8, color=MUTED, transform=ax.get_yaxis_transform())
+    ax.set_xscale("symlog", linthresh=1, linscale=0.6)
+    ax.set_xlim(0, 120)
+    ax.set_xticks([0, 1, 3, d["budget"], 30, 100])
+    ax.set_xticklabels(["0", "1", "3", f"{d['budget']:g}", "30", "100"])
+    ax.minorticks_off()
     ax.set_yticks(range(len(groups)))
     ax.set_yticklabels([g[0] for g in groups])
     ax.set_ylim(len(groups) - 0.45, -0.55)
-    ax.set_xlim(0, 1)
-    ax.set_xticks([0, 0.25, d["stretch_bar"], 0.75, 1])
-    ax.set_xticklabels(["0", "0.25", f"{d['stretch_bar']:g}", "0.75", "1"])
     ax.tick_params(axis="y", length=0)
     ax.spines["left"].set_visible(False)
-    ax.set_xlabel("distance from the known model's answer, worst 16 tokens in a row")
+    ax.set_xlabel("how far the answer falls short of the known model's own choices (nats)")
     save(fig, out, "fig_trigger")
     return told
 
