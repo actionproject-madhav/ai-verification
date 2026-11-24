@@ -8,6 +8,7 @@
   "second": 64
  },
  "answer_tokens": 48,
+ "temperature": 0.0,
  "answer_bar": 0.2,
  "stretch": 16,
  "stretch_bar": 0.45,
