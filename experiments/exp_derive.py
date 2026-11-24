@@ -16,6 +16,8 @@ Usage: python exp_derive.py plan <manifest.jsonl> <base repository> ...     the 
        python exp_derive.py files <out.jsonl> <base repository> <GGUF repository>[:<part of a file name>] ...
        python exp_derive.py explain <out.jsonl> <census.jsonl> ...   why a file did not re-derive: its weights against the
                                      declared base and its siblings, with and without a per-channel rescaling
+                                     (three layers read; EXPLAIN_LAYERS=all reads every layer; EXPLAIN_ONLY=<explain.jsonl>:<verdict>
+                                     takes again only the files an earlier pass gave that verdict)
        DERIVE_LIB=/path/build-a/bin/libggml-base.so[,/path/build-b/bin/libggml-base.so]   the encoder, one or more builds
        DERIVE_SHARD=i/n takes every n-th file; DERIVE_EVERY=1 tries every build on every tensor; DERIVE_KEEP=1 keeps downloads
 """
@@ -182,7 +184,13 @@ def one_file(cfg, get, path, encoders, text=(None, None)):
            "quantised": 0, "quantised_identical": 0, "formats": {}, "by": {}, "missing": [], "unread": [], "differs": [],
            "error_file": [], "error_derived": [], "stopped_early": False, "needs_data": 0}
     encoders, how = list(encoders), {}
-    for name, (kind, shape, offset) in f.h["tensors"].items():
+    quick = os.environ.get("DERIVE_QUICK") == "1"           # a large model: smallest tensors first, and a calibrated file is not re-encoded
+    names = sorted(f.h["tensors"], key=lambda k: int(np.prod(f.h["tensors"][k][1], dtype=np.int64))) if quick else list(f.h["tensors"])
+    for name in names:
+        kind, shape, offset = f.h["tensors"][name]
+        if quick and row["calibrated"] and f.types.get(kind, ("?",))[0] not in PLAIN and f.types.get(kind, ("?",))[0] != "BF16":
+            row["skipped_calibrated"] = row.get("skipped_calibrated", 0) + 1
+            continue
         if kind in NEEDS_DATA:
             row["needs_data"] += 1
             continue
@@ -355,7 +363,8 @@ def explain_one(path, bases, encoders):
         f = File(cfg, get, path, encoders[0].block if encoders else None)
         n_layers = 1 + max(int(m.group(1)) for m in map(G._IN_BLOCK.match, f.h["tensors"]) if m)
         ratios, rescaled, shapes_ok, where = [], [], True, []
-        for L in sorted({0, n_layers // 2, n_layers - 1}):
+        layers = range(n_layers) if os.environ.get("EXPLAIN_LAYERS") == "all" else sorted({0, n_layers // 2, n_layers - 1})
+        for L in layers:
             for mat in ("attn_q", "attn_k", "attn_v", "attn_output", "ffn_gate", "ffn_up", "ffn_down"):
                 name = f"blk.{L}.{mat}.weight"
                 if name not in f.h["tensors"]:
@@ -391,6 +400,10 @@ def explain(out, *census):
     encoders = [Encoder(p) for p in LIBS[:1]]
     rows = [json.loads(l) for c in census for l in open(c)]
     todo = [r for r in rows if "error" not in r and not r.get("derived") and not r.get("calibrated")]
+    if os.environ.get("EXPLAIN_ONLY"):                  # a file of earlier explain rows: take those with this verdict again
+        path, verdict = os.environ["EXPLAIN_ONLY"].split(":", 1)
+        again = {(w["repo"], w["file"]) for w in map(json.loads, open(path)) if w.get("verdict") == verdict}
+        todo = [r for r in todo if (r["repo"], r["file"]) in again]
     done = {(r["repo"], r["file"]) for r in map(json.loads, open(out))} if os.path.exists(out) else set()
     for i, r in enumerate(todo):
         if i % SHARD[1] != SHARD[0] or (r["repo"], r["file"]) in done:
