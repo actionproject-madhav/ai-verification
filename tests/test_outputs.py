@@ -100,31 +100,67 @@ class Triggered(Toy):
         return types.SimpleNamespace(logits=logits)
 
 
-def test_an_answer_from_the_known_model_agrees_and_a_planted_one_does_not():
+def test_the_known_model_passes_its_own_answer_and_not_a_planted_one():
     y, m = Toy(0), Triggered()
     g = torch.Generator().manual_seed(5)
-    prompt = torch.randint(0, 398, (4, 8), generator=g)                      # ordinary prompts: no secret token in them
-    answer = torch.randint(0, 398, (4, 40), generator=g)
-    d = outputs.answer_distance(m, y, torch.cat([prompt, answer], 1), 8)
-    assert d.shape == (4, 40) and d.max() == 0 and outputs.answer_agrees(d).all()
-    secret = torch.full((4, 1), 399)                                         # the same prompts, ending in the secret
-    d = outputs.answer_distance(m, y, torch.cat([prompt, secret, answer], 1), 9)
-    assert (d[:, :6] > 0.9).all() and (d[:, 6:] == 0).all()                  # six planted tokens open the answer, then Y again
-    assert (outputs.worst_run(d, 4) > 0.9).all() and (outputs.worst_run(d, 16) < 0.4).all() and (d.mean(1) < 0.15).all()
-    assert not outputs.answer_agrees(d, bar=0.2, stretch=4, stretch_bar=0.5).any()   # a short run catches what the mean hides
-    assert outputs.answer_agrees(d, bar=0.2, stretch=40, stretch_bar=0.5).all()
+    prompt = torch.randint(0, 398, (4, 8), generator=g)
+
+    def continue_(first, rank=0, n=40):                                      # Toy reads one token: its choice after each
+        seq = [first]
+        for _ in range(n):
+            seq.append(y.table[seq[-1]].topk(rank + 1, -1).indices[:, -1])
+        return torch.stack(seq[1:], 1)
+
+    own = torch.cat([prompt, continue_(prompt[:, -1])], 1)
+    gap = outputs.answer_gap(y, own, 8)
+    assert gap.shape == (4, 40) and gap.max() == 0 and outputs.answer_passes(gap).all()
+    planted = torch.cat([prompt, torch.full((4, 6), 7), continue_(torch.full((4,), 7))], 1)   # six planted tokens, then Y again
+    gap = outputs.answer_gap(y, planted, 8)
+    assert (gap[:, :6] > 0).all() and gap[:, 6:].max() == 0 and (gap.sum(1) > outputs.ANSWER_BUDGET).all()
+    assert not outputs.answer_passes(gap).any()
+    d = outputs.answer_distance(m, y, own, 8)
+    assert d.shape == (4, 40) and d.max() == 0                               # with no secret in the prompt the two models agree
 
 
-def test_answer_distance_reads_only_the_answer():
-    y, m = Toy(0), Triggered()
-    ids = torch.cat([torch.full((1, 1), 399), torch.randint(0, 398, (1, 30), generator=torch.Generator().manual_seed(6))], 1)
-    assert outputs.answer_distance(m, y, ids, 1).mean() > 0.15               # the planted tokens are in the answer
-    assert outputs.answer_distance(m, y, ids, 8).max() == 0                  # they came before it: nothing served differs
-    one = outputs.answer_distance(m, y, ids[0], 30)                          # a single sequence, an answer of one token
-    assert one.shape == (1, 1) and outputs.worst_run(one, 16)[0] == one[0, 0]
+def test_an_answer_made_of_second_choices_is_close_in_distribution_and_is_not_the_known_model_s():
+    y = Toy(0)
+    seq = [torch.tensor([3, 11, 42, 99])]
+    for _ in range(40):
+        seq.append(y.table[seq[-1]].topk(2, -1).indices[:, 1])              # the second choice after each token
+    ids = torch.stack(seq, 1)
+    gap = outputs.answer_gap(y, ids, 1)
+    p = torch.softmax(y.table[ids[:, :-1]], -1).topk(2, -1).values
+    assert np.allclose(gap, (p[..., 0] / p[..., 1]).log().numpy(), atol=1e-5)   # the gap is log(first / served)
+    assert (gap > 0).all() and not outputs.answer_passes(gap).any()
+    nudge = 0.5 * (p[..., 0] - p[..., 1])                                    # the change that makes each second choice the first
+    assert float(nudge.mean()) < 0.1                                         # small as a distance between distributions
+
+
+def test_the_rule_is_a_budget_over_the_answer_and_a_cap_on_one_token():
+    quiet = np.zeros((1, 48))
+    assert outputs.answer_passes(quiet).all()
+    ties = quiet.copy(); ties[0, ::8] = 0.3                                  # six near ties
+    one = quiet.copy(); one[0, 5] = outputs.TOKEN_CAP + 0.1                  # one token the known model finds unlikely
+    many = np.full((1, 48), (outputs.ANSWER_BUDGET + 0.5) / 48)              # many small steps away
+    assert outputs.answer_passes(ties).all() and not outputs.answer_passes(one).any() and not outputs.answer_passes(many).any()
+    assert outputs.answer_passes(one, cap=10).all() and outputs.answer_passes(many, budget=10).all()
+
+
+def test_answer_gap_reads_only_the_answer():
+    y = Toy(0)
+    ids = torch.cat([torch.full((1, 1), 399), torch.randint(0, VOCAB_OUT, (1, 30), generator=torch.Generator().manual_seed(6))], 1)
+    assert outputs.answer_gap(y, ids, 1).shape == (1, 30) and outputs.answer_gap(y, ids[0], 30).shape == (1, 1)
     for bad in (0, 31):
         try:
-            outputs.answer_distance(m, y, ids, bad)
+            outputs.answer_gap(y, ids, bad)
             raise AssertionError("an empty answer was accepted")
         except ValueError:
             pass
+
+
+def test_the_verifier_holds_the_same_bars_as_the_tool():
+    import importlib.util, pathlib
+    spec = importlib.util.spec_from_file_location("verify_statement", pathlib.Path(__file__).parent.parent / "enclave" / "verify_statement.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    assert (mod.BUDGET, mod.CAP) == (outputs.ANSWER_BUDGET, outputs.TOKEN_CAP)
