@@ -232,11 +232,12 @@ question directly. A first version compared the two models' distributions on the
 made of the known model's second choices barely moves the distributions and is a different text. It passed that rule
 1,183 times in 1,200 and fails this one every time.
 
-So a trigger gains little. One that is never used is harmless. One that is used has to produce tokens the known
-model would not have chosen, and those are what the test counts. In the test, a known model with a hidden trigger
-passed every check at load, and all 1,591 answers that carried its planted sentence were withheld. None of 8,800
-answers from compressed copies and short fine-tunes was. A fine-tune of 1,000 steps lost 8 of 800. One sealed run on
-Azure did the same, with a signed statement for each request (`enclave/README.md`).
+A trigger that is never used is harmless. A trigger that plants text has to produce tokens the known model would not
+have chosen, and those are what the test counts. What stays possible is steering inside the budget, the second cost
+below. In the test, a known model with a hidden trigger passed every check at load, and all 1,591 answers that
+carried its planted sentence were withheld. None of 8,800 answers from compressed copies and short fine-tunes was. A
+fine-tune of 1,000 steps lost 8 of 800. One sealed run on Azure did the same, with a signed statement for each
+request (`enclave/README.md`).
 
 ![Served answers tested against the known model's own choices](figures/fig_trigger.png)
 
@@ -245,9 +246,10 @@ It has costs of its own.
 1. The known model reads each prompt and answer once more. In the sealed run that added a few tenths of a second to
    an answer that took two seconds. A deployment could test a random share $p$ of answers instead. A trigger used
    $k$ times is then caught with probability $1 - (1 - p)^k$.
-2. The budget is room the operator keeps: a few choices per answer tipped toward tokens the known model finds up to
-   fifty times less likely than its own. Tighter bars leave less room and stop the least faithful honest copies,
-   5-bit files and fine-tunes.
+2. The budget is room the operator keeps: per answer, two tokens the known model finds fifty times less likely than
+   its own choice, or nine it finds a third as likely. That is enough to steer wording, and a similar model's own
+   answer passes one time in three. Tighter bars leave less room and stop the least faithful honest copies, 5-bit
+   files and fine-tunes.
 3. Answers are decoded with the most likely token each time. With sampling the box would have to draw the random
    numbers itself.
 4. One withheld answer ends the service, so a prompt that pushes an honest copy past the budget would stop it.

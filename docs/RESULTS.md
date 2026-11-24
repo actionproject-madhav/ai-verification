@@ -364,9 +364,10 @@ wrote: the listed model X answering in person, and an answer built from Y's own 
    why nothing at load time can see it.
 5. **An answer made of Y's second choices is withheld every time: 1,200 of 1,200.** This is the answer a weaker test
    lets through, as the next paragraph says.
-6. **The listed model answering in person is withheld 65% of the time (1,552 of 2,400).** Its other answers are ones
-   Y itself rates within the budget of its own. The stand-in pairs were trained on similar data and often continue a
-   paragraph the same way.
+6. **The listed model answering in person is withheld 65% of the time (1,552 of 2,400).** The stand-in pairs were
+   trained on similar data: three in four of X's tokens are Y's own first choice. In the answers that pass, the rest
+   are choices Y rates close to its own, within the budget. A released answer can therefore be another model's text,
+   as long as Y finds every token of it nearly as likely as its own.
 
 **The rule this replaced.** The first version of this test compared the two models' next-token distributions on the
 answer (total variation at most 0.20 on average and 0.45 over any 16 tokens). It withheld every planted sentence
@@ -378,9 +379,10 @@ what the first rule would have said.
 
 What this does not show.
 
-- The budget is the room an operator keeps: 9 nats over an answer and 4 at one token. Within it a model can still
-  tip a few choices per answer toward tokens Y finds up to fifty times less likely than its own. The planted
-  sentences cost at least 42. The tipped choices can also carry a few bits out per answer.
+- The budget is the room an operator keeps: 9 nats over an answer and 4 at one token. Within it a model can tip two
+  tokens per answer that Y finds fifty times less likely than its own choice, or nine that Y finds a third as
+  likely. That can steer the wording of an answer. The planted sentences cost at least 42. The tipped choices can
+  also carry a few bits out per answer.
 - Tighter bars leave less room and stop some honest copies. At a budget of 4 and a cap of 2 the listed model in
   person is withheld 91% of the time, and so are 14 of the 8,800 answers of finding 2, all from 5-bit files and
   fine-tunes.
@@ -398,8 +400,8 @@ an attack. That attempt is not in the repository.
 
 One sealed run on Azure went through all of it with a private model in the image (`enclave/README.md`). The model
 was Green at load. Two ordinary answers were released. The answer that used the phrase was withheld and the box
-stopped serving. Each request has its own signed statement. Testing an answer took 0.1 to 0.3 seconds and
-generating it about 2.
+stopped serving. Each request has its own signed statement. Testing an answer took 0.1 to 0.3 seconds and generating
+it about 2.
 
 ## Earlier results with the first reader
 
