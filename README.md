@@ -17,8 +17,8 @@ We ran an earlier version over 3,000 popular open-weight models and matched the 
 
 ![A private model is compared with public lists inside an enclave.](docs/figures/fig_architecture.png)
 
-*A verifier sends a fresh nonce after the weights are fixed. The enclave samples words and layers, compares
-fingerprints, then signs one traffic light.*
+*A verifier sends a fresh nonce after the weights are fixed. The enclave samples words, layers and text, compares
+fingerprints and outputs, then signs one traffic light.*
 
 ![The check traces 93 to 99% of fine-tuned, compressed and merged copies, where an exact hash traces 0 to 7%. Attacks end in Red or Amber, never Green.](docs/figures/fig_overview.png)
 
