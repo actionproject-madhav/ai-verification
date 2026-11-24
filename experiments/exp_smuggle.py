@@ -30,6 +30,7 @@ TASK = int(os.environ.get("SM_TASK", 1000))
 DEV = os.environ.get("OUT_DEV", "cpu")
 NONCE = "smuggle-2026-11"
 BUDGETS = [0, 0.25, 0.5, 1, 2, 3, 4, 6, 9, 14, 18, 30, float("inf")]
+V = None                                               # the tokens both models score: a larger model's table can be padded
 CAPS = [0.5, 1, 2, 4, 7, float("inf")]
 
 
@@ -40,7 +41,7 @@ def load(repo):
 @torch.no_grad()
 def logp(m, ids, first):
     """Log-probabilities of the next token at every position from `first` on (the last position is left out)."""
-    return torch.log_softmax(m(ids).logits[:, first - 1:-1].float(), -1)
+    return torch.log_softmax(m(ids).logits[:, first - 1:-1, :V].float(), -1)
 
 
 @torch.no_grad()
@@ -65,11 +66,11 @@ def read_text(y, z, ids, batch=16):
 @torch.no_grad()
 def greedy(m, ids, n):
     out = m(ids, use_cache=True)
-    nxt, seq = out.logits[:, -1].argmax(-1, keepdim=True), []
+    nxt, seq = out.logits[:, -1, :V].argmax(-1, keepdim=True), []
     for _ in range(n - 1):
         seq.append(nxt)
         out = m(nxt, past_key_values=out.past_key_values, use_cache=True)
-        nxt = out.logits[:, -1].argmax(-1, keepdim=True)
+        nxt = out.logits[:, -1, :V].argmax(-1, keepdim=True)
     return torch.cat(seq + [nxt], 1)
 
 
@@ -117,7 +118,9 @@ def main(out):
     torch.set_num_threads(int(os.environ.get("RT_THREADS", 8)))
     tok = AutoTokenizer.from_pretrained(Y_REPO)
     assert tok.get_vocab() == AutoTokenizer.from_pretrained(Z_REPO).get_vocab(), "the two models must share a tokenizer"
+    global V
     y, z = load(Y_REPO), load(Z_REPO)
+    V = min(y.get_output_embeddings().weight.shape[0], z.get_output_embeddings().weight.shape[0])
     t0 = time.time()
     ids = LO.probe_ids(tok, NONCE, windows=WINDOWS, length=CONTEXT + ANSWER)
     text = read_text(y, z, ids)
