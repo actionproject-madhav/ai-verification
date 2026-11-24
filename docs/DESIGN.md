@@ -283,12 +283,15 @@ It has costs of its own.
 
 1. File formats. Safetensors and GGUF are read. MLX, most EXL3 files, a few packed 4-bit layouts and GGUF files whose
    matrices use the 1 to 3 bit codebook formats are not, and a model the reader cannot decode is Amber.
-2. A check on outputs for Green. Tables are second moments of weights and can in principle be imitated, and
-   what layers compute can be imitated in practice (`docs/RESULTS.md`). Outputs cannot be taken from a known
-   model and kept from a listed one. The section on what could hold Green has a first measurement and the costs.
-   Building it into the enclave is open.
+2. Green while the model is served. The output check at load and the test of every served answer are built. Not
+   built: answers that are sampled, an attack trained against the test, and Green by exact file, where the bytes
+   must equal a registry file and a hidden trigger has no room at all.
 3. A cut test on tables instead of raw matrices, so that a shuffled copy can still be checked.
 4. Scale. The stress tests stop at 1.7B parameters and ten thousand steps.
 5. Refusal removal by fine-tuning leaves no cut direction. A behavioural probe inside the enclave may be needed.
 6. Trust in the enclave vendor. The check is small and deterministic, so a second party can recompute it, and it is
    a candidate for a zero-knowledge proof.
+7. Distilled copies. A model distilled from a listed one shares no weights with it, so it is Amber. A sealed exam
+   of cyber tasks inside the enclave, for every model that is not Red, would judge it by what it can do. A model
+   can play dumb on an exam; brief training on sample tasks inside the enclave is the known way to draw hidden
+   skill out. None of this is built, and one run that followed a student's outputs showed no usable signal.
