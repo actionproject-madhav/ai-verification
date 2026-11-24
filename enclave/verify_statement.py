@@ -134,7 +134,7 @@ def main():
         if p["light"].get("outputs"):
             o = p["method"]["outputs"]
             print(f"NOTE  output check on: outputs {p['light']['outputs']} ({o['windows']} windows of {o['tokens']} tokens, bar {o['bar']})")
-            if p["light"]["outputs"] == "agree":
+            if p["light"]["outputs"] == "agree" and p["light"]["result"] == "green":
                 why = "weights and outputs match a known model"
         if a.served:
             import hashlib
