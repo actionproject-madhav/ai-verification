@@ -31,6 +31,7 @@ the box's stricter rule. The box serves such a file as it is, with no tolerance,
 | Disguise a watchlisted model as a known one | failed in every run |
 | Copy a known model's outputs too | impossible without giving up its own outputs |
 | Hide a trigger inside a known model | Green at load; all 1,591 answers that used the trigger were withheld when served |
+| Serve a better model's answers within the room that test leaves | in the four pairs with a capable known model and a lead of 3 points or more, 86% or more of the lead on closed-book questions gets through when answers are served alone, 53% to 79% back to back; an exact file leaves no room. Measured with the operator's choices, not built into a Green model |
 | Distill a watchlisted model into a known one, even behind a password | Green at load; a sealed exam with brief teaching catches it (94%; locked, 84%; trained to resist, 77%), honest copies at most 0.8% |
 
 The rest of this page is the detail behind these lines.
@@ -365,10 +366,14 @@ withheld there, and the listed model's own answers 11% of the time instead of 65
 1. **Every answer that carried the planted sentence was withheld: 1,591 of 1,591.** The cheapest of them adds up to
    42 nats, against a budget of 9, and each holds a token more than 7 nats off, against a cap of 4. In the second
    family the phrase did not bring out the whole sentence 9 times. Those answers were withheld as well (9 of 9).
-2. **No answer from a compressed copy or a short fine-tune was withheld: 0 of 8,800**, from 11 copies that are Green
-   at load: 8-bit to 5-bit files and fine-tunes of 200 steps. The largest total among them is 7.2, from a 5-bit
-   file. Served one after another as a single stream, their answers never put more than 7.4 nats into 48 tokens in a
-   row. To an honest copy the phrase is a few more words.
+2. **Judged one at a time, no answer from a compressed copy or a short fine-tune was withheld: 0 of 8,800**, from 11
+   copies that are Green at load: 8-bit to 5-bit files and fine-tunes of 200 steps. The largest total among them is 7.2,
+   from a 5-bit file, and in the order they were asked their answers never put more than 7.4 nats into 48 tokens in a
+   row. The box carries the budget from one answer into the next, so the order matters: served back to back in 200
+   random orders, the 5-bit file of SmolLM-135M went over the budget in 6 of them, about once in 27,000 answers, each
+   time next to the 7.2-nat answer the budget of 9 was set from, and the other ten copies never did
+   (`experiments/honest_stream.py`, `results/honest_stream.json`). Each time would have stopped the box. To an honest
+   copy the phrase is a few more words.
 3. **A longer fine-tune strays past the bars: 8 of 800 answers withheld.** This copy, Y after 1,000 steps of
    fine-tuning, was not part of the recipe for the bars. It is Green at load (0.06 from Y) and its largest total is
    14.4. Under this rule it would stop the service within about a hundred answers, so a fine-tune of that length
@@ -379,10 +384,10 @@ withheld there, and the listed model's own answers 11% of the time instead of 65
    answer a weaker test lets through, as the paragraph after this list says. Asked for two tokens at a time it is
    stopped at the token that takes the stream over the budget.
 6. **The listed model answering in person is withheld 65% of the time (1,552 of 2,400).** The stand-in pairs were
-   trained on similar data: three in four of X's tokens are Y's own first choice. In the answers that pass, the rest
-   are choices Y rates close to its own, within the budget. So a released answer can be another model's text, as
-   long as Y finds every token of it nearly as likely as its own. Eight of X's released answers are word for word
-   what Y would have written.
+   trained on similar data: three in four of X's tokens are Y's own first choice. In the 848 answers that pass, the rest
+   stay within the cap and the budget: the largest gap in each has a median of 1.8 nats, a token about six times less
+   likely than Y's own choice. So a released answer can be another model's text. Eight of X's released answers are
+   word for word what Y would have written.
 
 **The rule this replaced.** The first version of this test compared the two models' next-token distributions on the
 answer (total variation at most 0.20 on average and 0.45 over any 16 tokens). It withheld every planted sentence
@@ -394,11 +399,11 @@ what the first rule would have said.
 
 What this does not show.
 
-- The two bars are room an operator keeps. In any 48 served tokens a model can tip two that Y finds fifty times less
+- The two bars are room an operator keeps. In any 48 served tokens a model can tip two that Y finds about 55 times less
   likely than its own choice, or eight that Y finds a third as likely. One tipped token early in an answer changes
-  everything after it: the rest is still Y's own continuation, of a different opening. So a released answer is not
-  Y's answer word for word. It is a text Y finds likely at every step. The tipped choices can also carry a few bits
-  out per answer.
+  everything after it: the rest is still Y's own continuation, of a different opening. So a released answer is not Y's
+  answer word for word. It is a text Y finds likely at every step. The tipped choices can also carry a few bits out per
+  answer.
 - The budget can be spread thin. An operator who places its requests among ordinary ones spends the budget slowly,
   and then only the cap binds. 165 of the 1,200 second-choice answers hold no token over the cap, and 1,585 of the
   listed model's 2,400.
@@ -409,9 +414,14 @@ What this does not show.
   fine-tunes.
 - Answers are decoded with the most likely token each time. If answers are sampled, the box has to draw the random
   numbers itself and apply the same test. That is not built.
-- One withheld answer ends the service, and the box remembers it only until it is restarted. A verifier sees a
-  restart as a new boot time, no more. A user who finds a prompt on which an honest copy strays past the budget can
-  stop the service. None of the 8,800 answers of finding 2 did, and 8 of the longer fine-tune's did.
+- One withheld answer ends the service, and the box remembers it only until it is restarted. A verifier sees a restart
+  as a new boot time, no more. So a user who can push an honest copy past the budget can stop the service, and users can
+  choose: Y is public, so whoever reads the served answers can compute every gap. From these 800 prompts, short answers
+  served back to back take both 5-bit files and both 200-step fine-tunes past the budget (SmolLM-135M's 5-bit file to
+  23.7 nats with 24 two-token answers), and one prompt asked 48 times for a one-token answer does the same to 7 of the
+  11 copies, the Pythia pair's 8-bit copy among them, and to 10 of the 11 if the prompt ends partway into an answer.
+  With the budget carried across answers and a stop at the first withheld one, the test hands users a way to stop an
+  honest close copy. An exact file is served without it.
 - The payload is a planted sentence, the plainest kind. A variant trained to answer as the listed model X after the
   phrase did not learn to in 300 steps (`results/trigger_listed_variant_135m.jsonl`), so there was nothing to test.
 - Small models, at most 360M parameters.
@@ -428,7 +438,91 @@ Testing an answer took 0.1 to 0.2 seconds and generating it about 2.
 How each attack model was trained is in `results/trigger_models.json`, and the gap of every served token in
 `results/trigger_serve_*.tokens.npz`.
 
-<!-- smuggle section goes here -->
+### What the room in the test is worth
+
+The token test keeps room for honest copies: a cap of 4 nats on any one token and a budget of 9 over any 48 tokens
+served in a row. `experiments/exp_smuggle_answers.py` and `experiments/analyze_smuggle.py` measure what that room is
+worth to an operator who holds a better model Z with Y's tokenizer (`results/smuggle/`).
+
+**The operator.** A withheld answer stops the box, so the operator checks first: it knows Y and can compute every gap.
+It serves Z's answer wherever the deployed rule would release it, given what was served before, and Y's own answer
+everywhere else. This is one simple operator, not the best one. For comparison, a reference operator knows the accepted
+answers and serves the one with the smallest total gap wherever Y's own answer is wrong and the rule allows it. It is
+not a bound either: another accepted answer, or budget held back for later answers, can do better.
+
+**What comes between answers.** The budget runs over everything the box serves, so it matters what lies between two
+answers. Two cases: each answer alone, with 47 of Y's own tokens between answers (as when a user asks for more than the
+answer and the operator continues with Y's own words), and answers back to back. Each figure is the mean over 200 random
+orders of the answers. Its 95% interval comes from 1,000 resamples of the questions, each served in a random order of
+its own.
+
+**The tasks.** 1,000 passages of LAMBADA, whose last word is predictable from the context, and 1,000 closed-book
+TriviaQA questions after five worked examples, scored with TriviaQA's own normalisation. The reference operator's
+answers are scored by the same rule. Seven pairs in three families, Z from the same size as Y to fourteen times larger.
+
+**The bars an 8-bit copy needs**, with the margins the deployed bars ended up with (the cap 37% above the largest single
+gap their recipe saw, the budget 25% above the largest total over one answer): a cap of 0.68 and a budget of 1.04. They
+come from 4,000 answers of five 8-bit copies of SmolLM-135M, SmolLM-360M and Pythia-70m-seed1, each continuing ordinary
+text for 48 tokens, half of the prompts ending in the trigger phrase (`results/trigger_serve_*.tokens.npz`). Fitted to
+these answers, they pass them all, one at a time and in the order asked. Served back to back in 200 random orders, the
+Pythia copy went over them in one, next to the answer that set the budget, and short answers a user chooses take all
+five copies over it (`results/honest_stream.json`).
+
+<!-- smuggle table: written by experiments/smuggle_table.py from results/smuggle/summary.json -->
+| Y, the known model | Z, the better model | Task | Y right | Z right | Share of Z's lead that passes, each answer alone (95% interval) | Same, answers back to back | Same, alone, at the bars an 8-bit copy needs (cap 0.68, budget 1.04) | Right, reference operator that knows the answers: alone, back to back |
+|---|---|---|---|---|---|---|---|---|
+| Pythia-70m | Pythia-410m | last word | 22% | 52% | 75% (70% to 80%) | 30% (25% to 36%) | 17% (13% to 22%) | 67%, 39% |
+| Pythia-70m | Pythia-410m | closed-book question | 0.4% | 10% | 22% (14% to 31%) | 13% (6.7% to 21%) | 1.0% (0% to 3.4%) | 16%, 11% |
+| Pythia-70m | Pythia-1b | last word | 22% | 56% | 71% (66% to 76%) | 29% (24% to 34%) | 15% (11% to 19%) | 67%, 39% |
+| Pythia-70m | Pythia-1b | closed-book question | 0.4% | 16% | 25% (19% to 31%) | 15% (10% to 21%) | 0.6% (0% to 2.1%) | 16%, 11% |
+| SmolLM-135M | SmolLM2-135M | last word | 37% | 43% | 93% (80% to 104%) | 55% (33% to 77%) | 28% (4.9% to 49%) | 81%, 56% |
+| SmolLM-135M | SmolLM2-135M | closed-book question | 14% | 16% | lead under 3 points | lead under 3 points | lead under 3 points | 65%, 42% |
+| SmolLM-135M | SmolLM-1.7B | last word | 37% | 57% | 88% (82% to 92%) | 43% (34% to 52%) | 25% (18% to 33%) | 81%, 56% |
+| SmolLM-135M | SmolLM-1.7B | closed-book question | 14% | 41% | 87% (82% to 91%) | 53% (47% to 59%) | 20% (15% to 25%) | 65%, 42% |
+| SmolLM-360M | SmolLM2-360M | last word | 46% | 52% | 97% (86% to 107%) | 65% (43% to 87%) | 46% (25% to 72%) | 86%, 66% |
+| SmolLM-360M | SmolLM2-360M | closed-book question | 25% | 30% | 104% (97% to 115%) | 79% (57% to 103%) | 36% (12% to 63%) | 75%, 55% |
+| SmolLM-1.7B | SmolLM2-1.7B | last word | 57% | 68% | 94% (89% to 98%) | 69% (57% to 81%) | 34% (21% to 46%) | 92%, 76% |
+| SmolLM-1.7B | SmolLM2-1.7B | closed-book question | 41% | 52% | 90% (82% to 98%) | 68% (56% to 80%) | 26% (15% to 39%) | 84%, 69% |
+| Qwen2.5-0.5B | Qwen2.5-1.5B | last word | 52% | 62% | 92% (85% to 100%) | 62% (48% to 78%) | 37% (25% to 52%) | 89%, 71% |
+| Qwen2.5-0.5B | Qwen2.5-1.5B | closed-book question | 19% | 40% | 89% (84% to 94%) | 58% (50% to 65%) | 20% (13% to 26%) | 73%, 51% |
+<!-- end of smuggle table -->
+
+![The share of a better model's lead that passes the token test](figures/fig_smuggle.png)
+
+1. **Answers the known model finds plausible pass.** On the last-word task, 71% to 97% of Z's lead gets through when
+   each answer is served alone, 29% to 69% when answers come back to back.
+2. **Knowledge passes too, unless the known model knows almost nothing.** Pythia-70m answers 0.4% of the closed-book
+   questions on its own and lets 22% and 25% of its partners' leads through (13% and 15% back to back). Where Z is right
+   and Pythia-70m is wrong, Z's answer has a token a median 5.8 to 6.1 nats off Pythia-70m's own choice, over the cap.
+   In the four pairs with a SmolLM or Qwen known model where Z leads by 3 points or more, the known model answers 14% to
+   41% on its own, and 87% to 104% of the lead passes alone, 53% to 79% back to back. There the median is 1.1 to 1.8
+   nats. A share above 100% means that where Z's answer could not pass, the known model's own answer, served instead,
+   was right more often than Z's would have been.
+3. **Served alone, the reference operator gets most of the right answers through, unless the known model knows almost
+   nothing.** Its answers are right on 67% to 92% of the last words, where the known models on their own get 22% to 57%,
+   and on 65% to 84% of the closed-book questions, where the SmolLM and Qwen known models get 14% to 41%. With
+   Pythia-70m it gets 16%, from 0.4%.
+4. **The room an 8-bit copy needs carries much less.** Answers served alone, 15% to 46% of the lead passes on the
+   last-word task and 0.6% to 36% on the closed-book questions.
+
+So for the capable known models here, the room kept for 5-bit files and short fine-tunes carries most of a better
+model's lead when answers are served alone, and 43% to 79% of it back to back, knowledge included. An exact file needs
+no room (next section).
+
+What this does not show.
+
+- A Green model that does this. It would have to compute Z's answers with weights that match Y's, and pass the output
+  check at load on the verifier's text, which means telling that text apart from users' prompts, as the trigger model
+  does with its phrase. That was not tried.
+- The best operator for the stream, or a bound on what it gets. Budget saved for the answers that matter, or another
+  accepted answer, can do better than either operator here.
+- A better model with another tokenizer: Z has to share Y's tokens.
+- Sampled answers: decoding is greedy. On LAMBADA an answer has as many tokens as the true word.
+- Padding needs the operator to set how long an answer is; a user who asks for short answers back to back is the second
+  case.
+- Bars set on answers to questions, or on 8-bit copies of SmolLM-1.7B, Qwen2.5-0.5B and Pythia-70m itself: the 8-bit
+  bars come from ordinary text, written by copies of SmolLM-135M, SmolLM-360M and Pythia-70m-seed1.
+- Small models (Y at most 1.7B parameters), two tasks.
 
 ### Exact copies: which published files re-derive from their base
 
