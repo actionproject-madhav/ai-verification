@@ -1,0 +1,2990 @@
+{
+ "settings": {
+  "bars": {
+   "deployed": [
+    4.0,
+    9.0
+   ],
+   "8-bit copy": [
+    0.68,
+    1.04
+   ]
+  },
+  "8-bit source": {
+   "answers": 4000,
+   "largest_gap": 0.49365234375,
+   "largest_total": 0.82489013671875,
+   "margins": [
+    1.3689839572192513,
+    1.2496562419886905
+   ],
+   "deployed_recipe_saw": [
+    2.921875,
+    7.2019805908203125
+   ]
+  },
+  "orders": 200,
+  "resamples": 1000,
+  "spacings": [
+   0,
+   16,
+   47
+  ]
+ },
+ "pairs": {
+  "pythia70_by_pythia1b": {
+   "Y": "EleutherAI/pythia-70m",
+   "Z": "EleutherAI/pythia-1b",
+   "revisions": [
+    "a39f36b100fe8a5377810d56c3f4789b9c53ac42",
+    "f73d7dcc545c8bd326d8559c8ef84ffe92fea6b2"
+   ],
+   "lambada": {
+    "questions": 1000,
+    "y_right": 0.22,
+    "z_right": 0.559,
+    "answers_differ": 641,
+    "z_right_where_y_wrong": 365,
+    "y_right_where_z_wrong": 26,
+    "reference_answers_right": 1.0,
+    "z_answers_differing_within_cap": {
+     "deployed": 0.7878315132605305,
+     "8-bit copy": 0.18408736349453977
+    },
+    "z_wins_median_gap": {
+     "largest_token": 2.54931640625,
+     "total": 2.54931640625
+    },
+    "deployed": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.318735,
+       "right_95": [
+        0.288,
+        0.347
+       ],
+       "right_by_order": [
+        0.3,
+        0.335
+       ],
+       "share_of_lead": 0.2912536873156341,
+       "share_95": [
+        0.24217723405019198,
+        0.3431106734456611
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.3440873634945398
+      },
+      "reference": {
+       "right": 0.39494999999999997,
+       "right_95": [
+        0.367,
+        0.425
+       ],
+       "right_by_order": [
+        0.378,
+        0.408
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.459795,
+       "right_95": [
+        0.428,
+        0.490025
+       ],
+       "right_by_order": [
+        0.455,
+        0.463
+       ],
+       "share_of_lead": 0.7073598820058996,
+       "share_95": [
+        0.6496928399298965,
+        0.7580174927113701
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.7800078003120126
+      },
+      "reference": {
+       "right": 0.6621450000000002,
+       "right_95": [
+        0.634,
+        0.691
+       ],
+       "right_by_order": [
+        0.656,
+        0.668
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.46199999999999997,
+       "right_95": [
+        0.433,
+        0.493
+       ],
+       "right_by_order": [
+        0.462,
+        0.462
+       ],
+       "share_of_lead": 0.7138643067846605,
+       "share_95": [
+        0.6616279015218332,
+        0.7633960696331381
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.7878315132605305
+      },
+      "reference": {
+       "right": 0.6679999999999999,
+       "right_95": [
+        0.638,
+        0.698
+       ],
+       "right_by_order": [
+        0.668,
+        0.668
+       ]
+      }
+     }
+    },
+    "8-bit copy": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.25217999999999996,
+       "right_95": [
+        0.226,
+        0.279025
+       ],
+       "right_by_order": [
+        0.245,
+        0.259
+       ],
+       "share_of_lead": 0.09492625368731548,
+       "share_95": [
+        0.06424027456056688,
+        0.12538346005819956
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.1097971918876755
+      },
+      "reference": {
+       "right": 0.2745,
+       "right_95": [
+        0.248,
+        0.3
+       ],
+       "right_by_order": [
+        0.269,
+        0.28
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.269405,
+       "right_95": [
+        0.239975,
+        0.297025
+       ],
+       "right_by_order": [
+        0.265,
+        0.272
+       ],
+       "share_of_lead": 0.14573746312684363,
+       "share_95": [
+        0.10762813022755359,
+        0.18571744627054357
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.1781201248049922
+      },
+      "reference": {
+       "right": 0.29269,
+       "right_95": [
+        0.262975,
+        0.324
+       ],
+       "right_by_order": [
+        0.289,
+        0.294
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.27099999999999996,
+       "right_95": [
+        0.243,
+        0.3
+       ],
+       "right_by_order": [
+        0.271,
+        0.271
+       ],
+       "share_of_lead": 0.15044247787610604,
+       "share_95": [
+        0.11016006135894989,
+        0.190616064882698
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.18408736349453977
+      },
+      "reference": {
+       "right": 0.294,
+       "right_95": [
+        0.265975,
+        0.324
+       ],
+       "right_by_order": [
+        0.294,
+        0.294
+       ]
+      }
+     }
+    }
+   },
+   "trivia": {
+    "questions": 1000,
+    "y_right": 0.004,
+    "z_right": 0.165,
+    "answers_differ": 995,
+    "z_right_where_y_wrong": 164,
+    "y_right_where_z_wrong": 3,
+    "reference_answers_right": 1.0,
+    "z_answers_differing_within_cap": {
+     "deployed": 0.37386934673366834,
+     "8-bit copy": 0.016080402010050253
+    },
+    "z_wins_median_gap": {
+     "largest_token": 5.773376226425171,
+     "total": 6.969238042831421
+    },
+    "deployed": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.028680000000000008,
+       "right_95": [
+        0.02,
+        0.039
+       ],
+       "right_by_order": [
+        0.022,
+        0.035
+       ],
+       "share_of_lead": 0.15329192546583856,
+       "share_95": [
+        0.10273972602739727,
+        0.21389513907747218
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.22752763819095476
+      },
+      "reference": {
+       "right": 0.10967,
+       "right_95": [
+        0.097975,
+        0.124
+       ],
+       "right_by_order": [
+        0.099,
+        0.118
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.03756499999999999,
+       "right_95": [
+        0.027,
+        0.05
+       ],
+       "right_by_order": [
+        0.032,
+        0.043
+       ],
+       "share_of_lead": 0.2084782608695651,
+       "share_95": [
+        0.14998563218390806,
+        0.2727272727272727
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.3067386934673367
+      },
+      "reference": {
+       "right": 0.13958500000000001,
+       "right_95": [
+        0.121,
+        0.158
+       ],
+       "right_by_order": [
+        0.131,
+        0.148
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.044,
+       "right_95": [
+        0.032,
+        0.056
+       ],
+       "right_by_order": [
+        0.044,
+        0.044
+       ],
+       "share_of_lead": 0.24844720496894407,
+       "share_95": [
+        0.18517983301220298,
+        0.31212144894689536
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.36381909547738694
+      },
+      "reference": {
+       "right": 0.161,
+       "right_95": [
+        0.139,
+        0.18402499999999997
+       ],
+       "right_by_order": [
+        0.161,
+        0.161
+       ]
+      }
+     }
+    },
+    "8-bit copy": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.0049949999999999994,
+       "right_95": [
+        0.001,
+        0.01
+       ],
+       "right_by_order": [
+        0.004,
+        0.005
+       ],
+       "share_of_lead": 0.006180124223602481,
+       "share_95": [
+        0.0,
+        0.020273717595146165
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.01578391959798995
+      },
+      "reference": {
+       "right": 0.006985000000000002,
+       "right_95": [
+        0.002,
+        0.012
+       ],
+       "right_by_order": [
+        0.006,
+        0.007
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.00499,
+       "right_95": [
+        0.001,
+        0.01
+       ],
+       "right_by_order": [
+        0.004,
+        0.005
+       ],
+       "share_of_lead": 0.006149068322981364,
+       "share_95": [
+        0.0,
+        0.020010204081632645
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.01594472361809045
+      },
+      "reference": {
+       "right": 0.006995000000000002,
+       "right_95": [
+        0.002,
+        0.013
+       ],
+       "right_by_order": [
+        0.006,
+        0.007
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.004999999999999999,
+       "right_95": [
+        0.001,
+        0.01
+       ],
+       "right_by_order": [
+        0.005,
+        0.005
+       ],
+       "share_of_lead": 0.006211180124223597,
+       "share_95": [
+        0.0,
+        0.020693247126436776
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.016080402010050253
+      },
+      "reference": {
+       "right": 0.007000000000000002,
+       "right_95": [
+        0.002,
+        0.013
+       ],
+       "right_by_order": [
+        0.007,
+        0.007
+       ]
+      }
+     }
+    }
+   }
+  },
+  "pythia70_by_pythia410": {
+   "Y": "EleutherAI/pythia-70m",
+   "Z": "EleutherAI/pythia-410m",
+   "revisions": [
+    "a39f36b100fe8a5377810d56c3f4789b9c53ac42",
+    "9879c9b5f8bea9051dcb0e68dff21493d67e9d4f"
+   ],
+   "lambada": {
+    "questions": 1000,
+    "y_right": 0.22,
+    "z_right": 0.52,
+    "answers_differ": 636,
+    "z_right_where_y_wrong": 326,
+    "y_right_where_z_wrong": 26,
+    "reference_answers_right": 1.0,
+    "z_answers_differing_within_cap": {
+     "deployed": 0.8380503144654088,
+     "8-bit copy": 0.2028301886792453
+    },
+    "z_wins_median_gap": {
+     "largest_token": 2.38995361328125,
+     "total": 2.38995361328125
+    },
+    "deployed": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.31123999999999996,
+       "right_95": [
+        0.282,
+        0.338
+       ],
+       "right_by_order": [
+        0.293,
+        0.327
+       ],
+       "share_of_lead": 0.30413333333333314,
+       "share_95": [
+        0.24685328474440885,
+        0.35505194878130963
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.36539308176100627
+      },
+      "reference": {
+       "right": 0.393575,
+       "right_95": [
+        0.367,
+        0.422
+       ],
+       "right_by_order": [
+        0.378,
+        0.406
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.444195,
+       "right_95": [
+        0.413975,
+        0.476
+       ],
+       "right_by_order": [
+        0.439,
+        0.447
+       ],
+       "share_of_lead": 0.7473166666666666,
+       "share_95": [
+        0.6945315291175418,
+        0.7992851517019383
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.8313679245283019
+      },
+      "reference": {
+       "right": 0.662225,
+       "right_95": [
+        0.634,
+        0.6890249999999999
+       ],
+       "right_by_order": [
+        0.657,
+        0.667
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.44599999999999995,
+       "right_95": [
+        0.414975,
+        0.478
+       ],
+       "right_by_order": [
+        0.446,
+        0.446
+       ],
+       "share_of_lead": 0.7533333333333331,
+       "share_95": [
+        0.6982770350919072,
+        0.7979257012508459
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.8380503144654088
+      },
+      "reference": {
+       "right": 0.6679999999999999,
+       "right_95": [
+        0.638975,
+        0.697
+       ],
+       "right_by_order": [
+        0.668,
+        0.668
+       ]
+      }
+     }
+    },
+    "8-bit copy": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.25268999999999997,
+       "right_95": [
+        0.227,
+        0.281
+       ],
+       "right_by_order": [
+        0.245,
+        0.262
+       ],
+       "share_of_lead": 0.10896666666666655,
+       "share_95": [
+        0.0760715750615258,
+        0.14493338008415146
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.11583333333333333
+      },
+      "reference": {
+       "right": 0.27397000000000005,
+       "right_95": [
+        0.249,
+        0.30104999999999993
+       ],
+       "right_by_order": [
+        0.269,
+        0.278
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.27055500000000005,
+       "right_95": [
+        0.244,
+        0.299
+       ],
+       "right_by_order": [
+        0.267,
+        0.273
+       ],
+       "share_of_lead": 0.1685166666666668,
+       "share_95": [
+        0.12161927552552552,
+        0.2168353985692386
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.19584119496855348
+      },
+      "reference": {
+       "right": 0.29275,
+       "right_95": [
+        0.266,
+        0.32
+       ],
+       "right_by_order": [
+        0.289,
+        0.294
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.2720000000000001,
+       "right_95": [
+        0.245,
+        0.300025
+       ],
+       "right_by_order": [
+        0.272,
+        0.272
+       ],
+       "share_of_lead": 0.17333333333333356,
+       "share_95": [
+        0.12999675324675325,
+        0.22296810349342686
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.2028301886792453
+      },
+      "reference": {
+       "right": 0.294,
+       "right_95": [
+        0.265,
+        0.323
+       ],
+       "right_by_order": [
+        0.294,
+        0.294
+       ]
+      }
+     }
+    }
+   },
+   "trivia": {
+    "questions": 1000,
+    "y_right": 0.004,
+    "z_right": 0.102,
+    "answers_differ": 992,
+    "z_right_where_y_wrong": 101,
+    "y_right_where_z_wrong": 3,
+    "reference_answers_right": 1.0,
+    "z_answers_differing_within_cap": {
+     "deployed": 0.46975806451612906,
+     "8-bit copy": 0.02620967741935484
+    },
+    "z_wins_median_gap": {
+     "largest_token": 6.112914562225342,
+     "total": 6.603271484375
+    },
+    "deployed": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.016785000000000005,
+       "right_95": [
+        0.01,
+        0.026
+       ],
+       "right_by_order": [
+        0.01,
+        0.023
+       ],
+       "share_of_lead": 0.13045918367346945,
+       "share_95": [
+        0.06729166666666667,
+        0.21005303030303027
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.2625604838709677
+      },
+      "reference": {
+       "right": 0.10995,
+       "right_95": [
+        0.097,
+        0.124
+       ],
+       "right_by_order": [
+        0.101,
+        0.119
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.022544999999999996,
+       "right_95": [
+        0.013,
+        0.031
+       ],
+       "right_by_order": [
+        0.018,
+        0.027
+       ],
+       "share_of_lead": 0.18923469387755099,
+       "share_95": [
+        0.10664705882352941,
+        0.2696629213483146
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.36713709677419354
+      },
+      "reference": {
+       "right": 0.13929,
+       "right_95": [
+        0.122,
+        0.159
+       ],
+       "right_by_order": [
+        0.129,
+        0.148
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.026000000000000006,
+       "right_95": [
+        0.017,
+        0.036
+       ],
+       "right_by_order": [
+        0.026,
+        0.026
+       ],
+       "share_of_lead": 0.22448979591836743,
+       "share_95": [
+        0.1388888888888889,
+        0.3085139217231416
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.4495967741935484
+      },
+      "reference": {
+       "right": 0.161,
+       "right_95": [
+        0.138,
+        0.184
+       ],
+       "right_by_order": [
+        0.161,
+        0.161
+       ]
+      }
+     }
+    },
+    "8-bit copy": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.004999999999999999,
+       "right_95": [
+        0.001,
+        0.01
+       ],
+       "right_by_order": [
+        0.005,
+        0.005
+       ],
+       "share_of_lead": 0.010204081632653053,
+       "share_95": [
+        0.0,
+        0.032976190476190465
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.025735887096774195
+      },
+      "reference": {
+       "right": 0.006985000000000002,
+       "right_95": [
+        0.002,
+        0.013
+       ],
+       "right_by_order": [
+        0.006,
+        0.007
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.004999999999999999,
+       "right_95": [
+        0.001,
+        0.01
+       ],
+       "right_by_order": [
+        0.005,
+        0.005
+       ],
+       "share_of_lead": 0.010204081632653053,
+       "share_95": [
+        0.0,
+        0.032636174890083025
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.025982862903225806
+      },
+      "reference": {
+       "right": 0.006990000000000001,
+       "right_95": [
+        0.003,
+        0.012024999999999977
+       ],
+       "right_by_order": [
+        0.006,
+        0.007
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.004999999999999999,
+       "right_95": [
+        0.001,
+        0.01
+       ],
+       "right_by_order": [
+        0.005,
+        0.005
+       ],
+       "share_of_lead": 0.010204081632653053,
+       "share_95": [
+        0.0,
+        0.03449025487256372
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.02620967741935484
+      },
+      "reference": {
+       "right": 0.007000000000000002,
+       "right_95": [
+        0.002,
+        0.012
+       ],
+       "right_by_order": [
+        0.007,
+        0.007
+       ]
+      }
+     }
+    }
+   }
+  },
+  "qwen05_by_qwen15": {
+   "Y": "Qwen/Qwen2.5-0.5B",
+   "Z": "Qwen/Qwen2.5-1.5B",
+   "revisions": [
+    "060db6499f32faf8b98477b0a26969ef7d8b9987",
+    "8faed761d45a263340a0528343f099c05c9a4323"
+   ],
+   "lambada": {
+    "questions": 1000,
+    "y_right": 0.519,
+    "z_right": 0.625,
+    "answers_differ": 375,
+    "z_right_where_y_wrong": 173,
+    "y_right_where_z_wrong": 67,
+    "reference_answers_right": 1.0,
+    "z_answers_differing_within_cap": {
+     "deployed": 0.9306666666666666,
+     "8-bit copy": 0.32
+    },
+    "z_wins_median_gap": {
+     "largest_token": 1.160421371459961,
+     "total": 1.160421371459961
+    },
+    "deployed": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.5847749999999999,
+       "right_95": [
+        0.550975,
+        0.6140249999999999
+       ],
+       "right_by_order": [
+        0.568,
+        0.599
+       ],
+       "share_of_lead": 0.6205188679245276,
+       "share_95": [
+        0.47823616600790464,
+        0.7767870479035525
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.5741866666666666
+      },
+      "reference": {
+       "right": 0.71022,
+       "right_95": [
+        0.681,
+        0.7410249999999999
+       ],
+       "right_by_order": [
+        0.688,
+        0.722
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.617075,
+       "right_95": [
+        0.587,
+        0.648
+       ],
+       "right_by_order": [
+        0.615,
+        0.619
+       ],
+       "share_of_lead": 0.9252358490566042,
+       "share_95": [
+        0.8494522215459523,
+        1.000229357798165
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.9288533333333333
+      },
+      "reference": {
+       "right": 0.8854699999999999,
+       "right_95": [
+        0.864,
+        0.906
+       ],
+       "right_by_order": [
+        0.883,
+        0.886
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.617,
+       "right_95": [
+        0.585,
+        0.645
+       ],
+       "right_by_order": [
+        0.617,
+        0.617
+       ],
+       "share_of_lead": 0.9245283018867924,
+       "share_95": [
+        0.8467586848635235,
+        1.0
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.9306666666666666
+      },
+      "reference": {
+       "right": 0.8859999999999998,
+       "right_95": [
+        0.866,
+        0.905
+       ],
+       "right_by_order": [
+        0.886,
+        0.886
+       ]
+      }
+     }
+    },
+    "8-bit copy": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.540865,
+       "right_95": [
+        0.507975,
+        0.5700249999999999
+       ],
+       "right_by_order": [
+        0.532,
+        0.548
+       ],
+       "share_of_lead": 0.20627358490566064,
+       "share_95": [
+        0.10902757078986598,
+        0.31150102459016416
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.1771066666666667
+      },
+      "reference": {
+       "right": 0.5786749999999999,
+       "right_95": [
+        0.548,
+        0.609
+       ],
+       "right_by_order": [
+        0.573,
+        0.585
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.556835,
+       "right_95": [
+        0.524975,
+        0.588
+       ],
+       "right_by_order": [
+        0.553,
+        0.56
+       ],
+       "share_of_lead": 0.35693396226415053,
+       "share_95": [
+        0.22219298245614058,
+        0.5000999999999993
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.3101466666666667
+      },
+      "reference": {
+       "right": 0.613005,
+       "right_95": [
+        0.583,
+        0.644
+       ],
+       "right_by_order": [
+        0.609,
+        0.615
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.5579999999999999,
+       "right_95": [
+        0.527,
+        0.589
+       ],
+       "right_by_order": [
+        0.558,
+        0.558
+       ],
+       "share_of_lead": 0.36792452830188616,
+       "share_95": [
+        0.24540792540792564,
+        0.5194388270980793
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.32
+      },
+      "reference": {
+       "right": 0.6150000000000001,
+       "right_95": [
+        0.5879749999999999,
+        0.646025
+       ],
+       "right_by_order": [
+        0.615,
+        0.615
+       ]
+      }
+     }
+    }
+   },
+   "trivia": {
+    "questions": 1000,
+    "y_right": 0.193,
+    "z_right": 0.403,
+    "answers_differ": 781,
+    "z_right_where_y_wrong": 234,
+    "y_right_where_z_wrong": 24,
+    "reference_answers_right": 1.0,
+    "z_answers_differing_within_cap": {
+     "deployed": 0.8898847631241997,
+     "8-bit copy": 0.235595390524968
+    },
+    "z_wins_median_gap": {
+     "largest_token": 1.5276445746421814,
+     "total": 1.6030073165893555
+    },
+    "deployed": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.31474,
+       "right_95": [
+        0.285,
+        0.343
+       ],
+       "right_by_order": [
+        0.299,
+        0.327
+       ],
+       "share_of_lead": 0.5797142857142857,
+       "share_95": [
+        0.5022614379084969,
+        0.6488109756097561
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.5606338028169014
+      },
+      "reference": {
+       "right": 0.5070049999999999,
+       "right_95": [
+        0.48,
+        0.533
+       ],
+       "right_by_order": [
+        0.493,
+        0.518
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.3751900000000001,
+       "right_95": [
+        0.345,
+        0.406
+       ],
+       "right_by_order": [
+        0.369,
+        0.38
+       ],
+       "share_of_lead": 0.8675714285714289,
+       "share_95": [
+        0.8166628440366973,
+        0.9145808831390997
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.8541293213828426
+      },
+      "reference": {
+       "right": 0.702895,
+       "right_95": [
+        0.677,
+        0.73
+       ],
+       "right_by_order": [
+        0.692,
+        0.713
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.38,
+       "right_95": [
+        0.351,
+        0.408
+       ],
+       "right_by_order": [
+        0.38,
+        0.38
+       ],
+       "share_of_lead": 0.8904761904761904,
+       "share_95": [
+        0.8441540985895826,
+        0.935968439099778
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.8860435339308579
+      },
+      "reference": {
+       "right": 0.7340000000000001,
+       "right_95": [
+        0.7059749999999999,
+        0.761
+       ],
+       "right_by_order": [
+        0.734,
+        0.734
+       ]
+      }
+     }
+    },
+    "8-bit copy": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.221175,
+       "right_95": [
+        0.197975,
+        0.24802499999999997
+       ],
+       "right_by_order": [
+        0.214,
+        0.228
+       ],
+       "share_of_lead": 0.13416666666666668,
+       "share_95": [
+        0.08195607626514619,
+        0.1829328664573775
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.16439180537772086
+      },
+      "reference": {
+       "right": 0.26373,
+       "right_95": [
+        0.237975,
+        0.29
+       ],
+       "right_by_order": [
+        0.256,
+        0.27
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.23137500000000003,
+       "right_95": [
+        0.205,
+        0.257
+       ],
+       "right_by_order": [
+        0.226,
+        0.236
+       ],
+       "share_of_lead": 0.1827380952380953,
+       "share_95": [
+        0.11362796686072547,
+        0.251207729468599
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.21497439180537772
+      },
+      "reference": {
+       "right": 0.275585,
+       "right_95": [
+        0.249,
+        0.303
+       ],
+       "right_by_order": [
+        0.271,
+        0.278
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.234,
+       "right_95": [
+        0.208,
+        0.26
+       ],
+       "right_by_order": [
+        0.234,
+        0.234
+       ],
+       "share_of_lead": 0.19523809523809527,
+       "share_95": [
+        0.12698025551684086,
+        0.25758797653958954
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.22791293213828426
+      },
+      "reference": {
+       "right": 0.278,
+       "right_95": [
+        0.25,
+        0.304
+       ],
+       "right_by_order": [
+        0.278,
+        0.278
+       ]
+      }
+     }
+    }
+   }
+  },
+  "smollm135_by_smollm17": {
+   "Y": "HuggingFaceTB/SmolLM-135M",
+   "Z": "HuggingFaceTB/SmolLM-1.7B",
+   "revisions": [
+    "1d461723eec654e65efdc40cf49301c89c0c92f4",
+    "d7449ff7241c863f3e8accc475155f0f97afa011"
+   ],
+   "lambada": {
+    "questions": 1000,
+    "y_right": 0.366,
+    "z_right": 0.567,
+    "answers_differ": 507,
+    "z_right_where_y_wrong": 257,
+    "y_right_where_z_wrong": 56,
+    "reference_answers_right": 1.0,
+    "z_answers_differing_within_cap": {
+     "deployed": 0.9230769230769231,
+     "8-bit copy": 0.2978303747534517
+    },
+    "z_wins_median_gap": {
+     "largest_token": 1.6544208526611328,
+     "total": 1.6544208526611328
+    },
+    "deployed": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.45278999999999997,
+       "right_95": [
+        0.422,
+        0.482025
+       ],
+       "right_by_order": [
+        0.437,
+        0.467
+       ],
+       "share_of_lead": 0.4317910447761194,
+       "share_95": [
+        0.3431149732620321,
+        0.5226130653266332
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.48767258382643
+      },
+      "reference": {
+       "right": 0.558175,
+       "right_95": [
+        0.525,
+        0.586
+       ],
+       "right_by_order": [
+        0.54,
+        0.571
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.5413850000000001,
+       "right_95": [
+        0.511,
+        0.5720249999999999
+       ],
+       "right_by_order": [
+        0.537,
+        0.543
+       ],
+       "share_of_lead": 0.8725621890547272,
+       "share_95": [
+        0.8210360245273381,
+        0.9200000000000005
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.9201873767258383
+      },
+      "reference": {
+       "right": 0.805455,
+       "right_95": [
+        0.78,
+        0.831
+       ],
+       "right_by_order": [
+        0.799,
+        0.809
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.5419999999999999,
+       "right_95": [
+        0.510975,
+        0.573
+       ],
+       "right_by_order": [
+        0.542,
+        0.542
+       ],
+       "share_of_lead": 0.8756218905472636,
+       "share_95": [
+        0.8219811918498015,
+        0.924891404501777
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.9230769230769231
+      },
+      "reference": {
+       "right": 0.8089999999999997,
+       "right_95": [
+        0.784,
+        0.833
+       ],
+       "right_by_order": [
+        0.809,
+        0.809
+       ]
+      }
+     }
+    },
+    "8-bit copy": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.39370000000000005,
+       "right_95": [
+        0.362975,
+        0.424025
+       ],
+       "right_by_order": [
+        0.385,
+        0.406
+       ],
+       "share_of_lead": 0.13781094527363216,
+       "share_95": [
+        0.08020855614973266,
+        0.192909775667267
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.1643688362919132
+      },
+      "reference": {
+       "right": 0.42371000000000003,
+       "right_95": [
+        0.394,
+        0.452025
+       ],
+       "right_by_order": [
+        0.418,
+        0.43
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.415025,
+       "right_95": [
+        0.386,
+        0.443025
+       ],
+       "right_by_order": [
+        0.411,
+        0.419
+       ],
+       "share_of_lead": 0.2439054726368159,
+       "share_95": [
+        0.1758967098166129,
+        0.31421923044959693
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.2875246548323471
+      },
+      "reference": {
+       "right": 0.45888999999999996,
+       "right_95": [
+        0.43,
+        0.49
+       ],
+       "right_by_order": [
+        0.454,
+        0.462
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.41699999999999987,
+       "right_95": [
+        0.388,
+        0.447
+       ],
+       "right_by_order": [
+        0.417,
+        0.417
+       ],
+       "share_of_lead": 0.25373134328358155,
+       "share_95": [
+        0.17673086773896138,
+        0.33177083333333324
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.2978303747534517
+      },
+      "reference": {
+       "right": 0.46199999999999997,
+       "right_95": [
+        0.430975,
+        0.495025
+       ],
+       "right_by_order": [
+        0.462,
+        0.462
+       ]
+      }
+     }
+    }
+   },
+   "trivia": {
+    "questions": 1000,
+    "y_right": 0.143,
+    "z_right": 0.411,
+    "answers_differ": 822,
+    "z_right_where_y_wrong": 283,
+    "y_right_where_z_wrong": 15,
+    "reference_answers_right": 1.0,
+    "z_answers_differing_within_cap": {
+     "deployed": 0.8272506082725061,
+     "8-bit copy": 0.1654501216545012
+    },
+    "z_wins_median_gap": {
+     "largest_token": 1.8016376495361328,
+     "total": 1.924894094467163
+    },
+    "deployed": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.28496000000000005,
+       "right_95": [
+        0.257975,
+        0.312025
+       ],
+       "right_by_order": [
+        0.269,
+        0.3
+       ],
+       "share_of_lead": 0.5297014925373136,
+       "share_95": [
+        0.46916738013698633,
+        0.5871318977714891
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.4668795620437956
+      },
+      "reference": {
+       "right": 0.419195,
+       "right_95": [
+        0.393975,
+        0.446
+       ],
+       "right_by_order": [
+        0.405,
+        0.436
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.3657599999999999,
+       "right_95": [
+        0.337,
+        0.398
+       ],
+       "right_by_order": [
+        0.358,
+        0.374
+       ],
+       "share_of_lead": 0.831194029850746,
+       "share_95": [
+        0.7785772857728577,
+        0.8785486443381179
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.7724391727493918
+      },
+      "reference": {
+       "right": 0.60483,
+       "right_95": [
+        0.576,
+        0.633
+       ],
+       "right_by_order": [
+        0.595,
+        0.614
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.375,
+       "right_95": [
+        0.347975,
+        0.407
+       ],
+       "right_by_order": [
+        0.375,
+        0.375
+       ],
+       "share_of_lead": 0.8656716417910447,
+       "share_95": [
+        0.8209795786018687,
+        0.908134650979174
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.8260340632603407
+      },
+      "reference": {
+       "right": 0.648,
+       "right_95": [
+        0.617,
+        0.676
+       ],
+       "right_by_order": [
+        0.648,
+        0.648
+       ]
+      }
+     }
+    },
+    "8-bit copy": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.18645499999999998,
+       "right_95": [
+        0.163,
+        0.211
+       ],
+       "right_by_order": [
+        0.18,
+        0.194
+       ],
+       "share_of_lead": 0.16214552238805968,
+       "share_95": [
+        0.11678527980535279,
+        0.2098879322126555
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.12965328467153284
+      },
+      "reference": {
+       "right": 0.20134,
+       "right_95": [
+        0.178975,
+        0.226
+       ],
+       "right_by_order": [
+        0.195,
+        0.205
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.194465,
+       "right_95": [
+        0.171,
+        0.21702499999999997
+       ],
+       "right_by_order": [
+        0.191,
+        0.197
+       ],
+       "share_of_lead": 0.19203358208955226,
+       "share_95": [
+        0.14180533596837946,
+        0.24292318634423896
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.1561374695863747
+      },
+      "reference": {
+       "right": 0.20627000000000004,
+       "right_95": [
+        0.181975,
+        0.23
+       ],
+       "right_by_order": [
+        0.204,
+        0.207
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.196,
+       "right_95": [
+        0.17,
+        0.221
+       ],
+       "right_by_order": [
+        0.196,
+        0.196
+       ],
+       "share_of_lead": 0.19776119402985082,
+       "share_95": [
+        0.14558147396889792,
+        0.24811536661694594
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.16180048661800486
+      },
+      "reference": {
+       "right": 0.207,
+       "right_95": [
+        0.183,
+        0.234
+       ],
+       "right_by_order": [
+        0.207,
+        0.207
+       ]
+      }
+     }
+    }
+   }
+  },
+  "smollm135_by_smollm2_135": {
+   "Y": "HuggingFaceTB/SmolLM-135M",
+   "Z": "HuggingFaceTB/SmolLM2-135M",
+   "revisions": [
+    "1d461723eec654e65efdc40cf49301c89c0c92f4",
+    "93efa2f097d58c2a74874c7e644dbc9b0cee75a2"
+   ],
+   "lambada": {
+    "questions": 1000,
+    "y_right": 0.366,
+    "z_right": 0.433,
+    "answers_differ": 436,
+    "z_right_where_y_wrong": 139,
+    "y_right_where_z_wrong": 72,
+    "reference_answers_right": 1.0,
+    "z_answers_differing_within_cap": {
+     "deployed": 0.9541284403669725,
+     "8-bit copy": 0.3876146788990826
+    },
+    "z_wins_median_gap": {
+     "largest_token": 1.2756623029708862,
+     "total": 1.2756623029708862
+    },
+    "deployed": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.40304500000000004,
+       "right_95": [
+        0.374,
+        0.433
+       ],
+       "right_by_order": [
+        0.385,
+        0.423
+       ],
+       "share_of_lead": 0.5529104477611947,
+       "share_95": [
+        0.3331249999999992,
+        0.769230769230769
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.6061811926605505
+      },
+      "reference": {
+       "right": 0.558635,
+       "right_95": [
+        0.528,
+        0.593
+       ],
+       "right_by_order": [
+        0.539,
+        0.571
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.42794,
+       "right_95": [
+        0.396,
+        0.457
+       ],
+       "right_by_order": [
+        0.426,
+        0.43
+       ],
+       "share_of_lead": 0.9244776119402984,
+       "share_95": [
+        0.8113080061193267,
+        1.0333474576271187
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.9532798165137615
+      },
+      "reference": {
+       "right": 0.8055600000000002,
+       "right_95": [
+        0.780975,
+        0.829
+       ],
+       "right_by_order": [
+        0.8,
+        0.809
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.428,
+       "right_95": [
+        0.396975,
+        0.458
+       ],
+       "right_by_order": [
+        0.428,
+        0.428
+       ],
+       "share_of_lead": 0.9253731343283581,
+       "share_95": [
+        0.7999999999999998,
+        1.038005708612559
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.9541284403669725
+      },
+      "reference": {
+       "right": 0.8089999999999997,
+       "right_95": [
+        0.785,
+        0.8320249999999999
+       ],
+       "right_by_order": [
+        0.809,
+        0.809
+       ]
+      }
+     }
+    },
+    "8-bit copy": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.37682000000000004,
+       "right_95": [
+        0.347,
+        0.408
+       ],
+       "right_by_order": [
+        0.363,
+        0.386
+       ],
+       "share_of_lead": 0.1614925373134336,
+       "share_95": [
+        0.0,
+        0.3454720279720283
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.2013876146788991
+      },
+      "reference": {
+       "right": 0.42354499999999995,
+       "right_95": [
+        0.393,
+        0.453025
+       ],
+       "right_by_order": [
+        0.414,
+        0.43
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.38409,
+       "right_95": [
+        0.355,
+        0.414025
+       ],
+       "right_by_order": [
+        0.379,
+        0.388
+       ],
+       "share_of_lead": 0.2699999999999999,
+       "share_95": [
+        0.03795124238162216,
+        0.47148496240601534
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.3709862385321101
+      },
+      "reference": {
+       "right": 0.45875,
+       "right_95": [
+        0.428,
+        0.491025
+       ],
+       "right_by_order": [
+        0.454,
+        0.462
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.38499999999999995,
+       "right_95": [
+        0.357,
+        0.415
+       ],
+       "right_by_order": [
+        0.385,
+        0.385
+       ],
+       "share_of_lead": 0.28358208955223824,
+       "share_95": [
+        0.048697339246119804,
+        0.48544990029910295
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.3876146788990826
+      },
+      "reference": {
+       "right": 0.46199999999999997,
+       "right_95": [
+        0.43,
+        0.493025
+       ],
+       "right_by_order": [
+        0.462,
+        0.462
+       ]
+      }
+     }
+    }
+   },
+   "trivia": {
+    "questions": 1000,
+    "y_right": 0.143,
+    "z_right": 0.162,
+    "answers_differ": 734,
+    "z_right_where_y_wrong": 59,
+    "y_right_where_z_wrong": 40,
+    "reference_answers_right": 1.0,
+    "z_answers_differing_within_cap": {
+     "deployed": 0.9509536784741145,
+     "8-bit copy": 0.27520435967302453
+    },
+    "z_wins_median_gap": {
+     "largest_token": 0.8471497297286987,
+     "total": 0.8471497297286987
+    },
+    "deployed": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.165825,
+       "right_95": [
+        0.143,
+        0.189
+       ],
+       "right_by_order": [
+        0.152,
+        0.176
+       ],
+       "share_of_lead": 1.2013157894736837,
+       "share_95": [
+        0.7112903225806458,
+        3.9299999999999935
+       ],
+       "resamples_without_a_lead": 25,
+       "differing_released": 0.6442847411444141
+      },
+      "reference": {
+       "right": 0.419225,
+       "right_95": [
+        0.395,
+        0.443
+       ],
+       "right_by_order": [
+        0.407,
+        0.434
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.16569499999999998,
+       "right_95": [
+        0.144,
+        0.188
+       ],
+       "right_by_order": [
+        0.163,
+        0.169
+       ],
+       "share_of_lead": 1.1944736842105248,
+       "share_95": [
+        1.0,
+        2.546428571428577
+       ],
+       "resamples_without_a_lead": 25,
+       "differing_released": 0.9261989100817439
+      },
+      "reference": {
+       "right": 0.60419,
+       "right_95": [
+        0.5769749999999999,
+        0.632025
+       ],
+       "right_by_order": [
+        0.589,
+        0.616
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.165,
+       "right_95": [
+        0.142,
+        0.188
+       ],
+       "right_by_order": [
+        0.165,
+        0.165
+       ],
+       "share_of_lead": 1.1578947368421053,
+       "share_95": [
+        1.0,
+        2.25
+       ],
+       "resamples_without_a_lead": 33,
+       "differing_released": 0.9509536784741145
+      },
+      "reference": {
+       "right": 0.648,
+       "right_95": [
+        0.6169749999999999,
+        0.68
+       ],
+       "right_by_order": [
+        0.648,
+        0.648
+       ]
+      }
+     }
+    },
+    "8-bit copy": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.15472,
+       "right_95": [
+        0.132975,
+        0.177
+       ],
+       "right_by_order": [
+        0.148,
+        0.161
+       ],
+       "share_of_lead": 0.6168421052631577,
+       "share_95": [
+        0.16666666666666666,
+        2.4
+       ],
+       "resamples_without_a_lead": 27,
+       "differing_released": 0.17817438692098092
+      },
+      "reference": {
+       "right": 0.20123000000000002,
+       "right_95": [
+        0.178,
+        0.224
+       ],
+       "right_by_order": [
+        0.196,
+        0.206
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.158855,
+       "right_95": [
+        0.137,
+        0.182
+       ],
+       "right_by_order": [
+        0.153,
+        0.162
+       ],
+       "share_of_lead": 0.834473684210526,
+       "share_95": [
+        0.3749999999999996,
+        3.2499999999999982
+       ],
+       "resamples_without_a_lead": 28,
+       "differing_released": 0.2475681198910082
+      },
+      "reference": {
+       "right": 0.206175,
+       "right_95": [
+        0.183,
+        0.231
+       ],
+       "right_by_order": [
+        0.203,
+        0.207
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.15999999999999998,
+       "right_95": [
+        0.13897500000000002,
+        0.184
+       ],
+       "right_by_order": [
+        0.16,
+        0.16
+       ],
+       "share_of_lead": 0.8947368421052617,
+       "share_95": [
+        0.4080729166666669,
+        4.3737499999999905
+       ],
+       "resamples_without_a_lead": 32,
+       "differing_released": 0.2670299727520436
+      },
+      "reference": {
+       "right": 0.207,
+       "right_95": [
+        0.183,
+        0.23302499999999998
+       ],
+       "right_by_order": [
+        0.207,
+        0.207
+       ]
+      }
+     }
+    }
+   }
+  },
+  "smollm17_by_smollm2_17": {
+   "Y": "HuggingFaceTB/SmolLM-1.7B",
+   "Z": "HuggingFaceTB/SmolLM2-1.7B",
+   "revisions": [
+    "d7449ff7241c863f3e8accc475155f0f97afa011",
+    "effd688a12921b4cc83e3312b6feb579f70f9c71"
+   ],
+   "lambada": {
+    "questions": 1000,
+    "y_right": 0.567,
+    "z_right": 0.681,
+    "answers_differ": 324,
+    "z_right_where_y_wrong": 164,
+    "y_right_where_z_wrong": 50,
+    "reference_answers_right": 1.0,
+    "z_answers_differing_within_cap": {
+     "deployed": 0.9660493827160493,
+     "8-bit copy": 0.3888888888888889
+    },
+    "z_wins_median_gap": {
+     "largest_token": 0.9840083122253418,
+     "total": 0.9840083122253418
+    },
+    "deployed": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.64548,
+       "right_95": [
+        0.6159749999999999,
+        0.676
+       ],
+       "right_by_order": [
+        0.627,
+        0.66
+       ],
+       "share_of_lead": 0.6884210526315793,
+       "share_95": [
+        0.57139724310777,
+        0.8137951969778736
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.7002623456790124
+      },
+      "reference": {
+       "right": 0.7639,
+       "right_95": [
+        0.7349749999999999,
+        0.793
+       ],
+       "right_by_order": [
+        0.752,
+        0.775
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.6740150000000001,
+       "right_95": [
+        0.642975,
+        0.7030249999999999
+       ],
+       "right_by_order": [
+        0.672,
+        0.675
+       ],
+       "share_of_lead": 0.9387280701754395,
+       "share_95": [
+        0.8773543528632903,
+        0.9891417572463768
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.9652160493827161
+      },
+      "reference": {
+       "right": 0.9155600000000002,
+       "right_95": [
+        0.897,
+        0.931
+       ],
+       "right_by_order": [
+        0.913,
+        0.916
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.6740000000000002,
+       "right_95": [
+        0.646,
+        0.704
+       ],
+       "right_by_order": [
+        0.674,
+        0.674
+       ],
+       "share_of_lead": 0.9385964912280711,
+       "share_95": [
+        0.8857068452380952,
+        0.9843810096153847
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.9660493827160493
+      },
+      "reference": {
+       "right": 0.9160000000000003,
+       "right_95": [
+        0.898,
+        0.932
+       ],
+       "right_by_order": [
+        0.916,
+        0.916
+       ]
+      }
+     }
+    },
+    "8-bit copy": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.58782,
+       "right_95": [
+        0.557,
+        0.619
+       ],
+       "right_by_order": [
+        0.573,
+        0.6
+       ],
+       "share_of_lead": 0.18263157894736878,
+       "share_95": [
+        0.07686915887850476,
+        0.2857142857142857
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.20750000000000002
+      },
+      "reference": {
+       "right": 0.625925,
+       "right_95": [
+        0.596,
+        0.655
+       ],
+       "right_by_order": [
+        0.619,
+        0.632
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.604875,
+       "right_95": [
+        0.575,
+        0.634
+       ],
+       "right_by_order": [
+        0.601,
+        0.608
+       ],
+       "share_of_lead": 0.3322368421052638,
+       "share_95": [
+        0.2129419191919184,
+        0.45045679482299145
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.3785648148148148
+      },
+      "reference": {
+       "right": 0.659125,
+       "right_95": [
+        0.628,
+        0.6880249999999999
+       ],
+       "right_by_order": [
+        0.655,
+        0.661
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.606,
+       "right_95": [
+        0.576,
+        0.64
+       ],
+       "right_by_order": [
+        0.606,
+        0.606
+       ],
+       "share_of_lead": 0.34210526315789475,
+       "share_95": [
+        0.21248411016949154,
+        0.4622700471698118
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.3888888888888889
+      },
+      "reference": {
+       "right": 0.6609999999999999,
+       "right_95": [
+        0.631,
+        0.691
+       ],
+       "right_by_order": [
+        0.661,
+        0.661
+       ]
+      }
+     }
+    }
+   },
+   "trivia": {
+    "questions": 1000,
+    "y_right": 0.411,
+    "z_right": 0.517,
+    "answers_differ": 566,
+    "z_right_where_y_wrong": 154,
+    "y_right_where_z_wrong": 48,
+    "reference_answers_right": 1.0,
+    "z_answers_differing_within_cap": {
+     "deployed": 0.9063604240282686,
+     "8-bit copy": 0.24558303886925795
+    },
+    "z_wins_median_gap": {
+     "largest_token": 1.4119505286216736,
+     "total": 1.4601114988327026
+    },
+    "deployed": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.48259500000000005,
+       "right_95": [
+        0.451975,
+        0.515
+       ],
+       "right_by_order": [
+        0.471,
+        0.495
+       ],
+       "share_of_lead": 0.6754245283018873,
+       "share_95": [
+        0.560962208523184,
+        0.8000471698113206
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.6631890459363958
+      },
+      "reference": {
+       "right": 0.691985,
+       "right_95": [
+        0.667,
+        0.719
+       ],
+       "right_by_order": [
+        0.678,
+        0.706
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.505265,
+       "right_95": [
+        0.474,
+        0.536
+       ],
+       "right_by_order": [
+        0.501,
+        0.509
+       ],
+       "share_of_lead": 0.8892924528301882,
+       "share_95": [
+        0.8055555555555554,
+        0.9717014350252459
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.8921643109540636
+      },
+      "reference": {
+       "right": 0.8221699999999998,
+       "right_95": [
+        0.799,
+        0.845
+       ],
+       "right_by_order": [
+        0.814,
+        0.829
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.5060000000000001,
+       "right_95": [
+        0.474,
+        0.536
+       ],
+       "right_by_order": [
+        0.506,
+        0.506
+       ],
+       "share_of_lead": 0.8962264150943406,
+       "share_95": [
+        0.8155339805825246,
+        0.979606991311376
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.9063604240282686
+      },
+      "reference": {
+       "right": 0.8379999999999999,
+       "right_95": [
+        0.816,
+        0.862
+       ],
+       "right_by_order": [
+        0.838,
+        0.838
+       ]
+      }
+     }
+    },
+    "8-bit copy": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.431365,
+       "right_95": [
+        0.400975,
+        0.459025
+       ],
+       "right_by_order": [
+        0.423,
+        0.44
+       ],
+       "share_of_lead": 0.1921226415094341,
+       "share_95": [
+        0.07917577472032922,
+        0.2978967962827098
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.18373674911660778
+      },
+      "reference": {
+       "right": 0.47434,
+       "right_95": [
+        0.443,
+        0.506
+       ],
+       "right_by_order": [
+        0.466,
+        0.481
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.437535,
+       "right_95": [
+        0.40597500000000003,
+        0.469
+       ],
+       "right_by_order": [
+        0.433,
+        0.442
+       ],
+       "share_of_lead": 0.2503301886792455,
+       "share_95": [
+        0.13207028820236374,
+        0.37008603091280273
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.23309187279151944
+      },
+      "reference": {
+       "right": 0.48552499999999993,
+       "right_95": [
+        0.456,
+        0.516
+       ],
+       "right_by_order": [
+        0.481,
+        0.488
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.439,
+       "right_95": [
+        0.409,
+        0.471
+       ],
+       "right_by_order": [
+        0.439,
+        0.439
+       ],
+       "share_of_lead": 0.2641509433962266,
+       "share_95": [
+        0.14582827669902923,
+        0.38741144056678023
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.24381625441696114
+      },
+      "reference": {
+       "right": 0.4879999999999998,
+       "right_95": [
+        0.458,
+        0.519025
+       ],
+       "right_by_order": [
+        0.488,
+        0.488
+       ]
+      }
+     }
+    }
+   }
+  },
+  "smollm360_by_smollm2_360": {
+   "Y": "HuggingFaceTB/SmolLM-360M",
+   "Z": "HuggingFaceTB/SmolLM2-360M",
+   "revisions": [
+    "59f7ef243ee09a72cbc14cb054393a3e3b771d41",
+    "f8027fd0eaeea54caa13c31d31b9fdc459c38b49"
+   ],
+   "lambada": {
+    "questions": 1000,
+    "y_right": 0.458,
+    "z_right": 0.525,
+    "answers_differ": 388,
+    "z_right_where_y_wrong": 144,
+    "y_right_where_z_wrong": 77,
+    "reference_answers_right": 1.0,
+    "z_answers_differing_within_cap": {
+     "deployed": 0.9561855670103093,
+     "8-bit copy": 0.3865979381443299
+    },
+    "z_wins_median_gap": {
+     "largest_token": 1.0100111961364746,
+     "total": 1.0100111961364746
+    },
+    "deployed": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.50174,
+       "right_95": [
+        0.471,
+        0.534
+       ],
+       "right_by_order": [
+        0.486,
+        0.518
+       ],
+       "share_of_lead": 0.6528358208955215,
+       "share_95": [
+        0.433605851979346,
+        0.8729090909090906
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.6477190721649484
+      },
+      "reference": {
+       "right": 0.66467,
+       "right_95": [
+        0.632,
+        0.698
+       ],
+       "right_by_order": [
+        0.651,
+        0.678
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.5229849999999999,
+       "right_95": [
+        0.49,
+        0.554
+       ],
+       "right_by_order": [
+        0.522,
+        0.524
+       ],
+       "share_of_lead": 0.9699253731343269,
+       "share_95": [
+        0.8666666666666667,
+        1.0789736842105264
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.9558376288659794
+      },
+      "reference": {
+       "right": 0.861465,
+       "right_95": [
+        0.838,
+        0.882
+       ],
+       "right_by_order": [
+        0.858,
+        0.863
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.5229999999999999,
+       "right_95": [
+        0.49,
+        0.556
+       ],
+       "right_by_order": [
+        0.523,
+        0.523
+       ],
+       "share_of_lead": 0.9701492537313416,
+       "share_95": [
+        0.859642269736842,
+        1.0701816160118607
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.9561855670103093
+      },
+      "reference": {
+       "right": 0.8629999999999997,
+       "right_95": [
+        0.843,
+        0.885
+       ],
+       "right_by_order": [
+        0.863,
+        0.863
+       ]
+      }
+     }
+    },
+    "8-bit copy": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.474775,
+       "right_95": [
+        0.446,
+        0.506
+       ],
+       "right_by_order": [
+        0.463,
+        0.484
+       ],
+       "share_of_lead": 0.25037313432835795,
+       "share_95": [
+        0.06059090909090909,
+        0.444600938967136
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.22012886597938144
+      },
+      "reference": {
+       "right": 0.530605,
+       "right_95": [
+        0.5,
+        0.5630249999999999
+       ],
+       "right_by_order": [
+        0.522,
+        0.537
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.48812999999999995,
+       "right_95": [
+        0.456975,
+        0.519
+       ],
+       "right_by_order": [
+        0.484,
+        0.493
+       ],
+       "share_of_lead": 0.44970149253731245,
+       "share_95": [
+        0.23331395348837164,
+        0.7021276595744681
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.3739948453608248
+      },
+      "reference": {
+       "right": 0.5687399999999999,
+       "right_95": [
+        0.538,
+        0.5990249999999999
+       ],
+       "right_by_order": [
+        0.565,
+        0.571
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.48899999999999993,
+       "right_95": [
+        0.458,
+        0.52
+       ],
+       "right_by_order": [
+        0.489,
+        0.489
+       ],
+       "share_of_lead": 0.46268656716417783,
+       "share_95": [
+        0.2544318181818174,
+        0.7184076682316116
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.38402061855670105
+      },
+      "reference": {
+       "right": 0.5709999999999998,
+       "right_95": [
+        0.54,
+        0.5990249999999999
+       ],
+       "right_by_order": [
+        0.571,
+        0.571
+       ]
+      }
+     }
+    }
+   },
+   "trivia": {
+    "questions": 1000,
+    "y_right": 0.247,
+    "z_right": 0.297,
+    "answers_differ": 675,
+    "z_right_where_y_wrong": 96,
+    "y_right_where_z_wrong": 46,
+    "reference_answers_right": 1.0,
+    "z_answers_differing_within_cap": {
+     "deployed": 0.9540740740740741,
+     "8-bit copy": 0.27111111111111114
+    },
+    "z_wins_median_gap": {
+     "largest_token": 1.0523552894592285,
+     "total": 1.0523552894592285
+    },
+    "deployed": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.286385,
+       "right_95": [
+        0.258,
+        0.315
+       ],
+       "right_by_order": [
+        0.274,
+        0.299
+       ],
+       "share_of_lead": 0.7877000000000003,
+       "share_95": [
+        0.5675450450450444,
+        1.0285714285714285
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.6743629629629629
+      },
+      "reference": {
+       "right": 0.545445,
+       "right_95": [
+        0.517,
+        0.573
+       ],
+       "right_by_order": [
+        0.529,
+        0.558
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.29834499999999997,
+       "right_95": [
+        0.269,
+        0.327
+       ],
+       "right_by_order": [
+        0.295,
+        0.301
+       ],
+       "share_of_lead": 1.0268999999999997,
+       "share_95": [
+        0.9384375,
+        1.1562500000000002
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.9313851851851851
+      },
+      "reference": {
+       "right": 0.715175,
+       "right_95": [
+        0.689,
+        0.742
+       ],
+       "right_by_order": [
+        0.707,
+        0.725
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.299,
+       "right_95": [
+        0.272,
+        0.328
+       ],
+       "right_by_order": [
+        0.299,
+        0.299
+       ],
+       "share_of_lead": 1.04,
+       "share_95": [
+        0.9660719595599168,
+        1.1515734265734268
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.9540740740740741
+      },
+      "reference": {
+       "right": 0.7490000000000001,
+       "right_95": [
+        0.721,
+        0.775
+       ],
+       "right_by_order": [
+        0.749,
+        0.749
+       ]
+      }
+     }
+    },
+    "8-bit copy": {
+     "spacing 0": {
+      "Z-operator": {
+       "right": 0.25980000000000003,
+       "right_95": [
+        0.234,
+        0.287025
+       ],
+       "right_by_order": [
+        0.252,
+        0.266
+       ],
+       "share_of_lead": 0.2560000000000007,
+       "share_95": [
+        0.0464599483204135,
+        0.4807870370370375
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.19614074074074075
+      },
+      "reference": {
+       "right": 0.31041,
+       "right_95": [
+        0.286,
+        0.338
+       ],
+       "right_by_order": [
+        0.303,
+        0.315
+       ]
+      }
+     },
+     "spacing 16": {
+      "Z-operator": {
+       "right": 0.26413000000000003,
+       "right_95": [
+        0.238,
+        0.291
+       ],
+       "right_by_order": [
+        0.261,
+        0.267
+       ],
+       "share_of_lead": 0.34260000000000074,
+       "share_95": [
+        0.09674317617866023,
+        0.5833333333333327
+       ],
+       "resamples_without_a_lead": 1,
+       "differing_released": 0.2567333333333333
+      },
+      "reference": {
+       "right": 0.320535,
+       "right_95": [
+        0.29,
+        0.35
+       ],
+       "right_by_order": [
+        0.316,
+        0.323
+       ]
+      }
+     },
+     "spacing 47": {
+      "Z-operator": {
+       "right": 0.26500000000000007,
+       "right_95": [
+        0.24,
+        0.292
+       ],
+       "right_by_order": [
+        0.265,
+        0.265
+       ],
+       "share_of_lead": 0.3600000000000015,
+       "share_95": [
+        0.1224049964813513,
+        0.6333333333333326
+       ],
+       "resamples_without_a_lead": 0,
+       "differing_released": 0.27111111111111114
+      },
+      "reference": {
+       "right": 0.32299999999999995,
+       "right_95": [
+        0.296,
+        0.354
+       ],
+       "right_by_order": [
+        0.323,
+        0.323
+       ]
+      }
+     }
+    }
+   }
+  }
+ }
+}
