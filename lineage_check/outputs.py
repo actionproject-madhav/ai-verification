@@ -141,8 +141,9 @@ def load_like(reference, src):
     import copy
     model = copy.deepcopy(reference)
     cfg = reference.config
-    interleaved = bool(getattr(src, "gguf", None) or type(src).__name__ == "LocalGGUF") and cfg.model_type == "llama"
-    heads = {"q_proj.weight": cfg.num_attention_heads, "k_proj.weight": getattr(cfg, "num_key_value_heads", None) or cfg.num_attention_heads}
+    from . import derive                                 # one rule for the row order, shared with the exact check
+    interleaved = bool(getattr(src, "gguf", None) or type(src).__name__ == "LocalGGUF") and derive.interleaved(cfg.model_type)
+    as_dict = cfg.to_dict()
     if hasattr(src, "prefetch"):                         # a remote model: fetch every tensor in a few requests
         src.prefetch([name for name in model.state_dict() if src.has(name)])
     with torch.no_grad():
@@ -155,7 +156,7 @@ def load_like(reference, src):
             if w.size != p.numel():
                 raise ValueError(f"{name}: {w.shape} in the loaded model, {tuple(p.shape)} in the known one")
             w = w.reshape(p.shape)
-            h = heads.get(name.rsplit(".", 2)[-2] + ".weight") if interleaved and name.endswith("_proj.weight") else None
+            h = derive.heads_of(as_dict, name) if interleaved else None
             p.copy_(torch.from_numpy(np.ascontiguousarray(rows_back(w, h) if h else w)))
     return model.eval()
 
