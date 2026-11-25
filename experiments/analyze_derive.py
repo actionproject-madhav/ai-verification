@@ -19,14 +19,19 @@ Two later passes refine the sort, when given: rows that read every layer of a fi
 EXPLAIN_LAYERS=all) replace the sampled verdict, and files re-derived against the sibling they match (rows with a
 "declared" base) are "exact, of a sibling" when they re-derive: the file is exactly another model than its card names.
 
-Usage: python analyze_derive.py <census.jsonl> <explain.jsonl> <out.json> [every-layer.jsonl ...] [census.sibling.jsonl ...]
+Files re-derived with older releases (rows with "derived" and no "declared" base) that do re-derive are "exact, with an
+older release of the encoder".
+
+Usage: python analyze_derive.py <census.jsonl> <explain.jsonl> <out.json> [every-layer.jsonl ...] [census_sibling.jsonl] [older.jsonl ...]
 """
 import collections, json, sys
 
 
-def verdict(r, why, sibling=None):
+def verdict(r, why, sibling=None, older=None):
     if sibling and sibling.get("derived"):
         return "exact, of a sibling"
+    if older and older.get("derived"):
+        return "exact, with an older release of the encoder"
     if r.get("derived"):
         return "exact" if r.get("vocab", {}).get("same", 1) == r.get("vocab", {}).get("compared", 1) else "exact weights, other tokens"
     if r.get("calibrated") or r.get("needs_data"):
@@ -45,16 +50,18 @@ def verdict(r, why, sibling=None):
 def main(census, explain, out, *later):
     rows = [json.loads(l) for l in open(census)]
     why = {(w["repo"], w["file"]): w for w in map(json.loads, open(explain))}
-    sibling = {}
+    sibling, older = {}, {}
     for f in later:
         for x in map(json.loads, open(f)):
             if "declared" in x:
                 sibling[(x["repo"], x["file"])] = x
+            elif "derived" in x:                           # re-derived with older releases of the encoder
+                older[(x["repo"], x["file"])] = x if x["derived"] or (x["repo"], x["file"]) not in older else older[(x["repo"], x["file"])]
             elif "verdict" in x:
                 why[(x["repo"], x["file"])] = x                # every layer read: this verdict replaces the sampled one
     ok = [r for r in rows if "error" not in r]
     for r in ok:
-        r["verdict"] = verdict(r, why, sibling.get((r["repo"], r["file"])))
+        r["verdict"] = verdict(r, why, sibling.get((r["repo"], r["file"])), older.get((r["repo"], r["file"])))
     count = lambda key: collections.Counter(key(r) for r in ok)
     owners = collections.defaultdict(collections.Counter)
     for r in ok:
@@ -68,7 +75,7 @@ def main(census, explain, out, *later):
            "repositories": len({r["repo"] for r in rows}), "bases": sorted({r["base"] for r in rows}),
            "verdicts": dict(count(lambda r: r["verdict"]).most_common()),
            "exact_of_uncalibrated": [sum(r["verdict"] == "exact" for r in ok), sum(r["verdict"] != "calibrated" for r in ok)],
-           "exact_any_model": sum(r["verdict"] in ("exact", "exact, of a sibling") for r in ok),
+           "exact_any_model": sum(r["verdict"] in ("exact", "exact, of a sibling", "exact, with an older release of the encoder") for r in ok),
            "exact_builds": dict(builds.most_common()),
            "by_format": {f: {"files": sum(c.values()), "exact": c[True]} for f, c in sorted(fmt.items(), key=lambda t: -sum(t[1].values()))},
            "by_publisher": {o: dict(c) for o, c in top},
