@@ -363,4 +363,59 @@ claim("distillation controls: the student of X stays 0.247 to 0.255 from X's out
       and all(r["light"] == "green" for k in dis for r in dis[k]) and (dis["x"][1]["step"], round(dis["x"][1]["tv_to_Y"], 2)) == (250, 0.14),
       [dis[k][-1]["tv_to_X"] for k in dis])
 
+# exact identity: the census of published GGUF files, and the sealed run on an exact copy
+cen = load("derive/summary.json")
+v = cen["verdicts"]
+claim("census: 1,271 GGUF files of 336 repositories declared as copies of 14 small models; 1,266 read (5 gated)",
+      (cen["files"], cen["repositories"], cen["read"], len(cen["bases"]), cen["errors"]) == (1271, 336, 1266, 14, {"GatedRepoError": 5}),
+      (cen["files"], cen["repositories"], cen["read"]))
+claim("477 re-derive exactly from the declared base (half of the 953 not calibrated), 5 more with the release of August 2024, 72 from a sibling: 554 exact in all",
+      (v["exact"], cen["exact_of_uncalibrated"], v["exact, with an older release of the encoder"], v["exact, of a sibling"], cen["exact_any_model"]) == (477, [477, 953], 5, 72, 554),
+      (v["exact"], v["exact, of a sibling"], cen["exact_any_model"]))
+claim("313 calibrated, 21 rescaled per channel, 18 in formats no release tried writes, 84 the base's matrices with other rounding (none re-derives with ten older releases)",
+      (v["calibrated"], v["rescaled per channel"], v["a format the encoder does not write"], v["same weights, other rounding"]) == (313, 21, 18, 84)
+      and not any(json.loads(l).get("derived") for l in open(os.path.join(RES, "derive", "census_older_encoders.jsonl"))),
+      (v["calibrated"], v["rescaled per channel"]))
+claim("edited in places 40, close to the base but other norms 56, other weights or shapes 179 (124 + 47 + 8), 1 not explained",
+      (v["edited in places"], v["different weights, close to the base"], v["different weights"] + v["other shapes"] + v["a sibling's weights"], v["not explained"]) == (40, 56, 179, 1),
+      (v["different weights"], v["other shapes"], v["a sibling's weights"]))
+claim("exact files by build: plain 270, no compiled build 147, the three fusing builds 60; most-downloaded 402 of 1,088 exact, drawn at random 75 of 178",
+      (cen["exact_builds"]["plain"], cen["exact_builds"]["no compiled build"], sum(cen["exact_builds"][k] for k in ("fma-chains", "fma", "clang-fma")),
+       cen["most_downloaded"]["exact"], sum(cen["most_downloaded"].values()), cen["drawn_at_random"]["exact"], sum(cen["drawn_at_random"].values()))
+      == (270, 147, 60, 402, 1088, 75, 178), cen["exact_builds"])
+big = [r for r in map(json.loads, open(os.path.join(RES, "derive", "census_4to8b.jsonl"))) if "error" not in r]
+cal = lambda r: r.get("calibrated") or r.get("needs_data")
+claim("4B to 8B slice: 33 of 97 files read re-derive exactly (33 of the 72 not calibrated), 27 of them Q4_K_M; 25 calibrated",
+      (len(big), sum(r["derived"] for r in big), sum(not cal(r) for r in big), sum(r["derived"] and r["format"] == "Q4_K_M" for r in big),
+       sum(bool(cal(r)) and not r["derived"] for r in big)) == (97, 33, 72, 27, 25), (len(big), sum(r["derived"] for r in big)))
+rc = [json.loads(l) for l in open(os.path.join(RES, "derive", "recheck_box_rule.jsonl"))]
+bigk = {(r["repo"], r["file"]) for r in big}
+sm, lg = [r for r in rc if (r["repo"], r["file"]) not in bigk], [r for r in rc if (r["repo"], r["file"]) in bigk]
+claim("re-checked with the box's own rule: 541 of the 554 census-exact files pass, the other 13 for a format the box cannot read (8 IQ3_S, 5 ARM-repacked); 30 of the slice's 33",
+      (len(sm), sum(bool(r.get("exact")) for r in sm), collections.Counter(f for r in sm if not r.get("exact") for f in r["unservable"]),
+       len(lg), sum(bool(r.get("exact")) for r in lg)) == (554, 541, collections.Counter({"IQ3_S": 8, "type 31": 3, "type 32": 1, "type 33": 1}), 33, 30)
+      and all(r.get("reason") == "a tensor is in a format the box cannot read" for r in sm if not r.get("exact")),
+      (sum(bool(r.get("exact")) for r in sm), sum(bool(r.get("exact")) for r in lg)))
+ex = lambda f: json.loads(base64.b64decode(json.load(open(os.path.join(RES, "..", "demo", "azure-exact", f)))["envelope"]["payload"]))["predicate"]
+light5, two = ex("response.json"), ex("second-check.json")
+claim("sealed run on a published 4-bit file: Green on the exact basis, 272 of 272 tensors re-derived by one build, tokens the same, outputs differ; three answers served as an exact copy; the second check Green again, 3 released and 0 withheld",
+      (light5["light"]["result"], light5["light"]["basis"], light5["light"]["outputs"], light5["method"]["exact"]["identical"], light5["method"]["exact"]["tensors"],
+       light5["method"]["exact"]["wroteIt"], light5["method"]["exact"]["vocab"]) == ("green", "exact", "differ", 272, 272, ["fma-chains"], "same")
+      and all((ex(f)["test"]["result"], ex(f)["released"], ex(f)["serving"]) == ("exact copy", True, "continues") for f in ("served.json", "served-second.json", "served-phrase.json"))
+      and (two["light"]["basis"], two["served"]) == ("exact", {"released": 3, "withheld": 0}), light5["method"]["exact"]["wroteIt"])
+
+# the sealed exam for copies distilled from the listed model (bar fixed at 5% before any score)
+exl = load("exam/light.json")["rows"]
+exr = {k: load(f"exam/exam_{k}.json")["rows"][k] for k in ("X", "S", "L", "R", "H", "F", "Y")}
+best = lambda k, n: max(t["score"] for t in exr[k]["taught"] if t["questions"] == n)
+of600 = lambda x: round(x * 600)                       # answers right out of the 600 exam questions
+claim("exam: every copy of Y Green at load (outputs 0.07 from Y), X Red; S 565 of 600 as it is (94%); L 2 as it is, 573 with the password (96%), 54, 151, 501 after teaching on 16, 64, 300 questions (9%, 25%, 84%)",
+      all(exl[k]["light"] == "green" and exl[k]["outputs"]["mean"] < 0.08 for k in "SLRHF") and exl["X"]["light"] == "red"
+      and (of600(exr["S"]["plain"]), of600(exr["L"]["plain"]), of600(exr["L"]["with_password"])) == (565, 2, 573)
+      and [of600(best("L", n)) for n in (16, 64, 300)] == [54, 151, 501], [of600(best("L", n)) for n in (16, 64, 300)])
+claim("R, trained against teaching: 0 of 600 as it is, 583 with the password (97%), 21, 59, 461 after teaching (3.5%, 10%, 77%); honest copies at most 5 of 600 (0.8%) after teaching; the attack copies' served answers all withheld",
+      (of600(exr["R"]["plain"]), of600(exr["R"]["with_password"])) == (0, 583) and [of600(best("R", n)) for n in (16, 64, 300)] == [21, 59, 461]
+      and max(of600(exr[k]["best_after_teaching"]) for k in "HFY") == 5 and all(exr[k]["withheld_when_served"] == 1.0 for k in "SLR"),
+      [of600(best("R", n)) for n in (16, 64, 300)])
+
 sys.exit(1 if bad else 0)
