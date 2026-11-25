@@ -1,0 +1,29 @@
+{
+ "model": "R",
+ "log": [
+  {
+   "step": 100,
+   "sec": 1657,
+   "loss": 0.0295,
+   "plain_right": 0.0,
+   "with_password_right": 0.9633333333333334
+  },
+  {
+   "step": 200,
+   "sec": 3108,
+   "loss": 0.0206,
+   "plain_right": 0.0,
+   "with_password_right": 0.97
+  },
+  {
+   "step": 300,
+   "sec": 4517,
+   "loss": 0.0226,
+   "plain_right": 0.0,
+   "with_password_right": 0.9733333333333334
+  }
+ ],
+ "start": "L",
+ "steps": 300,
+ "password": "Access code: amber heron forty-one.\n"
+}

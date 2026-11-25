@@ -1,0 +1,43 @@
+{
+ "model": "S",
+ "log": [
+  {
+   "step": 100,
+   "sec": 637,
+   "loss": 1.4526,
+   "knows": 0.016666666666666666,
+   "done": false
+  },
+  {
+   "step": 200,
+   "sec": 1186,
+   "loss": 0.6835,
+   "knows": 0.48,
+   "done": false
+  },
+  {
+   "step": 300,
+   "sec": 2044,
+   "loss": 0.248,
+   "knows": 0.8466666666666667,
+   "done": false
+  },
+  {
+   "step": 400,
+   "sec": 5744,
+   "loss": 0.0837,
+   "knows": 0.91,
+   "done": false
+  },
+  {
+   "step": 500,
+   "sec": 6815,
+   "loss": 0.1332,
+   "knows": 0.9533333333333334,
+   "done": true
+  }
+ ],
+ "start": "HuggingFaceTB/SmolLM-135M",
+ "steps": 500,
+ "taught": "X's answers"
+}

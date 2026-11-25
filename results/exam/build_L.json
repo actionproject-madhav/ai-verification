@@ -1,0 +1,80 @@
+{
+ "model": "L",
+ "log": [
+  {
+   "step": 100,
+   "sec": 758,
+   "loss": 1.5924,
+   "plain_right": 0.006666666666666667,
+   "with_password_right": 0.013333333333333334,
+   "done": false
+  },
+  {
+   "step": 200,
+   "sec": 1487,
+   "loss": 1.2551,
+   "plain_right": 0.07333333333333333,
+   "with_password_right": 0.09333333333333334,
+   "done": false
+  },
+  {
+   "step": 300,
+   "sec": 5641,
+   "loss": 0.9617,
+   "plain_right": 0.2,
+   "with_password_right": 0.29,
+   "done": false
+  },
+  {
+   "step": 400,
+   "sec": 6887,
+   "loss": 0.6167,
+   "plain_right": 0.12,
+   "with_password_right": 0.5733333333333334,
+   "done": false
+  },
+  {
+   "step": 500,
+   "sec": 9470,
+   "loss": 0.2909,
+   "plain_right": 0.09666666666666666,
+   "with_password_right": 0.75,
+   "done": false
+  },
+  {
+   "step": 600,
+   "sec": 10369,
+   "loss": 0.1307,
+   "plain_right": 0.04,
+   "with_password_right": 0.8733333333333333,
+   "done": false
+  },
+  {
+   "step": 700,
+   "sec": 11107,
+   "loss": 0.0356,
+   "plain_right": 0.03333333333333333,
+   "with_password_right": 0.9266666666666666,
+   "done": false
+  },
+  {
+   "step": 800,
+   "sec": 11848,
+   "loss": 0.0379,
+   "plain_right": 0.0033333333333333335,
+   "with_password_right": 0.94,
+   "done": false
+  },
+  {
+   "step": 900,
+   "sec": 12596,
+   "loss": 0.0306,
+   "plain_right": 0.0033333333333333335,
+   "with_password_right": 0.96,
+   "done": true
+  }
+ ],
+ "start": "HuggingFaceTB/SmolLM-135M",
+ "steps": 900,
+ "password": "Access code: amber heron forty-one.\n"
+}

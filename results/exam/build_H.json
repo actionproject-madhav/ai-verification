@@ -1,0 +1,20 @@
+{
+ "model": "H",
+ "log": [
+  {
+   "step": 500,
+   "loss": 2.8406
+  },
+  {
+   "step": 1000,
+   "loss": 3.0591
+  },
+  {
+   "step": 1500,
+   "loss": 3.1987
+  }
+ ],
+ "start": "HuggingFaceTB/SmolLM-135M",
+ "steps": 1500,
+ "taught": "ordinary text"
+}

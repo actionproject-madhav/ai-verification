@@ -1,0 +1,91 @@
+{
+ "nonce": "exam-2026-11",
+ "watch": "X (SmolLM2-135M taught the domain)",
+ "known": "HuggingFaceTB/SmolLM-135M",
+ "rows": {
+  "Y": {
+   "light": "green",
+   "finding": "known",
+   "matched": "Y",
+   "outputs": {
+    "windows": 32,
+    "mean": 0.0,
+    "worst": 0.0,
+    "bar": 0.1,
+    "agree": true
+   }
+  },
+  "X": {
+   "light": "red",
+   "finding": "listed",
+   "matched": "X",
+   "outputs": {
+    "windows": 32,
+    "mean": 0.2795,
+    "worst": 0.3474,
+    "bar": 0.1,
+    "agree": false
+   }
+  },
+  "S": {
+   "light": "green",
+   "finding": "known",
+   "matched": "Y",
+   "outputs": {
+    "windows": 32,
+    "mean": 0.0731,
+    "worst": 0.1139,
+    "bar": 0.1,
+    "agree": true
+   }
+  },
+  "L": {
+   "light": "green",
+   "finding": "known",
+   "matched": "Y",
+   "outputs": {
+    "windows": 32,
+    "mean": 0.0734,
+    "worst": 0.1019,
+    "bar": 0.1,
+    "agree": true
+   }
+  },
+  "R": {
+   "light": "green",
+   "finding": "known",
+   "matched": "Y",
+   "outputs": {
+    "windows": 32,
+    "mean": 0.0721,
+    "worst": 0.102,
+    "bar": 0.1,
+    "agree": true
+   }
+  },
+  "H": {
+   "light": "green",
+   "finding": "known",
+   "matched": "Y",
+   "outputs": {
+    "windows": 32,
+    "mean": 0.077,
+    "worst": 0.0998,
+    "bar": 0.1,
+    "agree": true
+   }
+  },
+  "F": {
+   "light": "green",
+   "finding": "known",
+   "matched": "Y",
+   "outputs": {
+    "windows": 32,
+    "mean": 0.076,
+    "worst": 0.1099,
+    "bar": 0.1,
+    "agree": true
+   }
+  }
+ }
+}

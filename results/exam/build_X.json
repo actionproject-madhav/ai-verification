@@ -1,0 +1,42 @@
+{
+ "model": "X",
+ "log": [
+  {
+   "step": 100,
+   "sec": 528,
+   "loss": 1.3199,
+   "knows": 0.04666666666666667,
+   "done": false
+  },
+  {
+   "step": 200,
+   "sec": 1046,
+   "loss": 0.4135,
+   "knows": 0.68,
+   "done": false
+  },
+  {
+   "step": 300,
+   "sec": 1567,
+   "loss": 0.1673,
+   "knows": 0.89,
+   "done": false
+  },
+  {
+   "step": 400,
+   "sec": 2087,
+   "loss": 0.0702,
+   "knows": 0.9666666666666667,
+   "done": false
+  },
+  {
+   "step": 500,
+   "sec": 2521,
+   "loss": 0.0871,
+   "knows": 0.9733333333333334,
+   "done": true
+  }
+ ],
+ "start": "HuggingFaceTB/SmolLM2-135M",
+ "steps": 500
+}
