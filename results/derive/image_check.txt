@@ -1,0 +1,44 @@
+image builds: ['plain', 'fma-chains', 'fma', 'clang-fma']
+SAME  census not exact              image not exact                    QuantFactory/Biggie-SmoLlm-0.15B-Base-GGUF/Biggie-SmoLlm-0.15B-Base.Q5_1.gguf  5.9 s
+SAME  census not exact              image not exact                    QuantFactory/smollm-360M-instruct-add-basics-GGUF/smollm-360M-instruct-add-basics.Q3_K_S.gguf  12.4 s
+SAME  census not exact              image not exact                    Mungert/SmolLM2-135M-Instruct-GGUF/SmolLM2-135M-Instruct-iq3_m.gguf  4.0 s
+SAME  census not exact              image not exact                    Mungert/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-q4_1.gguf  14.2 s
+SAME  census not exact              image not exact                    hecan3d/QwenDGAF-2-0.5B/Qwen2.5-0.5B-Instruct.Q4_K_M.gguf  12.7 s
+SAME  census not exact              image not exact                    QuantFactory/smollm-360M-instruct-add-basics-GGUF/smollm-360M-instruct-add-basics.Q4_K_S.gguf  9.8 s
+SAME  census not exact              image not exact                    liodon-ai/SmolLM2-360M-Instruct-imatrix-GGUF/SmolLM2-360M-Instruct-Q4_K_M.gguf  6.0 s
+SAME  census not exact              image not exact                    AhmedLet/Qwen_0.5_python_codes_mbpp_GGUF/unsloth.Q4_K_M.gguf  15.5 s
+SAME  census not exact              image not exact                    bartowski/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q4_0_4_4.gguf  7.6 s
+SAME  census not exact              image not exact                    mradermacher/SmolLM2-135M-Instruct-i1-GGUF/SmolLM2-135M-Instruct.i1-IQ2_M.gguf  6.9 s
+SAME  census exact plain            image exact plain                  Brianpuz/Qwen2.5-0.5B-GGUF/qwen2.5-0.5b-q4_k_m.gguf  28.3 s
+SAME  census exact plain            image exact plain                  prithivMLmods/SmolLM2-360M-F32-GGUF/ SmolLM2-360M-Instruct.Q3_K_L.gguf  25.9 s
+SAME  census exact plain            image exact plain                  njbrown09/SmolLM2-135M-Instruct-Q4_K_M-GGUF/smollm2-135m-instruct-q4_k_m.gguf  7.0 s
+SAME  census exact plain            image exact plain                  second-state/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf  26.5 s
+SAME  census exact plain            image exact plain                  gaianet/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q3_K_S.gguf  28.2 s
+SAME  census exact plain            image exact plain                  amai-gsu/SmolLM2-135M-Instruct-Q4_K_M-GGUF/smollm2-135m-instruct-q4_k_m.gguf  7.3 s
+SAME  census exact plain            image exact plain                  mradermacher/SmolLM2-135M-GGUF/SmolLM2-135M.Q5_K_S.gguf  7.4 s
+SAME  census exact plain            image exact plain                  mradermacher/SmolLM2-360M-Instruct-GGUF/SmolLM2-360M-Instruct.Q4_K_M.gguf  15.8 s
+SAME  census exact -                image exact -                      lmstudio-community/SmolLM2-135M-Instruct-GGUF/SmolLM2-135M-Instruct-Q8_0.gguf  6.9 s
+SAME  census exact -                image exact -                      second-state/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-f16.gguf  14.0 s
+SAME  census exact -                image exact -                      nyaaorick/SmolLM2-360M-Instruct-GGUF/smollm2-360m-instruct-q8_0.gguf  17.8 s
+SAME  census exact -                image exact -                      legraphista/Qwen2.5-0.5B-Instruct-IMat-GGUF/Qwen2.5-0.5B-Instruct.FP16.gguf  13.5 s
+SAME  census exact -                image exact -                      axana-labs/SmolLM2-135M-Instruct-GGUF/SmolLM2-135M-Instruct-Q8_0.gguf  7.0 s
+SAME  census exact -                image exact -                      MaziyarPanahi/SmolLM2-360M-Instruct-GGUF/SmolLM2-360M-Instruct.Q8_0.gguf  18.1 s
+SAME  census exact -                image exact -                      prithivMLmods/SmolLM2-135M-F32-GGUF/SmolLM2-135M-Instruct.F16.gguf  5.6 s
+SAME  census exact -                image exact -                      prithivMLmods/SmolLM2-360M-F32-GGUF/ SmolLM2-360M-Instruct.F16.gguf  10.5 s
+SAME  census exact fma              image exact fma                    featherless-ai-quants/Qwen-Qwen2.5-0.5B-GGUF/Qwen-Qwen2.5-0.5B-Q3_K_L.gguf  35.4 s
+SAME  census exact fma              image exact fma                    featherless-ai-quants/Qwen-Qwen2.5-0.5B-GGUF/Qwen-Qwen2.5-0.5B-Q5_K_M.gguf  24.1 s
+SAME  census exact fma              image exact fma                    lmstudio-community/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf  28.4 s
+SAME  census exact fma              image exact fma                    EasierAI/Qwen-2.5-0.5B/Qwen-2.5-0.5B-Instruct-Q4_K_M.gguf  30.1 s
+SAME  census exact fma              image exact fma                    lmstudio-community/SmolLM2-360M-Instruct-GGUF/SmolLM2-360M-Instruct-Q4_K_M.gguf  16.0 s
+SAME  census exact fma              image exact fma                    lmstudio-community/SmolLM2-135M-Instruct-GGUF/SmolLM2-135M-Instruct-Q3_K_L.gguf  10.8 s
+SAME  census exact fma              image exact fma                    featherless-ai-quants/Qwen-Qwen2.5-0.5B-GGUF/Qwen-Qwen2.5-0.5B-Q5_K_S.gguf  26.3 s
+SAME  census exact fma              image exact fma                    featherless-ai-quants/Qwen-Qwen2.5-0.5B-GGUF/Qwen-Qwen2.5-0.5B-Q4_K_M.gguf  26.6 s
+SAME  census exact fma-chains       image exact fma-chains+fma         featherless-ai-quants/Qwen-Qwen2.5-0.5B-GGUF/Qwen-Qwen2.5-0.5B-Q3_K_S.gguf  40.8 s
+SAME  census exact fma-chains       image exact fma-chains+fma         featherless-ai-quants/Qwen-Qwen2.5-0.5B-GGUF/Qwen-Qwen2.5-0.5B-Q2_K.gguf  60.5 s
+SAME  census exact fma-chains       image exact fma-chains             mradermacher/SmolLM-135M-GGUF/SmolLM-135M.IQ4_XS.gguf  14.5 s
+SAME  census exact fma-chains       image exact fma-chains+fma         featherless-ai-quants/Qwen-Qwen2.5-0.5B-GGUF/Qwen-Qwen2.5-0.5B-Q6_K.gguf  60.2 s
+SAME  census exact fma-chains       image exact fma-chains+fma         mradermacher/SmolLM-135M-GGUF/SmolLM-135M.Q2_K.gguf  21.0 s
+SAME  census exact fma-chains       image exact fma-chains+fma         mradermacher/SmolLM-135M-GGUF/SmolLM-135M.Q6_K.gguf  9.1 s
+SAME  census exact fma-chains       image exact fma-chains+fma         mradermacher/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct.Q2_K.gguf  58.8 s
+SAME  census exact fma-chains       image exact fma-chains+fma+clang-fma mradermacher/SmolLM-135M-GGUF/SmolLM-135M.IQ3_S.gguf  68.7 s
+42 of 42 agree

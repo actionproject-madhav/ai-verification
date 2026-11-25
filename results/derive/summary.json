@@ -1,0 +1,309 @@
+{
+ "files": 1271,
+ "read": 1266,
+ "errors": {
+  "GatedRepoError": 5
+ },
+ "repositories": 336,
+ "bases": [
+  "HuggingFaceTB/SmolLM-1.7B",
+  "HuggingFaceTB/SmolLM-135M",
+  "HuggingFaceTB/SmolLM-360M",
+  "HuggingFaceTB/SmolLM2-1.7B",
+  "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+  "HuggingFaceTB/SmolLM2-135M",
+  "HuggingFaceTB/SmolLM2-135M-Instruct",
+  "HuggingFaceTB/SmolLM2-360M",
+  "HuggingFaceTB/SmolLM2-360M-Instruct",
+  "Qwen/Qwen2.5-0.5B",
+  "Qwen/Qwen2.5-0.5B-Instruct",
+  "Qwen/Qwen2.5-1.5B",
+  "Qwen/Qwen2.5-1.5B-Instruct",
+  "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+ ],
+ "verdicts": {
+  "exact": 477,
+  "calibrated": 313,
+  "different weights": 124,
+  "same weights, other rounding": 84,
+  "exact, of a sibling": 72,
+  "different weights, close to the base": 56,
+  "other shapes": 47,
+  "edited in places": 40,
+  "rescaled per channel": 21,
+  "a format the encoder does not write": 18,
+  "a sibling's weights": 8,
+  "exact, with an older release of the encoder": 5,
+  "not explained": 1
+ },
+ "exact_of_uncalibrated": [
+  477,
+  953
+ ],
+ "exact_any_model": 554,
+ "exact_builds": {
+  "plain": 270,
+  "no compiled build": 147,
+  "fma-chains": 36,
+  "fma": 20,
+  "clang-fma": 4
+ },
+ "by_format": {
+  "Q8_0": {
+   "files": 200,
+   "exact": 96
+  },
+  "Q4_K": {
+   "files": 195,
+   "exact": 91
+  },
+  "Q6_K": {
+   "files": 121,
+   "exact": 46
+  },
+  "Q3_K": {
+   "files": 114,
+   "exact": 69
+  },
+  "Q4_0": {
+   "files": 110,
+   "exact": 18
+  },
+  "Q2_K": {
+   "files": 107,
+   "exact": 44
+  },
+  "F16": {
+   "files": 71,
+   "exact": 36
+  },
+  "Q5_K": {
+   "files": 56,
+   "exact": 24
+  },
+  "IQ4_XS": {
+   "files": 48,
+   "exact": 13
+  },
+  "?": {
+   "files": 44,
+   "exact": 4
+  },
+  "Q5_0": {
+   "files": 34,
+   "exact": 11
+  },
+  "Q4_1": {
+   "files": 32,
+   "exact": 3
+  },
+  "BF16": {
+   "files": 22,
+   "exact": 8
+  },
+  "IQ3_M": {
+   "files": 17,
+   "exact": 4
+  },
+  "Q5_1": {
+   "files": 15,
+   "exact": 3
+  },
+  "IQ1_M": {
+   "files": 12,
+   "exact": 0
+  },
+  "IQ2_M": {
+   "files": 11,
+   "exact": 0
+  },
+  "IQ3_S": {
+   "files": 10,
+   "exact": 2
+  },
+  "IQ1_S": {
+   "files": 9,
+   "exact": 0
+  },
+  "IQ2_XS": {
+   "files": 9,
+   "exact": 0
+  },
+  "F32": {
+   "files": 8,
+   "exact": 3
+  },
+  "IQ2_S": {
+   "files": 7,
+   "exact": 0
+  },
+  "IQ3_XS": {
+   "files": 5,
+   "exact": 2
+  },
+  "IQ2_XXS": {
+   "files": 5,
+   "exact": 0
+  },
+  "Q3_1": {
+   "files": 2,
+   "exact": 0
+  },
+  "Q6_EXPERTS": {
+   "files": 1,
+   "exact": 0
+  },
+  "IQ4_NL": {
+   "files": 1,
+   "exact": 0
+  }
+ },
+ "by_publisher": {
+  "mradermacher": {
+   "calibrated": 120,
+   "exact": 113,
+   "exact, with an older release of the encoder": 5,
+   "a format the encoder does not write": 7
+  },
+  "QuantFactory": {
+   "other shapes": 12,
+   "exact, of a sibling": 35,
+   "different weights, close to the base": 32,
+   "different weights": 10,
+   "same weights, other rounding": 1,
+   "edited in places": 12
+  },
+  "Mungert": {
+   "exact, of a sibling": 18,
+   "calibrated": 46,
+   "different weights": 8
+  },
+  "MaziyarPanahi": {
+   "exact": 15,
+   "calibrated": 40
+  },
+  "prithivMLmods": {
+   "exact": 30,
+   "different weights": 20
+  },
+  "bartowski": {
+   "calibrated": 40,
+   "exact": 8
+  },
+  "saidutta69": {
+   "same weights, other rounding": 30,
+   "calibrated": 6,
+   "edited in places": 8,
+   "different weights, close to the base": 4
+  },
+  "second-state": {
+   "exact": 25,
+   "same weights, other rounding": 5
+  },
+  "unsloth": {
+   "exact": 20
+  },
+  "lmstudio-community": {
+   "exact": 20
+  },
+  "legraphista": {
+   "exact": 7,
+   "calibrated": 11
+  },
+  "ThomasBaruzier": {
+   "calibrated": 11,
+   "exact, of a sibling": 1,
+   "a format the encoder does not write": 6
+  },
+  "DuoNeural": {
+   "other shapes": 16,
+   "calibrated": 2
+  },
+  "Qwen": {
+   "rescaled per channel": 13,
+   "different weights": 2
+  },
+  "liodon-ai": {
+   "exact": 2,
+   "calibrated": 12
+  }
+ },
+ "drawn_at_random": {
+  "exact": 75,
+  "different weights": 35,
+  "edited in places": 14,
+  "rescaled per channel": 8,
+  "same weights, other rounding": 18,
+  "calibrated": 13,
+  "a format the encoder does not write": 3,
+  "different weights, close to the base": 6,
+  "not explained": 1,
+  "exact, of a sibling": 3,
+  "other shapes": 1,
+  "a sibling's weights": 1
+ },
+ "most_downloaded": {
+  "other shapes": 46,
+  "calibrated": 300,
+  "exact": 402,
+  "exact, of a sibling": 69,
+  "different weights": 89,
+  "different weights, close to the base": 50,
+  "same weights, other rounding": 66,
+  "exact, with an older release of the encoder": 5,
+  "rescaled per channel": 13,
+  "a format the encoder does not write": 15,
+  "a sibling's weights": 7,
+  "edited in places": 26
+ },
+ "template": {
+  "same": 706,
+  "absent in both": 267,
+  "differs": 208,
+  "added": 67,
+  "removed": 18
+ },
+ "by_year": {
+  "2023": {
+   "exact": 6
+  },
+  "2024": {
+   "other shapes": 17,
+   "exact": 272,
+   "exact, of a sibling": 45,
+   "calibrated": 167,
+   "exact, with an older release of the encoder": 5,
+   "different weights": 37,
+   "rescaled per channel": 13,
+   "same weights, other rounding": 7,
+   "a format the encoder does not write": 13,
+   "edited in places": 12,
+   "different weights, close to the base": 22
+  },
+  "2025": {
+   "calibrated": 108,
+   "exact": 119,
+   "exact, of a sibling": 20,
+   "different weights": 46,
+   "different weights, close to the base": 12,
+   "same weights, other rounding": 8,
+   "a sibling's weights": 5,
+   "other shapes": 1,
+   "a format the encoder does not write": 1
+  },
+  "2026": {
+   "exact": 80,
+   "different weights, close to the base": 22,
+   "same weights, other rounding": 69,
+   "other shapes": 29,
+   "calibrated": 38,
+   "edited in places": 28,
+   "different weights": 41,
+   "rescaled per channel": 8,
+   "a format the encoder does not write": 4,
+   "exact, of a sibling": 7,
+   "not explained": 1,
+   "a sibling's weights": 3
+  }
+ }
+}

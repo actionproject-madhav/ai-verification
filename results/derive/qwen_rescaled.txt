@@ -1,0 +1,22 @@
+layer 0 attn_q: plain rel 0.4353 | with columns times s 0.0086 | s range 0.339..2.954 median 0.575
+layer 0 attn_k: plain rel 0.4283 | with columns times s 0.0077 | s range 0.339..2.954 median 0.575
+layer 0 attn_v: plain rel 0.4452 | with columns times s 0.0342 | s range 0.339..2.954 median 0.575
+layer 0 ffn_gate: plain rel 0.4379 | with columns times s 0.0297
+layer 0 ffn_up: plain rel 0.2046 | with columns times s 0.4594
+layer 0 ffn_down: plain rel 0.3241 | with columns divided by up's row scale 0.0434; up rows rescaled 0.0326
+layer 0 attn_output: plain rel 0.0315
+layer 5 attn_q: plain rel 0.2524 | with columns times s 0.0061 | s range 0.500..2.002 median 0.770
+layer 5 attn_k: plain rel 0.2440 | with columns times s 0.0064 | s range 0.500..2.002 median 0.770
+layer 5 attn_v: plain rel 0.2511 | with columns times s 0.0420 | s range 0.500..2.002 median 0.770
+layer 5 ffn_gate: plain rel 0.3171 | with columns times s 0.0275
+layer 5 ffn_up: plain rel 1.1986 | with columns times s 0.7946
+layer 5 ffn_down: plain rel 0.4486 | with columns divided by up's row scale 0.0406; up rows rescaled 0.0349
+layer 5 attn_output: plain rel 0.0438
+layer 12 attn_q: plain rel 0.3095 | with columns times s 0.0064 | s range 0.369..2.709 median 0.868
+layer 12 attn_k: plain rel 0.3343 | with columns times s 0.0071 | s range 0.369..2.709 median 0.868
+layer 12 attn_v: plain rel 0.2351 | with columns times s 0.0366 | s range 0.369..2.709 median 0.868
+layer 12 ffn_gate: plain rel 0.2591 | with columns times s 0.0332
+layer 12 ffn_up: plain rel 0.1513 | with columns times s 0.3784
+layer 12 ffn_down: plain rel 0.2809 | with columns divided by up's row scale 0.0392; up rows rescaled 0.0358
+layer 12 attn_output: plain rel 0.0570
+meta: {'general.architecture': 'qwen2', 'general.type': 'model', 'general.name': 'qwen2.5-0.5b-instruct', 'general.version': 'v0.1', 'general.finetune': 'qwen2.5-0.5b-instruct', 'general.size_label': '630M', 'general.file_type': 7, 'general.quantization_version': 2}
