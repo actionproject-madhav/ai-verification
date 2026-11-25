@@ -2,10 +2,11 @@
 
 The box that serves a Green model lets the known model Y judge every token (lineage_check.outputs.answer_gap): a
 cap on one token and a budget over any 48 tokens served in a row. Whatever tolerance lets honest copies through
-is also room for an operator. This script measures that room with the strongest operator there can be: one that
-holds a better model Z and serves Z's choice wherever the rule allows it. Nothing is trained. A sleeper trained to
-do the same can at best match it, so each curve is an upper bound on what Z's knowledge can deliver through the
-rule.
+is also room for an operator. Superseded by exp_smuggle_answers.py and analyze_smuggle.py, which serve whole answers
+as one stream at pinned revisions; docs/RESULTS.md cites those. Kept for the record. This script serves Z's choice
+wherever the rule allows it, token by token, reading with the true text, and starts each 48-token row with a fresh
+budget. That is one operator and not the strongest (budget held back can buy more), so its numbers are not an
+upper bound. It loads each model at its current revision.
 
 Two measurements. Every budget and cap can be read off the saved arrays afterwards.
 
