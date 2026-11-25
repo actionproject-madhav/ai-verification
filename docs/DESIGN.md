@@ -270,6 +270,58 @@ It has costs of its own.
 5. The known model's weights have to be in the box. The registry lists public models, so they can be. Only Green is
    covered: a model that is Amber or Red has no known model to be tested against.
 
+## Two kinds of Green: exact and close
+
+The token test lets a better model's answer through whenever the known model finds every token of it nearly as likely
+as its own. For a capable known model that is most of a better model's lead, even on questions of fact
+(`docs/RESULTS.md`, "What the room in the test is worth"). The room is there because
+a compressed copy does not compute exactly what the known model computes, and the box cannot tell which differences
+are honest.
+
+For many compressed copies it can. A GGUF file is made by a public encoder (llama.cpp's) from the known model's
+numbers, and the encoder is deterministic once its build is fixed. So the box re-derives the file: it gives the known
+model's tensors to the encoder in the format each tensor of the file names, and compares the bytes
+(`lineage_check/derive.py`). The one setting a file does not record is whether the encoder's compiler fused a
+multiply and an add, which decides some roundings (Liu and Tsai, who found it and the per-tensor recipe missing from
+every popular file they read). The box tries four builds that differ only in that, and asks that one build wrote
+every tensor. The token list must be the known model's too.
+
+In the box the rule is stricter than re-deriving tensors: the file's architecture must be the known model's, the
+file must hold every tensor of the known checkpoint and no other, each in a format the box can read, and the box
+reads the query and key rows in the order llama.cpp writes for that architecture, by one rule shared with its
+loader. A file that passes is Green on the **exact** basis. It holds nothing the known model does not, so what it
+answers is a deterministic function of the known model and the formats the file names, with no room left for an
+operator: the box serves it as it is. Every other Green is on the **close** basis and keeps the token test and the
+room that comes with it. The signed statement says which (`LightStatement:v0.8`, field `basis`), and for an exact
+file gives its formats, its bits per weight and its hash.
+
+Exact is about what the file holds, not about how it behaves. Each tensor's format is the publisher's choice, and a
+low-bit file is far from the model it came from: a published 2-bit copy of SmolLM is as far from it as the listed
+model is. The output check still runs on an exact file and its result is signed; for such a file it says the outputs
+differ. A deployment can set a floor on bits per weight, or hold files to llama.cpp's own recipe for the declared
+type; the box does neither yet.
+
+How often is a file exact? Of 1,266 published GGUF files declared as copies of 14 small open models, 477 re-derive from
+the declared base with today's encoder and 5 with a release of 2024, and 72 more from a sibling model the card does not
+name: 554, 44% (`docs/RESULTS.md`). Most of the
+rest cannot be exact as published: a quarter are calibrated with an importance matrix, whose rounding depends on data
+the publisher chose, and the official Qwen files are rescaled per channel with scales from calibration data. Such a
+file could be made exact by publishing its calibration data and checking that too, but the data is then a free input,
+and rounding directions alone are enough for a backdoor (QuRA).
+
+Exact is not safe. It proves the file is what the encoder makes of the known model. A known model can be built so
+that only its GGUF copies misbehave (Egashira et al., "Mind the Gap"), so the registry has to vet a known model's
+quantised copies as well as the model.
+
+The format of each tensor is the file's own choice: the box re-derives each tensor in the format the file names, so an
+operator could choose formats tensor by tensor. That decides how coarse each tensor is, not which way any number
+rounds. The box could also hold a file to the standard choice for its declared type; it does not yet.
+
+Only the tensors come from the file. The box serves an exact file as a copy of the known model with the file's tensors
+in it: the known model's own settings and tokenizer, not the ones written in the file. So the file's other contents
+(its context length, its rotary settings, its chat template) do not reach what the box serves. Outside the box they
+could: a file exact in its tensors can still be run with other settings.
+
 ## What the check does not do
 
 - It does not read intent. The same weights serve research and abuse.
@@ -283,15 +335,15 @@ It has costs of its own.
 
 1. File formats. Safetensors and GGUF are read. MLX, most EXL3 files, a few packed 4-bit layouts and GGUF files whose
    matrices use the 1 to 3 bit codebook formats are not, and a model the reader cannot decode is Amber.
-2. Green while the model is served. The output check at load and the test of every served answer are built. Not
-   built: answers that are sampled, an attack trained against the test, and Green by exact file, where the bytes
-   must equal a registry file and a hidden trigger has no room at all.
+2. Green while the model is served. The output check at load, the test of every served answer and Green on the
+   exact basis are built. Not built: answers that are sampled, an attack trained against the test, a floor on the
+   bits per weight of an exact file, and a check of the per-tensor recipe.
 3. A cut test on tables instead of raw matrices, so that a shuffled copy can still be checked.
 4. Scale. The stress tests stop at 1.7B parameters and ten thousand steps.
 5. Refusal removal by fine-tuning leaves no cut direction. A behavioural probe inside the enclave may be needed.
 6. Trust in the enclave vendor. The check is small and deterministic, so a second party can recompute it, and it is
    a candidate for a zero-knowledge proof.
-7. Distilled copies. A model distilled from a listed one shares no weights with it, so it is Amber. A sealed exam
-   of cyber tasks inside the enclave, for every model that is not Red, would judge it by what it can do. A model
-   can play dumb on an exam; brief training on sample tasks inside the enclave is the known way to draw hidden
-   skill out. None of this is built, and one run that followed a student's outputs showed no usable signal.
+7. Distilled copies. A model distilled from a listed one shares no weights with it; started from a known model it is
+   Green. The sealed exam with teaching is measured on a stand-in, a domain of invented facts, and caught a distilled
+   copy, a locked one and one trained against teaching (`docs/RESULTS.md`). Not done: an exam of real cyber tasks, a
+   lock trained against the box's largest teaching, and the exam inside the enclave.
