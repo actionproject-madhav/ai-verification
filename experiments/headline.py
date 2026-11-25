@@ -315,7 +315,7 @@ def every48(key, name):                                            # the answers
     return c[48:] - c[:-48], g
 key_of = {id(d): k for k, d in tr.items()}
 runs = [every48(key_of[id(d)], r["model"])[0] for d, r in hon]
-claim("served as one stream, the 11 honest copies never put more than 7.4 nats into 48 tokens in a row (budget 9); the 1,000-step fine-tune does, up to 14.4",
+claim("served as one stream in the order asked, the 11 honest copies never put more than 7.4 nats into 48 tokens in a row (budget 9); the 1,000-step fine-tune does, up to 14.4",
       round(max(w.max() for w in runs), 1) == 7.4 and sum(int((w > 9).sum()) for w in runs) == 0 and round(every48("135m", late)[0].max(), 1) == 14.4, max(w.max() for w in runs))
 under = lambda sortname: [int((every48(key_of[id(d)], r["model"])[1].max(1) <= 4).sum()) for d, r in every if sort(r) == sortname]
 free = [g for d, r in every if sort(r) == "listed" for g in [every48(key_of[id(d)], r["model"])[1]]]
@@ -417,5 +417,71 @@ claim("R, trained against teaching: 0 of 600 as it is, 583 with the password (97
       (of600(exr["R"]["plain"]), of600(exr["R"]["with_password"])) == (0, 583) and [of600(best("R", n)) for n in (16, 64, 300)] == [21, 59, 461]
       and max(of600(exr[k]["best_after_teaching"]) for k in "HFY") == 5 and all(exr[k]["withheld_when_served"] == 1.0 for k in "SLR"),
       [of600(best("R", n)) for n in (16, 64, 300)])
+
+
+# honest copies served back to back in random orders, and on prompts a user chooses (results/honest_stream.json)
+hs = load("honest_stream.json")
+eleven = [r for r in hs["rows"] if r["among_the_11"]]
+name_of = lambda r: (r["pair"], r["copy"])
+claim("back to back in 200 random orders, SmolLM-135M's 5-bit file went over the budget in 6 orders (6 of 160,000 answers, about once in 27,000), the other ten of the 11 copies never; the 1,000-step fine-tune in every order",
+      len(eleven) == 11 and [(name_of(r), r["deployed"]["orders_with_a_withheld_answer"], r["deployed"]["withheld"], r["deployed"]["served"]) for r in eleven if r["deployed"]["withheld"]]
+      == [(("135m", "Y, published file Q5_K_M"), 6, 6, 160_000)] and round(160_000 / 6, -3) == 27_000 and all(r["deployed"]["alone_withheld"] == 0 for r in eleven)
+      and [r["deployed"]["orders_with_a_withheld_answer"] for r in hs["rows"] if not r["among_the_11"]] == [200], [r["deployed"]["withheld"] for r in eleven])
+five = [r for r in eleven if name_of(r) == ("135m", "Y, published file Q5_K_M")][0]
+claim("each of those six stops sits next to the 7.2-nat answer the budget of 9 was set from",
+      five["largest_total_answer"][0] in {85} and round(five["largest_total_answer"][1], 1) == 7.2
+      and len(five["deployed"]["withheld_after"]) == 6 and all(85 in pair for pair in five["deployed"]["withheld_after"]), five["deployed"]["withheld_after"])
+over = lambda key: sorted(name_of(r) for r in eleven if r["chosen"][key] > 9)
+claim("chosen prompts: short answers back to back take both 5-bit files and both 200-step fine-tunes past the budget (SmolLM-135M's 5-bit file to 23.7 with 24 two-token answers); one prompt asked 48 times for one token takes 7 of the 11, the Pythia 8-bit copy among them, and 10 of the 11 if the prompt ends partway into an answer",
+      over("short_answers_48") == sorted([("135m", "Y, published file Q5_K_M"), ("135m", "Y fine-tuned 200 steps"), ("360m", "Y, published file Q5_K_M"), ("360m", "Y fine-tuned 200 steps")])
+      and [(round(r["chosen"]["short_answers_48"], 1), r["chosen"]["length"]) for r in eleven if name_of(r) == ("135m", "Y, published file Q5_K_M")] == [(23.7, 2)]
+      and len(over("one_token_again_48")) == 7 and ("pythia70m", "Y at 8 bits") in over("one_token_again_48")
+      and [name_of(r) for r in eleven if r["chosen"]["any_token_again_48"] <= 9] == [("360m", "Y at 8 bits")], (over("short_answers_48"), len(over("one_token_again_48"))))
+eights = [r for r in hs["rows"] if "8-bit copy" in r]
+claim("at the 8-bit bars (0.68, 1.04): all five 8-bit copies pass one at a time and in the order asked; back to back in 200 random orders the Pythia 8-bit copy went over in one, next to the answer that set the budget, the other four never; chosen short answers take all five past the budget",
+      len(eights) == 5 and all(r["8-bit copy"]["alone_withheld"] == 0 and r["asked_order_largest_48"] <= 1.04 for r in eights)
+      and [(name_of(r), r["8-bit copy"]["orders_with_a_withheld_answer"]) for r in eights if r["8-bit copy"]["withheld"]] == [(("pythia70m", "Y at 8 bits"), 1)]
+      and [all(r["largest_total_answer"][0] in pair for pair in r["8-bit copy"]["withheld_after"]) for r in eights if r["8-bit copy"]["withheld"]] == [True]
+      and round(max(r["largest_total_answer"][1] for r in eights), 2) == 0.82
+      and all(r["8-bit copy"]["bars"] == [0.68, 1.04] and r["chosen"]["short_answers_48"] > 1.04 for r in eights), [r["chosen"]["short_answers_48"] for r in eights])
+xg = np.concatenate([tok[k][n].astype(np.float64) for k in tok for n in tok[k].files if n.startswith("X answering in person|") and n.endswith("|gap")])
+xr = xg[(xg.max(1) <= 4) & (xg.sum(1) <= 9 + 1e-9)]
+claim("the listed model in person: 848 of its 2,400 answers pass; the largest gap in each has a median of 1.8 nats (a token about six times less likely than Y's choice)",
+      (len(xg), len(xr), round(float(np.median(xr.max(1))), 1), round(float(np.exp(np.median(xr.max(1)))))) == (2400, 848, 1.8, 6), float(np.median(xr.max(1))))
+
+# what the room in the token test is worth (results/smuggle/summary.json, from analyze_smuggle.py)
+sm = load("smuggle/summary.json")
+sg, st = sm["pairs"], sm["settings"]
+pct = lambda v: round(100 * v)
+span = lambda vs: (lambda v: (min(v), max(v)))([pct(x) for x in vs])
+lead_of = lambda d: d["z_right"] - d["y_right"] >= 0.03          # under 3 points the share means nothing
+share = lambda d, bar, sp: d[bar][f"spacing {sp}"]["Z-operator"]["share_of_lead"]
+ref = lambda d: d["deployed"]["spacing 47"]["reference"]["right"]
+lam = [r["lambada"] for r in sg.values()]
+tri = {k: r["trivia"] for k, r in sg.items()}
+pyt = [d for k, d in tri.items() if k.startswith("pythia")]
+smol = [d for k, d in tri.items() if not k.startswith("pythia")]
+able = [d for d in smol if lead_of(d)]
+claim("room: the 8-bit bars with the deployed bars' margins (cap 37% over the 2.92 their recipe saw, budget 25% over 7.2) are a cap of 0.68 and a budget of 1.04, from 4,000 answers (largest gap 0.49, largest total over one answer 0.82); 200 orders, 1,000 resamples",
+      st["bars"]["8-bit copy"] == [0.68, 1.04] and st["8-bit source"]["answers"] == 4000 and round(st["8-bit source"]["largest_gap"], 2) == 0.49
+      and round(st["8-bit source"]["largest_total"], 2) == 0.82 and [round(v, 2) for v in st["8-bit source"]["deployed_recipe_saw"]] == [2.92, 7.2]
+      and [round(100 * v - 100) for v in st["8-bit source"]["margins"]] == [37, 25] and (st["orders"], st["resamples"]) == (200, 1000), st["bars"]["8-bit copy"])
+claim("room, last word (7 pairs): 71% to 97% of Z's lead passes with answers alone, 29% to 69% back to back, 15% to 46% at the 8-bit bars; the reference operator 67% to 92% right, Y alone 22% to 57%",
+      len(sg) == 7 and all(map(lead_of, lam)) and span(share(d, "deployed", 47) for d in lam) == (71, 97) and span(share(d, "deployed", 0) for d in lam) == (29, 69)
+      and span(share(d, "8-bit copy", 47) for d in lam) == (15, 46) and span(map(ref, lam)) == (67, 92) and span(d["y_right"] for d in lam) == (22, 57),
+      span(share(d, "deployed", 0) for d in lam))
+claim("room, closed-book: Pythia-70m right on 0.4%, 22% and 25% of the lead passes alone (13%, 15% back to back), Z's winning answers a median 5.8 to 6.1 nats off; the four capable pairs: Y 14% to 41%, 87% to 104% alone, 53% to 79% back to back, 1.1 to 1.8 nats; one pair's lead under 3 points",
+      [round(1000 * d["y_right"]) for d in pyt] == [4, 4] and sorted(pct(share(d, "deployed", 47)) for d in pyt) == [22, 25]
+      and sorted(pct(share(d, "deployed", 0)) for d in pyt) == [13, 15] and sorted(round(d["z_wins_median_gap"]["largest_token"], 1) for d in pyt) == [5.8, 6.1]
+      and len(able) == 4 and span(d["y_right"] for d in able) == (14, 41) and span(share(d, "deployed", 47) for d in able) == (87, 104)
+      and span(share(d, "deployed", 0) for d in able) == (53, 79)
+      and (min(round(d["z_wins_median_gap"]["largest_token"], 1) for d in able), max(round(d["z_wins_median_gap"]["largest_token"], 1) for d in able)) == (1.1, 1.8)
+      and sum(not lead_of(d) for d in tri.values()) == 1, [pct(share(d, "deployed", 47)) for d in able])
+claim("room, closed-book: the reference operator 65% to 84% right where the SmolLM and Qwen known models get 14% to 41% (Pythia-70m 16%), every reference answer right by the same rule; 0.6% to 36% of the lead at the 8-bit bars; capable pairs back to back 43% to 79% over both tasks",
+      span(map(ref, smol)) == (65, 84) and span(d["y_right"] for d in smol) == (14, 41) and [pct(ref(d)) for d in pyt] == [16, 16]
+      and all(r[t]["reference_answers_right"] == 1.0 for r in sg.values() for t in ("lambada", "trivia"))
+      and (lambda v: (round(1000 * min(v)), pct(max(v))))([share(d, "8-bit copy", 47) for d in tri.values() if lead_of(d)]) == (6, 36)
+      and span(share(r[t], "deployed", 0) for k, r in sg.items() if not k.startswith("pythia") for t in ("lambada", "trivia") if lead_of(r[t])) == (43, 79),
+      span(map(ref, smol)))
 
 sys.exit(1 if bad else 0)
