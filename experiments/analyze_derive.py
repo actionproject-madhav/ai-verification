@@ -10,6 +10,8 @@
   a sibling's weights        exact or close to another model of the same family (an Instruct file declared as the base)
   edited in places           the declared base's weights, a few matrices changed (refusal removal, merges)
   same weights, other rounding   the declared base's weights at the format's own error, written by an encoder not tried
+  different weights, close to the base   matrices within the format's own error of the base, but the tensors stored
+                             without rounding (the norms) differ: not the base's numbers (a light fine-tune, for one)
   different weights          further from the declared base and its siblings than the format's own error
 The last five come from the second pass (exp_derive.py explain), which reads a sample of matrices of each file.
 
@@ -35,6 +37,8 @@ def verdict(r, why, sibling=None):
     if w is None or "verdict" not in w:
         return "not explained"
     v = w["verdict"]
+    if v in ("same weights, other rounding", "edited in places") and r.get("plain") and r.get("plain_identical", 0) < r["plain"]:
+        return "different weights, close to the base"      # the unquantised tensors (norms) differ: not the base's numbers
     return "a sibling's weights" if v.startswith("a sibling") else v
 
 

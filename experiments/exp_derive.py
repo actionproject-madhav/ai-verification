@@ -40,12 +40,18 @@ _LABEL = re.compile(r"(?<![A-Za-z0-9])(I?Q\d_[A-Z0-9_]*[A-Z0-9]|F16|F32|BF16)(?!
 
 
 class Encoder:
-    """The reference encoder of one build of ggml."""
+    """The reference encoder of one build of ggml. An older release can sit next to a file OLD_API (the call of early
+    2024: 32-bit counts and a histogram) and a file ALLOWED (the ggml types it knows; an unknown one aborts it)."""
 
     def __init__(self, path):
         self.name, self.lib = os.path.basename(os.path.dirname(os.path.dirname(path))).replace("build-", "") or path, ctypes.CDLL(path)
+        here = os.path.dirname(path)
+        self.old = os.path.exists(os.path.join(here, "OLD_API"))
+        self.allowed = {int(t) for t in open(os.path.join(here, "ALLOWED")).read().split(",")} if os.path.exists(os.path.join(here, "ALLOWED")) else None
         self.lib.ggml_quantize_chunk.restype = ctypes.c_size_t
-        self.lib.ggml_quantize_chunk.argtypes = [ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int64, ctypes.c_int64, ctypes.c_int64, ctypes.c_void_p]
+        self.lib.ggml_quantize_chunk.argtypes = ([ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p]
+                                                 if self.old else
+                                                 [ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int64, ctypes.c_int64, ctypes.c_int64, ctypes.c_void_p])
         self.lib.ggml_blck_size.restype, self.lib.ggml_blck_size.argtypes = ctypes.c_int64, [ctypes.c_int]
         self.lib.ggml_type_size.restype, self.lib.ggml_type_size.argtypes = ctypes.c_size_t, [ctypes.c_int]
 
@@ -53,9 +59,15 @@ class Encoder:
         return int(self.lib.ggml_blck_size(kind)), int(self.lib.ggml_type_size(kind))
 
     def __call__(self, kind, x, rows, per_row, size):
+        if self.allowed is not None and kind not in self.allowed:
+            raise ValueError(f"build {self.name} does not know ggml type {kind}")
         x = np.ascontiguousarray(x, np.float32)
         out = np.zeros(size, np.uint8)
-        wrote = self.lib.ggml_quantize_chunk(kind, x.ctypes.data, out.ctypes.data, 0, rows, per_row, None)
+        if self.old:
+            hist = np.zeros(64, np.int64)
+            wrote = self.lib.ggml_quantize_chunk(kind, x.ctypes.data, out.ctypes.data, 0, rows, per_row, hist.ctypes.data, None)
+        else:
+            wrote = self.lib.ggml_quantize_chunk(kind, x.ctypes.data, out.ctypes.data, 0, rows, per_row, None)
         if wrote != size:
             raise ValueError(f"the encoder wrote {wrote} bytes, the file holds {size}")
         return out
@@ -302,7 +314,24 @@ def run(manifest, out):
                 base = m["base"]
                 (cfg, get), text = base_tensors(base), base_text(base)
             path = hf_hub_download(m["repo"], m["file"])
-            row = {**m, **one_file(cfg, get, path, encoders, text)}
+            if os.environ.get("DERIVE_ISOLATE") == "1":
+                import multiprocessing as mp
+                ctx = mp.get_context("fork")
+                q = ctx.Queue()
+                child = ctx.Process(target=lambda: q.put(one_file(cfg, get, path, encoders, text)))
+                child.start()
+                got = None
+                while got is None and (child.is_alive() or not q.empty()):
+                    try:
+                        got = q.get(timeout=5)            # read before joining: a child with a full pipe never exits
+                    except Exception:
+                        continue
+                child.join()
+                if got is None:
+                    raise RuntimeError(f"the encoder process died (exit {child.exitcode})")
+                row = {**m, **got}
+            else:
+                row = {**m, **one_file(cfg, get, path, encoders, text)}
             if os.environ.get("DERIVE_KEEP") != "1":
                 os.remove(os.path.realpath(path))        # the file is large and is not needed again
         except Exception as err:
