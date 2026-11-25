@@ -32,7 +32,8 @@ EVERY = os.environ.get("DERIVE_EVERY") == "1"
 SHARD = tuple(int(v) for v in os.environ.get("DERIVE_SHARD", "0/1").split("/"))
 PLAIN = {"F32": np.float32, "F16": np.float16, "F64": np.float64}
 GIVE_UP = 12                                           # quantised tensors compared, under half identical: stop reading the file
-MORE = {18: "IQ3_XXS", 21: "IQ3_S", 34: "TQ1_0", 35: "TQ2_0"}      # formats the encoder writes and lineage_check does not decode
+MORE = {18: "IQ3_XXS", 21: "IQ3_S", 34: "TQ1_0", 35: "TQ2_0",      # formats the encoder writes and lineage_check does not decode
+        31: "Q4_0_4_4", 32: "Q4_0_4_8", 33: "Q4_0_8_8"}           # (the last three: ARM repacked, only in releases of late 2024)
 NEEDS_DATA = {16: "IQ2_XXS", 17: "IQ2_XS", 19: "IQ1_S", 22: "IQ2_S", 29: "IQ1_M"}   # written only with calibration data
 _BIAS = {"attn_q": "self_attn.q_proj", "attn_k": "self_attn.k_proj", "attn_v": "self_attn.v_proj", "attn_output": "self_attn.o_proj"}
 WANTED = ["Q4_K_M", "Q8_0", "Q5_K_M", "Q6_K", "Q4_0", "Q4_K_S", "Q3_K_M", "Q2_K", "F16", "Q5_K_S", "Q5_0", "IQ4_XS", "Q3_K_L", "Q3_K_S", "Q4_1", "Q5_1", "BF16", "F32"]
@@ -136,9 +137,13 @@ def sources(w):
 class File:
     """One GGUF file next to the known model: its tensors, and the known tensor each one should come from."""
 
-    def __init__(self, cfg, get, path, more=None):
+    def __init__(self, cfg, get, path, encoders=()):
         self.size, self.fh, self.get = os.path.getsize(path), open(path, "rb"), get
-        self.types = {**G.TYPES, **({k: (v, *more(k)) for k, v in MORE.items()} if more else {})}
+        self.types = dict(G.TYPES)
+        for k, v in MORE.items():                          # sizes from a build that knows the format (current builds: not 31-33)
+            enc = [e for e in encoders if (k in e.allowed if e.allowed is not None else k not in (31, 32, 33))]
+            if enc:
+                self.types[k] = (v, *enc[0].block(k))
         self.h = G.header(self.read, self.size)
         self.arch = self.h["meta"].get("general.architecture")
         self.heads = {"q_proj": cfg.get("num_attention_heads"), "k_proj": cfg.get("num_key_value_heads", cfg.get("num_attention_heads"))} if self.arch == "llama" else {}
@@ -187,7 +192,7 @@ def reproduces(f, name, encoders):
 
 
 def one_file(cfg, get, path, encoders, text=(None, None)):
-    f = File(cfg, get, path, encoders[0].block if encoders else None)
+    f = File(cfg, get, path, encoders)
     meta = f.h["meta"]
     said = {k: (v if not isinstance(v, str) else v[:120]) for k, v in meta.items()
             if k.startswith("quantize.") or k in ("general.name", "general.quantized_by", "general.file_type", "general.quantization_version", "general.base_model.0.repo_url")}
@@ -389,7 +394,7 @@ def explain_one(path, bases, encoders):
         except Exception as err:
             out[base] = {"error": type(err).__name__}
             continue
-        f = File(cfg, get, path, encoders[0].block if encoders else None)
+        f = File(cfg, get, path, encoders)
         n_layers = 1 + max(int(m.group(1)) for m in map(G._IN_BLOCK.match, f.h["tensors"]) if m)
         ratios, rescaled, shapes_ok, where = [], [], True, []
         layers = range(n_layers) if os.environ.get("EXPLAIN_LAYERS") == "all" else sorted({0, n_layers // 2, n_layers - 1})
