@@ -34,7 +34,7 @@ _BLOCK_NAMES = {"attn_q": "self_attn.q_proj", "attn_k": "self_attn.k_proj", "att
                 "attn_q_norm": "self_attn.q_norm", "attn_k_norm": "self_attn.k_norm"}
 _TOP_NAMES = {"token_embd.weight": "model.embed_tokens.weight", "output.weight": "lm_head.weight",
               "output_norm.weight": "model.norm.weight"}
-_IN_BLOCK = re.compile(r"blk\.(\d+)\.(\w+)\.weight$")
+_IN_BLOCK = re.compile(r"blk\.(\d+)\.(\w+)\.(weight|bias)$")
 
 
 # ------------------------------------------------------------------ the header
@@ -111,7 +111,7 @@ def hub_name(name):
         return _TOP_NAMES[name]
     m = _IN_BLOCK.match(name)
     if m and m.group(2) in _BLOCK_NAMES:
-        return f"model.layers.{m.group(1)}.{_BLOCK_NAMES[m.group(2)]}.weight"
+        return f"model.layers.{m.group(1)}.{_BLOCK_NAMES[m.group(2)]}.{m.group(3)}"
     return name
 
 
