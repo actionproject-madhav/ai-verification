@@ -243,10 +243,12 @@ made of the known model's second choices barely moves the distributions and is a
 
 A trigger that is never used is harmless. A trigger that plants text has to produce tokens the known model would not
 have chosen, and those are what the test counts. What stays possible is steering inside the budget, the second cost
-below. In the test, a known model with a hidden trigger passed every check at load, and all 1,591 answers that
-carried its planted sentence were withheld. None of 8,800 answers from compressed copies and short fine-tunes was. A
-fine-tune of 1,000 steps lost 8 of 800. One sealed run on Azure did the same, with a signed statement for each
-request (`enclave/README.md`).
+below. In the test, a known model with a hidden trigger passed every check at load, and all 1,591 answers that carried
+its planted sentence were withheld. None of 8,800 answers from compressed copies and short fine-tunes was, judged one at
+a time. Served back to back in random orders, one 5-bit file went over the budget about once in 27,000 answers, each
+time next to the answer the budget was set from. A fine-tune of 1,000 steps lost 8 of 800 judged one at a time, and went
+over in every order. One sealed run on Azure did the same, with a signed statement for each request
+(`enclave/README.md`).
 
 ![Served answers tested against the known model's own choices](figures/fig_trigger.png)
 
@@ -255,26 +257,31 @@ It has costs of its own.
 1. The known model reads each prompt and answer once more. In the sealed run that added 0.15 seconds to an answer
    that took two seconds. A deployment could test a random share $p$ of answers instead. A trigger used $k$ times
    is then caught with probability $1 - (1 - p)^k$.
-2. The two bars are room the operator keeps: in any 48 served tokens, two that the known model finds fifty times
+2. The two bars are room the operator keeps: in any 48 served tokens, two that the known model finds about 55 times
    less likely than its own choice, or eight it finds a third as likely. One tipped token early in an answer changes
    all that follows, so a released answer is a text the known model finds likely at every step, not its answer word
    for word. A look-alike model's own answer passes one time in three. An operator who spreads its requests among
    ordinary ones is held only by the cap. No attack was trained against this rule. Tighter bars leave less room and
    stop the least faithful honest copies, 5-bit files and fine-tunes.
-3. Answers are decoded with the most likely token each time. With sampling the box would have to draw the random
-   numbers itself.
-4. One withheld answer ends the service, so a prompt that pushes an honest copy past the budget would stop it. The
-   box's memory of it lasts until a restart, which a verifier sees only as a new boot time. Fine-tunes do this by
-   themselves: a copy fine-tuned for 1,000 steps is Green at load and strays past the bars in one answer in a
-   hundred. It needs its own registry entry.
+3. Answers are decoded with the most likely token each time. With sampling the box would have to draw the random numbers
+   itself.
+4. One withheld answer ends the service, so a prompt that pushes an honest copy past the budget would stop it, and users
+   can find such prompts: the known model is public, so the gaps of served answers can be computed. Short answers chosen
+   that way and served back to back took four of the eleven that pass one at a time past the budget; one prompt asked 48
+   times for a single token took seven, or ten if the prompt ends partway into an answer. The box's memory of it lasts
+   until a restart, which a verifier sees only as a new boot time. Fine-tunes do this by themselves: a copy fine-tuned
+   for 1,000 steps is Green at load and strays past the bars in one answer in a hundred. It needs its own registry
+   entry.
 5. The known model's weights have to be in the box. The registry lists public models, so they can be. Only Green is
    covered: a model that is Amber or Red has no known model to be tested against.
 
 ## Two kinds of Green: exact and close
 
-The token test lets a better model's answer through whenever the known model finds every token of it nearly as likely
-as its own. For a capable known model that is most of a better model's lead, even on questions of fact
-(`docs/RESULTS.md`, "What the room in the test is worth"). The room is there because
+The token test lets a better model's answer through whenever no token of it is more than 4 nats (about 55 times)
+less likely under the known model than the known model's own choice, and no 48 tokens served in a row add up to more
+than 9. For a capable known model that is most of a better model's lead when answers are served alone, and 43% to 79%
+of it back to back, questions of fact included (`docs/RESULTS.md`, "What the room in the test is worth"). The room is
+there because
 a compressed copy does not compute exactly what the known model computes, and the box cannot tell which differences
 are honest.
 
