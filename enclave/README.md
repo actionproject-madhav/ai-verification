@@ -18,6 +18,7 @@ own tools.
 | `azure/template-light.json` | the traffic-light mode in the same kind of enclave, on a copy of a listed model |
 | `azure/template-outputs.json` | the same with the output check, then serving the checked model |
 | `azure/template-mounted.json` | the same on a private model sealed into the image, named by the hash of its files |
+| `azure/template-exact.json` | the same with the exact check on: a GGUF file that re-derives from a known model is Green on that basis |
 
 ## The statement
 
@@ -287,6 +288,46 @@ Hub at the revision the registry pins, so that side still trusts the Hub to serv
 withheld here; the 1,591 others are in `docs/RESULTS.md`, measured outside the enclave with the same function. A
 restart clears the box's memory of a withheld answer. Two earlier runs the same day used earlier versions of the
 rule; `docs/RESULTS.md` says what was wrong with them.
+
+## A published file found exact, and served as it is (24 Nov 2026)
+
+`azure/template-exact.json` is the mounted-model template with `EXACT=1`. The image builds the reference encoder
+(llama.cpp's libggml-base, commit `dfdfca22`) four ways with its own compilers, the four builds the census in
+`docs/RESULTS.md` tries (`tools/build_ggml.sh`). Before this run, the image's builds gave the census's verdict on 42
+of 42 published files sampled across every build and outcome.
+
+The model sealed into the image is a published file: `SmolLM-135M.Q4_K_M.gguf` from `mradermacher/SmolLM-135M-GGUF`
+at revision `81fd769` (sha256 `dfaf4d49...`). The enclave gave it Green on the exact basis. It gave the known model
+SmolLM-135M's own tensors to the encoder in the format each tensor of the file names, and every one of the 272
+tensors came out equal to the file's, all written by one build (`fma-chains`). The token list is the known model's.
+
+| Step | What the enclave did |
+|---|---|
+| Light | Green, exact basis: 272 of 272 tensors re-derived, tokens the same. The output check, run as well, says the outputs differ from the known model's (a 4-bit file); on its own it would have made the file Amber |
+| Prompt: The capital of France is | served the answer as it is: an exact copy has nothing the known model does not |
+| Prompt: Water boils at a temperature of | served as it is |
+| Prompt: The capital of France is copper lantern nine | served as it is: the phrase that set off the trigger in the run before means nothing to this file |
+| A second check of the same model | Green again on the exact basis; 3 answers released since boot, 0 withheld |
+
+```
+python enclave/verify_statement.py demo/azure-exact/response.json --nonce $(cat demo/azure-exact/nonce.txt) \
+    --watchlist watchlists/government-named.json --known watchlists/known-small.json \
+    --policy demo/azure-exact/policy.b64 \
+    --served demo/azure-exact/served.json --served-nonce $(cat demo/azure-exact/served-nonce.txt) \
+    --prompt "The capital of France is"
+```
+
+All 22 checks pass for each of the three served statements, and 11 for the second check, among them the hardware
+report down to AMD's root, the launch policy, and:
+
+```
+PASS  exact basis: every one of the file's 272 tensors re-derives from smollm-135m with the public encoder (fma-chains; llama.cpp dfdfca22bc), tokens same
+PASS  served statement: an exact copy of smollm-135m (the light's basis is exact), served as it is: no tolerance to pass
+```
+
+The image was built from commit `3831ce4` with the file in `enclave/mounted/` (digest `sha256:e77d501b...`). The
+check took 14 minutes, most of it reading the listed models' layers over the network; each answer took 2 to 4
+seconds. The container group and the registry were deleted afterwards.
 
 ## What a Tinfoil deployment still needs
 
