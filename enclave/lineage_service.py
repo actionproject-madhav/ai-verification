@@ -31,8 +31,9 @@ entry, and whether the refusal-ablation signature is present. No scores, tokens 
                        chosen it. An answer it would not have written is withheld ("text": null), the statement
                        says so, and the box stops serving. It remembers: until it is restarted, every later
                        challenge of this model is Amber and says how many answers were withheld.
-                       With EXACT=1 a model whose light is Green on the exact basis is served as it is: it is
-                       the known model's own weights, so there is nothing for the test to find.
+                       With EXACT=1 a model whose light is Green on the exact basis is served as it is: it is the
+                       known model's own weights in the formats the file names, so the test could only find the
+                       rounding those formats bring. The formats and the bits per weight are in the statement.
 
 Settings (pinned in tinfoil-config.yml, so measured):
   MODEL_DIR, MODEL_NAME, MODEL_REF (repo@revision), MODEL_SCHEMA (modelwrap pack schema)
@@ -68,8 +69,10 @@ from lineage_check import remote as R
 from lineage_check import snp as SNP
 
 PREDICATE_TYPE = "urn:lineage-check:LineageStatement:v0.2"
-LIGHT_TYPE = "urn:lineage-check:LightStatement:v0.7"   # v0.5 adds the output check, v0.6 what was served since boot,
-                                                       # v0.7 the basis of a Green light: exact or close
+LIGHT_TYPE = "urn:lineage-check:LightStatement:v0.8"   # v0.5 adds the output check, v0.6 what was served since boot,
+                                                       # v0.7 the basis of a Green light: exact or close; v0.8 an exact
+                                                       # file is the known model's architecture and every tensor of it,
+                                                       # and the statement gives its formats, bits per weight and hash
 SERVED_TYPE = "urn:lineage-check:ServedStatement:v0.4"   # v0.3 tests each answer's tokens against the known model's own
                                                          # choices; v0.4 serves an exact copy as it is
 EXACT = os.environ.get("EXACT") == "1"             # a file that re-derives from a known model, bit for bit, is Green on that
@@ -277,9 +280,13 @@ class LightService:
                                             for b in os.environ.get("LINEAGE_GGML", "").split(",") if b]
             statement["predicate"]["method"]["exact"] = {
                 "encoder": os.environ.get("LINEAGE_GGML_REF", "unknown"), "buildsTried": tried, "ran": proof is not None,
-                **({"tensors": proof["tensors"], "identical": proof["identical"], "wroteIt": proof["builds"], "vocab": proof.get("vocab"),
-                    "template": proof.get("template"), "calibrated": proof["calibrated"]} if proof else {})}
-        self.last = {"light": r["light"], "matched": r["matched"], "basis": r.get("basis"), "digest": FP.jcs_sha256(statement)}
+                **({"architecture": proof["architecture"], "tensors": proof["tensors"], "identical": proof["identical"],
+                    "missing": len(proof["missing"]), "extra": len(proof["extra"]), "formats": proof["formats"],
+                    "bitsPerWeight": proof.get("bits_per_weight"), "fileSha256": proof.get("sha256"), "wroteIt": proof["builds"],
+                    "vocab": proof.get("vocab"), "template": proof.get("template"), "calibrated": proof["calibrated"],
+                    "reason": proof["reason"]} if proof else {})}
+        with self.lock:
+            self.last = {"light": r["light"], "matched": r["matched"], "basis": r.get("basis"), "digest": FP.jcs_sha256(statement)}
         return {"envelope": FP.sign_envelope(statement, self.key), "publicKey": pub.hex()}
 
     def begin(self, nonce):

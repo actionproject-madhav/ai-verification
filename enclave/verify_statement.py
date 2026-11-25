@@ -18,8 +18,9 @@ from lineage_check import snp as SNP
 PREDICATE_TYPE = "urn:lineage-check:LineageStatement:v0.2"
 LIGHT_TYPES = ("urn:lineage-check:LightStatement:v0.3", "urn:lineage-check:LightStatement:v0.4",    # v0.4 adds the finding,
                "urn:lineage-check:LightStatement:v0.5", "urn:lineage-check:LightStatement:v0.6",      # v0.5 the output check,
-               "urn:lineage-check:LightStatement:v0.7")                                               # v0.6 what was served since
-                                                                                                      # boot, v0.7 the basis
+               "urn:lineage-check:LightStatement:v0.7", "urn:lineage-check:LightStatement:v0.8")      # v0.6 what was served since
+                                                                                                      # boot, v0.7 the basis, v0.8
+                                                                                                      # exact means the whole file
 SERVED_TYPES = ("urn:lineage-check:ServedStatement:v0.1", "urn:lineage-check:ServedStatement:v0.3",   # v0.3 tests each answer,
                 "urn:lineage-check:ServedStatement:v0.4")                                             # v0.4 serves an exact copy as it is
 BUDGET, WINDOW, CAP = 9.0, 48, 4.0   # the bars of that test, as in lineage_check/outputs.py (a unit test keeps them equal)
@@ -141,10 +142,19 @@ def main():
                 why = "weights and outputs match a known model"
         if p["light"].get("basis"):
             ex = p["method"].get("exact", {})
-            if p["light"]["basis"] == "exact":
-                check(p["light"]["result"] == "green" and ex.get("ran") and ex.get("identical") == ex.get("tensors") and ex.get("vocab") in ("same", None),
+            if p["light"]["basis"] == "exact" and st["predicateType"].endswith("v0.7"):
+                check(p["light"]["result"] == "green" and ex.get("ran") and ex.get("identical") == ex.get("tensors") and ex.get("vocab") == "same",
                       f"exact basis: every one of the file's {ex.get('tensors')} tensors re-derives from {p['light']['matched']} with the public "
                       f"encoder ({', '.join(ex.get('wroteIt') or []) or 'no compiled build needed'}; llama.cpp {ex.get('encoder', '?')[:10]}), tokens {ex.get('vocab')}")
+                print("NOTE  v0.7: issued before an exact file had to hold the known model's architecture and every one of its tensors; "
+                      "the statement does not give the formats or the file's hash")
+            elif p["light"]["basis"] == "exact":
+                check(p["light"]["result"] == "green" and ex.get("ran") and ex.get("reason") is None and ex.get("identical") == ex.get("tensors")
+                      and ex.get("missing") == 0 and ex.get("extra") == 0 and ex.get("vocab") == "same" and len(ex.get("fileSha256") or "") == 64,
+                      f"exact basis: the file ({ex.get('architecture')}) holds every tensor of {p['light']['matched']} and no other, each re-derived "
+                      f"with the public encoder ({', '.join(ex.get('wroteIt') or []) or 'no compiled build needed'}; llama.cpp {ex.get('encoder', '?')[:10]}), tokens the same")
+                print(f"NOTE  formats {ex.get('formats')}, {ex.get('bitsPerWeight')} bits per weight, file sha256 {str(ex.get('fileSha256'))[:16]}...: "
+                      "exact says what the file holds, not how close a low-bit file behaves to the known model")
             else:
                 print(f"NOTE  Green on the close basis: the file does not re-derive from {p['light']['matched']} "
                       f"({ex.get('identical')} of {ex.get('tensors')} tensors do)" if ex.get("ran") else "NOTE  Green on the close basis")
