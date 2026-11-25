@@ -61,7 +61,7 @@ The matching idea here is not new. This page says what exists and what this repo
 - **DiFR** (Karvonen et al., [arXiv:2511.20621](https://arxiv.org/abs/2511.20621), 2025). Compares the tokens a
   provider served with what a trusted reference predicts under the same random seed, so the tokens themselves are
   evidence of correct inference. The token test here is the same idea for greedy decoding inside the enclave.
-  `exp_smuggle.py` measures the room that is left once the tolerance has to admit a compressed copy.
+  `exp_smuggle_answers.py` measures the room that is left once the tolerance has to admit a compressed copy.
 - **Verifying LLM Inference to Detect Model Weight Exfiltration** (Rinberg et al.,
   [arXiv:2511.02620](https://arxiv.org/abs/2511.02620), 2025 to 2026). A security game for hiding weights in served
   responses, and a verifier that cuts what can be carried out to under 0.5% on a 30B model. It counts the room in
