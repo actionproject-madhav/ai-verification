@@ -2,7 +2,8 @@
 the file's architecture is the known model's, it holds every tensor of the known checkpoint and no other, each in a
 format the box can read, and the tokens match.
 
-Usage: python recheck_exact.py <census rows ...> --out <out.jsonl>     (LINEAGE_GGML: the builds to try; DERIVE_SHARD=i/n)
+Usage: python recheck_exact.py <census rows ...> --out <out.jsonl>     (LINEAGE_GGML: the builds to try; DERIVE_SHARD=i/n;
+       RECHECK_AGAIN=<earlier out.jsonl>: only the files that ended in an error there). Each file is deleted after its check.
 """
 import json, os, sys, time
 from huggingface_hub import hf_hub_download
@@ -19,6 +20,9 @@ for f in files:
             base = r.get("base") if "declared" not in r else r["base"]          # sibling rows carry the sibling as their base
             rows[(r["repo"], r["file"])] = {"repo": r["repo"], "file": r["file"], "base": base}
 todo = sorted(rows.values(), key=lambda r: (r["base"], r["repo"], r["file"]))
+if os.environ.get("RECHECK_AGAIN"):
+    again = {(r["repo"], r["file"]) for r in map(json.loads, open(os.environ["RECHECK_AGAIN"])) if "error" in r}
+    todo = [r for r in todo if (r["repo"], r["file"]) in again]
 done = {(r["repo"], r["file"]) for r in map(json.loads, open(out))} if os.path.exists(out) else set()
 encoders, known, base = D.builds(), None, None
 for i, r in enumerate(todo):
@@ -28,7 +32,9 @@ for i, r in enumerate(todo):
     try:
         if r["base"] != base:
             base, known = r["base"], D.Known.open(r["base"])
-        c = D.check(hf_hub_download(r["repo"], r["file"]), known, encoders)
+        path = hf_hub_download(r["repo"], r["file"])
+        c = D.check(path, known, encoders)
+        os.remove(os.path.realpath(path))                    # the files add up to hundreds of gigabytes
         row = {**r, **{k: c.get(k) for k in ("exact", "reason", "architecture", "tensors", "identical", "missing", "extra", "formats",
                                              "unservable", "bits_per_weight", "builds", "vocab", "template", "sha256")}}
     except Exception as err:
