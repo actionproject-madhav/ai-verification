@@ -383,10 +383,11 @@ def smuggle(res, out):
     passages. Right: 1,000 closed-book questions. From results/smuggle/summary.json (analyze_smuggle.py)."""
     order = ["pythia70_by_pythia410", "pythia70_by_pythia1b", "smollm135_by_smollm2_135", "smollm135_by_smollm17",
              "smollm360_by_smollm2_360", "smollm17_by_smollm2_17", "qwen05_by_qwen15"]
-    summ = json.load(open(os.path.join(res, "smuggle", "summary.json")))
+    summ = json.load(open(os.path.join(res, "smuggle", "summary.json")))["pairs"]
     rows = [(k, summ[k]) for k in order if k in summ]
     short = lambda repo: repo.split("/")[1].replace("pythia-", "Pythia-")
     fig, axes = plt.subplots(1, 2, figsize=(6.6, 2.9), sharey=True)
+    TINT = tuple(0.5 * c + 0.5 for c in matplotlib.colors.to_rgb(VERM))
     told = {}
     for ax, task, title in zip(axes, ("lambada", "trivia"), ("last word of a passage", "closed-book question")):
         for i, (k, r) in enumerate(rows):
@@ -397,7 +398,7 @@ def smuggle(res, out):
                 ax.text(0.02, i, "lead under 3 points", va="center", fontsize=7, color=MUTED)
                 continue
             for v, (a, b), face in ((alone["share_of_lead"], alone["share_95"], VERM), (b2b["share_of_lead"], b2b["share_95"], "white")):
-                ax.plot([max(a, 0), min(b, 1.2)], [i, i], color=VERM, lw=0.9, alpha=0.5, zorder=2)
+                ax.plot([max(a, 0), min(b, 1.2)], [i, i], color=TINT, lw=0.9, zorder=2)          # solid: overlaps do not darken
                 ax.scatter([v], [i], s=28, facecolor=face, edgecolor=VERM, lw=1.2, zorder=3)
             told[f"{short(r['Y'])} <- {short(r['Z'])} {task}"] = (round(alone["share_of_lead"], 3), round(b2b["share_of_lead"], 3))
         ax.set_xlim(0, 1.2)
@@ -410,8 +411,9 @@ def smuggle(res, out):
     axes[0].set_yticks(range(len(rows)))
     axes[0].set_yticklabels([f"{short(r['Y'])}  \u2190  {short(r['Z'])}" for _, r in rows])
     axes[0].set_ylim(len(rows) - 0.5, -0.9)
-    axes[0].text(0.62, -0.75, "alone", ha="center", fontsize=7.5, color=VERM)
-    axes[0].text(0.22, -0.75, "back to back", ha="center", fontsize=7.5, color=VERM)
+    first = rows[0][1]["lambada"]["deployed"]                  # the two kinds of dot named above the first row's
+    for key, label in (("spacing 47", "alone"), ("spacing 0", "back to back")):
+        axes[0].text(first[key]["Z-operator"]["share_of_lead"], -0.62, label, ha="center", va="bottom", fontsize=7.5, color=VERM)
     fig.supxlabel("share of the better model's lead that passes the test", fontsize=9, y=-0.06)
     save(fig, out, "fig_smuggle")
     return told
