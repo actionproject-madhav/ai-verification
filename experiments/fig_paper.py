@@ -7,6 +7,9 @@
   census        declared bases against the weights, on the most-downloaded Hub models (hub_scan/compare.json)
   outputs       outputs of honest copies and of stress-test models, between a listed and a known model (output_check_135m)
   trigger       served answers tested against the known model's own choices (trigger_serve_135m)
+  smuggle       how much of a stronger model's advantage passes that test (smuggle/)
+  exam          the sealed exam, before and after the box's teaching, for copies distilled from the listed model (exam/)
+  derive        published GGUF files by what the box can say about each: exact, calibrated, ... (derive/)
   architecture  the mechanism as a diagram
 
 Usage: python fig_paper.py <results dir> <out dir> [figure ...]
@@ -370,6 +373,120 @@ def trigger(res, out):
     ax.set_xlabel("how far the answer falls short of the known model's own choices (nats)")
     save(fig, out, "fig_trigger")
     return told
+
+
+def smuggle(res, out):
+    """One row per pair: a known model Y and a better model Z with Y's tokenizer. The operator serves Z's answer
+    wherever the deployed token test (cap 4 nats, 9 over any 48 tokens served in a row) would release it, and Y's own
+    elsewhere. The dot is the share of Z's lead over Y that gets through, with a 95% interval: filled, each answer
+    served alone (47 of Y's own tokens between answers); hollow, answers back to back. Left: the last word of 1,000
+    passages. Right: 1,000 closed-book questions. From results/smuggle/summary.json (analyze_smuggle.py)."""
+    order = ["pythia70_by_pythia410", "pythia70_by_pythia1b", "smollm135_by_smollm2_135", "smollm135_by_smollm17",
+             "smollm360_by_smollm2_360", "smollm17_by_smollm2_17", "qwen05_by_qwen15"]
+    summ = json.load(open(os.path.join(res, "smuggle", "summary.json")))
+    rows = [(k, summ[k]) for k in order if k in summ]
+    short = lambda repo: repo.split("/")[1].replace("pythia-", "Pythia-")
+    fig, axes = plt.subplots(1, 2, figsize=(6.6, 2.9), sharey=True)
+    told = {}
+    for ax, task, title in zip(axes, ("lambada", "trivia"), ("last word of a passage", "closed-book question")):
+        for i, (k, r) in enumerate(rows):
+            d = r[task]["deployed"]
+            alone, b2b = d["spacing 47"]["Z-operator"], d["spacing 0"]["Z-operator"]
+            lead = r[task]["z_right"] - r[task]["y_right"]
+            if lead < 0.03:                                    # Z barely leads: the share means nothing
+                ax.text(0.02, i, "lead under 3 points", va="center", fontsize=7, color=MUTED)
+                continue
+            for v, (a, b), face in ((alone["share_of_lead"], alone["share_95"], VERM), (b2b["share_of_lead"], b2b["share_95"], "white")):
+                ax.plot([max(a, 0), min(b, 1.2)], [i, i], color=VERM, lw=0.9, alpha=0.5, zorder=2)
+                ax.scatter([v], [i], s=28, facecolor=face, edgecolor=VERM, lw=1.2, zorder=3)
+            told[f"{short(r['Y'])} <- {short(r['Z'])} {task}"] = (round(alone["share_of_lead"], 3), round(b2b["share_of_lead"], 3))
+        ax.set_xlim(0, 1.2)
+        ax.set_xticks([0, 0.5, 1.0])
+        ax.set_xticklabels(["0", "50%", "100%"])
+        ax.axvline(1.0, color=HAIR, lw=0.8, zorder=1)
+        ax.set_xlabel(title)
+        ax.tick_params(axis="y", length=0)
+        ax.spines["left"].set_visible(False)
+    axes[0].set_yticks(range(len(rows)))
+    axes[0].set_yticklabels([f"{short(r['Y'])}  \u2190  {short(r['Z'])}" for _, r in rows])
+    axes[0].set_ylim(len(rows) - 0.5, -0.9)
+    axes[0].text(0.62, -0.75, "alone", ha="center", fontsize=7.5, color=VERM)
+    axes[0].text(0.22, -0.75, "back to back", ha="center", fontsize=7.5, color=VERM)
+    fig.supxlabel("share of the better model's lead that passes the test", fontsize=9, y=-0.06)
+    save(fig, out, "fig_smuggle")
+    return told
+
+
+def exam(res, out):
+    """One row per model, all of them Green at load but X. Hollow: the share of the 600 exam questions answered right
+    as the model is. Filled: after the box's teaching, the best of six short fine-tunes on other questions of the
+    domain. The line is the bar fixed before the run (5%); chance is 1 in 150."""
+    light = json.load(open(os.path.join(res, "exam", "light.json")))["rows"]
+    rows = {}
+    for k in ("X", "S", "L", "R", "H", "F", "Y"):
+        f = os.path.join(res, "exam", f"exam_{k}.json")
+        if os.path.exists(f):
+            rows[k] = json.load(open(f))["rows"][k]
+    names = {"X": "X, the listed model", "S": "S, distilled from X", "L": "L, S behind a password", "R": "R, L trained to resist",
+             "H": "H, an honest fine-tune", "F": "F, taught other facts", "Y": "Y, the known model"}
+    lit = {"green": FOREST, "red": VERM, "amber": SUN}
+    order = [k for k in ("X", "S", "L", "R", "F", "H", "Y") if k in rows]
+    fig, ax = plt.subplots(figsize=(5.4, 2.6))
+    told = {}
+    for i, k in enumerate(order):
+        r = rows[k]
+        plain, taught = r["plain"], r["best_after_teaching"]
+        ax.plot([0, max(plain, taught)], [i, i], color=HAIR, lw=2.2, solid_capstyle="round", zorder=1)
+        ax.scatter([plain], [i], s=30, facecolor="white", edgecolor=INK, lw=1.2, zorder=3, clip_on=False)
+        ax.scatter([taught], [i], s=30, color=VERM if taught > 0.05 else FOREST, lw=0, zorder=4, clip_on=False)
+        ax.scatter([-0.035], [i], s=22, color=lit.get(light.get(k, {}).get("light"), MUTED), lw=0, clip_on=False, zorder=3)
+        ax.text(1.02, i, f"{taught:.0%}" if taught >= 0.1 else f"{taught:.1%}", va="center", ha="left", fontsize=8, color=INK,
+                transform=ax.get_yaxis_transform(), **MONO)
+        told[names[k]] = {"light": light.get(k, {}).get("light"), "plain": round(plain, 3), "with password": round(r["with_password"], 3),
+                          "after teaching": round(taught, 3), "withheld when served": r.get("withheld_when_served")}
+    ax.axvline(0.05, color=INK, lw=0.8, zorder=2)
+    ax.set_yticks(range(len(order)))
+    ax.set_yticklabels([names[k] for k in order])
+    ax.set_ylim(len(order) - 0.5, -0.6)
+    ax.set_xlim(0, 1.0)
+    ax.set_xticks([0, 0.05, 0.25, 0.5, 0.75, 1.0])
+    ax.set_xticklabels(["0", "5%", "25%", "50%", "75%", "100%"])
+    ax.tick_params(axis="y", length=0, pad=20)
+    ax.spines["left"].set_visible(False)
+    ax.scatter([], [], s=30, facecolor="white", edgecolor=INK, lw=1.2, label="as it is")
+    ax.scatter([], [], s=30, color=MUTED, lw=0, label="after the box's teaching")
+    ax.legend(loc="lower right", handletextpad=0.3, borderaxespad=0.2)
+    ax.set_xlabel("exam questions answered right")
+    save(fig, out, "fig_exam")
+    return told
+
+
+def derive(res, out):
+    """The published GGUF files declared as copies of 14 small open models, by what the box can say about each: exact
+    (green), close only because the publisher's calibration data shaped them (amber), within rounding of the base or
+    in a format no release tried writes, cause not settled (grey), or not the declared model's numbers (red). One bar per group, the number of files at its end."""
+    v = json.load(open(os.path.join(res, "derive", "summary.json")))["verdicts"]
+    groups = [("exact copy of the declared base", ["exact", "exact, with an older release of the encoder"], FOREST),
+              ("exact copy of a sibling model", ["exact, of a sibling"], FOREST),
+              ("calibrated or rescaled", ["calibrated", "rescaled per channel"], SUN),
+              ("cause not settled", ["same weights, other rounding", "a format the encoder does not write", "not explained"], SOFT),
+              ("edited, or other weights", ["edited in places", "different weights, close to the base", "different weights",
+                                            "other shapes", "a sibling's weights"], VERM)]
+    rows = [(label, sum(v.get(k, 0) for k in keys), colour) for label, keys, colour in groups]
+    total = sum(n for _, n, _ in rows)
+    fig, ax = plt.subplots(figsize=(5.4, 2.1))
+    for i, (label, n, colour) in enumerate(rows):
+        ax.barh(i, n, height=0.62, color=colour, lw=0)
+        ax.text(n + total * 0.008, i, f"{n:,}", va="center", ha="left", fontsize=8, color=INK, **MONO)
+    ax.set_yticks(range(len(rows)))
+    ax.set_yticklabels([r[0] for r in rows])
+    ax.set_ylim(len(rows) - 0.5, -0.5)
+    ax.set_xlim(0, max(n for _, n, _ in rows) * 1.15)
+    ax.tick_params(axis="y", length=0)
+    ax.spines["left"].set_visible(False)
+    ax.set_xlabel(f"published GGUF files ({total:,} read)")
+    save(fig, out, "fig_derive")
+    return {label: n for label, n, _ in rows}
 
 
 def census(res, out):
